@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mushroom Match ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0a0614; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
+        canvas { display:block; }
+
+        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:none; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent); pointer-events:none; }
+        #ui > * { pointer-events:auto; }
+        .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
+        .stat { color:#f0d0ff; font-size:13px; font-weight:600; }
+        .stat-val { color:#ff96c8; font-size:17px; font-weight:700; }
+        .back-btn { color:#b496ff; text-decoration:none; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+
+        #start-screen { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(10,6,20,0.97); z-index:100; display:flex; justify-content:center; align-items:center; flex-direction:column; cursor:pointer; }
+        #start-screen h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:50px; margin-bottom:8px; text-shadow:0 0 30px rgba(255,150,200,0.5); }
+        .bounce-row { display:flex; gap:6px; font-size:50px; margin:14px 0; }
+        .bounce-row span { display:inline-block; animation:tileBounce 1.4s ease-in-out infinite; }
+        .bounce-row span:nth-child(1){animation-delay:0s} .bounce-row span:nth-child(2){animation-delay:0.15s}
+        .bounce-row span:nth-child(3){animation-delay:0.3s} .bounce-row span:nth-child(4){animation-delay:0.45s}
+        .bounce-row span:nth-child(5){animation-delay:0.6s} .bounce-row span:nth-child(6){animation-delay:0.75s}
+        @keyframes tileBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+        .tap-text { color:#b496ff; font-size:20px; font-weight:600; margin-top:18px; animation:fadeInOut 2s ease-in-out infinite; }
+        @keyframes fadeInOut { 0%,100%{opacity:0.4} 50%{opacity:1} }
+        .start-sub { color:#9080b0; font-size:13px; margin-top:8px; }
+        .start-hint { color:#605070; font-size:13px; margin-top:18px; line-height:2.1; text-align:center; }
+
+        #game-over { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(5,3,10,0.92); z-index:100; justify-content:center; align-items:center; flex-direction:column; }
+        #game-over.active { display:flex; }
+        #game-over h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:44px; margin-bottom:8px; text-shadow:0 0 30px rgba(255,150,200,0.4); }
+        #game-over .final-score { font-size:62px; font-weight:700; color:#ffffa0; margin:10px 0; text-shadow:0 0 20px rgba(255,255,160,0.3); }
+        #game-over .gostats { color:#b496ff; font-size:15px; margin-bottom:24px; line-height:2; text-align:center; }
+        #game-over button { padding:12px 30px; border-radius:25px; border:none; background:linear-gradient(135deg,#ff96c8,#b496ff); color:#0a0614; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin:5px; transition:transform 0.2s; }
+        #game-over button:hover { transform:scale(1.05); }
+        #game-over .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
+
+        #level-banner { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:50; font-family:'Pacifico',cursive; color:#ff96c8; font-size:44px; text-shadow:0 0 40px rgba(255,150,200,0.8); pointer-events:none; text-align:center; white-space:nowrap; }
+
+        #combo-pop { position:fixed; top:35%; left:50%; transform:translate(-50%,-50%); z-index:50; font-family:'Pacifico',cursive; color:#ffffa0; font-size:34px; text-shadow:0 0 28px rgba(255,255,150,0.9); pointer-events:none; display:none; }
+        @keyframes comboPop { 0%{opacity:1;transform:translate(-50%,-50%) scale(0.8)} 30%{opacity:1;transform:translate(-50%,-70%) scale(1.15)} 100%{opacity:0;transform:translate(-50%,-100%) scale(1)} }
+    </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="start-screen" onclick="startGame()">
+    <h1>Mushroom Match</h1>
+    <div class="bounce-row">
+        <span>🍄</span><span>🐝</span><span>🧚</span><span>🌙</span><span>⭐</span><span>🔮</span>
+    </div>
+    <div class="tap-text">Tap to Play</div>
+    <div class="start-sub">Match 3 or more in a row or column!</div>
+    <div class="start-hint">
+        <span style="color:#b496ff;">Click</span> a tile then click an adjacent tile to swap<br>
+        Longer chains = more points + <span style="color:#ffffa0;">combo bonuses</span><br>
+        Hit the target score before your moves run out!
+    </div>
+</div>
+
+<div id="ui">
+    <div class="ui-left">
+        <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
+        <div class="stat">✨ <span class="stat-val" id="score-disp">0</span></div>
+    </div>
+    <div class="ui-right">
+        <div class="stat">Lv <span class="stat-val" id="level-disp">1</span></div>
+        <div class="stat">Goal <span class="stat-val" id="target-disp">1000</span></div>
+        <div class="stat">Moves <span class="stat-val" id="moves-disp">30</span></div>
+    </div>
+</div>
+
+<div id="level-banner"></div>
+<div id="combo-pop"></div>
+
+<div id="game-over">
+    <h1>Out of Moves!</h1>
+    <div class="final-score" id="final-score">0</div>
+    <div class="gostats" id="final-stats"></div>
+    <button onclick="startGame()">Play Again ✦</button>
+    <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
+</div>
+
+<script>
+window.onerror = function(msg,u,line){ document.body.innerHTML='<div style="color:#ff96c8;padding:40px;font-size:15px;">ERROR: '+msg+'<br>Line '+line+'</div>'; };
+
+// ── Constants ──────────────────────────────────────────────────────────────────
+var COLS = 8, ROWS = 8;
+var TILE_EMO = ['🍄','🐝','🧚','🌙','⭐','🔮'];
+var TILE_CLR = ['#ff7744','#ffcc33','#ff96c8','#aa88ff','#ffffa0','#66ccff'];
+
+// ── Canvas ─────────────────────────────────────────────────────────────────────
+var canvas = document.getElementById('game');
+var ctx    = canvas.getContext('2d');
+var W, H, CELL, GX, GY;
+
+function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    W = canvas.width; H = canvas.height;
+    CELL = Math.min(64, Math.floor(Math.min((W - 40) / COLS, (H - 160) / ROWS)));
+    GX   = Math.floor((W - COLS * CELL) / 2);
+    GY   = Math.floor(55 + (H - 55 - ROWS * CELL) / 2);
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── State variables ────────────────────────────────────────────────────────────
+var gameState = 'start'; // start|idle|swapping|removing|falling|levelup|gameover
+var grid = [];   // grid[r][c] = tile type 0-5
+var visY = [];   // visY[r][c] = pixel y-offset for falling animation
+var visSc= [];   // visSc[r][c] = scale for removal animation (1→0)
+var visAl= [];   // visAl[r][c] = alpha for removal animation (1→0)
+
+var selR = -1, selC = -1;  // selected tile
+
+// Swap animation
+var swAnim = null; // {r1,c1,r2,c2, t, dur, dx,dy, forward}
+
+// Removal
+var removList = []; // [{r,c}] being removed
+var removT = 0;
+
+// Scores / level
+var score = 0, moves = 0, maxMoves = 30, level = 1, targetScore = 1000;
+var comboCount = 0;
+var savedScore = false;
+var bannerTimer = 0;
+
+// Particles + bg
+var particles = [];
+var bgStars   = [];
+var gameTime  = 0;
+var lastTS    = 0;
+
+// ── Grid helpers ───────────────────────────────────────────────────────────────
+function rndTile() { return Math.floor(Math.random() * TILE_EMO.length); }
+
+function initGrid() {
+    grid = []; visY = []; visSc = []; visAl = [];
+    for (var r = 0; r < ROWS; r++) {
+        grid[r]=[]; visY[r]=[]; visSc[r]=[]; visAl[r]=[];
+        for (var c = 0; c < COLS; c++) {
+            var t;
+            do { t = rndTile(); }
+            while (
+                (c >= 2 && grid[r][c-1] === t && grid[r][c-2] === t) ||
+                (r >= 2 && grid[r-1][c] === t && grid[r-2][c] === t)
+            );
+            grid[r][c] = t;
+            visY[r][c] = 0; visSc[r][c] = 1; visAl[r][c] = 1;
+        }
+    }
+}
+
+// ── Match detection ────────────────────────────────────────────────────────────
+function findMatches() {
+    var mark = [];
+    for (var r = 0; r < ROWS; r++) { mark[r]=[]; for (var c=0;c<COLS;c++) mark[r][c]=false; }
+
+    for (var r = 0; r < ROWS; r++) {                 // horizontal
+        for (var c = 0; c < COLS-2; c++) {
+            if (grid[r][c] < 0) continue;
+            var t = grid[r][c];
+            if (grid[r][c+1]===t && grid[r][c+2]===t) {
+                var cc=c; while(cc<COLS && grid[r][cc]===t){ mark[r][cc]=true; cc++; }
+            }
+        }
+    }
+    for (var c = 0; c < COLS; c++) {                 // vertical
+        for (var r = 0; r < ROWS-2; r++) {
+            if (grid[r][c] < 0) continue;
+            var t = grid[r][c];
+            if (grid[r+1][c]===t && grid[r+2][c]===t) {
+                var rr=r; while(rr<ROWS && grid[rr][c]===t){ mark[rr][c]=true; rr++; }
+            }
+        }
+    }
+    var out = [];
+    for (var r=0;r<ROWS;r++) for(var c=0;c<COLS;c++) if(mark[r][c]) out.push({r:r,c:c});
+    return out;
+}
+
+// ── Apply matches (start removal anim) ────────────────────────────────────────
+function applyMatches(matched) {
+    var pts = matched.length * 20 * Math.max(1, 1 + (comboCount-1) * 0.6);
+    score  += Math.round(pts);
+    comboCount++;
+    if (comboCount > 1) showCombo(comboCount);
+
+    for (var i=0; i<matched.length; i++) {
+        var r=matched[i].r, c=matched[i].c;
+        spawnBurst(GX + c*CELL + CELL/2, GY + r*CELL + CELL/2, TILE_CLR[grid[r][c]], 7);
+        visSc[r][c] = 1; visAl[r][c] = 1;
+    }
+    removList = matched;
+    removT    = 0.28;
+    gameState = 'removing';
+    updateHUD();
+}
+
+// ── Gravity + refill ───────────────────────────────────────────────────────────
+function applyGravity() {
+    for (var c=0; c<COLS; c++) {
+        // collect non-empty tiles bottom-up
+        var col = [];
+        for (var r=ROWS-1; r>=0; r--) if (grid[r][c]>=0) col.push(grid[r][c]);
+        // fill new tiles at top
+        while (col.length < ROWS) col.push(rndTile());
+        // place back, compute visual offsets
+        for (var r=ROWS-1; r>=0; r--) {
+            var srcRow = ROWS - 1 - (ROWS-1-r); // same as r
+            var newType = col[ROWS-1-r];
+            var wasAt   = -1; // original row of this tile (if it was a falling tile)
+            // find where this tile was
+            var tileIdx = ROWS-1-r;
+            if (tileIdx < col.length) {
+                // look at original grid to determine fall distance
+            }
+            grid[r][c]  = newType;
+            visY[r][c]  = 0;
+            visSc[r][c] = 1;
+            visAl[r][c] = 1;
+        }
+    }
+    // Now compute fall offsets properly
+    // Re-approach: store original non-empty tiles per column with their row
+    // Redo with correct offsets
+    _applyGravityWithOffsets();
+}
+
+function _applyGravityWithOffsets() {
+    for (var c=0; c<COLS; c++) {
+        // gather existing tiles (top to bottom) with their row indices
+        var existing = [];
+        for (var r=0; r<ROWS; r++) if (grid[r][c]>=0) existing.push({type:grid[r][c], fromRow:r});
+        var gaps = ROWS - existing.length;
+
+        // place existing tiles at bottom, new tiles at top
+        for (var r=0; r<ROWS; r++) {
+            if (r < gaps) {
+                // new tile from above — starts offscreen
+                grid[r][c]  = rndTile();
+                visY[r][c]  = -(r+1)*CELL;  // starts above grid
+                visSc[r][c] = 1; visAl[r][c] = 1;
+            } else {
+                var ex  = existing[r - gaps];
+                var fallDist = r - ex.fromRow;   // how many cells it falls
+                grid[r][c]  = ex.type;
+                visY[r][c]  = -fallDist * CELL;  // above current position
+                visSc[r][c] = 1; visAl[r][c] = 1;
+            }
+        }
+    }
+    gameState = 'falling';
+}
+
+// ── Swap ───────────────────────────────────────────────────────────────────────
+function startSwap(r1,c1,r2,c2) {
+    swAnim = { r1:r1,c1:c1,r2:r2,c2:c2, t:0, dur:0.16,
+               dx:(c2-c1)*CELL, dy:(r2-r1)*CELL, forward:true };
+    gameState = 'swapping';
+}
+
+// ── Input ──────────────────────────────────────────────────────────────────────
+function handleClick(px, py) {
+    if (gameState !== 'idle') return;
+    var c = Math.floor((px - GX) / CELL);
+    var r = Math.floor((py - GY) / CELL);
+    if (c<0||c>=COLS||r<0||r>=ROWS) { selR=-1; selC=-1; return; }
+
+    if (selR === -1) {
+        selR = r; selC = c;
+    } else {
+        var dr = Math.abs(r-selR), dc = Math.abs(c-selC);
+        if (dr+dc === 1) {
+            var r1=selR, c1=selC; selR=-1; selC=-1;
+            moves--; updateHUD();
+            startSwap(r1,c1,r,c);
+        } else if (r===selR && c===selC) {
+            selR=-1; selC=-1;
+        } else {
+            selR=r; selC=c;
+        }
+    }
+}
+
+canvas.addEventListener('click', function(e){
+    var rect=canvas.getBoundingClientRect();
+    handleClick(e.clientX-rect.left, e.clientY-rect.top);
+});
+canvas.addEventListener('touchend', function(e){
+    e.preventDefault();
+    var rect=canvas.getBoundingClientRect(), t=e.changedTouches[0];
+    handleClick(t.clientX-rect.left, t.clientY-rect.top);
+},{passive:false});
+
+// ── HUD ────────────────────────────────────────────────────────────────────────
+function updateHUD() {
+    document.getElementById('score-disp').textContent  = score;
+    document.getElementById('level-disp').textContent  = level;
+    document.getElementById('target-disp').textContent = targetScore;
+    document.getElementById('moves-disp').textContent  = moves;
+}
+
+// ── Combo flash ────────────────────────────────────────────────────────────────
+function showCombo(n) {
+    var msgs = ['','','Combo!','Triple!','Quad!! ','Mega!! ','ULTRA!!!','COSMIC!!!'];
+    var el   = document.getElementById('combo-pop');
+    el.textContent  = (n < msgs.length ? msgs[n] : 'LEGENDARY!') + ' ×'+n;
+    el.style.display= 'block';
+    el.style.animation='none'; el.offsetHeight;
+    el.style.animation='comboPop 0.85s ease-out forwards';
+    setTimeout(function(){ el.style.display='none'; }, 900);
+}
+
+// ── Particles ──────────────────────────────────────────────────────────────────
+function spawnBurst(x, y, color, count) {
+    for (var i=0; i<count; i++) {
+        var a = Math.PI*2*i/count + Math.random()*0.6;
+        var spd = 55 + Math.random()*110;
+        particles.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,
+            life:1, maxLife:0.45+Math.random()*0.3, r:2+Math.random()*3, color:color});
+    }
+}
+
+// ── Easing ─────────────────────────────────────────────────────────────────────
+function easeOut(t) { return 1-(1-t)*(1-t); }
+function easeInOut(t) { return t<0.5?2*t*t:-1+(4-2*t)*t; }
+
+// ── Update ─────────────────────────────────────────────────────────────────────
+function update(dt) {
+
+    // Particles always
+    for (var pi=particles.length-1; pi>=0; pi--) {
+        var p=particles[pi];
+        p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=130*dt;
+        p.life-=dt/p.maxLife;
+        if (p.life<=0) particles.splice(pi,1);
+    }
+
+    // Level up banner wait
+    if (gameState==='levelup') {
+        bannerTimer-=dt;
+        if (bannerTimer<=0) {
+            document.getElementById('level-banner').style.display='none';
+            level++;
+            targetScore = Math.round(1000 * Math.pow(level, 1.5));
+            maxMoves    = 30 + level * 4;
+            moves       = maxMoves;
+            comboCount  = 0;
+            initGrid();
+            gameState = 'idle';
+            updateHUD();
+        }
+        return;
+    }
+
+    // Swap animation
+    if (gameState==='swapping') {
+        swAnim.t += dt;
+        if (swAnim.t >= swAnim.dur) {
+            if (!swAnim.forward) {
+                // back-swap done
+                swAnim = null; gameState = 'idle';
+            } else {
+                // forward swap done — commit the grid swap now
+                var r1=swAnim.r1,c1=swAnim.c1,r2=swAnim.r2,c2=swAnim.c2;
+                var tmp=grid[r1][c1]; grid[r1][c1]=grid[r2][c2]; grid[r2][c2]=tmp;
+                var m=findMatches();
+                if (m.length) {
+                    swAnim=null; comboCount=0; applyMatches(m);
+                } else {
+                    // no match — swap back, refund move
+                    moves++; updateHUD();
+                    var tmp2=grid[r1][c1]; grid[r1][c1]=grid[r2][c2]; grid[r2][c2]=tmp2;
+                    swAnim={r1:r1,c1:c1,r2:r2,c2:c2,t:0,dur:0.16,dx:(c2-c1)*CELL,dy:(r2-r1)*CELL,forward:false};
+                }
+            }
+        }
+        return;
+    }
+
+    // Removal animation
+    if (gameState==='removing') {
+        removT-=dt;
+        var prog=1-Math.max(removT/0.28,0);
+        for (var i=0;i<removList.length;i++) {
+            var rv=removList[i];
+            visSc[rv.r][rv.c]=1-prog;
+            visAl[rv.r][rv.c]=1-prog;
+        }
+        if (removT<=0) {
+            for (var i=0;i<removList.length;i++) grid[removList[i].r][removList[i].c]=-1;
+            removList=[];
+            _applyGravityWithOffsets();
+        }
+        return;
+    }
+
+    // Falling animation
+    if (gameState==='falling') {
+        var anyMoving=false;
+        var spd = CELL * 9;
+        for (var r=0;r<ROWS;r++) for(var c=0;c<COLS;c++) {
+            if (visY[r][c]!==0) {
+                anyMoving=true;
+                var step=spd*dt;
+                if (visY[r][c]<0) visY[r][c]=Math.min(visY[r][c]+step, 0);
+                else               visY[r][c]=Math.max(visY[r][c]-step, 0);
+            }
+        }
+        if (!anyMoving) {
+            // cascade check
+            var m2=findMatches();
+            if (m2.length) {
+                applyMatches(m2);
+            } else {
+                comboCount=0;
+                if (score>=targetScore) {
+                    var banner=document.getElementById('level-banner');
+                    banner.textContent='Level '+level+' Clear! ✦';
+                    banner.style.display='block';
+                    bannerTimer=2.0; gameState='levelup';
+                } else if (moves<=0) {
+                    endGame();
+                } else {
+                    gameState='idle';
+                }
+            }
+        }
+        return;
+    }
+
+    // Idle — check out-of-moves
+    if (gameState==='idle' && moves<=0) {
+        if (score>=targetScore) {
+            var banner=document.getElementById('level-banner');
+            banner.textContent='Level '+level+' Clear! ✦';
+            banner.style.display='block';
+            bannerTimer=2.0; gameState='levelup';
+        } else { endGame(); }
+    }
+}
+
+// ── Draw ───────────────────────────────────────────────────────────────────────
+function draw(t) {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0614'; ctx.fillRect(0,0,W,H);
+
+    // bg stars
+    for (var i=0;i<bgStars.length;i++) {
+        var s=bgStars[i];
+        ctx.globalAlpha=s.a*(0.5+0.5*Math.sin(t*0.7+s.ph));
+        ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    if (gameState==='start') return;
+
+    // Grid bg
+    var pad=5;
+    ctx.fillStyle='rgba(18,9,30,0.8)';
+    ctx.strokeStyle='rgba(180,150,255,0.1)'; ctx.lineWidth=1;
+    roundRect(GX-pad, GY-pad, COLS*CELL+pad*2, ROWS*CELL+pad*2, 14);
+    ctx.fill(); ctx.stroke();
+
+    // Grid lines
+    ctx.strokeStyle='rgba(180,150,255,0.05)';
+    for (var r=0;r<=ROWS;r++){ ctx.beginPath();ctx.moveTo(GX,GY+r*CELL);ctx.lineTo(GX+COLS*CELL,GY+r*CELL);ctx.stroke(); }
+    for (var c=0;c<=COLS;c++){ ctx.beginPath();ctx.moveTo(GX+c*CELL,GY);ctx.lineTo(GX+c*CELL,GY+ROWS*CELL);ctx.stroke(); }
+
+    // Progress bar
+    var barW=COLS*CELL, barH=5, barX=GX, barY=GY-14;
+    ctx.fillStyle='rgba(30,15,50,0.9)';
+    roundRect(barX,barY,barW,barH,3); ctx.fill();
+    var pct=Math.min(score/targetScore,1);
+    if (pct>0) {
+        var grd=ctx.createLinearGradient(barX,0,barX+barW,0);
+        grd.addColorStop(0,'#ff96c8'); grd.addColorStop(1,'#b496ff');
+        ctx.fillStyle=grd; ctx.shadowColor='#ff96c8'; ctx.shadowBlur=8;
+        roundRect(barX,barY,barW*pct,barH,3); ctx.fill(); ctx.shadowBlur=0;
+    }
+
+    // Swap animation factor
+    var swProg=0, swFactor=0;
+    if (swAnim) {
+        swProg = Math.min(swAnim.t/swAnim.dur,1);
+        swFactor = swAnim.forward ? easeInOut(swProg) : easeInOut(1-swProg);
+    }
+
+    // Tiles
+    var emoSize = Math.floor(CELL*0.58);
+    ctx.font = emoSize+'px serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+
+    for (var r=0;r<ROWS;r++) {
+        for (var c=0;c<COLS;c++) {
+            var type=grid[r][c];
+            if (type<0) continue;
+
+            var cx = GX + c*CELL + CELL/2;
+            var cy = GY + r*CELL + CELL/2 + visY[r][c];
+            var sc = visSc[r][c];
+            var al = visAl[r][c];
+
+            // swap offset
+            if (swAnim) {
+                if (r===swAnim.r1&&c===swAnim.c1){ cx+=swAnim.dx*swFactor; cy+=swAnim.dy*swFactor; }
+                else if(r===swAnim.r2&&c===swAnim.c2){ cx-=swAnim.dx*swFactor; cy-=swAnim.dy*swFactor; }
+            }
+
+            ctx.globalAlpha = al * (sc < 0.01 ? 0 : 1);
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(sc, sc);
+
+            // selected highlight
+            var isSel = (r===selR && c===selC);
+            if (isSel) {
+                ctx.shadowColor='#ff96c8'; ctx.shadowBlur=22;
+                ctx.fillStyle='rgba(255,150,200,0.18)';
+                rRect(-CELL/2+2,-CELL/2+2,CELL-4,CELL-4,8);
+                ctx.fill();
+            }
+
+            // tile glow + emoji
+            ctx.shadowColor=TILE_CLR[type];
+            ctx.shadowBlur=isSel?22:10;
+            ctx.fillText(TILE_EMO[type], 0, 2);
+            ctx.shadowBlur=0;
+            ctx.restore();
+            ctx.globalAlpha=1;
+        }
+    }
+
+    // Particles
+    for (var pi=0;pi<particles.length;pi++) {
+        var p=particles[pi];
+        ctx.globalAlpha=p.life*0.85;
+        ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=5;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+}
+
+// roundRect helpers
+function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+    ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+    ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+    ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+function rRect(x,y,w,h,r){ roundRect(x,y,w,h,r); }
+
+// ── Loop ───────────────────────────────────────────────────────────────────────
+function loop(ts) {
+    var dt = Math.min((ts - lastTS) / 1000, 0.05);
+    lastTS = ts;
+    if (gameState !== 'start') { gameTime += dt; update(dt); }
+    draw(gameTime);
+    requestAnimationFrame(loop);
+}
+
+// ── Start / End ────────────────────────────────────────────────────────────────
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-over').classList.remove('active');
+    document.getElementById('ui').style.display = 'flex';
+    score=0; level=1; moves=maxMoves=30; targetScore=1000;
+    comboCount=0; savedScore=false; particles=[]; swAnim=null; removList=[];
+    bgStars=[];
+    for (var i=0;i<80;i++) bgStars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.3,a:Math.random()*0.4+0.1,ph:Math.random()*Math.PI*2});
+    initGrid();
+    gameState='idle';
+    updateHUD();
+}
+
+function endGame() {
+    gameState='gameover';
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-stats').innerHTML   = 'Level '+level+'&nbsp;&nbsp;•&nbsp;&nbsp;Goal was '+targetScore;
+    document.getElementById('game-over').classList.add('active');
+    if (!savedScore) {
+        savedScore=true;
+        fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({game:'mushroom_match',score:score,details:{level:level}})
+        }).catch(function(){});
+    }
+}
+
+requestAnimationFrame(loop);
+</script>
+
+<!-- Bug report -->
+<div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;">
+    <button onclick="(function(){document.getElementById('bug-modal').style.display='flex';})()" style="background:rgba(10,6,20,0.75);border:1px solid rgba(180,150,255,0.25);color:#7060a0;font-family:'Quicksand',sans-serif;font-size:12px;padding:6px 16px;border-radius:20px;cursor:pointer;backdrop-filter:blur(6px);">🐛 report a bug</button>
+</div>
+<div id="bug-modal" style="display:none;position:fixed;inset:0;background:rgba(5,3,10,0.85);z-index:10000;justify-content:center;align-items:center;backdrop-filter:blur(4px);">
+    <div style="background:linear-gradient(135deg,#1a1030,#0d0820);border:1px solid rgba(180,150,255,0.2);border-radius:20px;padding:32px;width:380px;max-width:92vw;">
+        <h3 style="font-family:'Pacifico',cursive;color:#ff96c8;margin-bottom:12px;">Report a Bug</h3>
+        <textarea id="bug-desc" placeholder="What went wrong?" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(180,150,255,0.2);background:rgba(20,12,35,0.8);color:#f0d0ff;font-family:'Quicksand',sans-serif;font-size:14px;resize:vertical;min-height:100px;margin-bottom:14px;"></textarea>
+        <div style="display:flex;gap:10px;">
+            <button onclick="(function(){var d=document.getElementById('bug-desc').value.trim();if(!d)return;var body='Page: '+window.location.pathname+'%0A%0A'+encodeURIComponent(d);window.open('mailto:crissyhazelwood@gmail.com?subject=Pixie+Portal+Bug+Report&body='+body);document.getElementById('bug-modal').style.display='none';document.getElementById('bug-desc').value='';})()" style="flex:1;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Send 🐛</button>
+            <button onclick="document.getElementById('bug-modal').style.display='none'" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(180,150,255,0.3);background:transparent;color:#b496ff;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
