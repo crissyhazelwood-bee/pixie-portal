@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spellbook ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0a0614; overflow:hidden; font-family:'Quicksand',sans-serif; cursor:none; }
+        canvas { display:block; }
+
+        #ui {
+            position:fixed; top:0; left:0; right:0;
+            padding:10px 20px;
+            display:flex; justify-content:space-between; align-items:center;
+            z-index:10;
+            background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent);
+            pointer-events:none;
+        }
+        #ui > * { pointer-events:auto; }
+        .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
+        .stat { color:#f0d0ff; font-size:14px; font-weight:600; }
+        .stat-val { color:#ff96c8; font-size:18px; font-weight:700; }
+        .back-btn {
+            color:#b496ff; text-decoration:none; font-size:13px; cursor:pointer;
+            padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+        .clear-btn {
+            color:#96ffdc; text-decoration:none; font-size:13px; cursor:pointer;
+            padding:6px 14px; border:1px solid rgba(150,255,220,0.3); border-radius:20px;
+            background:transparent; font-family:'Quicksand',sans-serif; font-weight:600;
+            transition: all 0.2s;
+        }
+        .clear-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+
+        #spell-bar {
+            position:fixed; bottom:0; left:0; right:0;
+            display:flex; justify-content:center; align-items:center; gap:0;
+            padding:10px 20px 16px;
+            background:linear-gradient(0deg,rgba(10,6,20,0.95),rgba(10,6,20,0.6),transparent);
+            z-index:10;
+            pointer-events:none;
+        }
+        #spell-bar > * { pointer-events:auto; }
+
+        .spell-slot {
+            display:flex; flex-direction:column; align-items:center; gap:4px;
+            padding:8px 14px;
+            border-radius:14px;
+            cursor:pointer;
+            transition: all 0.2s;
+            border:2px solid transparent;
+            position:relative;
+        }
+        .spell-slot:hover { background:rgba(180,150,255,0.15); }
+        .spell-slot.active {
+            border-color:#ff96c8;
+            background:rgba(255,150,200,0.12);
+            box-shadow:0 0 18px rgba(255,150,200,0.35), 0 0 40px rgba(255,150,200,0.1);
+        }
+        .spell-icon { font-size:28px; line-height:1; }
+        .spell-name {
+            font-size:10px; color:#b496ff; font-weight:600;
+            letter-spacing:0.5px; text-transform:uppercase;
+        }
+        .spell-slot.active .spell-name { color:#ff96c8; }
+        .spell-key {
+            position:absolute; top:-2px; right:4px;
+            font-size:9px; color:rgba(180,150,255,0.5); font-weight:700;
+        }
+
+        @keyframes glowPulse {
+            0%,100% { box-shadow:0 0 18px rgba(255,150,200,0.35), 0 0 40px rgba(255,150,200,0.1); }
+            50% { box-shadow:0 0 24px rgba(255,150,200,0.55), 0 0 50px rgba(255,150,200,0.2); }
+        }
+        .spell-slot.active { animation: glowPulse 1.5s ease-in-out infinite; }
+
+        #title-hint {
+            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            color:rgba(180,150,255,0.5); font-family:'Pacifico',cursive; font-size:28px;
+            pointer-events:none; transition:opacity 1.5s; z-index:5;
+            text-shadow: 0 0 20px rgba(180,150,255,0.3);
+        }
+        #title-hint.hidden { opacity:0; }
+    </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="ui">
+    <div class="ui-left">
+        <a class="back-btn" onclick="window.location.href='/'">&#8592; Portal</a>
+        <button class="clear-btn" onclick="clearCanvas()">&#10060; Clear</button>
+    </div>
+    <div class="ui-right">
+        <div class="stat">&#10024; <span class="stat-val" id="score">0</span></div>
+    </div>
+</div>
+
+<div id="spell-bar">
+    <div class="spell-slot active" onclick="selectSpell(0)" id="spell-0">
+        <span class="spell-key">1</span>
+        <span class="spell-icon">&#129498;</span>
+        <span class="spell-name">Fairy Dust</span>
+    </div>
+    <div class="spell-slot" onclick="selectSpell(1)" id="spell-1">
+        <span class="spell-key">2</span>
+        <span class="spell-icon">&#11088;</span>
+        <span class="spell-name">Starfall</span>
+    </div>
+    <div class="spell-slot" onclick="selectSpell(2)" id="spell-2">
+        <span class="spell-key">3</span>
+        <span class="spell-icon">&#127752;</span>
+        <span class="spell-name">Aurora</span>
+    </div>
+    <div class="spell-slot" onclick="selectSpell(3)" id="spell-3">
+        <span class="spell-key">4</span>
+        <span class="spell-icon">&#9889;</span>
+        <span class="spell-name">Lightning</span>
+    </div>
+    <div class="spell-slot" onclick="selectSpell(4)" id="spell-4">
+        <span class="spell-key">5</span>
+        <span class="spell-icon">&#127756;</span>
+        <span class="spell-name">Nebula</span>
+    </div>
+    <div class="spell-slot" onclick="selectSpell(5)" id="spell-5">
+        <span class="spell-key">6</span>
+        <span class="spell-icon">&#10024;</span>
+        <span class="spell-name">Fireflies</span>
+    </div>
+    <div class="spell-slot" onclick="selectSpell(6)" id="spell-6">
+        <span class="spell-key">7</span>
+        <span class="spell-icon">&#128142;</span>
+        <span class="spell-name">Crystals</span>
+    </div>
+</div>
+
+<div id="title-hint">Hold & drag to paint magic...</div>
+
+<script>
+window.onerror = function(msg, url, line) {
+    document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
+    document.body.innerHTML = '<h1 style="color:red;font-size:16px;padding:40px;font-family:monospace;">ERROR: ' + msg + '<br>Line: ' + line + '</h1>';
+};
+// ============================================
+// CANVAS SETUP — Two layers
+// ============================================
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// Persistent paint layer — only cleared by the Clear button
+const paintCanvas = document.createElement('canvas');
+const paintCtx = paintCanvas.getContext('2d');
+
+let W, H;
+
+// ============================================
+// COMBO GRID — tracks which spells painted where
+// ============================================
+const CELL = 24;
+let gridW, gridH, spellGrid;
+
+function initGrid() {
+    gridW = Math.ceil(W / CELL);
+    gridH = Math.ceil(H / CELL);
+    spellGrid = new Uint8Array(gridW * gridH);
+}
+
+function resize() {
+    var temp = document.createElement('canvas');
+    temp.width = paintCanvas.width || 1;
+    temp.height = paintCanvas.height || 1;
+    temp.getContext('2d').drawImage(paintCanvas, 0, 0);
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    paintCanvas.width = W;
+    paintCanvas.height = H;
+    paintCtx.drawImage(temp, 0, 0);
+    initGrid();
+}
+resize();
+window.addEventListener('resize', resize);
+
+function markGrid(x, y, spell) {
+    const gx = Math.floor(x / CELL);
+    const gy = Math.floor(y / CELL);
+    if (gx < 0 || gx >= gridW || gy < 0 || gy >= gridH) return false;
+    const idx = gy * gridW + gx;
+    const bit = 1 << spell;
+    const old = spellGrid[idx];
+    if (old && !(old & bit)) {
+        spellGrid[idx] = old | bit;
+        return true;
+    }
+    spellGrid[idx] = old | bit;
+    return false;
+}
+
+// ============================================
+// STATE
+// ============================================
+let particles = [];
+let fusionBursts = [];
+let mouseX = W / 2, mouseY = H / 2;
+let prevMouseX = mouseX, prevMouseY = mouseY;
+let mouseDown = false;
+let currentSpell = 0;
+let totalStrokes = 0;
+let hintVisible = true;
+let bgStars = [];
+
+for (let i = 0; i < 100; i++) {
+    bgStars.push({
+        x: Math.random(), y: Math.random(),
+        r: Math.random() * 1.2 + 0.3,
+        a: Math.random() * 0.4 + 0.1,
+        twinkle: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.02 + 0.005
+    });
+}
+
+// ============================================
+// SPELL CONFIG
+// ============================================
+const SPELL_COLORS = [
+    ['#ff96c8','#d580ff','#ffb0d8','#e896ff','#ffc8e8','#c8a0ff'],
+    ['#ffd700','#ffec80','#fff0a0','#ffc040','#ffe066','#ffcc33'],
+    null,
+    ['#80c0ff','#a0d0ff','#ffffff','#60a0ff','#c0e0ff','#4090ff'],
+    ['#b060ff','#d080ff','#ff60c0','#8040d0','#e0a0ff','#ff80d0'],
+    ['#c0ff60','#ffe080','#ffd040','#a0e040','#e0ff80','#ffcc40'],
+    ['#a0d0ff','#c0e0ff','#e0f0ff','#80c0ff','#d0eaff','#96ffdc'],
+];
+const COMBO_COLORS = ['#ffffff','#ffffa0','#ff96c8','#96ffdc','#b496ff','#ffd700'];
+
+function pickColor(spell) {
+    const c = SPELL_COLORS[spell];
+    return c ? c[Math.floor(Math.random() * c.length)] : '#ffffff';
+}
+function rand(a, b) { return Math.random() * (b - a) + a; }
+
+// ============================================
+// SPELL SELECTION
+// ============================================
+function selectSpell(idx) {
+    currentSpell = idx;
+    document.querySelectorAll('.spell-slot').forEach(function(el, i) {
+        el.classList.toggle('active', i === idx);
+    });
+}
+window.addEventListener('keydown', function(e) {
+    var n = parseInt(e.key);
+    if (n >= 1 && n <= 7) selectSpell(n - 1);
+});
+
+// ============================================
+// INPUT
+// ============================================
+function getPos(e) {
+    prevMouseX = mouseX; prevMouseY = mouseY;
+    if (e.touches) { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; }
+    else { mouseX = e.clientX; mouseY = e.clientY; }
+}
+document.addEventListener('mousedown', function(e) { mouseDown = true; getPos(e); prevMouseX = mouseX; prevMouseY = mouseY; hideHint(); });
+document.addEventListener('mouseup', function() { mouseDown = false; });
+document.addEventListener('mousemove', getPos);
+document.addEventListener('touchstart', function(e) { mouseDown = true; getPos(e); prevMouseX = mouseX; prevMouseY = mouseY; hideHint(); }, {passive:true});
+document.addEventListener('touchend', function() { mouseDown = false; });
+document.addEventListener('touchmove', function(e) { getPos(e); }, {passive:true});
+
+function hideHint() {
+    if (hintVisible) { hintVisible = false; document.getElementById('title-hint').classList.add('hidden'); }
+}
+
+// ============================================
+// CLEAR
+// ============================================
+function clearCanvas() {
+    paintCtx.clearRect(0, 0, W, H);
+    particles = [];
+    fusionBursts = [];
+    initGrid();
+    totalStrokes = 0;
+}
+
+// ============================================
+// STAMP FUNCTIONS — draw persistent marks onto paintCanvas
+// ============================================
+function stampFairyDust(x, y) {
+    var col = pickColor(0);
+    var r = rand(2, 6);
+    paintCtx.save();
+    paintCtx.globalAlpha = rand(0.4, 0.8);
+    paintCtx.shadowColor = col;
+    paintCtx.shadowBlur = 12;
+    paintCtx.fillStyle = col;
+    paintCtx.beginPath();
+    paintCtx.arc(x, y, r, 0, Math.PI * 2);
+    paintCtx.fill();
+    if (r > 3) {
+        paintCtx.globalAlpha *= 0.5;
+        paintCtx.strokeStyle = col;
+        paintCtx.lineWidth = 0.5;
+        var s = r * 2;
+        paintCtx.beginPath();
+        paintCtx.moveTo(x - s, y); paintCtx.lineTo(x + s, y);
+        paintCtx.moveTo(x, y - s); paintCtx.lineTo(x, y + s);
+        paintCtx.stroke();
+    }
+    paintCtx.restore();
+}
+
+function stampStarfall(x, y) {
+    var col = pickColor(1);
+    var r = rand(4, 10);
+    paintCtx.save();
+    paintCtx.globalAlpha = rand(0.5, 0.9);
+    paintCtx.translate(x, y);
+    paintCtx.rotate(rand(0, Math.PI * 2));
+    paintCtx.fillStyle = col;
+    paintCtx.shadowColor = '#ffd700';
+    paintCtx.shadowBlur = 10;
+    drawStar(paintCtx, 0, 0, 5, r, r * 0.4);
+    paintCtx.restore();
+}
+
+function stampAurora(x0, y0, x1, y1, hueBase) {
+    paintCtx.save();
+    for (var layer = 0; layer < 3; layer++) {
+        var hue = (hueBase + layer * 40) % 360;
+        paintCtx.globalAlpha = layer === 0 ? 0.12 : layer === 1 ? 0.3 : 0.6;
+        paintCtx.strokeStyle = 'hsla(' + hue + ',80%,' + (65 + layer * 10) + '%,1)';
+        paintCtx.shadowColor = 'hsla(' + hue + ',90%,60%,1)';
+        paintCtx.shadowBlur = layer === 0 ? 25 : layer === 1 ? 12 : 4;
+        paintCtx.lineWidth = 10 - layer * 3;
+        paintCtx.lineCap = 'round';
+        var off = layer * Math.sin(hueBase * 0.03 + layer) * 5;
+        paintCtx.beginPath();
+        paintCtx.moveTo(x0, y0 + off);
+        paintCtx.lineTo(x1, y1 + off);
+        paintCtx.stroke();
+    }
+    paintCtx.restore();
+}
+
+function stampLightning(x, y) {
+    var numBolts = Math.floor(rand(2, 5));
+    paintCtx.save();
+    for (var b = 0; b < numBolts; b++) {
+        var points = [{x:x, y:y}];
+        var cx = x, cy = y;
+        var angle = rand(0, Math.PI * 2);
+        var length = rand(60, 180);
+        var segments = Math.floor(rand(5, 12));
+        for (var i = 0; i < segments; i++) {
+            cx += Math.cos(angle + rand(-0.8, 0.8)) * (length / segments);
+            cy += Math.sin(angle + rand(-0.8, 0.8)) * (length / segments);
+            points.push({x: cx, y: cy});
+        }
+        paintCtx.globalAlpha = 0.4;
+        paintCtx.strokeStyle = '#60a0ff';
+        paintCtx.lineWidth = 4;
+        paintCtx.shadowColor = '#60a0ff';
+        paintCtx.shadowBlur = 25;
+        paintCtx.beginPath();
+        paintCtx.moveTo(points[0].x, points[0].y);
+        for (var j = 1; j < points.length; j++) paintCtx.lineTo(points[j].x, points[j].y);
+        paintCtx.stroke();
+        paintCtx.globalAlpha = 0.9;
+        paintCtx.strokeStyle = '#e0f0ff';
+        paintCtx.lineWidth = 1.5;
+        paintCtx.shadowBlur = 8;
+        paintCtx.stroke();
+        paintCtx.strokeStyle = '#ffffff';
+        paintCtx.lineWidth = 0.6;
+        paintCtx.globalAlpha = 0.7;
+        paintCtx.stroke();
+        for (var k = 2; k < points.length; k++) {
+            if (Math.random() < 0.3) {
+                var bx = points[k].x, by = points[k].y;
+                var ba = angle + rand(-1.2, 1.2);
+                paintCtx.globalAlpha = 0.5;
+                paintCtx.strokeStyle = '#80c0ff';
+                paintCtx.lineWidth = 1;
+                paintCtx.shadowBlur = 10;
+                paintCtx.beginPath();
+                paintCtx.moveTo(bx, by);
+                for (var m = 0; m < 3; m++) {
+                    bx += Math.cos(ba + rand(-0.6, 0.6)) * rand(8, 20);
+                    by += Math.sin(ba + rand(-0.6, 0.6)) * rand(8, 20);
+                    paintCtx.lineTo(bx, by);
+                }
+                paintCtx.stroke();
+            }
+        }
+    }
+    paintCtx.restore();
+}
+
+function stampNebula(x, y) {
+    var col = pickColor(4);
+    var r = rand(15, 40);
+    paintCtx.save();
+    paintCtx.globalAlpha = rand(0.08, 0.2);
+    var grad = paintCtx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, col);
+    grad.addColorStop(1, 'transparent');
+    paintCtx.fillStyle = grad;
+    paintCtx.beginPath();
+    paintCtx.arc(x, y, r, 0, Math.PI * 2);
+    paintCtx.fill();
+    paintCtx.restore();
+}
+
+function stampFirefly(x, y) {
+    var col = pickColor(5);
+    var r = rand(2, 5);
+    paintCtx.save();
+    paintCtx.globalAlpha = rand(0.5, 0.9);
+    paintCtx.shadowColor = col;
+    paintCtx.shadowBlur = 18;
+    paintCtx.fillStyle = col;
+    paintCtx.beginPath();
+    paintCtx.arc(x, y, r, 0, Math.PI * 2);
+    paintCtx.fill();
+    paintCtx.globalAlpha *= 0.15;
+    paintCtx.beginPath();
+    paintCtx.arc(x, y, r * 4, 0, Math.PI * 2);
+    paintCtx.fill();
+    paintCtx.restore();
+}
+
+function stampCrystal(x, y) {
+    var col = pickColor(6);
+    var size = rand(8, 22);
+    var rot = rand(0, Math.PI * 2);
+    paintCtx.save();
+    paintCtx.translate(x, y);
+    paintCtx.rotate(rot);
+    paintCtx.globalAlpha = 0.7;
+    paintCtx.fillStyle = col;
+    paintCtx.shadowColor = col;
+    paintCtx.shadowBlur = 12;
+    paintCtx.beginPath();
+    paintCtx.moveTo(0, -size * 1.5);
+    paintCtx.lineTo(size * 0.5, -size * 0.15);
+    paintCtx.lineTo(size * 0.35, size * 0.7);
+    paintCtx.lineTo(0, size);
+    paintCtx.lineTo(-size * 0.35, size * 0.7);
+    paintCtx.lineTo(-size * 0.5, -size * 0.15);
+    paintCtx.closePath();
+    paintCtx.fill();
+    paintCtx.globalAlpha = 0.3;
+    paintCtx.fillStyle = '#ffffff';
+    paintCtx.beginPath();
+    paintCtx.moveTo(0, -size * 1.5);
+    paintCtx.lineTo(size * 0.5, -size * 0.15);
+    paintCtx.lineTo(0, size * 0.15);
+    paintCtx.lineTo(-size * 0.15, -size * 0.3);
+    paintCtx.closePath();
+    paintCtx.fill();
+    paintCtx.restore();
+}
+
+function drawStar(c, cx, cy, spikes, outerR, innerR) {
+    var rot = Math.PI / 2 * 3;
+    var step = Math.PI / spikes;
+    c.beginPath();
+    c.moveTo(cx, cy - outerR);
+    for (var i = 0; i < spikes; i++) {
+        c.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
+        rot += step;
+        c.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
+        rot += step;
+    }
+    c.closePath();
+    c.fill();
+}
+
+// ============================================
+// COMBO FUSION BURST
+// ============================================
+function spawnFusion(x, y) {
+    for (var i = 0; i < 20; i++) {
+        var angle = (i / 20) * Math.PI * 2;
+        var speed = rand(1, 4);
+        fusionBursts.push({
+            x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+            life: 1, decay: rand(0.01, 0.025), r: rand(2, 5),
+            color: COMBO_COLORS[Math.floor(Math.random() * COMBO_COLORS.length)],
+            spin: rand(-0.1, 0.1), angle: rand(0, Math.PI * 2)
+        });
+    }
+    // Stamp a glow ring on paint canvas
+    paintCtx.save();
+    paintCtx.globalAlpha = 0.3;
+    var grad = paintCtx.createRadialGradient(x, y, 0, x, y, 30);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.3, '#ffffa0');
+    grad.addColorStop(1, 'transparent');
+    paintCtx.fillStyle = grad;
+    paintCtx.beginPath();
+    paintCtx.arc(x, y, 30, 0, Math.PI * 2);
+    paintCtx.fill();
+    paintCtx.restore();
+}
+
+// ============================================
+// FLAIR PARTICLES (temporary animated sparkle)
+// ============================================
+function spawnFlair(x, y, spell) {
+    var col = spell === 2 ? 'hsl(' + Math.floor(rand(0,360)) + ',80%,70%)' : pickColor(spell);
+    particles.push({
+        x: x, y: y,
+        vx: rand(-2, 2), vy: rand(-2, 2),
+        life: 1, decay: rand(0.02, 0.05),
+        r: rand(1, 3), color: col,
+        twinkle: rand(0, Math.PI * 2)
+    });
+}
+
+// ============================================
+// PAINT — Called each frame while mouse is down
+// ============================================
+var auroraHue = 0;
+
+function paint() {
+    if (!mouseDown) return;
+    totalStrokes++;
+
+    var dx = mouseX - prevMouseX;
+    var dy = mouseY - prevMouseY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var steps = Math.max(1, Math.floor(dist / 4));
+
+    for (var s = 0; s <= steps; s++) {
+        var t = steps === 0 ? 1 : s / steps;
+        var px = prevMouseX + dx * t + rand(-3, 3);
+        var py = prevMouseY + dy * t + rand(-3, 3);
+        var prevT = Math.max(0, (s - 1) / steps);
+
+        switch (currentSpell) {
+            case 0:
+                stampFairyDust(px, py);
+                if (Math.random() < 0.4) spawnFlair(px, py, 0);
+                break;
+            case 1:
+                if (Math.random() < 0.3) stampStarfall(px, py);
+                if (Math.random() < 0.3) spawnFlair(px, py, 1);
+                break;
+            case 2:
+                auroraHue = (auroraHue + 2) % 360;
+                var ax0 = prevMouseX + dx * prevT;
+                var ay0 = prevMouseY + dy * prevT;
+                stampAurora(ax0, ay0, px, py, auroraHue);
+                if (Math.random() < 0.2) spawnFlair(px, py, 2);
+                break;
+            case 3:
+                if (s === 0 && Math.random() < 0.2) {
+                    stampLightning(px, py);
+                    for (var i = 0; i < 5; i++) spawnFlair(px + rand(-30,30), py + rand(-30,30), 3);
+                }
+                break;
+            case 4:
+                stampNebula(px, py);
+                if (Math.random() < 0.15) spawnFlair(px, py, 4);
+                break;
+            case 5:
+                if (Math.random() < 0.4) stampFirefly(px + rand(-15,15), py + rand(-15,15));
+                if (Math.random() < 0.2) spawnFlair(px, py, 5);
+                break;
+            case 6:
+                if (Math.random() < 0.1) stampCrystal(px + rand(-10,10), py + rand(-10,10));
+                if (Math.random() < 0.2) spawnFlair(px, py, 6);
+                break;
+        }
+
+        if (markGrid(px, py, currentSpell)) {
+            spawnFusion(px, py);
+        }
+    }
+}
+
+// ============================================
+// UPDATE
+// ============================================
+function update() {
+    paint();
+
+    for (var i = particles.length - 1; i >= 0; i--) {
+        var p = particles[i];
+        p.life -= p.decay;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.97;
+        p.vy *= 0.97;
+        p.twinkle += 0.15;
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+    if (particles.length > 2000) particles.splice(0, particles.length - 2000);
+
+    for (var j = fusionBursts.length - 1; j >= 0; j--) {
+        var f = fusionBursts[j];
+        f.life -= f.decay;
+        f.x += f.vx;
+        f.y += f.vy;
+        f.vx *= 0.98;
+        f.vy *= 0.98;
+        f.angle += f.spin;
+        if (f.life <= 0) fusionBursts.splice(j, 1);
+    }
+
+    document.getElementById('score').textContent = totalStrokes.toLocaleString();
+}
+
+// ============================================
+// DRAW
+// ============================================
+function drawBackground() {
+    ctx.fillStyle = '#0a0614';
+    ctx.fillRect(0, 0, W, H);
+    var vig = ctx.createRadialGradient(W/2, H/2, W*0.2, W/2, H/2, W*0.8);
+    vig.addColorStop(0, 'transparent');
+    vig.addColorStop(1, 'rgba(0,0,0,0.4)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
+    var t = performance.now() * 0.001;
+    for (var i = 0; i < bgStars.length; i++) {
+        var s = bgStars[i];
+        var tw = 0.5 + 0.5 * Math.sin(t * s.speed * 60 + s.twinkle);
+        ctx.globalAlpha = s.a * tw;
+        ctx.fillStyle = '#e0d0ff';
+        ctx.beginPath();
+        ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+function drawFlairParticles() {
+    for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        var a = p.life * (0.6 + 0.4 * Math.sin(p.twinkle));
+        ctx.globalAlpha = a;
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+}
+
+function drawFusionBursts() {
+    for (var i = 0; i < fusionBursts.length; i++) {
+        var f = fusionBursts[i];
+        ctx.save();
+        ctx.globalAlpha = f.life;
+        ctx.translate(f.x, f.y);
+        ctx.rotate(f.angle);
+        ctx.fillStyle = f.color;
+        ctx.shadowColor = f.color;
+        ctx.shadowBlur = 12;
+        var s = f.r * f.life;
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 2);
+        ctx.lineTo(s * 0.4, -s * 0.4);
+        ctx.lineTo(s * 2, 0);
+        ctx.lineTo(s * 0.4, s * 0.4);
+        ctx.lineTo(0, s * 2);
+        ctx.lineTo(-s * 0.4, s * 0.4);
+        ctx.lineTo(-s * 2, 0);
+        ctx.lineTo(-s * 0.4, -s * 0.4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+}
+
+function drawWand() {
+    ctx.save();
+    var angle = -Math.PI / 4;
+    var len = 22;
+    var tipX = mouseX, tipY = mouseY;
+    var baseX = tipX + Math.cos(angle) * len;
+    var baseY = tipY - Math.sin(angle) * len;
+
+    ctx.strokeStyle = '#d4a06a';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    ctx.lineTo(tipX, tipY);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#8b6040';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    ctx.lineTo(baseX + Math.cos(angle + Math.PI) * 6, baseY - Math.sin(angle + Math.PI) * 6);
+    ctx.stroke();
+
+    var t = performance.now() * 0.003;
+    var sparkleR = 4 + Math.sin(t * 3) * 2;
+    var spellCols = ['#ff96c8','#ffd700','#80ffff','#80c0ff','#d080ff','#c0ff60','#96ffdc'];
+    var col = spellCols[currentSpell];
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 15 + Math.sin(t * 5) * 5;
+    ctx.fillStyle = col;
+    ctx.globalAlpha = 0.8 + Math.sin(t * 4) * 0.2;
+    ctx.beginPath();
+    ctx.arc(tipX, tipY, sparkleR, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.5 + Math.sin(t * 6) * 0.3;
+    for (var i = 0; i < 4; i++) {
+        var a = t * 2 + (i * Math.PI / 2);
+        var rr = sparkleR + 4 + Math.sin(t * 4 + i) * 3;
+        ctx.beginPath();
+        ctx.moveTo(tipX + Math.cos(a) * sparkleR, tipY + Math.sin(a) * sparkleR);
+        ctx.lineTo(tipX + Math.cos(a) * rr, tipY + Math.sin(a) * rr);
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function draw() {
+    drawBackground();
+    ctx.drawImage(paintCanvas, 0, 0);
+    drawFlairParticles();
+    drawFusionBursts();
+    drawWand();
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>

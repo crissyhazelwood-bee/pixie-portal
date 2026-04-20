@@ -1,0 +1,4 @@
+node_modules/
+pixie_portal.db
+.wrangler/
+*.log

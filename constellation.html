@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starweave ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0a0614; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
+        canvas { display:block; position:relative; z-index:1; }
+
+        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent); pointer-events:none; }
+        #ui > * { pointer-events:auto; }
+        .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
+        .stat { color:#f0d0ff; font-size:14px; font-weight:600; }
+        .stat-val { color:#ff96c8; font-size:18px; font-weight:700; }
+        .back-btn { color:#b496ff; text-decoration:none; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+
+        #start-screen { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(10,6,20,0.95); z-index:100; display:flex; justify-content:center; align-items:center; flex-direction:column; cursor:pointer; }
+        #start-screen h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:52px; margin-bottom:10px; text-shadow:0 0 30px rgba(255,150,200,0.4); }
+        #start-screen .tap-text { color:#b496ff; font-size:20px; font-weight:600; margin-top:20px; animation:fadeInOut 2s ease-in-out infinite; }
+        @keyframes fadeInOut { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        #start-screen .subtitle { color:#9080b0; font-size:14px; margin-top:8px; }
+
+        #complete-screen { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(5,3,10,0.9); z-index:100; justify-content:center; align-items:center; flex-direction:column; }
+        #complete-screen.active { display:flex; }
+        #complete-screen h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:48px; margin-bottom:10px; text-shadow:0 0 30px rgba(255,150,200,0.4); }
+        #complete-screen .final-score { font-size:60px; font-weight:700; color:#ffffa0; margin:15px 0; text-shadow:0 0 20px rgba(255,255,160,0.3); }
+        #complete-screen .stats { color:#b496ff; font-size:16px; margin-bottom:25px; line-height:2; text-align:center; }
+        #complete-screen button { padding:12px 30px; border-radius:25px; border:none; background:linear-gradient(135deg,#ff96c8,#b496ff); color:#0a0614; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin:5px; transition:transform 0.2s; }
+        #complete-screen button:hover { transform:scale(1.05); box-shadow:0 5px 25px rgba(255,150,200,0.3); }
+        #complete-screen .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
+        #complete-screen .ghost-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+    </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="start-screen" onclick="startGame()">
+    <h1>Starweave</h1>
+    <div style="font-size:60px;margin:10px 0;">✦</div>
+    <div class="tap-text">Tap to Begin</div>
+    <div class="subtitle">Connect the stars, reveal the constellations</div>
+    <div style="color:#706080;font-size:13px;margin-top:24px;line-height:2;text-align:center;">
+        Click the numbered stars in order<br>
+        to weave each constellation
+    </div>
+</div>
+
+<div id="ui" style="display:none;">
+    <div class="ui-left">
+        <a class="back-btn" onclick="window.location.href='/'">← Portal</a>
+        <div class="stat">✨ <span class="stat-val" id="score">0</span></div>
+    </div>
+    <div class="ui-right">
+        <div class="stat"><span class="stat-val" id="constellation-name">The Wand</span></div>
+        <div class="stat"><span id="progress">1</span> / <span id="total">10</span></div>
+    </div>
+</div>
+
+<div id="complete-screen">
+    <h1>Starweaver!</h1>
+    <div class="final-score" id="final-score">0</div>
+    <div class="stats" id="final-stats"></div>
+    <button onclick="startGame()">Weave Again ✦</button>
+    <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
+</div>
+
+<script>
+// ============================================
+// ERROR HANDLER (must be first)
+// ============================================
+window.onerror = function(msg, url, line) {
+    document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
+    var ss = document.getElementById('start-screen');
+    if (ss) ss.innerHTML = '<h1 style="color:red;font-size:16px;padding:40px;">ERROR: ' + msg + '<br>Line: ' + line + '</h1>';
+    return false;
+};
+
+// ============================================
+// CANVAS SETUP
+// ============================================
+var canvas = document.getElementById('game');
+var ctx = canvas.getContext('2d');
+var W = 0;
+var H = 0;
+
+// ============================================
+// DOM REFS
+// ============================================
+var startScreen = document.getElementById('start-screen');
+var completeScreen = document.getElementById('complete-screen');
+var uiEl = document.getElementById('ui');
+var scoreEl = document.getElementById('score');
+var constellationNameEl = document.getElementById('constellation-name');
+var progressEl = document.getElementById('progress');
+var totalEl = document.getElementById('total');
+var finalScoreEl = document.getElementById('final-score');
+var finalStatsEl = document.getElementById('final-stats');
+
+// ============================================
+// GAME STATE
+// ============================================
+var gameActive = false;
+var score = 0;
+var currentLevel = 0;
+var nextStarIndex = 0;
+var connectedLines = [];
+var levelStartTime = 0;
+var wrongClicks = 0;
+var totalWrongClicks = 0;
+var perfectLevels = 0;
+var animatingLine = false;
+var lineAnimProgress = 0;
+var lineAnimFrom = null;
+var lineAnimTo = null;
+var celebrateTimer = 0;
+var celebrating = false;
+var celebrateAlpha = 0;
+var fadingOut = false;
+var fadeOutAlpha = 0;
+var sparkles = [];
+var ambientStars = [];
+var nebulaAngle = 0;
+var frameTime = 0;
+var starFlashIndex = -1;
+var starFlashTimer = 0;
+var perfectTextAlpha = 0;
+var perfectTextTimer = 0;
+
+// ============================================
+// CONSTELLATIONS DATA (normalized 0-1 coords)
+// ============================================
+var constellations = [
+    // 1. The Wand — straight wand with a star burst at the tip
+    {
+        name: "The Wand",
+        points: [
+            {x: 0.50, y: 0.88},  // handle base
+            {x: 0.50, y: 0.70},  // handle mid
+            {x: 0.50, y: 0.50},  // shaft mid
+            {x: 0.50, y: 0.32},  // near tip
+            {x: 0.50, y: 0.18},  // tip
+            {x: 0.42, y: 0.25},  // star burst left
+            {x: 0.58, y: 0.25}   // star burst right
+        ]
+    },
+    // 2. The Crown — zigzag crown with base
+    {
+        name: "The Crown",
+        points: [
+            {x: 0.20, y: 0.68},  // base left
+            {x: 0.20, y: 0.48},  // left wall
+            {x: 0.30, y: 0.28},  // left peak
+            {x: 0.38, y: 0.48},  // left valley
+            {x: 0.50, y: 0.20},  // center peak (tallest)
+            {x: 0.62, y: 0.48},  // right valley
+            {x: 0.70, y: 0.28},  // right peak
+            {x: 0.80, y: 0.48},  // right wall
+            {x: 0.80, y: 0.68}   // base right
+        ]
+    },
+    // 3. The Butterfly — two distinct wings with body line
+    {
+        name: "The Butterfly",
+        points: [
+            {x: 0.50, y: 0.25},  // top of body
+            {x: 0.38, y: 0.20},  // left upper wing tip
+            {x: 0.20, y: 0.30},  // left wing far
+            {x: 0.22, y: 0.50},  // left wing bottom
+            {x: 0.40, y: 0.48},  // left wing inner
+            {x: 0.50, y: 0.55},  // body middle
+            {x: 0.60, y: 0.48},  // right wing inner
+            {x: 0.78, y: 0.50},  // right wing bottom
+            {x: 0.80, y: 0.30},  // right wing far
+            {x: 0.62, y: 0.20},  // right upper wing tip
+            {x: 0.50, y: 0.75}   // body tail (antennae down)
+        ]
+    },
+    // 4. The Crystal — tall hexagonal gem shape
+    {
+        name: "The Crystal",
+        points: [
+            {x: 0.50, y: 0.12},  // top point
+            {x: 0.64, y: 0.28},  // upper right facet
+            {x: 0.64, y: 0.55},  // lower right facet
+            {x: 0.50, y: 0.85},  // bottom point
+            {x: 0.36, y: 0.55},  // lower left facet
+            {x: 0.36, y: 0.28}   // upper left facet
+        ]
+    },
+    // 5. The Fairy Wings — two upper + two lower wings from a body center
+    {
+        name: "The Fairy Wings",
+        points: [
+            {x: 0.50, y: 0.28},  // body top
+            {x: 0.35, y: 0.18},  // left upper wing top
+            {x: 0.18, y: 0.25},  // left upper wing tip
+            {x: 0.25, y: 0.45},  // left upper wing base
+            {x: 0.50, y: 0.48},  // body mid
+            {x: 0.30, y: 0.55},  // left lower wing start
+            {x: 0.20, y: 0.72},  // left lower wing tip
+            {x: 0.42, y: 0.65},  // left lower wing inner
+            {x: 0.50, y: 0.75},  // body bottom
+            {x: 0.58, y: 0.65},  // right lower wing inner
+            {x: 0.80, y: 0.72},  // right lower wing tip
+            {x: 0.70, y: 0.55},  // right lower wing start
+            {x: 0.75, y: 0.45},  // right upper wing base
+            {x: 0.82, y: 0.25},  // right upper wing tip
+            {x: 0.65, y: 0.18}   // right upper wing top
+        ]
+    },
+    // 6. The Moonflower — crescent moon with a flower growing from it
+    {
+        name: "The Moonflower",
+        points: [
+            {x: 0.35, y: 0.18},  // moon top
+            {x: 0.22, y: 0.35},  // moon left
+            {x: 0.25, y: 0.55},  // moon bottom-left
+            {x: 0.38, y: 0.68},  // moon bottom
+            {x: 0.50, y: 0.60},  // moon inner / stem top
+            {x: 0.50, y: 0.78},  // stem bottom
+            {x: 0.60, y: 0.38},  // flower right petal
+            {x: 0.50, y: 0.28},  // flower top petal
+            {x: 0.40, y: 0.38}   // flower left petal
+        ]
+    },
+    // 7. The Unicorn — head in profile: horn, ear, muzzle, neck
+    {
+        name: "The Unicorn",
+        points: [
+            {x: 0.42, y: 0.12},  // horn tip
+            {x: 0.48, y: 0.28},  // horn base / forehead
+            {x: 0.40, y: 0.24},  // ear tip
+            {x: 0.45, y: 0.32},  // ear base
+            {x: 0.52, y: 0.35},  // top of head
+            {x: 0.60, y: 0.32},  // back of head
+            {x: 0.65, y: 0.42},  // neck back
+            {x: 0.68, y: 0.58},  // neck back low
+            {x: 0.55, y: 0.62},  // chest
+            {x: 0.48, y: 0.52},  // jaw
+            {x: 0.38, y: 0.48},  // muzzle tip
+            {x: 0.42, y: 0.42}   // nose bridge
+        ]
+    },
+    // 8. The Dragon — wings spread, tail curled, head with horns
+    {
+        name: "The Dragon",
+        points: [
+            {x: 0.25, y: 0.42},  // tail tip
+            {x: 0.32, y: 0.52},  // tail mid
+            {x: 0.40, y: 0.55},  // tail base / body
+            {x: 0.50, y: 0.52},  // body center
+            {x: 0.58, y: 0.48},  // chest
+            {x: 0.65, y: 0.40},  // neck
+            {x: 0.72, y: 0.32},  // head
+            {x: 0.78, y: 0.25},  // horn
+            {x: 0.70, y: 0.38},  // jaw
+            {x: 0.60, y: 0.35},  // neck underside
+            {x: 0.45, y: 0.30},  // left wing base
+            {x: 0.28, y: 0.18},  // left wing tip
+            {x: 0.42, y: 0.35},  // left wing return
+            {x: 0.62, y: 0.28},  // right wing base
+            {x: 0.80, y: 0.15},  // right wing tip
+            {x: 0.65, y: 0.33}   // right wing return
+        ]
+    },
+    // 9. The Phoenix — spread wings with tail feathers, rising
+    {
+        name: "The Phoenix",
+        points: [
+            {x: 0.50, y: 0.20},  // head
+            {x: 0.45, y: 0.30},  // neck left
+            {x: 0.35, y: 0.28},  // left wing inner
+            {x: 0.18, y: 0.22},  // left wing tip
+            {x: 0.25, y: 0.38},  // left wing lower
+            {x: 0.40, y: 0.42},  // left body
+            {x: 0.50, y: 0.45},  // body center
+            {x: 0.60, y: 0.42},  // right body
+            {x: 0.75, y: 0.38},  // right wing lower
+            {x: 0.82, y: 0.22},  // right wing tip
+            {x: 0.65, y: 0.28},  // right wing inner
+            {x: 0.55, y: 0.30},  // neck right
+            {x: 0.50, y: 0.55},  // tail start
+            {x: 0.42, y: 0.75},  // left tail feather
+            {x: 0.50, y: 0.68},  // center tail
+            {x: 0.58, y: 0.75}   // right tail feather
+        ]
+    },
+    // 10. The Enchanted Tree — trunk, branches, and canopy
+    {
+        name: "The Enchanted Tree",
+        points: [
+            {x: 0.48, y: 0.90},  // trunk base left
+            {x: 0.48, y: 0.72},  // trunk mid left
+            {x: 0.52, y: 0.72},  // trunk mid right
+            {x: 0.52, y: 0.90},  // trunk base right
+            {x: 0.50, y: 0.60},  // trunk top / branch point
+            {x: 0.30, y: 0.48},  // left branch
+            {x: 0.18, y: 0.35},  // left branch tip
+            {x: 0.32, y: 0.30},  // left canopy
+            {x: 0.42, y: 0.18},  // upper left canopy
+            {x: 0.50, y: 0.12},  // tree top
+            {x: 0.58, y: 0.18},  // upper right canopy
+            {x: 0.68, y: 0.30},  // right canopy
+            {x: 0.82, y: 0.35},  // right branch tip
+            {x: 0.70, y: 0.48},  // right branch
+            {x: 0.50, y: 0.55}   // back to center
+        ]
+    }
+];
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function rand(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function dist(x1, y1, x2, y2) {
+    var dx = x2 - x1;
+    var dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+
+function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+}
+
+function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+// ============================================
+// AMBIENT STARS (background twinkle)
+// ============================================
+function initAmbientStars() {
+    ambientStars = [];
+    var count = Math.floor((W * H) / 3000);
+    for (var i = 0; i < count; i++) {
+        ambientStars.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size: rand(0.5, 2.0),
+            alpha: rand(0.2, 0.8),
+            speed: rand(0.5, 2.0),
+            phase: rand(0, Math.PI * 2)
+        });
+    }
+}
+
+// ============================================
+// SPARKLE SYSTEM
+// ============================================
+function addSparkle(x, y, count, spread) {
+    for (var i = 0; i < count; i++) {
+        var angle = rand(0, Math.PI * 2);
+        var speed = rand(1, spread || 4);
+        sparkles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 1.0,
+            decay: rand(0.015, 0.04),
+            size: rand(1, 3.5),
+            color: ['#ff96c8', '#b496ff', '#96ffdc', '#ffffa0', '#ffffff'][Math.floor(Math.random() * 5)]
+        });
+    }
+}
+
+function addLineSparkles(x1, y1, x2, y2) {
+    var d = dist(x1, y1, x2, y2);
+    var count = Math.floor(d / 8);
+    for (var i = 0; i < count; i++) {
+        var t = i / count;
+        var px = lerp(x1, x2, t);
+        var py = lerp(y1, y2, t);
+        addSparkle(px + rand(-5, 5), py + rand(-5, 5), 2, 2);
+    }
+}
+
+function updateSparkles() {
+    for (var i = sparkles.length - 1; i >= 0; i--) {
+        var s = sparkles[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.vy += 0.02;
+        s.vx *= 0.98;
+        s.life -= s.decay;
+        if (s.life <= 0) {
+            sparkles.splice(i, 1);
+        }
+    }
+}
+
+function drawSparkles() {
+    for (var i = 0; i < sparkles.length; i++) {
+        var s = sparkles[i];
+        ctx.globalAlpha = s.life;
+        ctx.fillStyle = s.color;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+}
+
+// ============================================
+// GET STAR SCREEN POSITIONS
+// ============================================
+function getStarPos(point) {
+    var margin = 80;
+    var areaW = W - margin * 2;
+    var areaH = H - margin * 2 - 60;
+    return {
+        x: margin + point.x * areaW,
+        y: margin + 50 + point.y * areaH
+    };
+}
+
+// ============================================
+// DRAWING FUNCTIONS
+// ============================================
+function drawBackground() {
+    // Deep space fill
+    ctx.fillStyle = '#0a0614';
+    ctx.fillRect(0, 0, W, H);
+
+    // Nebula glow (subtle animated)
+    nebulaAngle += 0.002;
+    var nebX = W * 0.5 + Math.sin(nebulaAngle) * W * 0.15;
+    var nebY = H * 0.4 + Math.cos(nebulaAngle * 0.7) * H * 0.1;
+    var nebGrad = ctx.createRadialGradient(nebX, nebY, 0, nebX, nebY, W * 0.45);
+    nebGrad.addColorStop(0, 'rgba(80, 20, 100, 0.08)');
+    nebGrad.addColorStop(0.4, 'rgba(60, 15, 80, 0.04)');
+    nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = nebGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Second nebula
+    var neb2X = W * 0.3 + Math.cos(nebulaAngle * 1.3) * W * 0.1;
+    var neb2Y = H * 0.6 + Math.sin(nebulaAngle * 0.5) * H * 0.08;
+    var nebGrad2 = ctx.createRadialGradient(neb2X, neb2Y, 0, neb2X, neb2Y, W * 0.35);
+    nebGrad2.addColorStop(0, 'rgba(100, 30, 70, 0.06)');
+    nebGrad2.addColorStop(0.5, 'rgba(40, 10, 60, 0.03)');
+    nebGrad2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = nebGrad2;
+    ctx.fillRect(0, 0, W, H);
+
+    // Ambient stars
+    for (var i = 0; i < ambientStars.length; i++) {
+        var s = ambientStars[i];
+        var twinkle = Math.sin(frameTime * s.speed + s.phase) * 0.3 + 0.7;
+        ctx.globalAlpha = s.alpha * twinkle;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+function drawConnectedLines() {
+    if (connectedLines.length === 0) return;
+
+    var pulse = celebrating ? (Math.sin(frameTime * 6) * 0.3 + 0.7) : 1;
+
+    for (var i = 0; i < connectedLines.length; i++) {
+        var line = connectedLines[i];
+        var fromPos = getStarPos(line.from);
+        var toPos = getStarPos(line.to);
+
+        ctx.save();
+        ctx.globalAlpha = pulse;
+        ctx.strokeStyle = '#ff96c8';
+        ctx.shadowColor = '#b496ff';
+        ctx.shadowBlur = celebrating ? 15 : 8;
+        ctx.lineWidth = celebrating ? 3 : 2.5;
+        ctx.lineCap = 'round';
+
+        // Gradient line
+        var grad = ctx.createLinearGradient(fromPos.x, fromPos.y, toPos.x, toPos.y);
+        grad.addColorStop(0, '#ff96c8');
+        grad.addColorStop(1, '#b496ff');
+        ctx.strokeStyle = grad;
+
+        ctx.beginPath();
+        ctx.moveTo(fromPos.x, fromPos.y);
+        ctx.lineTo(toPos.x, toPos.y);
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
+function drawAnimatingLine() {
+    if (!animatingLine) return;
+
+    var fromPos = getStarPos(lineAnimFrom);
+    var toPos = getStarPos(lineAnimTo);
+    var t = easeOutCubic(lineAnimProgress);
+    var curX = lerp(fromPos.x, toPos.x, t);
+    var curY = lerp(fromPos.y, toPos.y, t);
+
+    ctx.save();
+    ctx.strokeStyle = '#ff96c8';
+    ctx.shadowColor = '#ffffa0';
+    ctx.shadowBlur = 12;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+
+    var grad = ctx.createLinearGradient(fromPos.x, fromPos.y, curX, curY);
+    grad.addColorStop(0, '#ff96c8');
+    grad.addColorStop(1, '#b496ff');
+    ctx.strokeStyle = grad;
+
+    ctx.beginPath();
+    ctx.moveTo(fromPos.x, fromPos.y);
+    ctx.lineTo(curX, curY);
+    ctx.stroke();
+
+    // Sparkle at tip
+    ctx.fillStyle = '#ffffa0';
+    ctx.shadowColor = '#ffffa0';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(curX, curY, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Add trailing sparkles
+    if (Math.random() < 0.5) {
+        addSparkle(curX + rand(-3, 3), curY + rand(-3, 3), 1, 1.5);
+    }
+}
+
+function drawStars() {
+    var constellation = constellations[currentLevel];
+    if (!constellation) return;
+
+    var points = constellation.points;
+
+    for (var i = 0; i < points.length; i++) {
+        var pos = getStarPos(points[i]);
+        var isNext = (i === nextStarIndex);
+        var isConnected = (i < nextStarIndex);
+        var isFlashing = (i === starFlashIndex && starFlashTimer > 0);
+
+        var baseSize = 8;
+        var glowSize = 20;
+
+        // Pulse animation
+        var pulse = Math.sin(frameTime * 3 + i * 0.5) * 0.2 + 0.8;
+
+        if (isFlashing) {
+            // Red flash for wrong click
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 60, 60, ' + (starFlashTimer * 0.8) + ')';
+            ctx.shadowColor = '#ff3c3c';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, baseSize + 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        if (isNext && !celebrating) {
+            // Highlighted next star — golden glow
+            var nextPulse = Math.sin(frameTime * 4) * 0.3 + 0.7;
+            ctx.save();
+            ctx.fillStyle = 'rgba(201, 168, 76, ' + (0.15 * nextPulse) + ')';
+            ctx.shadowColor = '#c9a84c';
+            ctx.shadowBlur = 30;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, glowSize + 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(255, 255, 160, ' + (0.3 * nextPulse) + ')';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, glowSize - 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core
+            ctx.fillStyle = '#ffffa0';
+            ctx.shadowColor = '#ffffa0';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, baseSize + 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // White center
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        } else {
+            // Normal star
+            ctx.save();
+            // Outer glow
+            ctx.fillStyle = 'rgba(180, 150, 255, ' + (0.1 * pulse) + ')';
+            ctx.shadowColor = '#b496ff';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core
+            var coreColor = isConnected ? '#ff96c8' : '#e8d0ff';
+            ctx.fillStyle = coreColor;
+            ctx.shadowColor = coreColor;
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, baseSize * (isConnected ? 0.8 : 1) * pulse, 0, Math.PI * 2);
+            ctx.fill();
+
+            // White center
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Number label
+        if (!celebrating) {
+            ctx.save();
+            ctx.font = '600 11px Quicksand';
+            ctx.fillStyle = '#706080';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(String(i + 1), pos.x + 12, pos.y - 8);
+            ctx.restore();
+        }
+    }
+}
+
+function drawCelebration() {
+    if (!celebrating) return;
+
+    // Constellation name fade in
+    celebrateAlpha = Math.min(celebrateAlpha + 0.02, 1);
+
+    var constellation = constellations[currentLevel];
+    ctx.save();
+    ctx.globalAlpha = celebrateAlpha;
+    ctx.font = '36px Pacifico';
+    ctx.fillStyle = '#ff96c8';
+    ctx.shadowColor = '#ff96c8';
+    ctx.shadowBlur = 20;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(constellation.name, W / 2, H - 80);
+    ctx.restore();
+
+    // Perfect text
+    if (perfectTextTimer > 0) {
+        ctx.save();
+        ctx.globalAlpha = perfectTextAlpha;
+        ctx.font = '700 24px Quicksand';
+        ctx.fillStyle = '#ffffa0';
+        ctx.shadowColor = '#ffffa0';
+        ctx.shadowBlur = 15;
+        ctx.textAlign = 'center';
+        ctx.fillText('Perfect! +50', W / 2, H - 120);
+        ctx.restore();
+    }
+}
+
+function drawFadeOut() {
+    if (!fadingOut) return;
+    ctx.save();
+    ctx.globalAlpha = fadeOutAlpha;
+    ctx.fillStyle = '#0a0614';
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+}
+
+// ============================================
+// GAME LOGIC
+// ============================================
+function startGame() {
+    startScreen.style.display = 'none';
+    completeScreen.classList.remove('active');
+    uiEl.style.display = 'flex';
+
+    score = 0;
+    currentLevel = 0;
+    totalWrongClicks = 0;
+    perfectLevels = 0;
+    gameActive = true;
+
+    scoreEl.textContent = '0';
+    totalEl.textContent = String(constellations.length);
+
+    loadLevel();
+}
+
+function loadLevel() {
+    var constellation = constellations[currentLevel];
+    nextStarIndex = 0;
+    connectedLines = [];
+    wrongClicks = 0;
+    animatingLine = false;
+    celebrating = false;
+    celebrateAlpha = 0;
+    fadingOut = false;
+    fadeOutAlpha = 0;
+    perfectTextAlpha = 0;
+    perfectTextTimer = 0;
+    levelStartTime = Date.now();
+
+    constellationNameEl.textContent = constellation.name;
+    progressEl.textContent = String(currentLevel + 1);
+}
+
+function handleStarClick(x, y) {
+    if (!gameActive || animatingLine || celebrating || fadingOut) return;
+
+    var constellation = constellations[currentLevel];
+    var points = constellation.points;
+
+    // Prioritize checking the next target star first (prevents overlap bugs)
+    var nextPos = getStarPos(points[nextStarIndex]);
+    if (dist(x, y, nextPos.x, nextPos.y) < 25) {
+        // Correct star!
+        addSparkle(nextPos.x, nextPos.y, 8, 3);
+
+        if (nextStarIndex > 0) {
+            // Animate line from previous star
+            lineAnimFrom = points[nextStarIndex - 1];
+            lineAnimTo = points[nextStarIndex];
+            lineAnimProgress = 0;
+            animatingLine = true;
+        }
+
+        nextStarIndex++;
+
+        // Check if constellation complete
+        if (nextStarIndex >= points.length) {
+            // Will complete after line animation finishes (or immediately if first star)
+            if (!animatingLine) {
+                completeConstellation();
+            }
+        }
+        return;
+    }
+
+    // Check if clicked on any other star (wrong click feedback)
+    for (var i = 0; i < points.length; i++) {
+        if (i === nextStarIndex) continue;
+        var pos = getStarPos(points[i]);
+        var d = dist(x, y, pos.x, pos.y);
+
+        if (d < 25) {
+            // Wrong star
+            starFlashIndex = i;
+            starFlashTimer = 1;
+            wrongClicks++;
+            totalWrongClicks++;
+            return;
+        }
+    }
+}
+
+function completeConstellation() {
+    celebrating = true;
+    celebrateTimer = 3;
+
+    // Score calculation
+    var elapsed = (Date.now() - levelStartTime) / 1000;
+    var baseScore = 100;
+    var speedBonus = Math.max(0, Math.floor(200 * (1 - elapsed / 10)));
+    var perfectBonus = (wrongClicks === 0) ? 50 : 0;
+
+    if (wrongClicks === 0) {
+        perfectLevels++;
+        perfectTextAlpha = 1;
+        perfectTextTimer = 2;
+    }
+
+    var levelScore = baseScore + speedBonus + perfectBonus;
+    score += levelScore;
+    scoreEl.textContent = String(score);
+
+    // Burst of sparkles across the constellation
+    var constellation = constellations[currentLevel];
+    for (var i = 0; i < constellation.points.length; i++) {
+        var pos = getStarPos(constellation.points[i]);
+        addSparkle(pos.x, pos.y, 12, 5);
+    }
+}
+
+function nextLevel() {
+    currentLevel++;
+    if (currentLevel >= constellations.length) {
+        showComplete();
+    } else {
+        loadLevel();
+    }
+}
+
+function showComplete() {
+    gameActive = false;
+    uiEl.style.display = 'none';
+    finalScoreEl.textContent = String(score);
+    finalStatsEl.innerHTML =
+        'Constellations Woven: ' + constellations.length + '<br>' +
+        'Perfect Constellations: ' + perfectLevels + '<br>' +
+        'Wrong Clicks: ' + totalWrongClicks;
+    completeScreen.classList.add('active');
+}
+
+// ============================================
+// UPDATE LOOP
+// ============================================
+function update(dt) {
+    if (!gameActive) return;
+
+    // Line animation
+    if (animatingLine) {
+        lineAnimProgress += dt * 3.5;
+        if (lineAnimProgress >= 1) {
+            lineAnimProgress = 1;
+            animatingLine = false;
+            // Add completed line
+            connectedLines.push({ from: lineAnimFrom, to: lineAnimTo });
+            addLineSparkles(
+                getStarPos(lineAnimFrom).x, getStarPos(lineAnimFrom).y,
+                getStarPos(lineAnimTo).x, getStarPos(lineAnimTo).y
+            );
+            // Check if we need to complete the constellation
+            if (nextStarIndex >= constellations[currentLevel].points.length) {
+                completeConstellation();
+            }
+        }
+    }
+
+    // Star flash decay
+    if (starFlashTimer > 0) {
+        starFlashTimer -= dt * 3;
+        if (starFlashTimer <= 0) {
+            starFlashTimer = 0;
+            starFlashIndex = -1;
+        }
+    }
+
+    // Celebration timer
+    if (celebrating) {
+        celebrateTimer -= dt;
+
+        // Perfect text fade
+        if (perfectTextTimer > 0) {
+            perfectTextTimer -= dt;
+            if (perfectTextTimer < 0.5) {
+                perfectTextAlpha = perfectTextTimer / 0.5;
+            }
+        }
+
+        if (celebrateTimer <= 0.5 && !fadingOut) {
+            fadingOut = true;
+        }
+        if (fadingOut) {
+            fadeOutAlpha += dt * 3;
+        }
+        if (celebrateTimer <= 0) {
+            nextLevel();
+        }
+    }
+
+    // Sparkle update
+    updateSparkles();
+}
+
+// ============================================
+// RENDER LOOP
+// ============================================
+var lastTime = 0;
+
+function gameLoop(timestamp) {
+    var dt = (timestamp - lastTime) / 1000;
+    if (dt > 0.1) dt = 0.1;
+    lastTime = timestamp;
+    frameTime = timestamp / 1000;
+
+    update(dt);
+
+    // Draw
+    drawBackground();
+
+    if (gameActive) {
+        drawConnectedLines();
+        drawAnimatingLine();
+        drawStars();
+        drawCelebration();
+        drawFadeOut();
+    }
+
+    drawSparkles();
+
+    requestAnimationFrame(gameLoop);
+}
+
+// ============================================
+// RESIZE
+// ============================================
+function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+    initAmbientStars();
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+function getEventPos(e) {
+    var ex, ey;
+    if (e.touches && e.touches.length > 0) {
+        ex = e.touches[0].clientX;
+        ey = e.touches[0].clientY;
+    } else {
+        ex = e.clientX;
+        ey = e.clientY;
+    }
+    return { x: ex, y: ey };
+}
+
+document.addEventListener('click', function(e) {
+    var pos = getEventPos(e);
+    handleStarClick(pos.x, pos.y);
+});
+
+document.addEventListener('touchstart', function(e) {
+    var pos = getEventPos(e);
+    handleStarClick(pos.x, pos.y);
+    e.preventDefault();
+}, { passive: false });
+
+window.addEventListener('resize', resize);
+
+// ============================================
+// INITIALIZATION
+// ============================================
+resize();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

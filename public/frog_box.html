@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Frog Box ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0a0614; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; }
+        canvas { display:block; position:relative; z-index:1; }
+        #start-screen { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(10,6,20,0.95); z-index:200; display:flex; justify-content:center; align-items:center; flex-direction:column; cursor:pointer; }
+        #start-screen h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:52px; margin-bottom:10px; text-shadow:0 0 30px rgba(255,150,200,0.4); }
+        #start-screen .frog-bounce { font-size:80px; animation:frogBounce 1s ease-in-out infinite; }
+        @keyframes frogBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-25px)} }
+        #start-screen .tap-text { color:#b496ff; font-size:20px; font-weight:600; margin-top:20px; animation:fadeInOut 2s ease-in-out infinite; }
+        @keyframes fadeInOut { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        #start-screen .subtitle { color:#9080b0; font-size:14px; margin-top:8px; }
+
+        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent); pointer-events:none; }
+        #ui > * { pointer-events:auto; }
+        .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
+        .stat { color:#f0d0ff; font-size:14px; font-weight:600; }
+        .stat-val { color:#ff96c8; font-size:18px; font-weight:700; }
+        .hearts { font-size:20px; letter-spacing:3px; }
+        .back-btn { color:#b496ff; text-decoration:none; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+
+        #game-over { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(5,3,10,0.9); z-index:100; justify-content:center; align-items:center; flex-direction:column; }
+        #game-over.active { display:flex; }
+        #game-over h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:48px; margin-bottom:10px; text-shadow:0 0 30px rgba(255,150,200,0.4); }
+        #game-over .final-score { font-size:60px; font-weight:700; color:#ffffa0; margin:15px 0; text-shadow:0 0 20px rgba(255,255,160,0.3); }
+        #game-over .stats { color:#b496ff; font-size:16px; margin-bottom:25px; line-height:2; text-align:center; }
+        #game-over button { padding:12px 30px; border-radius:25px; border:none; background:linear-gradient(135deg,#ff96c8,#b496ff); color:#0a0614; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin:5px; transition:transform 0.2s; }
+        #game-over button:hover { transform:scale(1.05); box-shadow:0 5px 25px rgba(255,150,200,0.3); }
+        #game-over .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
+        #game-over .ghost-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+
+        #round-banner { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:50; font-family:'Pacifico',cursive; color:#ff96c8; font-size:48px; text-shadow:0 0 30px rgba(255,150,200,0.5); pointer-events:none; }
+    </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="start-screen" onclick="startGame()">
+    <h1>Frog Box</h1>
+    <div class="frog-bounce">&#x1F438;</div>
+    <div class="tap-text">Tap to Start</div>
+    <div class="subtitle">Hop across mushrooms, dodge the boxes!</div>
+    <div style="color:#706080;font-size:13px;margin-top:24px;line-height:2;text-align:center;">
+        <span style="color:#b496ff;">ARROWS</span> or <span style="color:#b496ff;">WASD</span> to hop<br>
+        Reach the &#x1F338; fairy garden at the top
+    </div>
+</div>
+
+<div id="ui" style="display:none;">
+    <div class="ui-left">
+        <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
+        <div class="stat">&#x1F438; <span class="stat-val" id="score">0</span></div>
+        <div class="stat">Round <span class="stat-val" id="round">1</span></div>
+    </div>
+    <div class="ui-right">
+        <div class="stat">&#x23F1; <span class="stat-val" id="timer">60</span></div>
+        <div class="hearts" id="hearts">&#x1F496;&#x1F496;&#x1F496;&#x1F496;&#x1F496;</div>
+    </div>
+</div>
+
+<div id="game-over">
+    <h1>Game Over</h1>
+    <div class="final-score" id="final-score">0</div>
+    <div class="stats" id="final-stats"></div>
+    <button onclick="startGame()">Play Again &#x2726;</button>
+    <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
+</div>
+
+<div id="round-banner"></div>
+
+<script>
+/* =========================================================
+   ERROR HANDLER — must be first
+   ========================================================= */
+window.onerror = function(msg, url, line) {
+    document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
+    var el = document.getElementById('start-screen');
+    if (el) el.innerHTML = '<h1 style="color:red;font-size:16px;padding:40px;">ERROR: ' + msg + '<br>Line: ' + line + '</h1>';
+    return false;
+};
+
+/* =========================================================
+   CANVAS
+   ========================================================= */
+var canvas = document.getElementById('game');
+var ctx = canvas.getContext('2d');
+var W = 0, H = 0;
+
+/* =========================================================
+   COLORS & CONSTANTS
+   ========================================================= */
+var PINK = '#ff96c8';
+var PURPLE = '#b496ff';
+var MINT = '#96ffdc';
+var YELLOW = '#ffffa0';
+var GOLD = '#c9a84c';
+var BG = '#0a0614';
+
+/* =========================================================
+   GRID CONSTANTS (recomputed on resize)
+   ========================================================= */
+var COLS = 13;        // number of columns
+var TOTAL_ROWS = 9;   // rows 0 (bottom safe) through 8 (top garden)
+var CELL_W = 0;
+var CELL_H = 0;
+var GRID_OFFSET_X = 0;
+var GRID_OFFSET_Y = 0;
+
+// Row types (index 0 = bottom row on screen, 8 = top)
+// 0: safe start, 1-3: stream, 4: safe middle, 5-7: stream+boxes, 8: fairy garden
+var ROW_TYPE = [];    // filled in initRowTypes
+var ROW_DIR = [];     // direction per row (-1 or +1)
+var ROW_SPEED = [];   // base speed per row (pixels/sec)
+
+/* =========================================================
+   GAME STATE — all var, all before any init calls
+   ========================================================= */
+var state = 'start';  // start, playing, over
+var hearts = 5;
+var score = 0;
+var round = 1;
+var roundTimer = 60;
+var roundTimerMax = 60;
+var maxHearts = 5;
+
+// Frog state (grid coords)
+var frogCol = 0;
+var frogRow = 0;
+var frogPixelX = 0;
+var frogPixelY = 0;
+var frogHopping = false;
+var hopFromCol = 0;
+var hopFromRow = 0;
+var hopToCol = 0;
+var hopToRow = 0;
+var hopProgress = 0;
+var hopDuration = 0.12; // seconds per hop
+var frogFacing = 0;  // 0=up, 1=right, 2=down, 3=left
+var frogAlive = true;
+var invincibleTimer = 0;
+var deathAnimTimer = 0;
+var frogOnMushroom = null; // reference to mushroom frog is riding
+var frogSquash = 0;  // squash/stretch animation value
+var frogLastHopTime = 0;
+var screenFlashTimer = 0;
+var screenFlashColor = '';
+
+// Goal spots
+var goalSpots = []; // {col, filled}
+
+// Mushrooms
+var mushrooms = []; // {row, x, w, speed, color, spotOffsets}
+
+// Magic boxes
+var magicBoxes = []; // {row, x, w, speed}
+
+// Particles
+var particles = [];
+
+// Floating texts
+var floatingTexts = [];
+
+// Background sparkles
+var bgSparkles = [];
+
+// Dark clouds (harder rounds)
+var darkClouds = [];
+
+// Animation / timing
+var lastTime = 0;
+var inputQueue = []; // queued movement directions
+
+// Swipe tracking
+var touchStartX = 0;
+var touchStartY = 0;
+var touchStartTime = 0;
+
+// Round banner
+var bannerTimer = 0;
+var bannerText = '';
+
+/* =========================================================
+   UTILITY FUNCTIONS
+   ========================================================= */
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+
+function clamp(v, lo, hi) {
+    return v < lo ? lo : (v > hi ? hi : v);
+}
+
+function randRange(a, b) {
+    return a + Math.random() * (b - a);
+}
+
+function gridToPixelX(col) {
+    return GRID_OFFSET_X + (col + 0.5) * CELL_W;
+}
+
+function gridToPixelY(row) {
+    // row 0 is at the bottom, row 8 at the top
+    return GRID_OFFSET_Y + (TOTAL_ROWS - 1 - row) * CELL_H + CELL_H * 0.5;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+function drawStar4(ctx, cx, cy, size) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - size * 2);
+    ctx.lineTo(cx + size * 0.5, cy - size * 0.5);
+    ctx.lineTo(cx + size * 2, cy);
+    ctx.lineTo(cx + size * 0.5, cy + size * 0.5);
+    ctx.lineTo(cx, cy + size * 2);
+    ctx.lineTo(cx - size * 0.5, cy + size * 0.5);
+    ctx.lineTo(cx - size * 2, cy);
+    ctx.lineTo(cx - size * 0.5, cy - size * 0.5);
+    ctx.closePath();
+}
+
+/* =========================================================
+   PARTICLE CLASS
+   ========================================================= */
+function Particle(x, y, color, opts) {
+    this.x = x;
+    this.y = y;
+    this.color = color || PINK;
+    var angle = Math.random() * Math.PI * 2;
+    var speed = (opts && opts.speed) ? opts.speed : (Math.random() * 180 + 60);
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.life = 1;
+    this.decay = (opts && opts.decay) ? opts.decay : (Math.random() * 1.5 + 1);
+    this.size = (opts && opts.size) ? opts.size : (Math.random() * 4 + 2);
+    this.isStar = Math.random() > 0.5;
+    this.gravity = (opts && opts.gravity !== undefined) ? opts.gravity : 60;
+}
+Particle.prototype.update = function(dt) {
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+    this.vy += this.gravity * dt;
+    this.life -= this.decay * dt;
+    return this.life > 0;
+};
+Particle.prototype.draw = function() {
+    ctx.globalAlpha = clamp(this.life, 0, 1);
+    ctx.fillStyle = this.color;
+    if (this.isStar) {
+        var sz = this.size * this.life;
+        drawStar4(ctx, this.x, this.y, sz);
+        ctx.fill();
+    } else {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * clamp(this.life, 0.1, 1), 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+};
+
+/* =========================================================
+   FLOATING TEXT
+   ========================================================= */
+function FloatingText(x, y, text, color) {
+    this.x = x;
+    this.y = y;
+    this.text = text;
+    this.color = color || YELLOW;
+    this.life = 1;
+    this.vy = -70;
+}
+FloatingText.prototype.update = function(dt) {
+    this.y += this.vy * dt;
+    this.vy *= 0.97;
+    this.life -= dt * 0.7;
+    return this.life > 0;
+};
+FloatingText.prototype.draw = function() {
+    ctx.globalAlpha = clamp(this.life, 0, 1);
+    var sz = 18 + (1 - this.life) * 8;
+    ctx.font = 'bold ' + sz + 'px Quicksand';
+    ctx.fillStyle = this.color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 10;
+    ctx.fillText(this.text, this.x, this.y);
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+};
+
+/* =========================================================
+   ROW TYPES INITIALIZATION
+   ========================================================= */
+function initRowTypes() {
+    ROW_TYPE = [];
+    ROW_DIR = [];
+    ROW_SPEED = [];
+    for (var i = 0; i < TOTAL_ROWS; i++) {
+        if (i === 0) {
+            ROW_TYPE[i] = 'safe';
+        } else if (i >= 1 && i <= 3) {
+            ROW_TYPE[i] = 'stream';
+        } else if (i === 4) {
+            ROW_TYPE[i] = 'safe';
+        } else if (i >= 5 && i <= 7) {
+            ROW_TYPE[i] = 'stream_box';
+        } else {
+            ROW_TYPE[i] = 'garden';
+        }
+        // Alternate directions
+        ROW_DIR[i] = (i % 2 === 0) ? 1 : -1;
+        // Base speeds vary by row (pixels/sec, scaled by round later)
+        var baseSpeed = 40 + (i % 3) * 20;
+        if (i >= 5) baseSpeed += 15;
+        ROW_SPEED[i] = baseSpeed;
+    }
+}
+initRowTypes();
+
+/* =========================================================
+   RESIZE — recompute grid
+   ========================================================= */
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    CELL_W = Math.floor(W / COLS);
+    CELL_H = Math.floor(H / TOTAL_ROWS);
+    // Center the grid
+    GRID_OFFSET_X = Math.floor((W - COLS * CELL_W) / 2);
+    GRID_OFFSET_Y = Math.floor((H - TOTAL_ROWS * CELL_H) / 2);
+}
+resize();
+window.addEventListener('resize', resize);
+
+/* =========================================================
+   BACKGROUND SPARKLES
+   ========================================================= */
+function initBgSparkles() {
+    bgSparkles = [];
+    for (var i = 0; i < 50; i++) {
+        bgSparkles.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size: Math.random() * 1.5 + 0.5,
+            alpha: Math.random() * 0.4 + 0.1,
+            speed: Math.random() * 12 + 4,
+            drift: (Math.random() - 0.5) * 8,
+            phase: Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 2 + 1
+        });
+    }
+}
+initBgSparkles();
+
+function updateBgSparkles(dt) {
+    for (var i = 0; i < bgSparkles.length; i++) {
+        var s = bgSparkles[i];
+        s.y -= s.speed * dt;
+        s.x += s.drift * dt;
+        s.phase += s.twinkleSpeed * dt;
+        if (s.y < -10) { s.y = H + 10; s.x = Math.random() * W; }
+        if (s.x < -10) s.x = W + 10;
+        if (s.x > W + 10) s.x = -10;
+    }
+}
+
+function drawBgSparkles() {
+    for (var i = 0; i < bgSparkles.length; i++) {
+        var s = bgSparkles[i];
+        var a = s.alpha * (0.5 + 0.5 * Math.sin(s.phase));
+        ctx.globalAlpha = a;
+        ctx.fillStyle = PURPLE;
+        drawStar4(ctx, s.x, s.y, s.size);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+/* =========================================================
+   MUSHROOM GENERATION
+   ========================================================= */
+function getSpeedMultiplier() {
+    return 1 + (round - 1) * 0.18;
+}
+
+function spawnMushroomsForRow(row) {
+    var dir = ROW_DIR[row];
+    var baseSpeed = ROW_SPEED[row] * getSpeedMultiplier();
+    var speed = baseSpeed * dir;
+    // Mushroom sizes: 1, 2, or 3 cells wide
+    // Place 3-5 mushrooms per row spread out
+    var mushroomCount = 3 + Math.floor(Math.random() * 2);
+    // Reduce mushroom count slightly on harder rounds to increase difficulty
+    if (round >= 4) mushroomCount = Math.max(2, mushroomCount - 1);
+    var spacing = (COLS * CELL_W + 200) / mushroomCount;
+    var colors = ['#ff69b4', '#b496ff', '#20c9a0', '#e080c0', '#8060d0'];
+
+    for (var i = 0; i < mushroomCount; i++) {
+        var sizeCells = [1, 2, 2, 3][Math.floor(Math.random() * 4)];
+        var mw = sizeCells * CELL_W;
+        var mx = i * spacing + Math.random() * spacing * 0.3 - (COLS * CELL_W) * 0.2;
+        // Generate white spot offsets for the mushroom cap
+        var spots = [];
+        for (var j = 0; j < sizeCells + 1; j++) {
+            spots.push({
+                ox: (Math.random() - 0.5) * mw * 0.6,
+                oy: (Math.random() - 0.5) * CELL_H * 0.2 - CELL_H * 0.1,
+                r: 2 + Math.random() * 2
+            });
+        }
+        mushrooms.push({
+            row: row,
+            x: mx,
+            w: mw,
+            speed: speed,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            sizeCells: sizeCells,
+            spotOffsets: spots
+        });
+    }
+}
+
+function spawnAllMushrooms() {
+    mushrooms = [];
+    for (var r = 0; r < TOTAL_ROWS; r++) {
+        if (ROW_TYPE[r] === 'stream' || ROW_TYPE[r] === 'stream_box') {
+            spawnMushroomsForRow(r);
+        }
+    }
+}
+
+/* =========================================================
+   MAGIC BOX GENERATION
+   ========================================================= */
+function spawnMagicBoxes() {
+    magicBoxes = [];
+    // Boxes on rows 5, 6, 7 (stream_box rows)
+    // Round 1: 1 box on row 6
+    // Round 2: 2 boxes
+    // Round 3+: one on each row
+    var boxRows = [];
+    if (round >= 3) {
+        boxRows = [5, 6, 7];
+    } else if (round >= 2) {
+        boxRows = [5, 7];
+    } else {
+        boxRows = [6];
+    }
+
+    for (var i = 0; i < boxRows.length; i++) {
+        var row = boxRows[i];
+        var dir = -ROW_DIR[row]; // boxes go opposite to mushrooms
+        var speed = (60 + round * 15) * dir * getSpeedMultiplier();
+        var bw = CELL_W * 1.4;
+        var startX = dir > 0 ? -bw : (COLS * CELL_W + GRID_OFFSET_X);
+        magicBoxes.push({
+            row: row,
+            x: startX + Math.random() * COLS * CELL_W * 0.5,
+            w: bw,
+            h: CELL_H * 0.85,
+            speed: speed,
+            glowPhase: Math.random() * Math.PI * 2
+        });
+    }
+}
+
+/* =========================================================
+   DARK CLOUDS (round 3+)
+   ========================================================= */
+function spawnDarkClouds() {
+    darkClouds = [];
+    if (round < 3) return;
+    var count = Math.min(round - 2, 3);
+    for (var i = 0; i < count; i++) {
+        darkClouds.push({
+            x: Math.random() * W,
+            y: gridToPixelY(3 + Math.floor(Math.random() * 4)),
+            w: CELL_W * (2 + Math.random() * 2),
+            h: CELL_H * 1.5,
+            speed: (20 + Math.random() * 20) * (Math.random() > 0.5 ? 1 : -1),
+            alpha: 0.4 + Math.random() * 0.3
+        });
+    }
+}
+
+/* =========================================================
+   GOAL SPOTS
+   ========================================================= */
+function initGoalSpots() {
+    goalSpots = [];
+    // 4 spots spread across the top row
+    var positions = [2, 5, 8, 11];
+    // Adjust for COLS if needed
+    for (var i = 0; i < 4; i++) {
+        var c = positions[i];
+        if (c >= COLS) c = COLS - 1;
+        goalSpots.push({ col: c, filled: false });
+    }
+}
+
+/* =========================================================
+   FROG SETUP
+   ========================================================= */
+function resetFrog() {
+    frogCol = Math.floor(COLS / 2);
+    frogRow = 0;
+    frogPixelX = gridToPixelX(frogCol);
+    frogPixelY = gridToPixelY(frogRow);
+    frogHopping = false;
+    hopProgress = 0;
+    frogAlive = true;
+    frogOnMushroom = null;
+    frogSquash = 0;
+    frogFacing = 0;
+    inputQueue = [];
+}
+
+/* =========================================================
+   DRAWING: MUSHROOM
+   ========================================================= */
+function drawMushroom(m) {
+    var py = gridToPixelY(m.row);
+    var mx = m.x;
+    var mw = m.w;
+    var capH = CELL_H * 0.45;
+    var stemW = mw * 0.35;
+    var stemH = CELL_H * 0.35;
+
+    // Stem (brown)
+    ctx.fillStyle = '#8B6914';
+    var stemX = mx + mw / 2 - stemW / 2;
+    var stemY = py - stemH * 0.2;
+    roundRect(ctx, stemX, stemY, stemW, stemH, 3);
+    ctx.fill();
+    // Darker stem line
+    ctx.fillStyle = '#6B4F10';
+    ctx.fillRect(stemX + stemW * 0.4, stemY + 2, stemW * 0.15, stemH - 4);
+
+    // Cap (rounded dome)
+    ctx.fillStyle = m.color;
+    ctx.beginPath();
+    ctx.ellipse(mx + mw / 2, py - capH * 0.1, mw / 2, capH, 0, Math.PI, 0);
+    ctx.fill();
+
+    // Cap highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(mx + mw / 2 - mw * 0.1, py - capH * 0.5, mw * 0.25, capH * 0.3, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // White spots
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    for (var i = 0; i < m.spotOffsets.length; i++) {
+        var sp = m.spotOffsets[i];
+        ctx.beginPath();
+        ctx.arc(mx + mw / 2 + sp.ox, py - capH * 0.4 + sp.oy, sp.r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+/* =========================================================
+   DRAWING: MAGIC BOX
+   ========================================================= */
+function drawMagicBox(b) {
+    var py = gridToPixelY(b.row);
+    var bx = b.x;
+    var bw = b.w;
+    var bh = b.h;
+    var hw = bw / 2;
+    var hh = bh / 2;
+    var cx = bx + hw;
+    var cy = py;
+
+    b.glowPhase += 0.03;
+    var glowSize = 0.7 + 0.3 * Math.sin(b.glowPhase);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // Glow underneath
+    var grd = ctx.createRadialGradient(0, hh + 5, 0, 0, hh + 5, hw * 1.5 * glowSize);
+    grd.addColorStop(0, 'rgba(180,150,255,0.3)');
+    grd.addColorStop(1, 'rgba(180,150,255,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(-hw * 2, -hh, hw * 4, hh * 3);
+
+    // Box body
+    var bodyGrd = ctx.createLinearGradient(-hw, -hh, hw, hh);
+    bodyGrd.addColorStop(0, '#2d1854');
+    bodyGrd.addColorStop(0.5, '#3a2070');
+    bodyGrd.addColorStop(1, '#2d1854');
+    ctx.fillStyle = bodyGrd;
+    roundRect(ctx, -hw, -hh * 0.5, bw, hh * 1.5, 5);
+    ctx.fill();
+
+    // Border
+    ctx.strokeStyle = GOLD;
+    ctx.lineWidth = 2;
+    roundRect(ctx, -hw, -hh * 0.5, bw, hh * 1.5, 5);
+    ctx.stroke();
+
+    // Gold trim lines
+    ctx.strokeStyle = 'rgba(201,168,76,0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-hw + 6, -hh * 0.3);
+    ctx.lineTo(hw - 6, -hh * 0.3);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-hw + 6, hh * 0.6);
+    ctx.lineTo(hw - 6, hh * 0.6);
+    ctx.stroke();
+
+    // Lid
+    var lidGrd = ctx.createLinearGradient(-hw, -hh, hw, -hh * 0.5);
+    lidGrd.addColorStop(0, '#3a2070');
+    lidGrd.addColorStop(0.5, '#4a2890');
+    lidGrd.addColorStop(1, '#3a2070');
+    ctx.fillStyle = lidGrd;
+    roundRect(ctx, -hw, -hh, bw, hh * 0.55, 5);
+    ctx.fill();
+    ctx.strokeStyle = GOLD;
+    ctx.lineWidth = 2;
+    roundRect(ctx, -hw, -hh, bw, hh * 0.55, 5);
+    ctx.stroke();
+
+    // Star on front
+    ctx.fillStyle = MINT;
+    ctx.shadowColor = MINT;
+    ctx.shadowBlur = 6 * glowSize;
+    ctx.font = (12 + 2 * glowSize) + 'px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('\u2726', 0, hh * 0.15);
+    ctx.shadowBlur = 0;
+
+    // Gold clasp
+    ctx.fillStyle = GOLD;
+    ctx.beginPath();
+    ctx.arc(0, -hh * 0.5, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+/* =========================================================
+   DRAWING: FROG
+   ========================================================= */
+function drawFrog() {
+    if (!frogAlive && deathAnimTimer <= 0) return;
+
+    // Invincibility flashing
+    if (invincibleTimer > 0) {
+        if (Math.floor(invincibleTimer * 10) % 2 === 0) return;
+    }
+
+    // Death animation
+    if (!frogAlive) {
+        ctx.globalAlpha = clamp(deathAnimTimer / 0.5, 0, 1);
+    }
+
+    var px = frogPixelX;
+    var py = frogPixelY;
+
+    // Hop arc
+    if (frogHopping) {
+        var t = hopProgress / hopDuration;
+        var fromPx = gridToPixelX(hopFromCol);
+        var fromPy = gridToPixelY(hopFromRow);
+        var toPx = gridToPixelX(hopToCol);
+        var toPy = gridToPixelY(hopToRow);
+
+        // If riding a mushroom at the start, offset from
+        px = lerp(fromPx, toPx, t);
+        py = lerp(fromPy, toPy, t);
+        // Arc up
+        var arc = Math.sin(t * Math.PI) * CELL_H * 0.6;
+        py -= arc;
+
+        frogPixelX = px;
+        frogPixelY = py + arc; // store without arc for collision
+    }
+
+    ctx.save();
+    ctx.translate(px, py);
+
+    // Squash/stretch
+    var squashAmt = frogSquash;
+    if (frogHopping) {
+        var ht = hopProgress / hopDuration;
+        // Stretch when going up, squash when landing
+        if (ht < 0.5) {
+            squashAmt = ht * 0.3;
+        } else {
+            squashAmt = (1 - ht) * 0.3;
+        }
+    }
+    var sx = 1 - squashAmt * 0.5;
+    var sy = 1 + squashAmt;
+    ctx.scale(sx, sy);
+
+    // Glow
+    ctx.shadowColor = MINT;
+    ctx.shadowBlur = 12;
+
+    // Shadow on ground
+    ctx.globalAlpha = (ctx.globalAlpha || 1) * 0.2;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(0, CELL_H * 0.3, CELL_W * 0.3, CELL_H * 0.08, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = (!frogAlive) ? clamp(deathAnimTimer / 0.5, 0, 1) : 1;
+    if (invincibleTimer > 0) {
+        ctx.globalAlpha = 0.8;
+    }
+
+    // Emoji frog
+    var frogSize = Math.min(CELL_W, CELL_H) * 0.85;
+    ctx.font = frogSize + 'px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = MINT;
+    ctx.shadowBlur = 10;
+    ctx.fillText('\uD83D\uDC38', 0, 0);
+    ctx.shadowBlur = 0;
+
+    ctx.restore();
+    ctx.globalAlpha = 1;
+}
+
+/* =========================================================
+   DRAWING: GOAL SPOTS
+   ========================================================= */
+function drawGoalSpots() {
+    for (var i = 0; i < goalSpots.length; i++) {
+        var g = goalSpots[i];
+        var px = gridToPixelX(g.col);
+        var py = gridToPixelY(TOTAL_ROWS - 1);
+
+        // Glow circle
+        var glowR = CELL_W * 0.45;
+        var grd = ctx.createRadialGradient(px, py, 0, px, py, glowR);
+        if (g.filled) {
+            grd.addColorStop(0, 'rgba(255,150,200,0.5)');
+            grd.addColorStop(1, 'rgba(255,150,200,0)');
+        } else {
+            grd.addColorStop(0, 'rgba(255,150,200,0.25)');
+            grd.addColorStop(1, 'rgba(255,150,200,0)');
+        }
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(px, py, glowR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Flower emoji
+        var sz = Math.min(CELL_W, CELL_H) * 0.7;
+        ctx.font = sz + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if (g.filled) {
+            ctx.globalAlpha = 1;
+            ctx.shadowColor = PINK;
+            ctx.shadowBlur = 15;
+            ctx.fillText('\uD83C\uDF38', px, py);
+            ctx.shadowBlur = 0;
+            // Small frog on filled spot
+            ctx.font = (sz * 0.5) + 'px serif';
+            ctx.fillText('\uD83D\uDC38', px, py + sz * 0.35);
+        } else {
+            ctx.globalAlpha = 0.4 + 0.15 * Math.sin(Date.now() * 0.003 + i);
+            ctx.fillText('\uD83C\uDF38', px, py);
+        }
+        ctx.globalAlpha = 1;
+    }
+}
+
+/* =========================================================
+   DRAWING: DARK CLOUDS
+   ========================================================= */
+function drawDarkClouds() {
+    for (var i = 0; i < darkClouds.length; i++) {
+        var c = darkClouds[i];
+        ctx.globalAlpha = c.alpha;
+        var grd = ctx.createRadialGradient(c.x + c.w / 2, c.y, 0, c.x + c.w / 2, c.y, c.w * 0.7);
+        grd.addColorStop(0, 'rgba(10,6,20,0.9)');
+        grd.addColorStop(0.6, 'rgba(20,12,40,0.6)');
+        grd.addColorStop(1, 'rgba(10,6,20,0)');
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.ellipse(c.x + c.w / 2, c.y, c.w / 2, c.h / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+/* =========================================================
+   DRAWING: ROW BACKGROUNDS
+   ========================================================= */
+function drawRowBackgrounds() {
+    for (var r = 0; r < TOTAL_ROWS; r++) {
+        var py = GRID_OFFSET_Y + (TOTAL_ROWS - 1 - r) * CELL_H;
+        var type = ROW_TYPE[r];
+
+        if (type === 'safe') {
+            // Grassy ground
+            ctx.fillStyle = '#0d1f0a';
+            ctx.fillRect(0, py, W, CELL_H);
+            // Grass texture — small lines
+            ctx.strokeStyle = '#1a3812';
+            ctx.lineWidth = 1;
+            for (var gi = 0; gi < W; gi += 12) {
+                var gh = 3 + Math.sin(gi * 0.7) * 2;
+                ctx.beginPath();
+                ctx.moveTo(gi, py + CELL_H);
+                ctx.lineTo(gi + 2, py + CELL_H - gh);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(gi, py);
+                ctx.lineTo(gi + 2, py + gh);
+                ctx.stroke();
+            }
+            // Flowers on safe rows (bottom row)
+            if (r === 0) {
+                ctx.font = (CELL_H * 0.3) + 'px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                for (var fi = 0; fi < COLS; fi += 3) {
+                    var fx = gridToPixelX(fi);
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillText('\uD83C\uDF3C', fx, py + CELL_H * 0.5);
+                }
+                ctx.globalAlpha = 1;
+            }
+            // Sparkles on middle safe row
+            if (r === 4) {
+                ctx.fillStyle = MINT;
+                for (var si = 0; si < 8; si++) {
+                    var sparkX = (si * W / 8) + Math.sin(Date.now() * 0.001 + si) * 10;
+                    var sparkY = py + CELL_H * 0.5 + Math.cos(Date.now() * 0.002 + si * 1.5) * 5;
+                    ctx.globalAlpha = 0.3 + 0.2 * Math.sin(Date.now() * 0.004 + si * 0.8);
+                    drawStar4(ctx, sparkX, sparkY, 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+        } else if (type === 'stream' || type === 'stream_box') {
+            // Deep purple void / swamp water
+            var waterGrd = ctx.createLinearGradient(0, py, 0, py + CELL_H);
+            waterGrd.addColorStop(0, '#0c0520');
+            waterGrd.addColorStop(0.5, '#120830');
+            waterGrd.addColorStop(1, '#0c0520');
+            ctx.fillStyle = waterGrd;
+            ctx.fillRect(0, py, W, CELL_H);
+            // Subtle ripple lines
+            ctx.strokeStyle = 'rgba(180,150,255,0.06)';
+            ctx.lineWidth = 1;
+            for (var ri = 0; ri < W; ri += 30) {
+                var ry = py + CELL_H * 0.5 + Math.sin((ri + Date.now() * 0.02) * 0.05) * 3;
+                ctx.beginPath();
+                ctx.moveTo(ri, ry);
+                ctx.lineTo(ri + 20, ry + Math.sin((ri + Date.now() * 0.02) * 0.08) * 2);
+                ctx.stroke();
+            }
+        } else if (type === 'garden') {
+            // Fairy garden
+            var gardenGrd = ctx.createLinearGradient(0, py, 0, py + CELL_H);
+            gardenGrd.addColorStop(0, '#1a0d2e');
+            gardenGrd.addColorStop(0.5, '#1f1238');
+            gardenGrd.addColorStop(1, '#1a0d2e');
+            ctx.fillStyle = gardenGrd;
+            ctx.fillRect(0, py, W, CELL_H);
+            // Sparkle overlay
+            ctx.fillStyle = 'rgba(255,150,200,0.03)';
+            ctx.fillRect(0, py, W, CELL_H);
+        }
+
+        // Row separator lines
+        ctx.strokeStyle = 'rgba(180,150,255,0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, py);
+        ctx.lineTo(W, py);
+        ctx.stroke();
+    }
+}
+
+/* =========================================================
+   LANDING SPARKLE BURST
+   ========================================================= */
+function spawnLandingParticles(px, py) {
+    var colors = [PINK, PURPLE, MINT, YELLOW];
+    for (var i = 0; i < 8; i++) {
+        particles.push(new Particle(px, py, colors[Math.floor(Math.random() * colors.length)], {
+            speed: 50 + Math.random() * 60,
+            decay: 2 + Math.random(),
+            size: 2 + Math.random() * 2,
+            gravity: 30
+        }));
+    }
+}
+
+/* =========================================================
+   COLLISION: FROG ON MUSHROOM
+   ========================================================= */
+function findMushroomAt(col, row) {
+    var px = gridToPixelX(col);
+    for (var i = 0; i < mushrooms.length; i++) {
+        var m = mushrooms[i];
+        if (m.row !== row) continue;
+        // Check if frog center is within mushroom bounds (with some tolerance)
+        var tolerance = CELL_W * 0.3;
+        if (px >= m.x - tolerance && px <= m.x + m.w + tolerance) {
+            return m;
+        }
+    }
+    return null;
+}
+
+/* =========================================================
+   COLLISION: FROG VS MAGIC BOX
+   ========================================================= */
+function checkBoxCollision() {
+    if (invincibleTimer > 0) return false;
+    var px = frogPixelX;
+    var py = gridToPixelY(frogRow);
+
+    for (var i = 0; i < magicBoxes.length; i++) {
+        var b = magicBoxes[i];
+        if (b.row !== frogRow) continue;
+        var bpy = gridToPixelY(b.row);
+        // Simple AABB
+        var frogHW = CELL_W * 0.3;
+        var frogHH = CELL_H * 0.3;
+        if (px + frogHW > b.x && px - frogHW < b.x + b.w &&
+            py + frogHH > bpy - b.h / 2 && py - frogHH < bpy + b.h / 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* =========================================================
+   LOSE HEART
+   ========================================================= */
+function loseHeart(reason) {
+    if (invincibleTimer > 0) return;
+    hearts--;
+    invincibleTimer = 1.5;
+    screenFlashTimer = 0.3;
+    screenFlashColor = (reason === 'box') ? 'rgba(180,100,255,0.3)' : 'rgba(255,50,50,0.25)';
+
+    // Death particles
+    spawnLandingParticles(frogPixelX, frogPixelY);
+
+    // Flash text
+    var msgs = ['Oops!', 'Ribbit!', 'Oh no!'];
+    floatingTexts.push(new FloatingText(frogPixelX, frogPixelY - 20, msgs[Math.floor(Math.random() * msgs.length)], PINK));
+
+    updateHeartsUI();
+
+    if (hearts <= 0) {
+        endGame();
+        return;
+    }
+
+    // Reset frog to start
+    resetFrog();
+}
+
+/* =========================================================
+   SCORE A GOAL SPOT
+   ========================================================= */
+function scoreGoalSpot(spotIndex) {
+    var g = goalSpots[spotIndex];
+    g.filled = true;
+    score += 100;
+
+    // Big sparkle burst
+    var px = gridToPixelX(g.col);
+    var py = gridToPixelY(TOTAL_ROWS - 1);
+    var colors = [PINK, YELLOW, MINT, GOLD];
+    for (var i = 0; i < 20; i++) {
+        particles.push(new Particle(px, py, colors[Math.floor(Math.random() * colors.length)], {
+            speed: 80 + Math.random() * 100,
+            decay: 1 + Math.random(),
+            size: 3 + Math.random() * 3
+        }));
+    }
+    floatingTexts.push(new FloatingText(px, py - 20, '+100', YELLOW));
+
+    updateScoreUI();
+
+    // Reaching the other side immediately starts the next round
+    completeRound();
+}
+
+/* =========================================================
+   COMPLETE ROUND
+   ========================================================= */
+function completeRound() {
+    // Time bonus: more time left = more points
+    var timeBonus = Math.floor(roundTimer * 5);
+    score += 500 + timeBonus;
+    round++;
+
+    // Show banner
+    bannerText = 'Round ' + round + '!';
+    bannerTimer = 2.0;
+    var bannerEl = document.getElementById('round-banner');
+    bannerEl.textContent = bannerText;
+    bannerEl.style.display = 'block';
+    setTimeout(function() { bannerEl.style.display = 'none'; }, 2000);
+
+    floatingTexts.push(new FloatingText(W / 2, H / 2, '+500 Round Bonus!', GOLD));
+    if (timeBonus > 0) {
+        floatingTexts.push(new FloatingText(W / 2, H / 2 + 40, '+' + timeBonus + ' Time Bonus!', MINT));
+    }
+
+    // Big celebration particles
+    for (var i = 0; i < 40; i++) {
+        var colors = [PINK, PURPLE, MINT, YELLOW, GOLD];
+        particles.push(new Particle(W / 2 + (Math.random() - 0.5) * W * 0.5, H / 2, colors[Math.floor(Math.random() * colors.length)], {
+            speed: 100 + Math.random() * 150,
+            decay: 0.8 + Math.random() * 0.5,
+            size: 3 + Math.random() * 4
+        }));
+    }
+
+    // Reset for next round
+    roundTimer = roundTimerMax;
+    initGoalSpots();
+    spawnAllMushrooms();
+    spawnMagicBoxes();
+    spawnDarkClouds();
+    resetFrog();
+    updateAllUI();
+}
+
+/* =========================================================
+   UI UPDATES
+   ========================================================= */
+function updateScoreUI() {
+    document.getElementById('score').textContent = score;
+}
+
+function updateRoundUI() {
+    document.getElementById('round').textContent = round;
+}
+
+function updateTimerUI() {
+    document.getElementById('timer').textContent = Math.ceil(roundTimer);
+}
+
+function updateHeartsUI() {
+    var str = '';
+    for (var i = 0; i < maxHearts; i++) {
+        str += (i < hearts) ? '\uD83D\uDC96' : '\uD83D\uDDA4';
+    }
+    document.getElementById('hearts').textContent = str;
+}
+
+function updateAllUI() {
+    updateScoreUI();
+    updateRoundUI();
+    updateTimerUI();
+    updateHeartsUI();
+}
+
+/* =========================================================
+   HOP LOGIC
+   ========================================================= */
+function tryHop(dir) {
+    // dir: 0=up, 1=right, 2=down, 3=left
+    if (frogHopping) {
+        // Queue the input
+        if (inputQueue.length < 2) inputQueue.push(dir);
+        return;
+    }
+    if (!frogAlive) return;
+
+    var newCol = frogCol;
+    var newRow = frogRow;
+
+    if (dir === 0) newRow++;       // up
+    else if (dir === 1) newCol++;  // right
+    else if (dir === 2) newRow--;  // down
+    else if (dir === 3) newCol--;  // left
+
+    // Bounds check
+    if (newCol < 0 || newCol >= COLS) return;
+    if (newRow < 0 || newRow >= TOTAL_ROWS) return;
+
+    frogFacing = dir;
+
+    // Score forward hops
+    if (newRow > frogRow) {
+        score += 10;
+        updateScoreUI();
+    }
+
+    // Start hop animation
+    hopFromCol = frogCol;
+    hopFromRow = frogRow;
+    hopToCol = newCol;
+    hopToRow = newRow;
+    frogHopping = true;
+    hopProgress = 0;
+    frogOnMushroom = null;
+}
+
+function finishHop() {
+    frogHopping = false;
+    frogCol = hopToCol;
+    frogRow = hopToRow;
+    frogPixelX = gridToPixelX(frogCol);
+    frogPixelY = gridToPixelY(frogRow);
+    frogSquash = 0.4; // land squash
+
+    // Landing particles
+    spawnLandingParticles(frogPixelX, frogPixelY);
+
+    var rowType = ROW_TYPE[frogRow];
+
+    // Check if landed on a goal spot
+    if (rowType === 'garden') {
+        for (var i = 0; i < goalSpots.length; i++) {
+            if (goalSpots[i].col === frogCol && !goalSpots[i].filled) {
+                scoreGoalSpot(i);
+                return;
+            }
+        }
+        // Landed on garden but not on a spot — still safe for a moment
+        // (In classic Frogger, this would be death, but we'll be forgiving
+        // and just let them be on the garden row)
+    }
+
+    // Check if on a stream row — need to find a mushroom
+    if (rowType === 'stream' || rowType === 'stream_box') {
+        var m = findMushroomAt(frogCol, frogRow);
+        if (m) {
+            frogOnMushroom = m;
+        } else {
+            // Fell in the void!
+            loseHeart('fall');
+            return;
+        }
+    } else {
+        frogOnMushroom = null;
+    }
+
+    // Check box collision
+    if (rowType === 'stream_box' && checkBoxCollision()) {
+        loseHeart('box');
+        return;
+    }
+
+    // Process queued input
+    if (inputQueue.length > 0) {
+        var next = inputQueue.shift();
+        tryHop(next);
+    }
+}
+
+/* =========================================================
+   UPDATE
+   ========================================================= */
+function update(dt) {
+    if (state !== 'playing') return;
+
+    // Round timer
+    roundTimer -= dt;
+    updateTimerUI();
+    if (roundTimer <= 0) {
+        roundTimer = 0;
+        loseHeart('time');
+        if (hearts > 0) {
+            roundTimer = roundTimerMax;
+            resetFrog();
+        }
+        return;
+    }
+
+    // Invincibility
+    if (invincibleTimer > 0) {
+        invincibleTimer -= dt;
+        if (invincibleTimer < 0) invincibleTimer = 0;
+    }
+
+    // Screen flash
+    if (screenFlashTimer > 0) {
+        screenFlashTimer -= dt;
+    }
+
+    // Squash recovery
+    if (frogSquash > 0) {
+        frogSquash -= dt * 3;
+        if (frogSquash < 0) frogSquash = 0;
+    }
+
+    // Hop animation
+    if (frogHopping) {
+        hopProgress += dt;
+        if (hopProgress >= hopDuration) {
+            hopProgress = hopDuration;
+            finishHop();
+        }
+    }
+
+    // Move mushrooms
+    for (var i = 0; i < mushrooms.length; i++) {
+        var m = mushrooms[i];
+        m.x += m.speed * dt;
+        // Wrap around
+        var totalWidth = COLS * CELL_W + GRID_OFFSET_X * 2;
+        if (m.speed > 0 && m.x > totalWidth + 50) {
+            m.x = -m.w - 50;
+        } else if (m.speed < 0 && m.x + m.w < -50) {
+            m.x = totalWidth + 50;
+        }
+    }
+
+    // Move magic boxes
+    for (var j = 0; j < magicBoxes.length; j++) {
+        var b = magicBoxes[j];
+        b.x += b.speed * dt;
+        var totalW2 = COLS * CELL_W + GRID_OFFSET_X * 2;
+        if (b.speed > 0 && b.x > totalW2 + 50) {
+            b.x = -b.w - 50;
+        } else if (b.speed < 0 && b.x + b.w < -50) {
+            b.x = totalW2 + 50;
+        }
+    }
+
+    // Move dark clouds
+    for (var k = 0; k < darkClouds.length; k++) {
+        var c = darkClouds[k];
+        c.x += c.speed * dt;
+        if (c.x > W + 100) c.x = -c.w - 100;
+        if (c.x + c.w < -100) c.x = W + 100;
+    }
+
+    // Frog riding mushroom
+    if (!frogHopping && frogAlive && frogOnMushroom) {
+        var m2 = frogOnMushroom;
+        // Move frog with mushroom
+        frogPixelX += m2.speed * dt;
+
+        // Recompute frog grid column from pixel position
+        frogCol = Math.round((frogPixelX - GRID_OFFSET_X - CELL_W * 0.5) / CELL_W);
+
+        // Check if frog was carried off screen
+        if (frogPixelX < -CELL_W || frogPixelX > W + CELL_W) {
+            loseHeart('fall');
+            return;
+        }
+
+        // Also verify still on the mushroom
+        var tolerance = CELL_W * 0.4;
+        if (frogPixelX < m2.x - tolerance || frogPixelX > m2.x + m2.w + tolerance) {
+            // Slipped off mushroom — find another one
+            var newM = null;
+            for (var mi = 0; mi < mushrooms.length; mi++) {
+                var mc = mushrooms[mi];
+                if (mc.row !== frogRow) continue;
+                if (frogPixelX >= mc.x - tolerance && frogPixelX <= mc.x + mc.w + tolerance) {
+                    newM = mc;
+                    break;
+                }
+            }
+            if (newM) {
+                frogOnMushroom = newM;
+            } else {
+                loseHeart('fall');
+                return;
+            }
+        }
+    }
+
+    // Check box collision while riding
+    if (!frogHopping && frogAlive && ROW_TYPE[frogRow] === 'stream_box') {
+        if (checkBoxCollision()) {
+            loseHeart('box');
+            return;
+        }
+    }
+
+    // Update particles
+    var newParticles = [];
+    for (var pi = 0; pi < particles.length; pi++) {
+        if (particles[pi].update(dt)) newParticles.push(particles[pi]);
+    }
+    particles = newParticles;
+
+    // Update floating texts
+    var newTexts = [];
+    for (var ti = 0; ti < floatingTexts.length; ti++) {
+        if (floatingTexts[ti].update(dt)) newTexts.push(floatingTexts[ti]);
+    }
+    floatingTexts = newTexts;
+
+    // Banner timer
+    if (bannerTimer > 0) bannerTimer -= dt;
+}
+
+/* =========================================================
+   DRAW
+   ========================================================= */
+function draw() {
+    // Clear
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+
+    // Slight greenish tint at bottom
+    var bottomGrd = ctx.createLinearGradient(0, H * 0.7, 0, H);
+    bottomGrd.addColorStop(0, 'rgba(10,6,20,0)');
+    bottomGrd.addColorStop(1, 'rgba(10,30,10,0.15)');
+    ctx.fillStyle = bottomGrd;
+    ctx.fillRect(0, H * 0.7, W, H * 0.3);
+
+    // Background sparkles
+    drawBgSparkles();
+
+    if (state === 'playing' || state === 'over') {
+        // Row backgrounds
+        drawRowBackgrounds();
+
+        // Mushrooms
+        for (var i = 0; i < mushrooms.length; i++) {
+            drawMushroom(mushrooms[i]);
+        }
+
+        // Magic boxes
+        for (var j = 0; j < magicBoxes.length; j++) {
+            drawMagicBox(magicBoxes[j]);
+        }
+
+        // Goal spots
+        drawGoalSpots();
+
+        // Frog
+        drawFrog();
+
+        // Dark clouds (on top of most things)
+        drawDarkClouds();
+
+        // Particles
+        for (var pi = 0; pi < particles.length; pi++) {
+            particles[pi].draw();
+        }
+
+        // Floating texts
+        for (var ti = 0; ti < floatingTexts.length; ti++) {
+            floatingTexts[ti].draw();
+        }
+
+        // Screen flash effect
+        if (screenFlashTimer > 0) {
+            ctx.globalAlpha = screenFlashTimer / 0.3;
+            ctx.fillStyle = screenFlashColor;
+            ctx.fillRect(0, 0, W, H);
+            ctx.globalAlpha = 1;
+        }
+    }
+}
+
+/* =========================================================
+   GAME LOOP
+   ========================================================= */
+function gameLoop(time) {
+    var rawDt = (time - lastTime) / 1000;
+    var dt = rawDt > 0.05 ? 0.05 : rawDt; // cap at 50ms
+    if (dt < 0) dt = 0;
+    lastTime = time;
+
+    updateBgSparkles(dt);
+    update(dt);
+    draw();
+
+    requestAnimationFrame(gameLoop);
+}
+
+/* =========================================================
+   START / END GAME
+   ========================================================= */
+function startGame() {
+    if (state === 'playing') return;
+    state = 'playing';
+    hearts = maxHearts;
+    score = 0;
+    round = 1;
+    roundTimer = roundTimerMax;
+    invincibleTimer = 0;
+    screenFlashTimer = 0;
+    particles = [];
+    floatingTexts = [];
+    darkClouds = [];
+
+    initGoalSpots();
+    spawnAllMushrooms();
+    spawnMagicBoxes();
+    spawnDarkClouds();
+    resetFrog();
+
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('ui').style.display = 'flex';
+    document.getElementById('game-over').classList.remove('active');
+    updateAllUI();
+}
+
+function endGame() {
+    state = 'over';
+    frogAlive = false;
+
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-stats').innerHTML =
+        '\uD83D\uDC38 Score: <strong style="color:#ff96c8">' + score + '</strong><br>' +
+        '\uD83C\uDF38 Rounds Completed: <strong style="color:#ffffa0">' + (round - 1) + '</strong><br>' +
+        '\u23F1 Final Round: <strong style="color:#96ffdc">' + round + '</strong>';
+    document.getElementById('game-over').classList.add('active');
+    document.getElementById('ui').style.display = 'none';
+}
+
+/* =========================================================
+   INPUT: KEYBOARD
+   ========================================================= */
+document.addEventListener('keydown', function(e) {
+    if (state === 'start') {
+        startGame();
+        return;
+    }
+    if (state !== 'playing') return;
+
+    var dir = -1;
+    switch (e.key) {
+        case 'ArrowUp': case 'w': case 'W': dir = 0; break;
+        case 'ArrowRight': case 'd': case 'D': dir = 1; break;
+        case 'ArrowDown': case 's': case 'S': dir = 2; break;
+        case 'ArrowLeft': case 'a': case 'A': dir = 3; break;
+    }
+    if (dir >= 0) {
+        e.preventDefault();
+        tryHop(dir);
+    }
+});
+
+/* =========================================================
+   INPUT: CLICK / TAP ON SCREEN EDGES
+   ========================================================= */
+function getDirectionFromScreenPos(x, y) {
+    // Determine direction based on where on screen was clicked relative to frog
+    var fx = frogPixelX;
+    var fy = frogPixelY;
+    var dx = x - fx;
+    var dy = y - fy;
+
+    if (Math.abs(dx) < CELL_W && Math.abs(dy) < CELL_H) {
+        // Clicked near frog — treat as up
+        return 0;
+    }
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        return dx > 0 ? 1 : 3;
+    } else {
+        return dy < 0 ? 0 : 2;
+    }
+}
+
+canvas.addEventListener('mousedown', function(e) {
+    if (state === 'start') { startGame(); return; }
+    if (state !== 'playing') return;
+    var dir = getDirectionFromScreenPos(e.clientX, e.clientY);
+    tryHop(dir);
+});
+
+canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    if (state === 'start') { startGame(); return; }
+    if (state !== 'playing') return;
+    var touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchStartTime = Date.now();
+}, { passive: false });
+
+canvas.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    if (state !== 'playing') return;
+    var touch = e.changedTouches[0];
+    var dx = touch.clientX - touchStartX;
+    var dy = touch.clientY - touchStartY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var elapsed = Date.now() - touchStartTime;
+
+    if (dist > 20 && elapsed < 500) {
+        // Swipe
+        var dir;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            dir = dx > 0 ? 1 : 3;
+        } else {
+            dir = dy < 0 ? 0 : 2;
+        }
+        tryHop(dir);
+    } else {
+        // Tap — use position relative to frog
+        var tapDir = getDirectionFromScreenPos(touch.clientX, touch.clientY);
+        tryHop(tapDir);
+    }
+}, { passive: false });
+
+/* =========================================================
+   INPUT: START SCREEN EVENTS
+   ========================================================= */
+document.getElementById('start-screen').addEventListener('click', function() {
+    startGame();
+});
+document.getElementById('start-screen').addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    startGame();
+}, { passive: false });
+
+/* =========================================================
+   INIT
+   ========================================================= */
+lastTime = performance.now();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

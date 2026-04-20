@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixie Pet ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#0a0614;color:#f0d0ff;font-family:'Quicksand',sans-serif;overflow:hidden;cursor:default}
+        canvas{display:block}
+
+        /* HUB UI */
+        #hub-ui{position:fixed;top:0;left:0;right:0;bottom:0;z-index:10;pointer-events:none}
+        #hub-ui>*{pointer-events:auto}
+
+        .top-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent)}
+        .back-btn{color:#b496ff;text-decoration:none;font-size:13px;cursor:pointer;padding:6px 14px;border:1px solid rgba(180,150,255,0.3);border-radius:20px}
+        .back-btn:hover{border-color:#ff96c8;color:#ff96c8}
+
+        .stats-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+        .stat-pill{display:flex;align-items:center;gap:6px;background:rgba(20,12,35,0.8);border:1px solid rgba(180,150,255,0.15);border-radius:20px;padding:6px 14px;font-size:13px}
+        .stat-icon{font-size:16px}
+        .stat-bar-bg{width:60px;height:8px;background:rgba(40,20,60,0.6);border-radius:4px;overflow:hidden}
+        .stat-bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
+        .stat-val{font-weight:700;font-size:12px;width:28px;text-align:right}
+
+        .level-badge{background:linear-gradient(135deg,rgba(255,150,200,0.2),rgba(180,150,255,0.2));border:1px solid rgba(255,150,200,0.3);border-radius:20px;padding:6px 16px;font-weight:700;color:#ff96c8}
+        .xp-mini{width:50px;height:4px;background:rgba(40,20,60,0.6);border-radius:2px;overflow:hidden;margin-top:3px}
+        .xp-fill{height:100%;background:linear-gradient(90deg,#ff96c8,#b496ff);border-radius:2px;transition:width 0.5s}
+
+        /* Action buttons */
+        .actions{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:20}
+        .act-btn{padding:12px 20px;border-radius:16px;border:1px solid rgba(180,150,255,0.2);background:rgba(25,12,45,0.9);color:#f0d0ff;font-family:'Quicksand',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;gap:8px;backdrop-filter:blur(5px)}
+        .act-btn:hover{border-color:#ff96c8;transform:translateY(-3px);box-shadow:0 8px 25px rgba(255,150,200,0.15)}
+        .act-btn .emoji{font-size:20px}
+        .act-btn.disabled{opacity:0.4;pointer-events:none}
+
+        /* Message popup */
+        .msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-60%);background:rgba(20,10,35,0.95);border:1px solid rgba(255,150,200,0.3);border-radius:20px;padding:20px 35px;font-size:18px;font-weight:600;color:#ff96c8;z-index:50;opacity:0;transition:opacity 0.3s;pointer-events:none;text-align:center;backdrop-filter:blur(8px)}
+        .msg.show{opacity:1}
+
+        /* Mini-game overlay */
+        #game-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:#0a0614;display:none}
+        #game-overlay.active{display:block}
+        #game-canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+        #game-canvas{width:100%;height:100%}
+        .game-hud{position:fixed;top:0;left:0;right:0;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(10,6,20,0.95),transparent);z-index:101;pointer-events:none}
+        .game-title{font-family:'Pacifico',cursive;color:#ff96c8;font-size:22px}
+        .game-score{color:#ffffa0;font-size:20px;font-weight:700}
+        .game-timer{color:#96d2ff;font-size:18px;font-weight:600}
+
+        /* Game over screen in mini-games */
+        .game-result{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:102;background:rgba(5,3,10,0.92);justify-content:center;align-items:center;flex-direction:column;text-align:center}
+        .game-result.active{display:flex}
+        .game-result h2{font-family:'Pacifico',cursive;color:#ff96c8;font-size:42px;margin-bottom:10px}
+        .game-result .big-score{font-size:56px;font-weight:700;color:#ffffa0;margin:10px 0}
+        .game-result .detail{color:#b496ff;font-size:16px;margin:5px 0;line-height:1.6}
+        .game-result .xp-earned{color:#96ffdc;font-size:20px;font-weight:700;margin:15px 0}
+        .result-btn{padding:12px 30px;border-radius:25px;border:none;font-family:'Quicksand',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin:5px}
+        .result-btn.primary{background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614}
+        .result-btn.ghost{background:transparent;color:#b496ff;border:1px solid rgba(180,150,255,0.3)}
+        .result-btn:hover{transform:scale(1.05)}
+
+        /* Mini-game select */
+        .game-select{position:fixed;top:0;left:0;right:0;bottom:0;z-index:90;background:rgba(5,3,10,0.95);display:none;justify-content:center;align-items:center;flex-direction:column;backdrop-filter:blur(5px)}
+        .game-select.active{display:flex}
+        .game-select h2{font-family:'Pacifico',cursive;color:#ff96c8;font-size:36px;margin-bottom:30px}
+        .game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;max-width:700px;padding:0 20px}
+        .game-card{background:rgba(30,15,50,0.8);border:1px solid rgba(180,150,255,0.15);border-radius:18px;padding:25px 20px;text-align:center;cursor:pointer;transition:all 0.3s}
+        .game-card:hover{transform:translateY(-5px);border-color:rgba(255,150,200,0.3);box-shadow:0 10px 30px rgba(180,100,255,0.15)}
+        .game-card .gc-icon{font-size:40px;margin-bottom:10px;display:block}
+        .game-card .gc-name{font-weight:700;font-size:16px;color:#f0d0ff;margin-bottom:5px}
+        .game-card .gc-desc{color:#9080b0;font-size:12px;line-height:1.4}
+        .game-card .gc-best{color:#ffffa0;font-size:11px;margin-top:8px}
+        .close-select{margin-top:25px;padding:10px 25px;border-radius:20px;border:1px solid rgba(180,150,255,0.3);background:transparent;color:#b496ff;font-family:'Quicksand',sans-serif;font-weight:600;cursor:pointer;font-size:14px}
+    </style>
+</head>
+<body>
+
+<canvas id="hub-canvas"></canvas>
+
+<!-- HUB UI -->
+<div id="hub-ui">
+    <div class="top-bar">
+        <a class="back-btn" onclick="window.location.href='/'">← Portal</a>
+        <div class="stats-bar">
+            <div class="stat-pill"><span class="stat-icon">✨</span><div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-sparkle" style="width:80%;background:linear-gradient(90deg,#ff96c8,#ffb0d8)"></div></div><span class="stat-val" id="val-sparkle">80</span></div>
+            <div class="stat-pill"><span class="stat-icon">💖</span><div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-happy" style="width:80%;background:linear-gradient(90deg,#ff6090,#ff90b0)"></div></div><span class="stat-val" id="val-happy">80</span></div>
+            <div class="stat-pill"><span class="stat-icon">⚡</span><div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-energy" style="width:80%;background:linear-gradient(90deg,#ffffa0,#ffe060)"></div></div><span class="stat-val" id="val-energy">80</span></div>
+            <div class="stat-pill"><span class="stat-icon">💫</span><div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-glamour" style="width:80%;background:linear-gradient(90deg,#b496ff,#d0b8ff)"></div></div><span class="stat-val" id="val-glamour">80</span></div>
+        </div>
+        <div>
+            <div class="level-badge" id="level-badge">Lv 1</div>
+            <div class="xp-mini"><div class="xp-fill" id="xp-bar" style="width:0%"></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Action buttons -->
+<div class="actions" id="actions">
+    <button class="act-btn" onclick="doFeed()"><span class="emoji">🍓</span>Feed</button>
+    <button class="act-btn" onclick="doRest()"><span class="emoji">🌸</span>Rest</button>
+    <button class="act-btn" onclick="doGlam()"><span class="emoji">💫</span>Glamour</button>
+    <button class="act-btn" onclick="doPet()"><span class="emoji">💖</span>Pet</button>
+    <button class="act-btn" onclick="openGameSelect()"><span class="emoji">🎮</span>Play</button>
+</div>
+
+<!-- Message popup -->
+<div class="msg" id="msg"></div>
+
+<!-- Game select menu -->
+<div class="game-select" id="game-select">
+    <h2>Mini Games ✦</h2>
+    <div class="game-grid">
+        <div class="game-card" onclick="startMiniGame('sparkle-catch')">
+            <span class="gc-icon">✨</span>
+            <div class="gc-name">Sparkle Catch</div>
+            <div class="gc-desc">Catch falling sparkles! Avoid the shadows.</div>
+            <div class="gc-best" id="best-sparkle-catch">Best: --</div>
+        </div>
+        <div class="game-card" onclick="startMiniGame('bubble-pop')">
+            <span class="gc-icon">🫧</span>
+            <div class="gc-name">Bubble Pop</div>
+            <div class="gc-desc">Pop bubbles before they escape! Chain combos.</div>
+            <div class="gc-best" id="best-bubble-pop">Best: --</div>
+        </div>
+        <div class="game-card" onclick="startMiniGame('memory')">
+            <span class="gc-icon">🃏</span>
+            <div class="gc-name">Memory Match</div>
+            <div class="gc-desc">Flip cards to find matching pairs.</div>
+            <div class="gc-best" id="best-memory">Best: --</div>
+        </div>
+        <div class="game-card" onclick="startMiniGame('spell-seq')">
+            <span class="gc-icon">🔮</span>
+            <div class="gc-name">Spell Sequence</div>
+            <div class="gc-desc">Repeat the magic pattern. Gets longer each round!</div>
+            <div class="gc-best" id="best-spell-seq">Best: --</div>
+        </div>
+        <div class="game-card" onclick="startMiniGame('star-jump')">
+            <span class="gc-icon">⭐</span>
+            <div class="gc-name">Star Jump</div>
+            <div class="gc-desc">Jump between platforms and collect stars!</div>
+            <div class="gc-best" id="best-star-jump">Best: --</div>
+        </div>
+    </div>
+    <button class="close-select" onclick="closeGameSelect()">← Back to Pet</button>
+</div>
+
+<!-- Mini-game overlay -->
+<div id="game-overlay">
+    <canvas id="game-canvas"></canvas>
+    <div class="game-hud">
+        <div class="game-title" id="game-title"></div>
+        <div class="game-score" id="game-score">0</div>
+        <div class="game-timer" id="game-timer"></div>
+    </div>
+</div>
+
+<!-- Game result -->
+<div class="game-result" id="game-result">
+    <h2 id="result-title">Nice!</h2>
+    <div class="big-score" id="result-score">0</div>
+    <div class="detail" id="result-detail"></div>
+    <div class="xp-earned" id="result-xp">+0 XP</div>
+    <div>
+        <button class="result-btn primary" id="result-replay">Play Again</button>
+        <button class="result-btn ghost" onclick="exitMiniGame()">Back to Pet</button>
+    </div>
+</div>
+
+<script>
+// ============================================
+// MAIN GAME STATE
+// ============================================
+const hubCanvas = document.getElementById('hub-canvas');
+const hubCtx = hubCanvas.getContext('2d');
+let W, H;
+function resize() { W = hubCanvas.width = window.innerWidth; H = hubCanvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+// Polyfill roundRect for older browsers
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (typeof r === 'number') r = [r,r,r,r];
+        const [tl,tr,br,bl] = r;
+        this.moveTo(x+tl, y);
+        this.lineTo(x+w-tr, y); this.arcTo(x+w, y, x+w, y+tr, tr);
+        this.lineTo(x+w, y+h-br); this.arcTo(x+w, y+h, x+w-br, y+h, br);
+        this.lineTo(x+bl, y+h); this.arcTo(x, y+h, x, y+h-bl, bl);
+        this.lineTo(x, y+tl); this.arcTo(x, y, x+tl, y, tl);
+        this.closePath();
+    };
+}
+
+const pet = {
+    sparkle: 80, happiness: 80, energy: 80, glamour: 80,
+    xp: 0, level: 1, totalGames: 0,
+    expression: 'happy', exprTimer: 0,
+    bestScores: {}
+};
+
+let hubTime = 0, msgTimer = 0, particles = [];
+let mouseX = W/2, mouseY = H/2;
+hubCanvas.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+// ============================================
+// SAVE / LOAD (localStorage for now)
+// ============================================
+function savePet() {
+    localStorage.setItem('pixie_pet', JSON.stringify({
+        sparkle:pet.sparkle, happiness:pet.happiness, energy:pet.energy, glamour:pet.glamour,
+        xp:pet.xp, level:pet.level, totalGames:pet.totalGames, bestScores:pet.bestScores,
+        timestamp: Date.now()
+    }));
+}
+function loadPet() {
+    const d = localStorage.getItem('pixie_pet');
+    if (!d) return;
+    const data = JSON.parse(d);
+    Object.assign(pet, data);
+    // Decay while away
+    const mins = (Date.now() - (data.timestamp||Date.now())) / 60000;
+    pet.sparkle = Math.max(5, pet.sparkle - mins * 0.3);
+    pet.happiness = Math.max(5, pet.happiness - mins * 0.2);
+    pet.energy = Math.min(100, pet.energy + mins * 0.5); // Energy recovers while away!
+    pet.glamour = Math.max(5, pet.glamour - mins * 0.15);
+    updateBestDisplays();
+}
+loadPet();
+setInterval(savePet, 15000);
+
+function xpForLevel(lv) { return Math.floor(80 * lv * 1.4); }
+function addXP(amount) {
+    pet.xp += amount;
+    while (pet.xp >= xpForLevel(pet.level)) {
+        pet.xp -= xpForLevel(pet.level);
+        pet.level++;
+        showMsg(`✨ LEVEL ${pet.level}! ✨`);
+        setExpr('excited', 3);
+        for (let i=0;i<25;i++) particles.push(mkParticle(W/2, H/2-50));
+    }
+}
+
+// ============================================
+// PET ACTIONS
+// ============================================
+function doFeed() {
+    pet.sparkle = Math.min(100, pet.sparkle + 25);
+    pet.energy = Math.min(100, pet.energy + 10);
+    setExpr('happy', 2);
+    showMsg("🍓 Yummy! +25 Sparkle");
+    for(let i=0;i<8;i++) particles.push(mkParticle(W/2, H/2-30, '#ff6090'));
+}
+function doRest() {
+    pet.energy = Math.min(100, pet.energy + 30);
+    pet.sparkle = Math.min(100, pet.sparkle + 5);
+    setExpr('sleepy', 2);
+    showMsg("🌸 So cozy! +30 Energy");
+    for(let i=0;i<6;i++) particles.push(mkParticle(W/2, H/2-30, '#ffb0d8'));
+}
+function doGlam() {
+    pet.glamour = Math.min(100, pet.glamour + 30);
+    pet.happiness = Math.min(100, pet.happiness + 5);
+    setExpr('sparkly', 2);
+    showMsg("💫 Gorgeous! +30 Glamour");
+    for(let i=0;i<10;i++) particles.push(mkParticle(W/2, H/2-30, '#b496ff'));
+}
+function doPet() {
+    pet.happiness = Math.min(100, pet.happiness + 20);
+    pet.sparkle = Math.min(100, pet.sparkle + 5);
+    setExpr('love', 2);
+    showMsg("💖 She loves you! +20 Happy");
+    for(let i=0;i<8;i++) particles.push(mkParticle(W/2, H/2-30, '#ff96c8'));
+}
+
+function showMsg(text) {
+    const el = document.getElementById('msg');
+    el.textContent = text;
+    el.classList.add('show');
+    msgTimer = 2;
+}
+function setExpr(expr, dur) { pet.expression = expr; pet.exprTimer = dur; }
+function getMood() {
+    const avg = (pet.sparkle + pet.happiness + pet.energy + pet.glamour) / 4;
+    if (avg > 75) return 'happy';
+    if (avg > 50) return 'neutral';
+    if (avg > 25) return 'sad';
+    return 'tired';
+}
+
+// ============================================
+// PARTICLE
+// ============================================
+function mkParticle(x, y, color) {
+    return { x, y, vx:(Math.random()-0.5)*120, vy:-Math.random()*100-40,
+             life:1, size:2+Math.random()*4, color:color||'#ff96c8' };
+}
+
+// ============================================
+// DRAW FAIRY
+// ============================================
+function drawPixie(ctx, x, y, scale, expr, t) {
+    const s = scale;
+    const bob = Math.sin(t * 2) * 4 * s;
+    const flap = (Math.sin(t * 8) + 1) / 2;
+    const cy = y + bob;
+
+    // Glow
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = '#ff80ff';
+    ctx.beginPath(); ctx.arc(x, cy, 35*s, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Wings
+    const sp = 18*s*(0.3 + flap*0.7);
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#ff96c8';
+    ctx.beginPath(); ctx.ellipse(x-sp, cy-8*s, sp, 12*s, -0.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+sp, cy-8*s, sp, 12*s, 0.3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#b496ff';
+    ctx.beginPath(); ctx.ellipse(x-sp*0.7, cy+2*s, sp*0.7, 8*s, -0.2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+sp*0.7, cy+2*s, sp*0.7, 8*s, 0.2, 0, Math.PI*2); ctx.fill();
+    // Wing sparkles
+    if (flap > 0.6) {
+        ctx.fillStyle = '#fff';
+        for (let i=0;i<3;i++) {
+            const sx = x + (Math.random()-0.5)*sp*2;
+            const sy = cy - 8*s + (Math.random()-0.5)*12*s;
+            ctx.globalAlpha = 0.6 * Math.random();
+            ctx.beginPath(); ctx.arc(sx, sy, 1.5*s, 0, Math.PI*2); ctx.fill();
+        }
+    }
+    ctx.globalAlpha = 1;
+
+    // Body
+    ctx.fillStyle = '#e0a0ff';
+    ctx.beginPath(); ctx.ellipse(x, cy, 6*s, 12*s, 0, 0, Math.PI*2); ctx.fill();
+
+    // Dress
+    ctx.fillStyle = '#c070ff';
+    ctx.beginPath();
+    ctx.moveTo(x-5*s, cy+4*s); ctx.lineTo(x+5*s, cy+4*s);
+    ctx.lineTo(x+10*s, cy+16*s); ctx.lineTo(x-10*s, cy+16*s);
+    ctx.fill();
+    // Dress sparkle dots
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath(); ctx.arc(x-2*s, cy+8*s, 1*s, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+3*s, cy+11*s, 1*s, 0, Math.PI*2); ctx.fill();
+
+    // Head
+    ctx.fillStyle = '#f0c0ff';
+    ctx.beginPath(); ctx.arc(x, cy-15*s, 8*s, 0, Math.PI*2); ctx.fill();
+
+    // Hair
+    ctx.fillStyle = '#ff80d0';
+    ctx.beginPath();
+    ctx.moveTo(x-8*s, cy-17*s); ctx.quadraticCurveTo(x-4*s, cy-28*s, x, cy-25*s);
+    ctx.quadraticCurveTo(x+4*s, cy-28*s, x+8*s, cy-17*s);
+    ctx.lineTo(x+9*s, cy-12*s); ctx.lineTo(x-9*s, cy-12*s);
+    ctx.fill();
+    // Hair sparkle
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x+3*s, cy-23*s, 1.5*s, 0, Math.PI*2); ctx.fill();
+
+    // Crown/tiara
+    ctx.strokeStyle = '#ffe080'; ctx.lineWidth = 1.5*s;
+    ctx.beginPath();
+    ctx.moveTo(x-6*s, cy-22*s); ctx.lineTo(x-3*s, cy-27*s);
+    ctx.lineTo(x, cy-24*s); ctx.lineTo(x+3*s, cy-27*s);
+    ctx.lineTo(x+6*s, cy-22*s);
+    ctx.stroke();
+    ctx.fillStyle = '#ff96c8';
+    ctx.beginPath(); ctx.arc(x, cy-25*s, 1.5*s, 0, Math.PI*2); ctx.fill();
+
+    // Eyes
+    const eo = 3*s;
+    if (expr === 'happy' || expr === 'sparkly' || expr === 'excited') {
+        ctx.strokeStyle = '#6030a0'; ctx.lineWidth = 2*s; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(x-eo, cy-16*s, 3*s, Math.PI+0.3, -0.3); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x+eo, cy-16*s, 3*s, Math.PI+0.3, -0.3); ctx.stroke();
+    } else if (expr === 'love') {
+        ctx.fillStyle = '#ff4080';
+        for (const side of [-1,1]) {
+            const ex = x + side*eo;
+            const ey = cy-16*s;
+            ctx.beginPath(); ctx.arc(ex-1.5*s, ey-1*s, 2*s, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(ex+1.5*s, ey-1*s, 2*s, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(ex-3*s, ey); ctx.lineTo(ex, ey+3*s); ctx.lineTo(ex+3*s, ey); ctx.fill();
+        }
+    } else if (expr === 'sleepy' || expr === 'tired') {
+        ctx.strokeStyle = '#6030a0'; ctx.lineWidth = 2*s;
+        ctx.beginPath(); ctx.moveTo(x-eo-3*s, cy-16*s); ctx.lineTo(x-eo+3*s, cy-16*s); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+eo-3*s, cy-16*s); ctx.lineTo(x+eo+3*s, cy-16*s); ctx.stroke();
+        // Zzz
+        ctx.fillStyle = '#b496ff'; ctx.font = `${10*s}px Quicksand`;
+        ctx.fillText('z', x+15*s, cy-25*s + Math.sin(t*2)*3);
+        ctx.font = `${8*s}px Quicksand`;
+        ctx.fillText('z', x+22*s, cy-30*s + Math.sin(t*2+1)*3);
+    } else if (expr === 'sad') {
+        ctx.strokeStyle = '#6030a0'; ctx.lineWidth = 2*s; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(x-eo, cy-14*s, 3*s, 0.3, Math.PI-0.3); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x+eo, cy-14*s, 3*s, 0.3, Math.PI-0.3); ctx.stroke();
+    } else {
+        ctx.fillStyle = '#6030a0';
+        ctx.beginPath(); ctx.arc(x-eo, cy-16*s, 2.5*s, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x+eo, cy-16*s, 2.5*s, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(x-eo+1*s, cy-17*s, 1*s, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x+eo+1*s, cy-17*s, 1*s, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Blush
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = '#ff6080';
+    ctx.beginPath(); ctx.arc(x-7*s, cy-13*s, 3*s, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+7*s, cy-13*s, 3*s, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Mouth
+    if (expr === 'happy' || expr === 'love' || expr === 'excited' || expr === 'sparkly') {
+        ctx.strokeStyle = '#8050a0'; ctx.lineWidth = 1.5*s;
+        ctx.beginPath(); ctx.arc(x, cy-11*s, 3*s, 0.2, Math.PI-0.2); ctx.stroke();
+    } else if (expr === 'sad') {
+        ctx.strokeStyle = '#8050a0'; ctx.lineWidth = 1.5*s;
+        ctx.beginPath(); ctx.arc(x, cy-9*s, 3*s, Math.PI+0.3, -0.3); ctx.stroke();
+    }
+
+    // Wand
+    ctx.strokeStyle = '#ddf'; ctx.lineWidth = 1.5*s;
+    const wx = x+12*s, wy = cy-2*s, wtx = x+20*s, wty = cy-22*s;
+    ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wtx, wty); ctx.stroke();
+    // Star on wand
+    ctx.fillStyle = '#ffe080';
+    for (let i=0;i<5;i++) {
+        const a = Math.PI*2*i/5 - Math.PI/2 + t*0.5;
+        const r = (i%2===0) ? 4*s : 2*s;
+        const sx = wtx + r*Math.cos(a), sy = wty + r*Math.sin(a);
+        if (i===0) ctx.beginPath(); ctx.lineTo(sx, sy);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(wtx, wty, 1.5*s, 0, Math.PI*2); ctx.fill();
+
+    // Sparkle effect when sparkly
+    if (expr === 'sparkly' || expr === 'excited') {
+        for (let i=0;i<5;i++) {
+            const a = t*2 + i*Math.PI*2/5;
+            const r = 25*s + Math.sin(t*3+i)*5*s;
+            const sx = x + r*Math.cos(a), sy = cy-5*s + r*Math.sin(a);
+            ctx.fillStyle = '#fff'; ctx.globalAlpha = 0.5+Math.sin(t*5+i)*0.3;
+            ctx.beginPath(); ctx.arc(sx, sy, 2*s, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+}
+
+// ============================================
+// HUB BACKGROUND
+// ============================================
+function drawHubBg(t) {
+    // Sky
+    const grad = hubCtx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#0a0618'); grad.addColorStop(0.6,'#1a0830'); grad.addColorStop(1,'#2a1045');
+    hubCtx.fillStyle = grad; hubCtx.fillRect(0,0,W,H);
+    // Stars
+    hubCtx.fillStyle = '#fff';
+    for (let i=0;i<50;i++) {
+        const sx=(i*137+50)%W, sy=(i*89+20)%(H*0.6);
+        const tw = (Math.sin(t*((i%5)+1)*0.4+i)+1)/2;
+        if (tw>0.4) { hubCtx.globalAlpha=tw*0.5; hubCtx.beginPath(); hubCtx.arc(sx,sy,tw*1.5,0,Math.PI*2); hubCtx.fill(); }
+    }
+    hubCtx.globalAlpha=1;
+    // Ground
+    hubCtx.fillStyle = '#150a25';
+    hubCtx.fillRect(0, H-80, W, 80);
+    // Flowers on ground
+    for (let i=0;i<12;i++) {
+        const fx = (i*W/12)+30, fy = H-80;
+        const sway = Math.sin(t+i*0.7)*3;
+        hubCtx.strokeStyle = '#3a6040'; hubCtx.lineWidth = 2;
+        hubCtx.beginPath(); hubCtx.moveTo(fx,fy); hubCtx.lineTo(fx+sway,fy-15-i%5*3); hubCtx.stroke();
+        hubCtx.fillStyle = ['#ff96c8','#b496ff','#96ffdc','#ffffa0','#ffc896'][i%5];
+        hubCtx.globalAlpha = 0.6;
+        hubCtx.beginPath(); hubCtx.arc(fx+sway,fy-18-i%5*3,4+i%3,0,Math.PI*2); hubCtx.fill();
+        hubCtx.globalAlpha = 1;
+    }
+    // Floating orbs
+    for (let i=0;i<3;i++) {
+        const ox = W*(0.2+i*0.3) + Math.sin(t*0.3+i*2)*50;
+        const oy = H*0.3 + Math.cos(t*0.2+i)*40;
+        hubCtx.globalAlpha = 0.06;
+        hubCtx.fillStyle = ['#ff96c8','#b496ff','#96ffdc'][i];
+        hubCtx.beginPath(); hubCtx.arc(ox,oy,80+i*20,0,Math.PI*2); hubCtx.fill();
+    }
+    hubCtx.globalAlpha = 1;
+}
+
+// ============================================
+// HUB UPDATE
+// ============================================
+function updateUI() {
+    const stats = [
+        {id:'sparkle',val:pet.sparkle}, {id:'happy',val:pet.happiness},
+        {id:'energy',val:pet.energy}, {id:'glamour',val:pet.glamour}
+    ];
+    stats.forEach(s => {
+        document.getElementById('bar-'+s.id).style.width = s.val+'%';
+        document.getElementById('val-'+s.id).textContent = Math.floor(s.val);
+    });
+    document.getElementById('level-badge').textContent = 'Lv '+pet.level;
+    document.getElementById('xp-bar').style.width = (pet.xp/xpForLevel(pet.level)*100)+'%';
+}
+
+let decayTimer = 0;
+function hubUpdate() {
+    const dt = 1/60;
+    hubTime += dt;
+    msgTimer -= dt;
+    if (msgTimer <= 0) document.getElementById('msg').classList.remove('show');
+
+    // Stat decay
+    decayTimer += dt;
+    if (decayTimer >= 3) {
+        decayTimer = 0;
+        pet.sparkle = Math.max(0, pet.sparkle - 0.3);
+        pet.happiness = Math.max(0, pet.happiness - 0.2);
+        pet.energy = Math.max(0, pet.energy - 0.15);
+        pet.glamour = Math.max(0, pet.glamour - 0.1);
+        // Passive XP for good care
+        const avg = (pet.sparkle+pet.happiness+pet.energy+pet.glamour)/4;
+        if (avg > 60) addXP(1);
+    }
+
+    // Expression
+    pet.exprTimer -= dt;
+    if (pet.exprTimer <= 0) pet.expression = getMood();
+
+    // Particles
+    particles = particles.filter(p => {
+        p.life -= dt*2; p.x += p.vx*dt; p.y += p.vy*dt; p.vy += 150*dt;
+        return p.life > 0;
+    });
+
+    updateUI();
+
+    // Draw
+    drawHubBg(hubTime);
+    drawPixie(hubCtx, W/2, H/2-40, 3, pet.expression, hubTime);
+
+    // Level title under fairy
+    hubCtx.fillStyle = '#b496ff'; hubCtx.font = '14px Quicksand'; hubCtx.textAlign = 'center';
+    const titles = ['','Tiny Spark','Little Glow','Bright Star','Moon Fairy','Dream Weaver',
+                    'Star Dancer','Night Bloom','Aurora Spirit','Celestial','Cosmic Queen'];
+    const title = titles[Math.min(pet.level, titles.length-1)] || 'Legendary ✦';
+    hubCtx.fillText(title, W/2, H/2+60);
+
+    // Games played
+    hubCtx.fillStyle = '#706080'; hubCtx.font = '12px Quicksand';
+    hubCtx.fillText(`${pet.totalGames} games played`, W/2, H/2+78);
+
+    // Particles
+    particles.forEach(p => {
+        hubCtx.globalAlpha = p.life;
+        hubCtx.fillStyle = p.color;
+        hubCtx.beginPath(); hubCtx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); hubCtx.fill();
+    });
+    hubCtx.globalAlpha = 1;
+
+    if (!currentMiniGame) requestAnimationFrame(hubUpdate);
+}
+hubUpdate();
+
+// ============================================
+// MINI-GAME SYSTEM
+// ============================================
+let currentMiniGame = null;
+const gameCanvas = document.getElementById('game-canvas');
+const gameCtx = gameCanvas.getContext('2d');
+
+function openGameSelect() {
+    document.getElementById('game-select').classList.add('active');
+}
+function closeGameSelect() {
+    document.getElementById('game-select').classList.remove('active');
+}
+function updateBestDisplays() {
+    for (const g of ['sparkle-catch','bubble-pop','memory','spell-seq','star-jump']) {
+        const el = document.getElementById('best-'+g);
+        if (el) el.textContent = pet.bestScores[g] ? 'Best: '+pet.bestScores[g] : 'Best: --';
+    }
+}
+updateBestDisplays();
+
+function startMiniGame(name) {
+    closeGameSelect();
+    currentMiniGame = name;
+    document.getElementById('game-overlay').classList.add('active');
+    document.getElementById('hub-ui').style.display = 'none';
+    document.getElementById('actions').style.display = 'none';
+    document.getElementById('hub-canvas').style.display = 'none';
+    gameCanvas.width = window.innerWidth;
+    gameCanvas.height = window.innerHeight;
+
+    // Small delay to let DOM update before starting game loop
+    setTimeout(() => {
+        if (name === 'sparkle-catch') runSparkleCatch();
+        else if (name === 'bubble-pop') runBubblePop();
+        else if (name === 'memory') runMemory();
+        else if (name === 'spell-seq') runSpellSeq();
+        else if (name === 'star-jump') runStarJump();
+    }, 50);
+}
+
+function endMiniGame(gameName, score, detail, replayFn) {
+    const xp = Math.max(5, Math.floor(score / 4));
+    addXP(xp);
+    pet.happiness = Math.min(100, pet.happiness + 15);
+    pet.totalGames++;
+    if (!pet.bestScores[gameName] || score > pet.bestScores[gameName]) {
+        pet.bestScores[gameName] = score;
+    }
+    savePet();
+    updateBestDisplays();
+
+    // Save to backend
+    fetch('/api/scores', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({game:'Pixie Pet: '+gameName, score, details:{}}),
+        credentials:'include'
+    }).catch(()=>{});
+
+    document.getElementById('result-title').textContent = score > 100 ? 'Amazing! ✦' : score > 50 ? 'Nice work!' : 'Good try!';
+    document.getElementById('result-score').textContent = score;
+    document.getElementById('result-detail').textContent = detail;
+    document.getElementById('result-xp').textContent = '+' + xp + ' XP';
+    document.getElementById('result-replay').onclick = replayFn;
+    document.getElementById('game-result').classList.add('active');
+}
+
+function exitMiniGame() {
+    currentMiniGame = null;
+    document.getElementById('game-overlay').classList.remove('active');
+    document.getElementById('game-result').classList.remove('active');
+    document.getElementById('hub-ui').style.display = 'block';
+    document.getElementById('actions').style.display = 'flex';
+    document.getElementById('hub-canvas').style.display = 'block';
+    gameCanvas.onclick = null;
+    gameCanvas.onmousemove = null;
+    document.onclick = null;
+    document.onmousemove = null;
+    document.onkeydown = null;
+    document.onkeyup = null;
+    hubUpdate();
+}
+
+// ============================================
+// 1. SPARKLE CATCH
+// ============================================
+function runSparkleCatch() {
+    document.getElementById('game-title').textContent = '✨ Sparkle Catch';
+    let gw=gameCanvas.width, gh=gameCanvas.height;
+    let px=gw/2, score=0, timer=30, combo=0;
+    let items=[], parts=[];
+    let spawnT=0;
+
+    function spawn() {
+        if (Math.random()<0.2) {
+            items.push({x:Math.random()*(gw-40)+20, y:-20, vy:120+timer*3+Math.random()*80, type:'shadow', size:15});
+        } else {
+            const colors = ['#ff96c8','#b496ff','#96ffdc','#ffffa0','#ffc896'];
+            items.push({x:Math.random()*(gw-40)+20, y:-20, vy:80+timer*2+Math.random()*60,
+                        type:'sparkle', size:8+Math.random()*6, color:colors[Math.floor(Math.random()*5)]});
+        }
+    }
+
+    document.onmousemove = e => { px = e.clientX; };
+    const loop = () => {
+        if (currentMiniGame !== 'sparkle-catch') return;
+        const dt=1/60; timer-=dt; spawnT-=dt;
+        if (spawnT<=0) { spawn(); spawnT=Math.max(0.15, 0.5-timer*0.01); }
+        if (timer<=0) { document.onmousemove=null; endMiniGame('sparkle-catch',score,`${combo} max combo`,()=>{document.getElementById('game-result').classList.remove('active');runSparkleCatch();}); return; }
+
+        items.forEach(it => { it.y += it.vy * dt; });
+        // Catch
+        items = items.filter(it => {
+            if (it.y > gh+20) { if(it.type==='sparkle') combo=0; return false; }
+            if (Math.abs(it.x-px)<30 && it.y>gh-90 && it.y<gh-40) {
+                if (it.type==='sparkle') { score+=10+combo*2; combo++; for(let i=0;i<4;i++) parts.push({x:it.x,y:it.y,vx:(Math.random()-0.5)*100,vy:-Math.random()*80,life:0.8,color:it.color,size:3}); }
+                else { score=Math.max(0,score-15); combo=0; for(let i=0;i<6;i++) parts.push({x:it.x,y:it.y,vx:(Math.random()-0.5)*100,vy:-Math.random()*80,life:0.6,color:'#ff4444',size:3}); }
+                return false;
+            }
+            return true;
+        });
+        parts = parts.filter(p => { p.life-=dt*2; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=150*dt; return p.life>0; });
+
+        // Draw
+        gameCtx.fillStyle='#0a0614'; gameCtx.fillRect(0,0,gw,gh);
+        // Ground
+        gameCtx.fillStyle='#150a25'; gameCtx.fillRect(0,gh-60,gw,60);
+        items.forEach(it => {
+            if (it.type==='sparkle') {
+                gameCtx.globalAlpha=0.3; gameCtx.fillStyle=it.color;
+                gameCtx.beginPath(); gameCtx.arc(it.x,it.y,it.size*1.5,0,Math.PI*2); gameCtx.fill();
+                gameCtx.globalAlpha=1; gameCtx.beginPath(); gameCtx.arc(it.x,it.y,it.size,0,Math.PI*2); gameCtx.fill();
+                gameCtx.fillStyle='#fff'; gameCtx.beginPath(); gameCtx.arc(it.x-2,it.y-2,it.size*0.3,0,Math.PI*2); gameCtx.fill();
+            } else {
+                gameCtx.fillStyle='rgba(60,20,80,0.6)'; gameCtx.beginPath(); gameCtx.arc(it.x,it.y,it.size,0,Math.PI*2); gameCtx.fill();
+                gameCtx.fillStyle='#2a1040'; gameCtx.beginPath(); gameCtx.arc(it.x,it.y,it.size*0.7,0,Math.PI*2); gameCtx.fill();
+            }
+        });
+        parts.forEach(p => { gameCtx.globalAlpha=p.life; gameCtx.fillStyle=p.color; gameCtx.beginPath(); gameCtx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); gameCtx.fill(); });
+        gameCtx.globalAlpha=1;
+        drawPixie(gameCtx, px, gh-75, 1.2, combo>5?'excited':'happy', hubTime+=dt);
+
+        document.getElementById('game-score').textContent = score + (combo>1?' ('+combo+'x)':'');
+        document.getElementById('game-timer').textContent = Math.ceil(timer)+'s';
+        requestAnimationFrame(loop);
+    };
+    loop();
+}
+
+// ============================================
+// 2. BUBBLE POP
+// ============================================
+function runBubblePop() {
+    document.getElementById('game-title').textContent = '🫧 Bubble Pop';
+    let gw=gameCanvas.width, gh=gameCanvas.height;
+    let score=0, timer=25, combo=0, missed=0, parts=[];
+    let bubbles=[], spawnT=0;
+    const colors = ['#ff96c8','#b496ff','#96ffdc','#ffc896','#96d2ff','#ff80ff'];
+
+    function spawn() {
+        bubbles.push({
+            x:Math.random()*(gw-80)+40, y:gh+30,
+            vy:-40-Math.random()*40-score*0.3,
+            size:18+Math.random()*20,
+            color:colors[Math.floor(Math.random()*colors.length)],
+            phase:Math.random()*Math.PI*2,
+            wobble:Math.random()*30+10
+        });
+    }
+
+    document.onclick = e => {
+        const mx=e.clientX, my=e.clientY;
+        let hit=false;
+        for (let i=bubbles.length-1;i>=0;i--) {
+            const b=bubbles[i];
+            if (Math.hypot(mx-b.x,my-b.y)<b.size+5) {
+                score+=10+combo*3; combo++;
+                for(let j=0;j<8;j++) parts.push({x:b.x,y:b.y,vx:(Math.random()-0.5)*120,vy:(Math.random()-0.5)*120,life:0.8,color:b.color,size:3+Math.random()*3});
+                bubbles.splice(i,1); hit=true; break;
+            }
+        }
+        if (!hit) combo=0;
+    };
+
+    const loop = () => {
+        if (currentMiniGame !== 'bubble-pop') return;
+        const dt=1/60; timer-=dt; spawnT-=dt; hubTime+=dt;
+        if (spawnT<=0) { spawn(); spawnT=Math.max(0.2, 0.7-score*0.005); }
+        if (timer<=0 || missed>=10) { document.onclick=null; endMiniGame('bubble-pop',score,`${missed} missed • ${combo} max combo`,()=>{document.getElementById('game-result').classList.remove('active');runBubblePop();}); return; }
+
+        bubbles = bubbles.filter(b => {
+            b.y += b.vy*dt; b.x += Math.sin(b.phase+=dt*2)*b.wobble*dt; b.phase+=dt;
+            if (b.y < -30) { missed++; combo=0; return false; }
+            return true;
+        });
+        parts = parts.filter(p => { p.life-=dt*2; p.x+=p.vx*dt; p.y+=p.vy*dt; return p.life>0; });
+
+        gameCtx.fillStyle='#0a0614'; gameCtx.fillRect(0,0,gw,gh);
+        bubbles.forEach(b => {
+            gameCtx.globalAlpha=0.2; gameCtx.fillStyle=b.color;
+            gameCtx.beginPath(); gameCtx.arc(b.x,b.y,b.size+8,0,Math.PI*2); gameCtx.fill();
+            gameCtx.globalAlpha=0.5;
+            gameCtx.beginPath(); gameCtx.arc(b.x,b.y,b.size,0,Math.PI*2); gameCtx.fill();
+            gameCtx.globalAlpha=1; gameCtx.strokeStyle=b.color; gameCtx.lineWidth=2;
+            gameCtx.beginPath(); gameCtx.arc(b.x,b.y,b.size,0,Math.PI*2); gameCtx.stroke();
+            // Shine
+            gameCtx.fillStyle='rgba(255,255,255,0.4)';
+            gameCtx.beginPath(); gameCtx.arc(b.x-b.size*0.3,b.y-b.size*0.3,b.size*0.25,0,Math.PI*2); gameCtx.fill();
+        });
+        parts.forEach(p => { gameCtx.globalAlpha=p.life; gameCtx.fillStyle=p.color; gameCtx.beginPath(); gameCtx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); gameCtx.fill(); });
+        gameCtx.globalAlpha=1;
+
+        // Missed counter
+        gameCtx.fillStyle='#706080'; gameCtx.font='14px Quicksand'; gameCtx.textAlign='center';
+        gameCtx.fillText(`Missed: ${missed}/10`, gw/2, gh-15);
+
+        document.getElementById('game-score').textContent = score + (combo>1?' ('+combo+'x)':'');
+        document.getElementById('game-timer').textContent = Math.ceil(timer)+'s';
+        requestAnimationFrame(loop);
+    };
+    loop();
+}
+
+// ============================================
+// 3. MEMORY MATCH
+// ============================================
+function runMemory() {
+    document.getElementById('game-title').textContent = '🃏 Memory Match';
+    document.getElementById('game-timer').textContent = '';
+    let gw=gameCanvas.width, gh=gameCanvas.height;
+    const cols=5, rows=4, total=cols*rows, pairs=total/2;
+    const emojis=['🌸','✨','💖','🦋','🌙','⭐','🔮','💎','🧚','🌈'];
+    const symbols = [...emojis.slice(0,pairs),...emojis.slice(0,pairs)];
+    for(let i=symbols.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[symbols[i],symbols[j]]=[symbols[j],symbols[i]];}
+
+    const cw=70, ch=90, gap=10;
+    const gridW=cols*(cw+gap)-gap, gridH=rows*(ch+gap)-gap;
+    const ox=(gw-gridW)/2, oy=(gh-gridH)/2+15;
+
+    let revealed=Array(total).fill(false), matched=Array(total).fill(false);
+    let first=null, second=null, waitT=0, moves=0, found=0, parts=[];
+
+    document.onclick = e => {
+        if (waitT>0) return;
+        const mx=e.clientX, my=e.clientY;
+        for (let i=0;i<total;i++) {
+            if (matched[i]||revealed[i]) continue;
+            const r=Math.floor(i/cols), c=i%cols;
+            const cx=ox+c*(cw+gap), cy=oy+r*(ch+gap);
+            if (mx>=cx&&mx<=cx+cw&&my>=cy&&my<=cy+ch) {
+                revealed[i]=true;
+                if (first===null) first=i;
+                else { second=i; moves++; }
+                break;
+            }
+        }
+    };
+
+    const loop = () => {
+        if (currentMiniGame !== 'memory') return;
+        const dt=1/60; hubTime+=dt;
+        if (first!==null && second!==null && waitT<=0) {
+            if (symbols[first]===symbols[second]) {
+                matched[first]=matched[second]=true; found++;
+                for(const idx of[first,second]){const r=Math.floor(idx/cols),c=idx%cols;const cx=ox+c*(cw+gap)+cw/2,cy=oy+r*(ch+gap)+ch/2;for(let i=0;i<6;i++)parts.push({x:cx,y:cy,vx:(Math.random()-0.5)*100,vy:-Math.random()*80-20,life:0.8,color:'#ff96c8',size:3});}
+                first=second=null;
+                if (found>=pairs) { document.onclick=null; const sc=Math.max(10,Math.floor(1000/moves*pairs)); endMiniGame('memory',sc,`${moves} moves for ${pairs} pairs`,()=>{document.getElementById('game-result').classList.remove('active');runMemory();}); return; }
+            } else { waitT=0.7; }
+        }
+        if (waitT>0) { waitT-=dt; if(waitT<=0){revealed[first]=revealed[second]=false;first=second=null;} }
+        parts = parts.filter(p => { p.life-=dt*2; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=120*dt; return p.life>0; });
+
+        gameCtx.fillStyle='#0a0614'; gameCtx.fillRect(0,0,gw,gh);
+        for (let i=0;i<total;i++) {
+            const r=Math.floor(i/cols), c=i%cols;
+            const cx=ox+c*(cw+gap), cy=oy+r*(ch+gap);
+            if (matched[i]) {
+                gameCtx.fillStyle='rgba(255,150,200,0.08)'; gameCtx.strokeStyle='rgba(255,150,200,0.2)';
+                gameCtx.beginPath(); gameCtx.roundRect(cx,cy,cw,ch,10); gameCtx.fill(); gameCtx.stroke();
+                gameCtx.globalAlpha=0.4; gameCtx.font='28px serif'; gameCtx.textAlign='center';
+                gameCtx.fillText(symbols[i],cx+cw/2,cy+ch/2+10); gameCtx.globalAlpha=1;
+            } else if (revealed[i]) {
+                gameCtx.fillStyle='rgba(30,15,50,0.9)'; gameCtx.strokeStyle='#ff96c8';
+                gameCtx.lineWidth=2; gameCtx.beginPath(); gameCtx.roundRect(cx,cy,cw,ch,10); gameCtx.fill(); gameCtx.stroke();
+                gameCtx.font='32px serif'; gameCtx.textAlign='center';
+                gameCtx.fillText(symbols[i],cx+cw/2,cy+ch/2+12);
+            } else {
+                gameCtx.fillStyle='rgba(35,18,55,0.9)'; gameCtx.strokeStyle='rgba(180,150,255,0.25)';
+                gameCtx.lineWidth=1; gameCtx.beginPath(); gameCtx.roundRect(cx,cy,cw,ch,10); gameCtx.fill(); gameCtx.stroke();
+                gameCtx.fillStyle='#504070'; gameCtx.font='24px Quicksand'; gameCtx.textAlign='center';
+                gameCtx.fillText('?',cx+cw/2,cy+ch/2+8);
+            }
+        }
+        parts.forEach(p => { gameCtx.globalAlpha=p.life; gameCtx.fillStyle=p.color; gameCtx.beginPath(); gameCtx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); gameCtx.fill(); });
+        gameCtx.globalAlpha=1;
+        document.getElementById('game-score').textContent = `${found}/${pairs} pairs • ${moves} moves`;
+        requestAnimationFrame(loop);
+    };
+    loop();
+}
+
+// ============================================
+// 4. SPELL SEQUENCE (Simon Says)
+// ============================================
+function runSpellSeq() {
+    document.getElementById('game-title').textContent = '🔮 Spell Sequence';
+    document.getElementById('game-timer').textContent = '';
+    let gw=gameCanvas.width, gh=gameCanvas.height;
+    const spells = [
+        {emoji:'🔥',color:'#ff6060',name:'Fire'},
+        {emoji:'❄️',color:'#60c0ff',name:'Ice'},
+        {emoji:'⚡',color:'#ffe060',name:'Lightning'},
+        {emoji:'🌿',color:'#60ff90',name:'Nature'},
+        {emoji:'💜',color:'#c060ff',name:'Arcane'},
+    ];
+    const btnSize=80, gap=15;
+    const totalW=spells.length*(btnSize+gap)-gap;
+    const bx=(gw-totalW)/2, by=gh/2+40;
+
+    let pattern=[], playerInput=[], showing=true, showIdx=0, showT=0, gapT=0.5;
+    let round=0, score=0, flash=-1, flashT=0, gameActive=true;
+
+    function nextRound() {
+        pattern.push(Math.floor(Math.random()*spells.length));
+        playerInput=[]; showing=true; showIdx=0; showT=0.8; gapT=0.5; round++;
+    }
+    nextRound();
+
+    document.onclick = e => {
+        if (showing || !gameActive) return;
+        const mx=e.clientX, my=e.clientY;
+        for (let i=0;i<spells.length;i++) {
+            const cx=bx+i*(btnSize+gap), cy=by;
+            if (mx>=cx&&mx<=cx+btnSize&&my>=cy&&my<=cy+btnSize) {
+                flash=i; flashT=0.2;
+                playerInput.push(i);
+                if (playerInput[playerInput.length-1]!==pattern[playerInput.length-1]) {
+                    gameActive=false;
+                    document.onclick=null;
+                    setTimeout(()=>endMiniGame('spell-seq',score,`Round ${round} • ${pattern.length} spells`,()=>{document.getElementById('game-result').classList.remove('active');runSpellSeq();}),500);
+                } else if (playerInput.length===pattern.length) {
+                    score+=round*15;
+                    setTimeout(nextRound,400);
+                }
+                break;
+            }
+        }
+    };
+
+    const loop = () => {
+        if (currentMiniGame !== 'spell-seq') return;
+        const dt=1/60; hubTime+=dt; flashT-=dt;
+        if (showing) {
+            showT-=dt;
+            if (showT<=0) {
+                if (gapT>0) { gapT-=dt; flash=-1; }
+                else if (showIdx<pattern.length) { flash=pattern[showIdx]; flashT=0.4; showIdx++; showT=0.5; gapT=0.15; }
+                else { showing=false; flash=-1; }
+            }
+        }
+
+        gameCtx.fillStyle='#0a0614'; gameCtx.fillRect(0,0,gw,gh);
+        drawPixie(gameCtx, gw/2, gh/2-80, 2, showing?'sparkly':'happy', hubTime);
+
+        for (let i=0;i<spells.length;i++) {
+            const cx=bx+i*(btnSize+gap), cy=by;
+            const isFlash = i===flash && flashT>0;
+            const s=spells[i];
+            gameCtx.fillStyle = isFlash ? s.color : 'rgba(30,15,50,0.8)';
+            gameCtx.strokeStyle = isFlash ? '#fff' : s.color;
+            gameCtx.lineWidth = isFlash ? 3 : 1.5;
+            gameCtx.beginPath(); gameCtx.roundRect(cx,cy,btnSize,btnSize,14); gameCtx.fill(); gameCtx.stroke();
+            if (isFlash) { gameCtx.globalAlpha=0.15; gameCtx.fillStyle=s.color; gameCtx.beginPath(); gameCtx.arc(cx+btnSize/2,cy+btnSize/2,btnSize,0,Math.PI*2); gameCtx.fill(); gameCtx.globalAlpha=1; }
+            gameCtx.font='30px serif'; gameCtx.textAlign='center';
+            gameCtx.fillText(s.emoji, cx+btnSize/2, cy+btnSize/2+5);
+            gameCtx.fillStyle=isFlash?'#fff':s.color; gameCtx.font='11px Quicksand';
+            gameCtx.fillText(s.name, cx+btnSize/2, cy+btnSize-5);
+        }
+
+        gameCtx.fillStyle='#b496ff'; gameCtx.font='16px Quicksand'; gameCtx.textAlign='center';
+        gameCtx.fillText(showing?'Watch the pattern...':'Your turn! Repeat the spells', gw/2, by+btnSize+30);
+
+        document.getElementById('game-score').textContent = `Round ${round} • Score: ${score}`;
+        requestAnimationFrame(loop);
+    };
+    loop();
+}
+
+// ============================================
+// 5. STAR JUMP (Platformer)
+// ============================================
+function runStarJump() {
+    document.getElementById('game-title').textContent = '⭐ Star Jump';
+    let gw=gameCanvas.width, gh=gameCanvas.height;
+    let py=gh-60, px=gw/2, vy=0, vx=0, onGround=true;
+    let score=0, stars=[], platforms=[], parts=[], scrollY=0;
+    const gravity=700, jumpPow=-520, moveSpd=280;
+    let landed=true; // starts on ground, waiting for click
+
+    // Generate initial platforms
+    for (let i=0;i<20;i++) {
+        platforms.push({
+            x:Math.random()*(gw-120)+60,
+            y:gh-120-i*80-Math.random()*40,
+            w:60+Math.random()*40,
+            color:['#ff96c8','#b496ff','#96ffdc','#ffc896'][i%4]
+        });
+        if (Math.random()>0.3) {
+            stars.push({x:platforms[platforms.length-1].x+30, y:platforms[platforms.length-1].y-25, collected:false, phase:Math.random()*Math.PI*2});
+        }
+    }
+
+    // Point-and-click: click to jump toward target
+    gameCanvas.onclick = (e) => {
+        if (currentMiniGame !== 'star-jump') return;
+        if (!landed) return; // can only jump when standing on something
+        const rect = gameCanvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+
+        // Calculate direction toward click
+        const dx = clickX - px;
+        const maxH = Math.min(Math.abs(dx), gw*0.4);
+        vx = dx > 0 ? moveSpd : dx < 0 ? -moveSpd : 0;
+        // Scale horizontal speed based on distance
+        vx = (dx / (gw*0.5)) * moveSpd * 1.5;
+        vx = Math.max(-moveSpd*1.5, Math.min(moveSpd*1.5, vx));
+        vy = jumpPow;
+        landed = false;
+    };
+
+    const loop = () => {
+        if (currentMiniGame !== 'star-jump') return;
+        const dt=1/60; hubTime+=dt;
+
+        // Apply gravity and movement
+        if (!landed) {
+            vy+=gravity*dt;
+            vx*=0.995;
+        }
+        px+=vx*dt;
+        py+=vy*dt;
+
+        // Wrap horizontal
+        if (px<0) px=gw;
+        if (px>gw) px=0;
+
+        // Platform collision (only when falling)
+        if (vy>0) {
+            platforms.forEach(p => {
+                if (px>p.x-10 && px<p.x+p.w+10 && py>p.y-5 && py<p.y+15) {
+                    py=p.y;
+                    vy=0; vx=0;
+                    landed=true;
+                    for(let i=0;i<4;i++) parts.push({x:px,y:py,vx:(Math.random()-0.5)*60,vy:-Math.random()*40,life:0.5,color:p.color,size:2});
+                }
+            });
+        }
+
+        // Land on ground floor (only at game start before scrolling begins)
+        if (scrollY < 5 && py>gh-60) { py=gh-60; vy=0; vx=0; landed=true; }
+
+        // Scroll up
+        const targetScroll = Math.max(0, gh*0.4-py);
+        scrollY += (targetScroll-scrollY)*0.1;
+
+        // Collect stars
+        stars.forEach(s => {
+            if (!s.collected && Math.hypot(px-s.x,py-s.y)<25) {
+                s.collected=true; score+=10;
+                for(let i=0;i<8;i++) parts.push({x:s.x,y:s.y,vx:(Math.random()-0.5)*100,vy:(Math.random()-0.5)*100,life:0.8,color:'#ffffa0',size:3});
+            }
+        });
+
+        // Generate more platforms as we go up
+        while (platforms[platforms.length-1].y > -scrollY-200) {
+            const lastY = platforms[platforms.length-1].y;
+            const np = {
+                x:Math.random()*(gw-120)+60,
+                y:lastY-70-Math.random()*50,
+                w:50+Math.random()*40,
+                color:['#ff96c8','#b496ff','#96ffdc','#ffc896'][Math.floor(Math.random()*4)]
+            };
+            platforms.push(np);
+            if (Math.random()>0.25) stars.push({x:np.x+np.w/2, y:np.y-25, collected:false, phase:Math.random()*Math.PI*2});
+        }
+
+        // Fall off = game over
+        if (py+scrollY > gh+100) {
+            gameCanvas.onclick=null;
+            endMiniGame('star-jump',score,`Reached height ${Math.floor(scrollY/10)}`,()=>{document.getElementById('game-result').classList.remove('active');runStarJump();});
+            return;
+        }
+
+        parts = parts.filter(p => { p.life-=dt*2; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=100*dt; return p.life>0; });
+
+        // Draw
+        gameCtx.fillStyle='#0a0614'; gameCtx.fillRect(0,0,gw,gh);
+
+        // Platforms
+        platforms.forEach(p => {
+            const sy=p.y+scrollY;
+            if (sy>-20 && sy<gh+20) {
+                gameCtx.fillStyle=p.color; gameCtx.globalAlpha=0.3;
+                gameCtx.beginPath(); gameCtx.roundRect(p.x-3,sy-3,p.w+6,14,6); gameCtx.fill();
+                gameCtx.globalAlpha=1;
+                gameCtx.beginPath(); gameCtx.roundRect(p.x,sy,p.w,8,4); gameCtx.fill();
+            }
+        });
+
+        // Stars
+        stars.forEach(s => {
+            if (s.collected) return;
+            s.phase+=dt*3;
+            const sy=s.y+scrollY;
+            if (sy>-20&&sy<gh+20) {
+                const bob=Math.sin(s.phase)*3;
+                gameCtx.fillStyle='#ffffa0'; gameCtx.globalAlpha=0.3;
+                gameCtx.beginPath(); gameCtx.arc(s.x,sy+bob,12,0,Math.PI*2); gameCtx.fill();
+                gameCtx.globalAlpha=1;
+                gameCtx.font='18px serif'; gameCtx.textAlign='center';
+                gameCtx.fillText('⭐',s.x,sy+bob+6);
+            }
+        });
+
+        // Particles
+        parts.forEach(p => {
+            const sy=p.y+scrollY;
+            gameCtx.globalAlpha=p.life; gameCtx.fillStyle=p.color;
+            gameCtx.beginPath(); gameCtx.arc(p.x,sy,p.size*p.life,0,Math.PI*2); gameCtx.fill();
+        });
+        gameCtx.globalAlpha=1;
+
+        // Fairy player
+        drawPixie(gameCtx, px, py+scrollY, 1, !landed?'excited':'happy', hubTime);
+
+        // Height indicator
+        gameCtx.fillStyle='#706080'; gameCtx.font='12px Quicksand'; gameCtx.textAlign='right';
+        gameCtx.fillText('Height: '+Math.floor(scrollY/10), gw-15, gh-10);
+
+        gameCtx.fillStyle='#706080'; gameCtx.font='12px Quicksand'; gameCtx.textAlign='center';
+        gameCtx.fillText('Click to jump!', gw/2, gh-10);
+
+        document.getElementById('game-score').textContent = '⭐ '+score;
+        document.getElementById('game-timer').textContent = 'Height: '+Math.floor(scrollY/10);
+        requestAnimationFrame(loop);
+    };
+    loop();
+}
+</script>
+</body>
+</html>

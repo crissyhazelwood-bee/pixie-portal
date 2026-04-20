@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixie Portal ✦</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0614;
+            color: #f0d0ff;
+            font-family: 'Quicksand', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Sparkle canvas */
+        #sparkle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 15px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(180deg, rgba(10,6,20,0.95) 0%, rgba(10,6,20,0.8) 80%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+        nav .logo { font-family: 'Pacifico', cursive; font-size: 22px; color: #ff96c8; text-shadow: 0 0 20px rgba(255,150,200,0.4); cursor: pointer; }
+        nav .links { display: flex; gap: 20px; align-items: center; }
+        nav .links a { color: #b496ff; text-decoration: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; cursor: pointer; }
+        nav .links a:hover { color: #ff96c8; text-shadow: 0 0 15px rgba(255,150,200,0.5); }
+        .nav-user { display: flex; align-items: center; gap: 10px; }
+        .nav-avatar { font-size: 20px; cursor: pointer; }
+        .nav-name { color: #ff96c8; font-weight: 600; font-size: 14px; }
+
+        /* Auth buttons */
+        .btn {
+            padding: 8px 20px; border-radius: 25px; border: none;
+            font-family: 'Quicksand', sans-serif; font-weight: 600; font-size: 13px;
+            cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #ff96c8, #b496ff); color: #0a0614; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 5px 25px rgba(255,150,200,0.3); }
+        .btn-ghost { background: transparent; color: #b496ff; border: 1px solid rgba(180,150,255,0.3); }
+        .btn-ghost:hover { border-color: #ff96c8; color: #ff96c8; }
+        .btn-small { padding: 6px 14px; font-size: 11px; }
+        .btn-danger { background: rgba(255,80,100,0.2); color: #ff6688; border: 1px solid rgba(255,80,100,0.3); }
+
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5,3,10,0.85); z-index: 200;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: linear-gradient(135deg, #1a1030, #0d0820);
+            border: 1px solid rgba(180,150,255,0.2); border-radius: 24px;
+            padding: 40px; width: 400px; max-width: 90vw; max-height: 85vh; overflow-y: auto;
+            position: relative;
+        }
+        .modal h2 { font-family: 'Pacifico', cursive; color: #ff96c8; font-size: 28px; margin-bottom: 8px; }
+        .modal p.sub { color: #9080b0; font-size: 14px; margin-bottom: 25px; }
+        .modal-close { position: absolute; top: 15px; right: 20px; color: #9080b0; font-size: 24px; cursor: pointer; background: none; border: none; }
+        .modal-close:hover { color: #ff96c8; }
+
+        /* Form */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; color: #b496ff; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 12px 16px; border-radius: 12px;
+            border: 1px solid rgba(180,150,255,0.2); background: rgba(20,12,35,0.8);
+            color: #f0d0ff; font-family: 'Quicksand', sans-serif; font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: #ff96c8;
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-group select { cursor: pointer; }
+        .form-group select option { background: #1a1030; }
+        .form-error { color: #ff6688; font-size: 13px; margin-top: 5px; }
+        .form-switch { color: #9080b0; font-size: 13px; margin-top: 15px; text-align: center; }
+        .form-switch a { color: #ff96c8; cursor: pointer; text-decoration: underline; }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; position: relative; z-index: 1;
+        }
+        .hero-title {
+            font-family: 'Pacifico', cursive; font-size: 75px;
+            background: linear-gradient(135deg, #ff96c8, #b496ff, #96ffdc, #ff96c8);
+            background-size: 300% 300%;
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            animation: gradient-shift 6s ease infinite;
+            padding: 0 10px 10px;
+        }
+        @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .hero-subtitle { font-size: 17px; color: #b496ff; letter-spacing: 6px; text-transform: uppercase; margin: 10px 0 30px; opacity: 0; animation: fade-up 1s ease 0.5s forwards; }
+        .hero-cta { opacity: 0; animation: fade-up 1s ease 1s forwards; }
+        @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Floating orbs */
+        .orb { position: absolute; border-radius: 50%; filter: blur(40px); animation: float-orb 8s ease-in-out infinite; z-index: 0; }
+        .orb-1 { width: 300px; height: 300px; background: rgba(255,150,200,0.08); top: 10%; left: 10%; }
+        .orb-2 { width: 250px; height: 250px; background: rgba(180,150,255,0.08); top: 60%; right: 15%; animation-delay: 2s; }
+        .orb-3 { width: 200px; height: 200px; background: rgba(150,255,220,0.06); bottom: 20%; left: 30%; animation-delay: 4s; }
+        @keyframes float-orb { 0%,100%{transform:translate(0,0) scale(1)} 25%{transform:translate(30px,-20px) scale(1.1)} 50%{transform:translate(-20px,30px) scale(0.95)} 75%{transform:translate(15px,15px) scale(1.05)} }
+
+        /* Sections */
+        section { padding: 80px 30px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+        .section-title { font-family: 'Pacifico', cursive; font-size: 40px; color: #ff96c8; text-align: center; margin-bottom: 12px; text-shadow: 0 0 30px rgba(255,150,200,0.3); }
+        .section-subtitle { text-align: center; color: #9080b0; margin-bottom: 50px; font-size: 15px; }
+
+        /* Cards */
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
+        .card {
+            background: linear-gradient(135deg, rgba(40,20,60,0.8), rgba(20,10,35,0.9));
+            border: 1px solid rgba(180,150,255,0.12); border-radius: 18px;
+            padding: 30px; transition: all 0.4s; position: relative; overflow: hidden; cursor: pointer;
+        }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ff96c8, #b496ff, #96ffdc); opacity: 0; transition: opacity 0.4s; }
+        .card:hover { transform: translateY(-6px); border-color: rgba(255,150,200,0.25); box-shadow: 0 15px 50px rgba(180,100,255,0.12); }
+        .card:hover::before { opacity: 1; }
+        .card-icon { font-size: 36px; margin-bottom: 12px; display: block; }
+        .card-title { font-size: 20px; font-weight: 700; color: #f0d0ff; margin-bottom: 8px; }
+        .card-desc { color: #9080b0; font-size: 13px; line-height: 1.6; }
+        .card-tag { display: inline-block; margin-top: 12px; padding: 4px 12px; border-radius: 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .tag-game { background: rgba(180,150,255,0.2); color: #b496ff; }
+        .tag-journal { background: rgba(150,255,220,0.2); color: #96ffdc; }
+        .tag-horoscope { background: rgba(255,180,255,0.2); color: #ffb0ff; }
+        .tag-tarot { background: rgba(150,255,220,0.2); color: #96ffdc; }
+        .tag-soon { background: rgba(255,255,170,0.2); color: #ffffa0; }
+
+        /* Journal entries */
+        .journal-entry {
+            background: linear-gradient(135deg, rgba(40,20,60,0.6), rgba(20,10,35,0.8));
+            border: 1px solid rgba(180,150,255,0.1); border-radius: 16px;
+            padding: 25px; margin-bottom: 20px;
+        }
+        .entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .entry-mood { font-size: 24px; }
+        .entry-date { color: #706080; font-size: 12px; }
+        .entry-title { font-size: 18px; font-weight: 700; color: #ff96c8; margin-bottom: 8px; }
+        .entry-content { color: #b0a0c8; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+        .entry-delete { background: none; border: none; color: #504060; cursor: pointer; font-size: 16px; transition: color 0.3s; }
+        .entry-delete:hover { color: #ff6688; }
+
+        /* Scores */
+        .score-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; border-radius: 12px; margin-bottom: 10px;
+            background: rgba(30,15,50,0.6); border: 1px solid rgba(180,150,255,0.08);
+        }
+        .score-game { font-weight: 700; color: #b496ff; }
+        .score-points { font-size: 22px; font-weight: 700; color: #ff96c8; }
+        .score-date { color: #706080; font-size: 12px; }
+
+        /* Leaderboard */
+        .lb-row { display: flex; align-items: center; gap: 15px; padding: 12px 18px; border-radius: 10px; margin-bottom: 8px; background: rgba(25,12,45,0.6); }
+        .lb-rank { font-size: 20px; font-weight: 700; width: 35px; text-align: center; }
+        .lb-rank.gold { color: #ffd700; }
+        .lb-rank.silver { color: #c0c0d0; }
+        .lb-rank.bronze { color: #cd7f32; }
+        .lb-name { flex: 1; font-weight: 600; }
+        .lb-score { font-size: 18px; font-weight: 700; color: #ff96c8; }
+
+        /* About */
+        .about-content { display: flex; align-items: center; gap: 50px; }
+        .about-avatar {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: linear-gradient(135deg, #ff96c8, #b496ff);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 70px; flex-shrink: 0;
+            box-shadow: 0 0 40px rgba(255,150,200,0.2);
+            animation: avatar-glow 3s ease-in-out infinite;
+        }
+        @keyframes avatar-glow { 0%,100% { box-shadow: 0 0 40px rgba(255,150,200,0.2); } 50% { box-shadow: 0 0 60px rgba(180,150,255,0.3); } }
+        .about-text h3 { font-size: 26px; color: #ff96c8; margin-bottom: 12px; }
+        .about-text p { color: #b0a0c8; line-height: 1.8; font-size: 14px; }
+
+        /* Profile page */
+        .profile-header { display: flex; align-items: center; gap: 30px; margin-bottom: 40px; }
+        .profile-avatar { font-size: 60px; width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #ff96c8, #b496ff); display: flex; align-items: center; justify-content: center; }
+        .profile-info h2 { font-family: 'Pacifico', cursive; color: #ff96c8; font-size: 32px; }
+        .profile-info p { color: #9080b0; font-size: 14px; }
+        .profile-tabs { display: flex; gap: 5px; margin-bottom: 30px; }
+        .profile-tab { padding: 10px 22px; border-radius: 25px; border: 1px solid rgba(180,150,255,0.15); background: transparent; color: #b496ff; font-family: 'Quicksand', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .profile-tab.active { background: linear-gradient(135deg, rgba(255,150,200,0.2), rgba(180,150,255,0.2)); border-color: #ff96c8; color: #ff96c8; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Empty state */
+        .empty { text-align: center; padding: 60px 20px; color: #706080; }
+        .empty-icon { font-size: 50px; margin-bottom: 15px; display: block; }
+        .empty-text { font-size: 16px; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 12px 28px; border-radius: 30px; background: linear-gradient(135deg, #1a1030, #0d0820); border: 1px solid rgba(180,150,255,0.3); color: #f0d0ff; font-size: 14px; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+
+        /* Footer */
+        footer { text-align: center; padding: 40px; color: #504060; font-size: 13px; z-index: 1; position: relative; }
+        footer .sparkles { color: #ff96c8; font-size: 16px; margin-bottom: 10px; }
+
+        /* Page visibility */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Reveal animation */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* Mood selector */
+        .mood-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+        .mood-btn { font-size: 28px; padding: 8px; border-radius: 12px; border: 2px solid transparent; background: rgba(20,12,35,0.5); cursor: pointer; transition: all 0.3s; }
+        .mood-btn:hover { transform: scale(1.2); }
+        .mood-btn.selected { border-color: #ff96c8; background: rgba(255,150,200,0.15); transform: scale(1.15); }
+
+        /* Emoji picker */
+        .emoji-picker { display:flex; flex-wrap:wrap; gap:6px; max-height:220px; overflow-y:auto; padding:8px; border-radius:12px; background:rgba(15,8,28,0.6); border:1px solid rgba(180,150,255,0.1); }
+        .emoji-picker::-webkit-scrollbar { width:6px; }
+        .emoji-picker::-webkit-scrollbar-track { background:transparent; }
+        .emoji-picker::-webkit-scrollbar-thumb { background:rgba(180,150,255,0.3); border-radius:3px; }
+        .emoji-opt { font-size:26px; width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:all 0.2s; background:rgba(20,12,35,0.4); }
+        .emoji-opt:hover { transform:scale(1.2); background:rgba(40,20,60,0.6); }
+        .emoji-opt.selected { border-color:#ff96c8; background:rgba(255,150,200,0.15); transform:scale(1.15); box-shadow:0 0 12px rgba(255,150,200,0.3); }
+        .emoji-section { width:100%; color:#706080; font-size:11px; text-transform:uppercase; letter-spacing:1px; margin:8px 0 4px; padding-left:4px; }
+
+        /* Zodiac picker */
+        .zodiac-picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; margin-bottom: 40px; }
+        .zodiac-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 10px; border-radius: 16px; border: 2px solid rgba(180,150,255,0.12); background: rgba(30,15,50,0.5); cursor: pointer; transition: all 0.3s; }
+        .zodiac-btn:hover { transform: translateY(-3px); border-color: rgba(255,150,200,0.3); background: rgba(40,20,65,0.7); }
+        .zodiac-btn.selected { border-color: #ff96c8; background: rgba(255,150,200,0.12); box-shadow: 0 0 20px rgba(255,150,200,0.15); }
+        .zodiac-icon { font-size: 30px; }
+        .zodiac-label { font-size: 12px; font-weight: 600; color: #b496ff; text-transform: uppercase; letter-spacing: 1px; }
+        .zodiac-btn.selected .zodiac-label { color: #ff96c8; }
+
+        /* Horoscope reading */
+        .horoscope-card { background: linear-gradient(135deg, rgba(40,20,60,0.8), rgba(20,10,35,0.9)); border: 1px solid rgba(180,150,255,0.15); border-radius: 20px; padding: 35px; position: relative; overflow: hidden; }
+        .horoscope-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ff96c8, #b496ff, #ffb0ff); }
+        .horoscope-header { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
+        .horoscope-sign-icon { font-size: 48px; width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, rgba(255,150,200,0.15), rgba(180,150,255,0.15)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .horoscope-sign-name { font-family: 'Pacifico', cursive; font-size: 26px; color: #ff96c8; }
+        .horoscope-date { color: #706080; font-size: 13px; margin-top: 2px; }
+        .horoscope-text { color: #c8b8e0; font-size: 15px; line-height: 1.8; margin-bottom: 28px; }
+        .horoscope-extras { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        .horoscope-extra { background: rgba(20,10,35,0.6); border: 1px solid rgba(180,150,255,0.08); border-radius: 12px; padding: 14px 16px; text-align: center; }
+        .extra-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #706080; margin-bottom: 6px; }
+        .extra-value { display: block; font-size: 15px; font-weight: 700; color: #b496ff; }
+
+        /* Tarot */
+        .tarot-spread { display: flex; justify-content: center; gap: 35px; flex-wrap: wrap; margin: 40px 0; }
+        .tarot-slot { text-align: center; }
+        .tarot-slot-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #706080; margin-bottom: 12px; }
+        .tarot-card-wrap { width: 200px; height: 340px; perspective: 900px; cursor: pointer; }
+        .tarot-card-inner { width: 100%; height: 100%; position: relative; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        .tarot-card-wrap.flipped .tarot-card-inner { transform: rotateY(180deg); }
+        .tarot-card-front, .tarot-card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 10px; backface-visibility: hidden; }
+
+        /* Card back — classic ornate pattern */
+        .tarot-card-back {
+            background: linear-gradient(135deg, #1a0833, #2d1260, #1a0833);
+            border: 3px solid #c9a84c;
+            box-shadow: 0 0 30px rgba(180,150,255,0.15), inset 0 0 40px rgba(100,60,180,0.2);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .tarot-back-pattern {
+            width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center;
+        }
+        /* Ornate inner border */
+        .tarot-back-pattern::before {
+            content: ''; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px;
+            border: 2px solid rgba(201,168,76,0.5); border-radius: 6px;
+        }
+        .tarot-back-pattern::after {
+            content: ''; position: absolute; top: 14px; left: 14px; right: 14px; bottom: 14px;
+            border: 1px solid rgba(201,168,76,0.25); border-radius: 4px;
+        }
+        .tarot-back-center { text-align: center; position: relative; z-index: 1; }
+        .tarot-back-star { font-size: 44px; display: block; filter: drop-shadow(0 0 12px rgba(201,168,76,0.5)); animation: tarot-pulse 3s ease-in-out infinite; }
+        .tarot-back-label { font-size: 9px; color: #c9a84c; text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; opacity: 0.7; }
+        /* Corner ornaments on back */
+        .tarot-back-corner { position: absolute; font-size: 14px; color: #c9a84c; opacity: 0.5; }
+        .tarot-back-corner.tl { top: 18px; left: 18px; }
+        .tarot-back-corner.tr { top: 18px; right: 18px; transform: scaleX(-1); }
+        .tarot-back-corner.bl { bottom: 18px; left: 18px; transform: scaleY(-1); }
+        .tarot-back-corner.br { bottom: 18px; right: 18px; transform: scale(-1); }
+        @keyframes tarot-pulse { 0%,100% { filter: drop-shadow(0 0 12px rgba(201,168,76,0.5)); } 50% { filter: drop-shadow(0 0 22px rgba(201,168,76,0.8)); } }
+
+        /* Card front — classic tarot style */
+        .tarot-card-front {
+            background: linear-gradient(180deg, #f5ecd7 0%, #e8dcc4 100%);
+            border: 3px solid #c9a84c;
+            transform: rotateY(180deg);
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 0 35px rgba(255,150,200,0.12);
+        }
+        .tarot-card-wrap:hover .tarot-card-back { box-shadow: 0 0 50px rgba(201,168,76,0.3), inset 0 0 40px rgba(100,60,180,0.2); }
+        .tarot-card-wrap.flipped .tarot-card-front { box-shadow: 0 8px 50px rgba(201,168,76,0.25); }
+
+        /* Numeral banner at top */
+        .tarot-numeral { text-align: center; padding: 8px 0 4px; font-size: 13px; font-weight: 700; color: #6b5a3e; letter-spacing: 3px; font-family: serif; }
+
+        /* Scene area */
+        .tarot-scene {
+            flex: 1; margin: 0 12px; border: 2px solid #c9a84c; border-radius: 4px; position: relative; overflow: hidden;
+            background: linear-gradient(180deg, #1a0a2e, #0d0520 40%, #0a0418);
+        }
+        /* Scene elements */
+        .scene-bg { position: absolute; bottom: 0; left: 0; right: 0; height: 40%; }
+        .scene-ground { background: linear-gradient(180deg, transparent, rgba(30,60,30,0.5)); position: absolute; bottom: 0; left: 0; right: 0; height: 100%; }
+        .scene-fairy { position: absolute; font-size: 42px; filter: drop-shadow(0 0 10px rgba(255,150,200,0.6)); z-index: 5; }
+        .scene-element { position: absolute; z-index: 3; }
+        .scene-sparkle { position: absolute; z-index: 6; animation: scene-twinkle 2s ease-in-out infinite; }
+        .scene-sparkle:nth-child(2) { animation-delay: 0.4s; }
+        .scene-sparkle:nth-child(3) { animation-delay: 0.8s; }
+        .scene-sparkle:nth-child(4) { animation-delay: 1.2s; }
+        @keyframes scene-twinkle { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+        .scene-float { animation: scene-float 4s ease-in-out infinite; }
+        .scene-float-slow { animation: scene-float 6s ease-in-out infinite; }
+        @keyframes scene-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .scene-glow { position: absolute; border-radius: 50%; filter: blur(15px); z-index: 1; }
+        /* Moon for night scenes */
+        .scene-moon { position: absolute; top: 12px; right: 14px; width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, #fffde0, #f0e0a0); box-shadow: 0 0 20px rgba(255,253,200,0.5); z-index: 2; }
+        .scene-stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; }
+        .scene-star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: scene-twinkle 3s ease-in-out infinite; }
+
+        /* Name banner at bottom */
+        .tarot-name-banner {
+            text-align: center; padding: 6px 8px 10px; position: relative;
+        }
+        .tarot-name-banner::before {
+            content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 1px; background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+        }
+        .tarot-card-name { font-family: serif; font-size: 13px; font-weight: 700; color: #4a3c28; letter-spacing: 1px; line-height: 1.3; }
+        .tarot-card-keyword { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #8a7a5e; margin-top: 2px; }
+
+        /* Readings below cards */
+        .tarot-reading { max-width: 700px; margin: 0 auto; }
+        .tarot-reading-card { background: linear-gradient(135deg, rgba(40,20,60,0.7), rgba(20,10,35,0.85)); border: 1px solid rgba(201,168,76,0.2); border-radius: 16px; padding: 24px; margin-bottom: 18px; display: none; }
+        .tarot-reading-card.visible { display: block; animation: fade-up 0.6s ease forwards; }
+        .tarot-reading-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .tarot-reading-emoji { font-size: 32px; }
+        .tarot-reading-title { font-family: 'Pacifico', cursive; font-size: 20px; color: #ff96c8; }
+        .tarot-reading-pos { font-size: 11px; color: #c9a84c; text-transform: uppercase; letter-spacing: 1px; }
+        .tarot-reading-text { color: #c8b8e0; font-size: 14px; line-height: 1.8; }
+
+        .tarot-draw-btn { display: block; margin: 0 auto 30px; padding: 14px 36px; border-radius: 30px; border: 2px solid #c9a84c; background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(180,150,255,0.15)); color: #c9a84c; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; }
+        .tarot-draw-btn:hover { transform: scale(1.05); box-shadow: 0 5px 30px rgba(201,168,76,0.25); background: linear-gradient(135deg, rgba(201,168,76,0.25), rgba(180,150,255,0.25)); }
+        .tarot-draw-btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 42px; }
+            nav .links { gap: 12px; }
+            nav .links a { font-size: 11px; letter-spacing: 1px; }
+            .about-content { flex-direction: column; text-align: center; }
+            .profile-header { flex-direction: column; text-align: center; }
+            .tarot-card-wrap { width: 160px; height: 272px; }
+            .tarot-spread { gap: 16px; }
+            .scene-fairy { font-size: 34px !important; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="sparkle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo" onclick="showPage('home')">Pixie Portal</div>
+        <div class="links">
+            <a onclick="showPage('home')">Home</a>
+            <a onclick="showPage('games')">Games</a>
+            <a onclick="showPage('horoscope')">Horoscope</a>
+            <a onclick="showPage('tarot')">Tarot</a>
+            <a onclick="showPage('journal-page')">Journal</a>
+            <div id="nav-auth">
+                <button class="btn btn-ghost btn-small" onclick="openModal('login')">Log In</button>
+                <button class="btn btn-primary btn-small" onclick="openModal('signup')">Sign Up</button>
+            </div>
+            <div id="nav-user" class="nav-user" style="display:none;">
+                <span class="nav-avatar" id="nav-avatar" onclick="showPage('profile')">✦</span>
+                <span class="nav-name" id="nav-name" onclick="showPage('profile')"></span>
+                <a onclick="doLogout()" style="font-size:11px;">logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============ HOME PAGE ============ -->
+    <div class="page active" id="page-home">
+        <section class="hero">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+            <h1 class="hero-title">Pixie Portal</h1>
+            <p class="hero-subtitle">games ✦ journal ✦ magic</p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" id="hero-btn" onclick="openModal('signup')">Enter the Portal ✦</button>
+            </div>
+        </section>
+
+        <section id="home-games">
+            <h2 class="section-title reveal">Games</h2>
+            <p class="section-subtitle reveal">little worlds to play in</p>
+            <div class="cards">
+                <div class="card reveal" onclick="window.location.href='/fairy_garden.html'">
+                    <span class="card-icon">🌸</span>
+                    <div class="card-title">Fairy Garden</div>
+                    <div class="card-desc">Plant magical flowers, guide your fairy to water them, and watch butterflies bring sparkles.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card reveal" onclick="window.location.href='/spellbook.html'">
+                    <span class="card-icon">✨</span>
+                    <div class="card-title">Spellbook</div>
+                    <div class="card-desc">Cast 7 different spells with your mouse. Paint the screen with fairy dust, lightning, and nebulas.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card reveal" onclick="window.location.href='/fairy_flight.html'">
+                    <span class="card-icon">🧚</span>
+                    <div class="card-title">Fairy Flight</div>
+                    <div class="card-desc">Fly through an enchanted forest. Dodge thorns and dark clouds, collect gems, survive as long as you can.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card reveal" onclick="window.location.href='/constellation.html'">
+                    <span class="card-icon">✦</span>
+                    <div class="card-title">Starweave</div>
+                    <div class="card-desc">Connect numbered stars to reveal fairy constellations. A chill, magical puzzle.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="home-horoscope">
+            <h2 class="section-title reveal">Daily Horoscope</h2>
+            <p class="section-subtitle reveal">the stars have something to say</p>
+            <div class="cards">
+                <div class="card reveal" onclick="showPage('horoscope')" style="text-align:center;">
+                    <span class="card-icon">🔮</span>
+                    <div class="card-title">Your Horoscope</div>
+                    <div class="card-desc">Pick your zodiac sign and get your daily cosmic message. Updated every day.</div>
+                    <span class="card-tag tag-horoscope">Read Now</span>
+                </div>
+                <div class="card reveal" onclick="showPage('tarot')" style="text-align:center;">
+                    <span class="card-icon">🧚</span>
+                    <div class="card-title">Fairy Tarot</div>
+                    <div class="card-desc">Draw three enchanted cards from the Fairy Realm. A new spread awaits you each day.</div>
+                    <span class="card-tag tag-tarot">Draw Cards</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="home-about">
+            <h2 class="section-title reveal">About</h2>
+            <div class="about-content reveal">
+                <div class="about-avatar">✦</div>
+                <div class="about-text">
+                    <h3>hey, i'm crissy</h3>
+                    <p>i make sparkly things on the internet. games, art, music,
+                    whatever feels magical. this is my little corner of the web —
+                    a place where everything glows and nothing is boring.
+                    <br><br>✦ gamer ✦ creator ✦ fairy enthusiast ✦</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ GAMES PAGE ============ -->
+    <div class="page" id="page-games">
+        <section>
+            <h2 class="section-title">Games</h2>
+            <p class="section-subtitle">click to play ✦ scores save to your profile</p>
+            <div class="cards">
+                <div class="card" onclick="window.location.href='/fairy_garden.html'">
+                    <span class="card-icon">🌸</span>
+                    <div class="card-title">Fairy Garden</div>
+                    <div class="card-desc">Plant flowers, water them, collect sparkles from butterflies.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card" onclick="window.location.href='/spellbook.html'">
+                    <span class="card-icon">✨</span>
+                    <div class="card-title">Spellbook</div>
+                    <div class="card-desc">7 magical spells. Paint the screen with particles and light.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card" onclick="window.location.href='/frog_box.html'">
+                    <span class="card-icon">🐸</span>
+                    <div class="card-title">Frog Box</div>
+                    <div class="card-desc">Hop across mushrooms, dodge magic boxes, reach the fairy garden.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card" onclick="window.location.href='/fairy_flight.html'">
+                    <span class="card-icon">🧚</span>
+                    <div class="card-title">Fairy Flight</div>
+                    <div class="card-desc">Endless fairy flyer. Dodge thorns, collect gems, survive the enchanted sky.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card" onclick="window.location.href='/constellation.html'">
+                    <span class="card-icon">✦</span>
+                    <div class="card-title">Starweave</div>
+                    <div class="card-desc">Connect numbered stars to reveal fairy constellations. 10 shapes to discover.</div>
+                    <span class="card-tag tag-game">Play</span>
+                </div>
+            </div>
+
+            <h2 class="section-title" style="margin-top:60px;">Leaderboard</h2>
+            <p class="section-subtitle">top scores across all players</p>
+            <div id="leaderboard-area">
+                <div class="empty">
+                    <span class="empty-icon">🏆</span>
+                    <div class="empty-text">Play games to see scores here!</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ HOROSCOPE PAGE ============ -->
+    <div class="page" id="page-horoscope">
+        <section>
+            <h2 class="section-title">Daily Horoscope</h2>
+            <p class="section-subtitle">pick your sign ✦ read your stars</p>
+
+            <div class="zodiac-picker" id="zodiac-picker">
+                <div class="zodiac-btn" data-sign="aries" onclick="selectZodiac(this)"><span class="zodiac-icon">♈</span><span class="zodiac-label">Aries</span></div>
+                <div class="zodiac-btn" data-sign="taurus" onclick="selectZodiac(this)"><span class="zodiac-icon">♉</span><span class="zodiac-label">Taurus</span></div>
+                <div class="zodiac-btn" data-sign="gemini" onclick="selectZodiac(this)"><span class="zodiac-icon">♊</span><span class="zodiac-label">Gemini</span></div>
+                <div class="zodiac-btn" data-sign="cancer" onclick="selectZodiac(this)"><span class="zodiac-icon">♋</span><span class="zodiac-label">Cancer</span></div>
+                <div class="zodiac-btn" data-sign="leo" onclick="selectZodiac(this)"><span class="zodiac-icon">♌</span><span class="zodiac-label">Leo</span></div>
+                <div class="zodiac-btn" data-sign="virgo" onclick="selectZodiac(this)"><span class="zodiac-icon">♍</span><span class="zodiac-label">Virgo</span></div>
+                <div class="zodiac-btn" data-sign="libra" onclick="selectZodiac(this)"><span class="zodiac-icon">♎</span><span class="zodiac-label">Libra</span></div>
+                <div class="zodiac-btn" data-sign="scorpio" onclick="selectZodiac(this)"><span class="zodiac-icon">♏</span><span class="zodiac-label">Scorpio</span></div>
+                <div class="zodiac-btn" data-sign="sagittarius" onclick="selectZodiac(this)"><span class="zodiac-icon">♐</span><span class="zodiac-label">Sagittarius</span></div>
+                <div class="zodiac-btn" data-sign="capricorn" onclick="selectZodiac(this)"><span class="zodiac-icon">♑</span><span class="zodiac-label">Capricorn</span></div>
+                <div class="zodiac-btn" data-sign="aquarius" onclick="selectZodiac(this)"><span class="zodiac-icon">♒</span><span class="zodiac-label">Aquarius</span></div>
+                <div class="zodiac-btn" data-sign="pisces" onclick="selectZodiac(this)"><span class="zodiac-icon">♓</span><span class="zodiac-label">Pisces</span></div>
+            </div>
+
+            <div id="horoscope-reading" class="horoscope-reading" style="display:none;">
+                <div class="horoscope-card">
+                    <div class="horoscope-header">
+                        <span class="horoscope-sign-icon" id="horoscope-sign-icon"></span>
+                        <div>
+                            <div class="horoscope-sign-name" id="horoscope-sign-name"></div>
+                            <div class="horoscope-date" id="horoscope-date"></div>
+                        </div>
+                    </div>
+                    <div class="horoscope-text" id="horoscope-text"></div>
+                    <div class="horoscope-extras">
+                        <div class="horoscope-extra"><span class="extra-label">Lucky Color</span><span class="extra-value" id="horoscope-color"></span></div>
+                        <div class="horoscope-extra"><span class="extra-label">Lucky Number</span><span class="extra-value" id="horoscope-number"></span></div>
+                        <div class="horoscope-extra"><span class="extra-label">Mood</span><span class="extra-value" id="horoscope-mood"></span></div>
+                        <div class="horoscope-extra"><span class="extra-label">Compatibility</span><span class="extra-value" id="horoscope-compat"></span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ TAROT PAGE ============ -->
+    <div class="page" id="page-tarot">
+        <section>
+            <h2 class="section-title">Fairy Tarot</h2>
+            <p class="section-subtitle">three cards from the fairy realm ✦ a new spread each day</p>
+
+            <button class="tarot-draw-btn" id="tarot-draw-btn" onclick="drawTarot()">Draw Your Cards</button>
+
+            <div class="tarot-spread" id="tarot-spread">
+                <div class="tarot-slot">
+                    <div class="tarot-slot-label">Past</div>
+                    <div class="tarot-card-wrap" id="tarot-0">
+                        <div class="tarot-card-inner">
+                            <div class="tarot-card-back"><div class="tarot-back-pattern"><span class="tarot-back-corner tl">&#10048;</span><span class="tarot-back-corner tr">&#10048;</span><span class="tarot-back-corner bl">&#10048;</span><span class="tarot-back-corner br">&#10048;</span><div class="tarot-back-center"><span class="tarot-back-star">🧚</span><span class="tarot-back-label">Fairy Tarot</span></div></div></div>
+                            <div class="tarot-card-front"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tarot-slot">
+                    <div class="tarot-slot-label">Present</div>
+                    <div class="tarot-card-wrap" id="tarot-1">
+                        <div class="tarot-card-inner">
+                            <div class="tarot-card-back"><div class="tarot-back-pattern"><span class="tarot-back-corner tl">&#10048;</span><span class="tarot-back-corner tr">&#10048;</span><span class="tarot-back-corner bl">&#10048;</span><span class="tarot-back-corner br">&#10048;</span><div class="tarot-back-center"><span class="tarot-back-star">🧚</span><span class="tarot-back-label">Fairy Tarot</span></div></div></div>
+                            <div class="tarot-card-front"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tarot-slot">
+                    <div class="tarot-slot-label">Future</div>
+                    <div class="tarot-card-wrap" id="tarot-2">
+                        <div class="tarot-card-inner">
+                            <div class="tarot-card-back"><div class="tarot-back-pattern"><span class="tarot-back-corner tl">&#10048;</span><span class="tarot-back-corner tr">&#10048;</span><span class="tarot-back-corner bl">&#10048;</span><span class="tarot-back-corner br">&#10048;</span><div class="tarot-back-center"><span class="tarot-back-star">🧚</span><span class="tarot-back-label">Fairy Tarot</span></div></div></div>
+                            <div class="tarot-card-front"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tarot-reading" id="tarot-reading"></div>
+        </section>
+    </div>
+
+    <!-- ============ JOURNAL PAGE ============ -->
+    <div class="page" id="page-journal-page">
+        <section>
+            <h2 class="section-title">Dream Journal</h2>
+            <p class="section-subtitle">capture the vibes ✦ your entries are private</p>
+
+            <div id="journal-logged-out" style="text-align:center; padding:40px;">
+                <span style="font-size:50px; display:block; margin-bottom:15px;">🌙</span>
+                <p style="color:#9080b0; margin-bottom:20px;">Log in to start your dream journal</p>
+                <button class="btn btn-primary" onclick="openModal('login')">Log In</button>
+            </div>
+
+            <div id="journal-logged-in" style="display:none;">
+                <button class="btn btn-primary" onclick="openModal('new-entry')" style="margin-bottom:30px;">✦ New Entry</button>
+                <div id="journal-entries"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ PROFILE PAGE ============ -->
+    <div class="page" id="page-profile">
+        <section>
+            <div class="profile-header">
+                <div class="profile-avatar" id="profile-avatar">✦</div>
+                <div class="profile-info">
+                    <h2 id="profile-name">...</h2>
+                    <p id="profile-bio"></p>
+                </div>
+                <button class="btn btn-ghost btn-small" onclick="openModal('edit-profile')">Edit Profile</button>
+            </div>
+
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="switchTab('scores')">Scores</button>
+                <button class="profile-tab" onclick="switchTab('horoscope-tab')">Horoscope</button>
+                <button class="profile-tab" onclick="switchTab('tarot-tab')">Tarot</button>
+                <button class="profile-tab" onclick="switchTab('journal-tab')">My Journal 🔒</button>
+            </div>
+
+            <div class="tab-content active" id="tab-scores">
+                <div id="my-scores"></div>
+            </div>
+            <div class="tab-content" id="tab-horoscope-tab">
+                <div id="profile-horoscope"></div>
+            </div>
+            <div class="tab-content" id="tab-tarot-tab">
+                <div id="profile-tarot"></div>
+            </div>
+            <div class="tab-content" id="tab-journal-tab">
+                <p style="color:#706080; font-size:12px; margin-bottom:15px;">🔒 Only you can see your journal entries</p>
+                <div id="profile-journal"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ MODALS ============ -->
+
+    <!-- Login -->
+    <div class="modal-overlay" id="modal-login">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>Welcome Back</h2>
+            <p class="sub">enter the portal ✦</p>
+            <div class="form-group">
+                <label>Username or Email</label>
+                <input type="text" id="login-user" placeholder="your username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-pass" placeholder="your password">
+            </div>
+            <div class="form-error" id="login-error"></div>
+            <button class="btn btn-primary" onclick="doLogin()" style="width:100%; margin-top:10px;">Log In</button>
+            <p class="form-switch">Don't have an account? <a onclick="openModal('signup')">Sign Up</a></p>
+        </div>
+    </div>
+
+    <!-- Signup -->
+    <div class="modal-overlay" id="modal-signup">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>Join the Portal</h2>
+            <p class="sub">create your magical account ✦</p>
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="signup-display" placeholder="what should we call you?">
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="signup-user" placeholder="pick a username">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="signup-email" placeholder="your email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="signup-pass" placeholder="make it sparkly">
+            </div>
+            <div class="form-error" id="signup-error"></div>
+            <button class="btn btn-primary" onclick="doSignup()" style="width:100%; margin-top:10px;">Create Account ✦</button>
+            <p class="form-switch">Already have an account? <a onclick="openModal('login')">Log In</a></p>
+        </div>
+    </div>
+
+    <!-- New Journal Entry -->
+    <div class="modal-overlay" id="modal-new-entry">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>New Entry</h2>
+            <p class="sub">how are you feeling? ✦</p>
+            <div class="form-group">
+                <label>Mood</label>
+                <div class="mood-selector" id="mood-selector">
+                    <div class="mood-btn" data-mood="sparkly" onclick="selectMood(this)">✨</div>
+                    <div class="mood-btn" data-mood="happy" onclick="selectMood(this)">😊</div>
+                    <div class="mood-btn" data-mood="loved" onclick="selectMood(this)">💖</div>
+                    <div class="mood-btn" data-mood="chill" onclick="selectMood(this)">😌</div>
+                    <div class="mood-btn" data-mood="dreamy" onclick="selectMood(this)">🌙</div>
+                    <div class="mood-btn" data-mood="creative" onclick="selectMood(this)">🎨</div>
+                    <div class="mood-btn" data-mood="sad" onclick="selectMood(this)">😢</div>
+                    <div class="mood-btn" data-mood="tired" onclick="selectMood(this)">😴</div>
+                    <div class="mood-btn" data-mood="angry" onclick="selectMood(this)">😤</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="entry-title" placeholder="give it a name">
+            </div>
+            <div class="form-group">
+                <label>What's on your mind?</label>
+                <textarea id="entry-content" placeholder="write your heart out..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveEntry()" style="width:100%;">Save Entry ✦</button>
+        </div>
+    </div>
+
+    <!-- Edit Profile -->
+    <div class="modal-overlay" id="modal-edit-profile">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>Edit Profile</h2>
+            <div class="form-group">
+                <label>Avatar Emoji</label>
+                <input type="text" id="edit-avatar" placeholder="pick an emoji" maxlength="2" style="display:none;">
+                <div class="emoji-picker" id="emoji-picker"></div>
+            </div>
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="edit-name" placeholder="your display name">
+            </div>
+            <div class="form-group">
+                <label>Bio</label>
+                <textarea id="edit-bio" placeholder="tell us about yourself"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()" style="width:100%;">Save ✦</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <div class="sparkles">✦ ⋆ ✧ ⋆ ✦</div>
+        <p>fae portal &copy; 2026 crissy — made with magic</p>
+    </footer>
+
+    <script src="tarot-deck.js"></script>
+    <script>
+        const API = '';  // Same origin
+
+        let currentUser = null;
+        let selectedMood = 'sparkly';
+
+        // ============================================
+        // SPARKLE BACKGROUND
+        // ============================================
+        const canvas = document.getElementById('sparkle-canvas');
+        const ctx = canvas.getContext('2d');
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const bgSparkles = [];
+        for (let i = 0; i < 60; i++) {
+            bgSparkles.push({
+                x: Math.random() * 2000, y: Math.random() * 3000,
+                size: Math.random() * 2 + 0.5,
+                speed: Math.random() * 0.3 + 0.1,
+                phase: Math.random() * Math.PI * 2,
+                color: ['#ff96c8','#b496ff','#96ffdc','#ffffa0','#ffffff'][Math.floor(Math.random()*5)]
+            });
+        }
+        function drawBgSparkles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const t = Date.now() / 1000;
+            bgSparkles.forEach(s => {
+                const tw = (Math.sin(t * s.speed * 5 + s.phase) + 1) / 2;
+                if (tw < 0.3) return;
+                ctx.globalAlpha = tw * 0.7;
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size * tw, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(drawBgSparkles);
+        }
+        drawBgSparkles();
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const page = document.getElementById('page-' + id);
+            if (page) page.classList.add('active');
+            window.scrollTo(0, 0);
+            observeReveals();
+
+            if (id === 'profile' && currentUser) loadProfile();
+            if (id === 'journal-page') loadJournal();
+        }
+
+        // ============================================
+        // AUTH
+        // ============================================
+        async function doSignup() {
+            const data = {
+                display_name: document.getElementById('signup-display').value,
+                username: document.getElementById('signup-user').value,
+                email: document.getElementById('signup-email').value,
+                password: document.getElementById('signup-pass').value,
+            };
+            const res = await fetch(API + '/api/signup', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data), credentials: 'include'
+            });
+            const json = await res.json();
+            if (json.error) {
+                document.getElementById('signup-error').textContent = json.error;
+            } else {
+                currentUser = json.user;
+                onLogin();
+                closeModals();
+                toast('Welcome to Pixie Portal, ' + currentUser.display_name + '! ✦');
+            }
+        }
+
+        async function doLogin() {
+            const data = {
+                username: document.getElementById('login-user').value,
+                password: document.getElementById('login-pass').value,
+            };
+            const res = await fetch(API + '/api/login', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data), credentials: 'include'
+            });
+            const json = await res.json();
+            if (json.error) {
+                document.getElementById('login-error').textContent = json.error;
+            } else {
+                currentUser = json.user;
+                onLogin();
+                closeModals();
+                toast('Welcome back, ' + currentUser.display_name + '! ✦');
+            }
+        }
+
+        async function doLogout() {
+            await fetch(API + '/api/logout', { method: 'POST', credentials: 'include' });
+            currentUser = null;
+            onLogout();
+            showPage('home');
+            toast('Logged out ✦');
+        }
+
+        async function checkSession() {
+            try {
+                const res = await fetch(API + '/api/me', { credentials: 'include' });
+                const json = await res.json();
+                if (json.user) {
+                    currentUser = json.user;
+                    onLogin();
+                }
+            } catch(e) {}
+        }
+
+        function onLogin() {
+            document.getElementById('nav-auth').style.display = 'none';
+            document.getElementById('nav-user').style.display = 'flex';
+            document.getElementById('nav-avatar').textContent = currentUser.avatar_emoji || '✦';
+            document.getElementById('nav-name').textContent = currentUser.display_name;
+            document.getElementById('hero-btn').textContent = 'Enter ✦';
+            document.getElementById('hero-btn').onclick = () => showPage('profile');
+            document.getElementById('journal-logged-out').style.display = 'none';
+            document.getElementById('journal-logged-in').style.display = 'block';
+        }
+
+        function onLogout() {
+            document.getElementById('nav-auth').style.display = 'flex';
+            document.getElementById('nav-user').style.display = 'none';
+            document.getElementById('hero-btn').textContent = 'Enter the Portal ✦';
+            document.getElementById('hero-btn').onclick = () => openModal('signup');
+            document.getElementById('journal-logged-out').style.display = 'block';
+            document.getElementById('journal-logged-in').style.display = 'none';
+        }
+
+        // ============================================
+        // JOURNAL
+        // ============================================
+        const MOOD_EMOJIS = { sparkly:'✨', happy:'😊', loved:'💖', chill:'😌', dreamy:'🌙', creative:'🎨', sad:'😢', tired:'😴', angry:'😤', neutral:'💭' };
+
+        function selectMood(el) {
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedMood = el.dataset.mood;
+        }
+
+        async function saveEntry() {
+            const data = {
+                title: document.getElementById('entry-title').value,
+                content: document.getElementById('entry-content').value,
+                mood: selectedMood,
+            };
+            if (!data.content.trim()) return;
+            await fetch(API + '/api/journal', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data), credentials: 'include'
+            });
+            closeModals();
+            document.getElementById('entry-title').value = '';
+            document.getElementById('entry-content').value = '';
+            toast('Entry saved ✦');
+            loadJournal();
+        }
+
+        async function loadJournal() {
+            if (!currentUser) return;
+            const res = await fetch(API + '/api/journal', { credentials: 'include' });
+            const json = await res.json();
+            const container = document.getElementById('journal-entries');
+            const profileContainer = document.getElementById('profile-journal');
+
+            if (!json.entries || json.entries.length === 0) {
+                const empty = '<div class="empty"><span class="empty-icon">🌙</span><div class="empty-text">No entries yet. Start writing!</div></div>';
+                container.innerHTML = empty;
+                if (profileContainer) profileContainer.innerHTML = empty;
+                return;
+            }
+
+            const html = json.entries.map(e => {
+                const date = new Date(e.created_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const mood = MOOD_EMOJIS[e.mood] || '💭';
+                return `<div class="journal-entry">
+                    <div class="entry-header">
+                        <span class="entry-mood">${mood}</span>
+                        <span class="entry-date">${date}</span>
+                        <button class="entry-delete" onclick="deleteEntry(${e.id})">×</button>
+                    </div>
+                    ${e.title ? `<div class="entry-title">${escHtml(e.title)}</div>` : ''}
+                    <div class="entry-content">${escHtml(e.content)}</div>
+                </div>`;
+            }).join('');
+
+            container.innerHTML = html;
+            if (profileContainer) profileContainer.innerHTML = html;
+        }
+
+        async function deleteEntry(id) {
+            await fetch(API + '/api/journal/' + id, { method: 'DELETE', credentials: 'include' });
+            toast('Entry deleted');
+            loadJournal();
+        }
+
+        // ============================================
+        // SCORES / PROFILE
+        // ============================================
+        async function loadProfile() {
+            if (!currentUser) return;
+            document.getElementById('profile-avatar').textContent = currentUser.avatar_emoji || '✦';
+            document.getElementById('profile-name').textContent = currentUser.display_name;
+            document.getElementById('profile-bio').textContent = currentUser.bio || '';
+
+            // Load scores
+            const res = await fetch(API + '/api/scores', { credentials: 'include' });
+            const json = await res.json();
+            const container = document.getElementById('my-scores');
+
+            if (!json.scores || json.scores.length === 0) {
+                container.innerHTML = '<div class="empty"><span class="empty-icon">🎮</span><div class="empty-text">No scores yet. Go play some games!</div></div>';
+            } else {
+                container.innerHTML = json.scores.map(s => {
+                    const date = new Date(s.created_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    return `<div class="score-row">
+                        <div><span class="score-game">${escHtml(s.game)}</span><br><span class="score-date">${date}</span></div>
+                        <span class="score-points">${s.score}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            loadJournal();
+        }
+
+        async function saveProfile() {
+            const data = {
+                display_name: document.getElementById('edit-name').value,
+                bio: document.getElementById('edit-bio').value,
+                avatar_emoji: document.getElementById('edit-avatar').value || '✦',
+            };
+            await fetch(API + '/api/profile', {
+                method: 'PUT', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data), credentials: 'include'
+            });
+            currentUser.display_name = data.display_name;
+            currentUser.bio = data.bio;
+            currentUser.avatar_emoji = data.avatar_emoji;
+            onLogin();
+            closeModals();
+            loadProfile();
+            toast('Profile updated ✦');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        // ============================================
+        // MODALS
+        // ============================================
+        function openModal(id) {
+            closeModals();
+            const modal = document.getElementById('modal-' + id);
+            if (modal) modal.classList.add('active');
+            if (id === 'edit-profile' && currentUser) {
+                document.getElementById('edit-name').value = currentUser.display_name || '';
+                document.getElementById('edit-bio').value = currentUser.bio || '';
+                document.getElementById('edit-avatar').value = currentUser.avatar_emoji || '✦';
+            }
+        }
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            document.querySelectorAll('.form-error').forEach(e => e.textContent = '');
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', e => { if (e.target === overlay) closeModals(); });
+        });
+
+        // ============================================
+        // HELPERS
+        // ============================================
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        function escHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Scroll reveal
+        function observeReveals() {
+            document.querySelectorAll('.reveal').forEach(el => {
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+                }, { threshold: 0.1 });
+                observer.observe(el);
+            });
+        }
+        observeReveals();
+
+        // Enter key submits forms
+        document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+        document.getElementById('signup-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
+
+        // ============================================
+        // EMOJI PICKER
+        // ============================================
+        const EMOJI_GROUPS = {
+            'Sparkle': ['✦','✧','⋆','⊹','✨','💫','🌟','⭐','🔮','💎','👑','🦋','🧚','🌸','🌺','🌷','🌹','🌻','💮','🪷'],
+            'Faces': ['😊','😎','🥰','😍','🤩','😇','🥳','😏','😌','🤭','🫢','🙃','😜','😝','🤪','😈','👻','💀','🤖','👽'],
+            'Hearts': ['💖','💜','💙','💚','💛','🧡','❤️','🖤','🤍','💝','💗','💓','💕','💞','❣️','♥️','💘','💟','🫶','💑'],
+            'Animals': ['🦄','🐱','🐶','🐰','🦊','🐼','🐨','🐯','🦁','🐸','🐧','🐦','🦜','🦩','🐬','🐙','🦑','🐝','🐛','🦋','🐞','🐜','🪲','🐢','🐍','🦎'],
+            'Magic': ['🪄','🔮','🌙','☀️','🌈','⚡','🔥','❄️','💧','🌊','☁️','🍄','🌿','🍀','🎭','🎪','🎨','🎵','🎶','🎀'],
+            'Food': ['🧁','🍰','🍩','🍪','🍭','🍬','🧋','☕','🫧','🍓','🍑','🍒','🌮','🍕','🍔','🌭','🥤','🧃','🍦','🎂'],
+            'Fun': ['🎮','🕹️','🎯','🎲','🧩','🎈','🎁','🎃','🎄','🎆','🎇','🧸','🪅','🪩','🏆','🥇','🎖️','🏅','🪬','🧿'],
+        };
+
+        function buildEmojiPicker() {
+            const picker = document.getElementById('emoji-picker');
+            picker.innerHTML = '';
+            for (const [group, emojis] of Object.entries(EMOJI_GROUPS)) {
+                const label = document.createElement('div');
+                label.className = 'emoji-section';
+                label.textContent = group;
+                picker.appendChild(label);
+                emojis.forEach(e => {
+                    const btn = document.createElement('div');
+                    btn.className = 'emoji-opt';
+                    btn.textContent = e;
+                    btn.onclick = () => selectEmoji(e);
+                    picker.appendChild(btn);
+                });
+            }
+        }
+
+        function selectEmoji(emoji) {
+            document.getElementById('edit-avatar').value = emoji;
+            document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.emoji-opt').forEach(b => {
+                if (b.textContent === emoji) b.classList.add('selected');
+            });
+        }
+
+        buildEmojiPicker();
+
+        // Highlight current avatar when opening edit profile
+        const origOpenModal = openModal;
+        openModal = function(id) {
+            origOpenModal(id);
+            if (id === 'edit-profile' && currentUser) {
+                const cur = currentUser.avatar_emoji || '✦';
+                document.querySelectorAll('.emoji-opt').forEach(b => {
+                    b.classList.toggle('selected', b.textContent === cur);
+                });
+            }
+        };
+
+        // ============================================
+        // HOROSCOPE
+        // ============================================
+        const ZODIAC = {
+            aries:       { icon: '♈', name: 'Aries',       dates: 'Mar 21 – Apr 19' },
+            taurus:      { icon: '♉', name: 'Taurus',      dates: 'Apr 20 – May 20' },
+            gemini:      { icon: '♊', name: 'Gemini',      dates: 'May 21 – Jun 20' },
+            cancer:      { icon: '♋', name: 'Cancer',      dates: 'Jun 21 – Jul 22' },
+            leo:         { icon: '♌', name: 'Leo',         dates: 'Jul 23 – Aug 22' },
+            virgo:       { icon: '♍', name: 'Virgo',       dates: 'Aug 23 – Sep 22' },
+            libra:       { icon: '♎', name: 'Libra',       dates: 'Sep 23 – Oct 22' },
+            scorpio:     { icon: '♏', name: 'Scorpio',     dates: 'Oct 23 – Nov 21' },
+            sagittarius: { icon: '♐', name: 'Sagittarius', dates: 'Nov 22 – Dec 21' },
+            capricorn:   { icon: '♑', name: 'Capricorn',   dates: 'Dec 22 – Jan 19' },
+            aquarius:    { icon: '♒', name: 'Aquarius',    dates: 'Jan 20 – Feb 18' },
+            pisces:      { icon: '♓', name: 'Pisces',      dates: 'Feb 19 – Mar 20' },
+        };
+
+        const H_OPENINGS = [
+            'The stars are aligning in your favor today.',
+            'A wave of cosmic energy washes over you.',
+            'The universe has a special message for you today.',
+            'Something magical is stirring in the cosmos.',
+            'The moon whispers secrets meant just for you.',
+            'Celestial forces are working behind the scenes.',
+            'A spark of stardust lights up your path.',
+            'The planets have shifted into a rare formation.',
+            'Today the sky holds a quiet promise.',
+            'An unexpected glow fills your cosmic chart.',
+        ];
+        const H_MIDDLES = [
+            'Trust your intuition — it knows the way even when the path is unclear.',
+            'A creative spark could lead to something beautiful if you follow it.',
+            'Someone close to you might surprise you in the best way possible.',
+            'Take a moment to slow down and appreciate the little things around you.',
+            'An old idea you shelved might be exactly what you need right now.',
+            'Your energy is magnetic today — people are drawn to your warmth.',
+            'Don\'t be afraid to say what\'s on your heart. Honesty opens doors.',
+            'The thing you\'ve been overthinking? It\'s simpler than you think.',
+            'A small act of kindness you give today will ripple further than you know.',
+            'Let go of what\'s been weighing you down. Lighter days are ahead.',
+        ];
+        const H_CLOSINGS = [
+            'Embrace the magic — you deserve every bit of it.',
+            'The best things come to those who believe in a little sparkle.',
+            'Tonight, look up at the sky and remember: you\'re made of stardust.',
+            'Good things are already on their way to you.',
+            'Your glow is stronger than you realize. Let it shine.',
+            'The fairy dust is settling — something wonderful is about to bloom.',
+            'Stay soft, stay bright. The stars are cheering for you.',
+            'By moonrise, you\'ll feel a shift. Trust the process.',
+            'Wrap yourself in good vibes. Tomorrow carries even more magic.',
+            'The cosmos are proud of you. Keep going.',
+        ];
+        const H_COLORS = ['Rose Quartz', 'Lavender', 'Seafoam', 'Moonstone', 'Coral', 'Lilac', 'Starlight Gold', 'Celestial Blue', 'Fairy Pink', 'Midnight Violet', 'Peach Glow', 'Opal White'];
+        const H_MOODS = ['Dreamy', 'Sparkly', 'Bold', 'Peaceful', 'Playful', 'Cozy', 'Electric', 'Whimsical', 'Radiant', 'Mysterious', 'Gentle', 'Fierce'];
+        const SIGN_KEYS = Object.keys(ZODIAC);
+
+        function horoscopeHash(str) {
+            let h = 0;
+            for (let i = 0; i < str.length; i++) {
+                h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+            }
+            return Math.abs(h);
+        }
+
+        function generateHoroscope(sign) {
+            const today = new Date().toISOString().slice(0, 10);
+            const seed = horoscopeHash(today + ':' + sign);
+            const pick = (arr, offset) => arr[(seed + offset) % arr.length];
+
+            const opening = pick(H_OPENINGS, 0);
+            const middle = pick(H_MIDDLES, 7);
+            const closing = pick(H_CLOSINGS, 13);
+            const color = pick(H_COLORS, 3);
+            const number = ((seed + 5) % 99) + 1;
+            const mood = pick(H_MOODS, 11);
+            const compat = ZODIAC[pick(SIGN_KEYS, 17)].name;
+
+            return { text: opening + ' ' + middle + ' ' + closing, color, number, mood, compat };
+        }
+
+        function selectZodiac(el) {
+            document.querySelectorAll('.zodiac-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            const sign = el.dataset.sign;
+            localStorage.setItem('pixie-zodiac', sign);
+            showHoroscope(sign);
+        }
+
+        function showHoroscope(sign) {
+            const info = ZODIAC[sign];
+            const reading = generateHoroscope(sign);
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+            document.getElementById('horoscope-sign-icon').textContent = info.icon;
+            document.getElementById('horoscope-sign-name').textContent = info.name;
+            document.getElementById('horoscope-date').textContent = today + ' — ' + info.dates;
+            document.getElementById('horoscope-text').textContent = reading.text;
+            document.getElementById('horoscope-color').textContent = reading.color;
+            document.getElementById('horoscope-number').textContent = reading.number;
+            document.getElementById('horoscope-mood').textContent = reading.mood;
+            document.getElementById('horoscope-compat').textContent = reading.compat;
+            document.getElementById('horoscope-reading').style.display = 'block';
+        }
+
+        function loadProfileHoroscope() {
+            const sign = localStorage.getItem('pixie-zodiac');
+            const container = document.getElementById('profile-horoscope');
+            if (!sign) {
+                container.innerHTML = '<div class="empty"><span class="empty-icon">🔮</span><div class="empty-text">Pick your zodiac sign on the <a style="color:#ff96c8; cursor:pointer;" onclick="showPage(\'horoscope\')">Horoscope</a> page first!</div></div>';
+                return;
+            }
+            const info = ZODIAC[sign];
+            const reading = generateHoroscope(sign);
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            container.innerHTML = `
+                <div class="horoscope-card">
+                    <div class="horoscope-header">
+                        <span class="horoscope-sign-icon">${info.icon}</span>
+                        <div>
+                            <div class="horoscope-sign-name">${info.name}</div>
+                            <div class="horoscope-date">${today}</div>
+                        </div>
+                    </div>
+                    <div class="horoscope-text">${escHtml(reading.text)}</div>
+                    <div class="horoscope-extras">
+                        <div class="horoscope-extra"><span class="extra-label">Lucky Color</span><span class="extra-value">${reading.color}</span></div>
+                        <div class="horoscope-extra"><span class="extra-label">Lucky Number</span><span class="extra-value">${reading.number}</span></div>
+                        <div class="horoscope-extra"><span class="extra-label">Mood</span><span class="extra-value">${reading.mood}</span></div>
+                        <div class="horoscope-extra"><span class="extra-label">Compatibility</span><span class="extra-value">${reading.compat}</span></div>
+                    </div>
+                </div>`;
+        }
+
+        // Restore saved zodiac sign
+        (function() {
+            const saved = localStorage.getItem('pixie-zodiac');
+            if (saved) {
+                const btn = document.querySelector(`.zodiac-btn[data-sign="${saved}"]`);
+                if (btn) {
+                    btn.classList.add('selected');
+                    showHoroscope(saved);
+                }
+            }
+        })();
+
+        // Hook horoscope into profile loading
+        const origLoadProfile = loadProfile;
+        loadProfile = async function() {
+            await origLoadProfile();
+            loadProfileHoroscope();
+        };
+
+        // ============================================
+        // FAIRY TAROT — Full 78-card deck (loaded from tarot-deck.js)
+        // ============================================
+        // FAIRY_DECK and SUIT_SCENES loaded from tarot-deck.js
+
+        const POSITIONS = ['past', 'present', 'future'];
+        let tarotDrawn = false;
+        let todayTarotCards = null;
+
+        function getTodayTarot() {
+            const today = new Date().toISOString().slice(0, 10);
+            const seed = horoscopeHash('fairy-tarot:' + today);
+            const indices = [];
+            let s = seed;
+            while (indices.length < 3) {
+                const idx = s % FAIRY_DECK.length;
+                if (!indices.includes(idx)) indices.push(idx);
+                s = horoscopeHash(s.toString() + indices.length);
+            }
+            return indices.map(i => FAIRY_DECK[i]);
+        }
+
+        function buildCardScene(card) {
+            const theme = SUIT_SCENES[card.suit] || SUIT_SCENES.major;
+            const h = horoscopeHash(card.name);
+            const fairy = theme.fairies[h % theme.fairies.length];
+
+            let stars = '';
+            for (let i = 0; i < 12; i++) {
+                const x = 10 + (horoscopeHash(card.name + 's' + i) % 80);
+                const y = 5 + (horoscopeHash(card.name + 'y' + i) % 60);
+                const d = (horoscopeHash(card.name + 'd' + i) % 30) / 10;
+                stars += '<div class="scene-star" style="left:' + x + '%;top:' + y + '%;animation-delay:' + d + 's"></div>';
+            }
+
+            let elements = '';
+            for (let i = 0; i < 4; i++) {
+                const elem = theme.elems[(h + i * 7) % theme.elems.length];
+                const x = 12 + ((h + i * 13) % 65);
+                const y = 8 + ((h + i * 17) % 50);
+                const size = 12 + ((h + i * 5) % 14);
+                const fc = i % 2 === 0 ? 'scene-float' : 'scene-float-slow';
+                elements += '<div class="scene-element ' + fc + '" style="left:' + x + '%;top:' + y + '%;font-size:' + size + 'px">' + elem + '</div>';
+            }
+            const mainX = 30 + (h % 35);
+            elements += '<div class="scene-element scene-float-slow" style="left:' + mainX + '%;top:12%;font-size:20px">' + card.emoji + '</div>';
+
+            const fairyX = 35 + (h % 28);
+            const spColors = ['#ffffa0','#ff96c8','#96ffdc','#b496ff'];
+            let sparkles = '';
+            for (let i = 0; i < 4; i++) {
+                const sx = 15 + ((h + i * 19) % 60);
+                const sy = 20 + ((h + i * 23) % 40);
+                const ss = 7 + ((h + i) % 4);
+                const sym = i % 2 === 0 ? '✦' : '✧';
+                sparkles += '<div class="scene-sparkle" style="left:' + sx + '%;top:' + sy + '%;font-size:' + ss + 'px;color:' + spColors[i] + '">' + sym + '</div>';
+            }
+
+            return '<div class="tarot-numeral">' + card.num + '</div>' +
+                '<div class="tarot-scene">' +
+                    '<div class="scene-moon"></div>' +
+                    '<div class="scene-stars">' + stars + '</div>' +
+                    '<div class="scene-glow" style="width:60px;height:60px;background:' + theme.glow + ';bottom:25%;left:50%;transform:translateX(-50%)"></div>' +
+                    sparkles + elements +
+                    '<div class="scene-fairy scene-float" style="bottom:20%;left:' + fairyX + '%;font-size:42px">' + fairy + '</div>' +
+                    '<div class="scene-bg"><div class="scene-ground" style="background:linear-gradient(180deg,transparent,' + theme.ground + ')"></div></div>' +
+                '</div>' +
+                '<div class="tarot-name-banner">' +
+                    '<div class="tarot-card-name">' + card.name + '</div>' +
+                    '<div class="tarot-card-keyword">' + card.keyword + '</div>' +
+                '</div>';
+        }
+
+
+        function drawTarot() {
+            todayTarotCards = getTodayTarot();
+            tarotDrawn = true;
+            document.getElementById('tarot-draw-btn').disabled = true;
+            document.getElementById('tarot-draw-btn').textContent = 'Cards Drawn';
+
+            todayTarotCards.forEach((card, i) => {
+                const wrap = document.getElementById('tarot-' + i);
+                const front = wrap.querySelector('.tarot-card-front');
+                front.innerHTML = buildCardScene(card);
+                wrap.onclick = () => flipTarotCard(i);
+            });
+
+            // Auto-flip with staggered delay
+            todayTarotCards.forEach((_, i) => {
+                setTimeout(() => flipTarotCard(i), 600 + i * 600);
+            });
+        }
+
+        function flipTarotCard(index) {
+            const wrap = document.getElementById('tarot-' + index);
+            if (wrap.classList.contains('flipped')) return;
+            wrap.classList.add('flipped');
+
+            // Show reading below after flip
+            setTimeout(() => {
+                const card = todayTarotCards[index];
+                const pos = POSITIONS[index];
+                const readingHtml = `<div class="tarot-reading-card visible">
+                    <div class="tarot-reading-header">
+                        <span class="tarot-reading-emoji">${card.emoji}</span>
+                        <div>
+                            <div class="tarot-reading-title">${card.name}</div>
+                            <div class="tarot-reading-pos">${pos}</div>
+                        </div>
+                    </div>
+                    <div class="tarot-reading-text">${card.meanings[pos]}</div>
+                </div>`;
+
+                const container = document.getElementById('tarot-reading');
+                // Only add if not already there
+                if (!container.querySelector(`[data-pos="${pos}"]`)) {
+                    const div = document.createElement('div');
+                    div.dataset.pos = pos;
+                    div.innerHTML = readingHtml;
+                    container.appendChild(div);
+                }
+            }, 500);
+        }
+
+        function loadProfileTarot() {
+            const container = document.getElementById('profile-tarot');
+            const cards = getTodayTarot();
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+            container.innerHTML = `
+                <p style="color:#706080; font-size:13px; margin-bottom:20px;">Your daily fairy tarot spread — ${today}</p>
+                ${cards.map((card, i) => `
+                    <div class="tarot-reading-card visible">
+                        <div class="tarot-reading-header">
+                            <span class="tarot-reading-emoji">${card.emoji}</span>
+                            <div>
+                                <div class="tarot-reading-title">${card.name}</div>
+                                <div class="tarot-reading-pos">${POSITIONS[i]}</div>
+                            </div>
+                        </div>
+                        <div class="tarot-reading-text">${card.meanings[POSITIONS[i]]}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Hook tarot into profile loading
+        const origLoadProfile2 = loadProfile;
+        loadProfile = async function() {
+            await origLoadProfile2();
+            loadProfileTarot();
+        };
+
+        // Check if already logged in
+        checkSession();
+    </script>
+</body>
+</html>

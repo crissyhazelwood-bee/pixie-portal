@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fairy Garden Deluxe ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0a0614; overflow:hidden; font-family:'Quicksand',sans-serif; cursor:none; }
+        canvas { display:block; }
+        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent); pointer-events:none; }
+        #ui > * { pointer-events:auto; }
+        .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
+        .stat { color:#f0d0ff; font-size:14px; font-weight:600; }
+        .stat-val { color:#ff96c8; font-size:18px; font-weight:700; }
+        .hearts { font-size:20px; letter-spacing:3px; }
+        .combo { color:#ffffa0; font-size:16px; font-weight:700; animation:pulse 0.5s ease; }
+        @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+        .back-btn { color:#b496ff; text-decoration:none; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+        #game-over { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(5,3,10,0.9); z-index:100; justify-content:center; align-items:center; flex-direction:column; }
+        #game-over.active { display:flex; }
+        #game-over h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:48px; margin-bottom:10px; }
+        #game-over .final-score { font-size:60px; font-weight:700; color:#ffffa0; margin:15px 0; }
+        #game-over .stats { color:#b496ff; font-size:16px; margin-bottom:25px; line-height:2; }
+        #game-over button { padding:12px 30px; border-radius:25px; border:none; background:linear-gradient(135deg,#ff96c8,#b496ff); color:#0a0614; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin:5px; }
+        #game-over button:hover { transform:scale(1.05); }
+        #game-over .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
+    </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="ui">
+    <div class="ui-left">
+        <a class="back-btn" onclick="window.location.href='/'">← Portal</a>
+        <div class="stat">✨ <span class="stat-val" id="sparkles">15</span></div>
+        <div class="stat">🌸 <span class="stat-val" id="bloomed">0</span></div>
+        <div class="stat">🐛 <span class="stat-val" id="pests-killed">0</span></div>
+        <div id="combo-display" class="combo" style="display:none;"></div>
+    </div>
+    <div class="ui-right">
+        <div class="stat">⏱ <span class="stat-val" id="timer">0:00</span></div>
+        <div class="hearts" id="hearts">💖💖💖💖💖</div>
+    </div>
+</div>
+<div id="game-over">
+    <h1>Garden Over</h1>
+    <div class="final-score" id="final-score">0</div>
+    <div class="stats" id="final-stats"></div>
+    <button onclick="startGame()">Play Again ✦</button>
+    <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width = window.innerWidth;
+const H = canvas.height = window.innerHeight;
+window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+// ============================================
+// GAME STATE
+// ============================================
+let flowers = [], weeds = [], pests = [], sparkles = [], particles = [], butterflies = [], powerups = [];
+let fairy = { x: W/2, y: H/2 };
+let sparkleCount = 15, hearts = 5, totalBloomed = 0, pestsKilled = 0;
+let gameTime = 0, difficulty = 1, score = 0;
+let combo = 0, comboTimer = 0, lastAction = 0;
+let gameOver = false, mouseDown = false;
+let plantCost = 3;
+
+const GROUND = H - 100;
+const PALETTE = ['#ff96c8','#b496ff','#96ffdc','#ffc896','#96d2ff','#ffffa0','#ff80ff'];
+const MOODS = ['✨','🌸','💜','🌙','⭐'];
+
+// ============================================
+// FLOWER
+// ============================================
+const FLOWER_TYPES = [
+    { name:'Rose', petals:5, colors:['#ff6090','#ff80a0','#ff90b0'], growTime:8, points:10 },
+    { name:'Orchid', petals:6, colors:['#b060ff','#c080ff','#d0a0ff'], growTime:12, points:20 },
+    { name:'Daisy', petals:8, colors:['#ffff80','#ffee60','#fff0a0'], growTime:6, points:8 },
+    { name:'Lily', petals:5, colors:['#ff80c0','#ffa0d0','#ffc0e0'], growTime:10, points:15 },
+    { name:'Bluebell', petals:6, colors:['#6090ff','#80a0ff','#a0c0ff'], growTime:9, points:12 },
+    { name:'Moonflower', petals:7, colors:['#e0d0ff','#f0e0ff','#ffffff'], growTime:15, points:30 },
+];
+
+class Flower {
+    constructor(x) {
+        this.x = x;
+        this.y = GROUND;
+        this.type = FLOWER_TYPES[Math.floor(Math.random() * FLOWER_TYPES.length)];
+        this.growth = 0; // 0 to 1
+        this.health = 1; // 0 to 1
+        this.stage = 0; // 0=seed, 1=sprout, 2=bud, 3=bloom
+        this.watered = false;
+        this.waterTimer = 0;
+        this.sway = Math.random() * Math.PI * 2;
+        this.size = 0.8 + Math.random() * 0.4;
+        this.bloomed = false;
+        this.butterflyTimer = 0;
+    }
+    update(dt, fairyNear) {
+        this.sway += dt * 1.5;
+        this.waterTimer -= dt;
+        if (this.waterTimer <= 0) this.watered = false;
+
+        if (fairyNear && this.stage < 3) {
+            this.watered = true;
+            this.waterTimer = 0.5;
+        }
+
+        let speed = this.watered ? 3 : 1;
+        speed *= (1 / this.type.growTime);
+
+        if (this.stage < 3) {
+            this.growth += speed * dt;
+            if (this.growth >= 1 && this.stage < 3) {
+                this.stage++;
+                this.growth = 0;
+                if (this.stage === 3 && !this.bloomed) {
+                    this.bloomed = true;
+                    totalBloomed++;
+                    score += this.type.points * difficulty;
+                    addCombo();
+                    // Bloom particles
+                    for (let i = 0; i < 12; i++) {
+                        particles.push(new Particle(this.x, this.y - 30, this.type.colors[0]));
+                    }
+                }
+            }
+        }
+
+        // Butterflies for bloomed flowers
+        if (this.stage === 3) {
+            this.butterflyTimer -= dt;
+            if (this.butterflyTimer <= 0 && butterflies.length < 6) {
+                butterflies.push(new Butterfly(this.x, this.y - 40));
+                this.butterflyTimer = Math.random() * 8 + 5;
+            }
+        }
+
+        // Health decreases if attacked
+        if (this.health <= 0) return false;
+        return true;
+    }
+    draw() {
+        const x = this.x + Math.sin(this.sway) * 2;
+        const y = this.y;
+        const s = this.size;
+
+        if (this.stage === 0) {
+            ctx.fillStyle = '#8B6914';
+            ctx.beginPath(); ctx.arc(x, y, 3*s, 0, Math.PI*2); ctx.fill();
+            if (this.growth > 0.5) {
+                ctx.strokeStyle = '#4a8';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 5*s); ctx.stroke();
+            }
+        } else if (this.stage === 1) {
+            const h = 18 * s * (0.3 + this.growth * 0.7);
+            ctx.strokeStyle = '#4a8'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - h); ctx.stroke();
+            // Leaves
+            ctx.fillStyle = '#5b5';
+            ctx.beginPath(); ctx.ellipse(x + 5*s, y - h*0.5, 5*s, 3*s, 0.3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x - 5*s, y - h*0.4, 5*s, 3*s, -0.3, 0, Math.PI*2); ctx.fill();
+        } else if (this.stage === 2) {
+            const h = 28 * s;
+            ctx.strokeStyle = '#4a8'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - h); ctx.stroke();
+            ctx.fillStyle = '#5b5';
+            ctx.beginPath(); ctx.ellipse(x + 6*s, y - h*0.5, 6*s, 3*s, 0.3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x - 6*s, y - h*0.4, 6*s, 3*s, -0.3, 0, Math.PI*2); ctx.fill();
+            // Bud
+            const c = this.type.colors[0];
+            ctx.fillStyle = c;
+            ctx.beginPath(); ctx.ellipse(x, y - h - 4*s, 5*s, 6*s, 0, 0, Math.PI*2); ctx.fill();
+        } else {
+            // BLOOM!
+            const h = 32 * s;
+            ctx.strokeStyle = '#4a8'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - h); ctx.stroke();
+            ctx.fillStyle = '#5b5';
+            ctx.beginPath(); ctx.ellipse(x + 7*s, y - h*0.5, 7*s, 3*s, 0.3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x - 7*s, y - h*0.4, 7*s, 3*s, -0.3, 0, Math.PI*2); ctx.fill();
+            // Petals
+            const cx = x, cy = y - h - 2*s;
+            const pr = 9 * s;
+            for (let i = 0; i < this.type.petals; i++) {
+                const a = (Math.PI * 2 * i / this.type.petals) + this.sway * 0.1;
+                const px = cx + pr*0.5 * Math.cos(a);
+                const py = cy + pr*0.5 * Math.sin(a);
+                ctx.fillStyle = this.type.colors[i % this.type.colors.length];
+                ctx.globalAlpha = 0.85;
+                ctx.beginPath(); ctx.ellipse(px, py, pr, pr*0.7, a, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            // Center
+            ctx.fillStyle = '#ffe080';
+            ctx.beginPath(); ctx.arc(cx, cy, 4*s, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(cx, cy, 2*s, 0, Math.PI*2); ctx.fill();
+
+            // Glow
+            ctx.globalAlpha = 0.15;
+            ctx.fillStyle = this.type.colors[0];
+            ctx.beginPath(); ctx.arc(cx, cy, pr*2, 0, Math.PI*2); ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        // Water drops
+        if (this.watered && this.stage < 3) {
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = 'rgba(150,220,255,0.5)';
+                const dx = Math.random()*16-8, dy = Math.random()*10+5;
+                ctx.beginPath(); ctx.arc(x+dx, y-10-dy, 2, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        // Health bar (when damaged)
+        if (this.health < 1) {
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(x-12, y-45*s, 24, 4);
+            ctx.fillStyle = this.health > 0.5 ? '#5f5' : '#f55';
+            ctx.fillRect(x-12, y-45*s, 24*this.health, 4);
+        }
+    }
+}
+
+// ============================================
+// WEED
+// ============================================
+class Weed {
+    constructor() {
+        this.x = Math.random() * (W - 100) + 50;
+        this.y = GROUND;
+        this.size = 0;
+        this.maxSize = 0.5 + Math.random() * 0.5;
+        this.growing = true;
+        this.life = 8 + Math.random() * 5;
+        this.phase = Math.random() * Math.PI * 2;
+    }
+    update(dt) {
+        this.phase += dt * 2;
+        if (this.growing) {
+            this.size = Math.min(this.maxSize, this.size + dt * 0.3);
+        }
+        this.life -= dt;
+        // Damage nearby flowers
+        flowers.forEach(f => {
+            if (Math.abs(f.x - this.x) < 40 && f.stage > 0) {
+                f.health -= dt * 0.08 * difficulty;
+            }
+        });
+        return this.life > 0;
+    }
+    draw() {
+        const x = this.x, y = this.y, s = this.size;
+        ctx.strokeStyle = '#3a5'; ctx.lineWidth = 2;
+        for (let i = 0; i < 4; i++) {
+            const a = Math.sin(this.phase + i) * 0.3 + (i-1.5)*0.5;
+            const h = 15 * s + i * 3 * s;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(x + Math.sin(a)*15*s, y - h*0.6, x + Math.sin(a)*8*s, y - h);
+            ctx.stroke();
+        }
+        // Clickable indicator
+        ctx.fillStyle = 'rgba(255,100,100,0.15)';
+        ctx.beginPath(); ctx.arc(x, y-10*s, 18*s, 0, Math.PI*2); ctx.fill();
+    }
+    contains(mx, my) {
+        return Math.hypot(mx - this.x, my - (this.y - 10*this.size)) < 25;
+    }
+}
+
+// ============================================
+// PEST (caterpillar)
+// ============================================
+class Pest {
+    constructor() {
+        this.x = Math.random() < 0.5 ? -20 : W + 20;
+        this.y = GROUND - Math.random() * 5;
+        this.dir = this.x < 0 ? 1 : -1;
+        this.speed = 20 + Math.random() * 20 + difficulty * 5;
+        this.phase = Math.random() * Math.PI * 2;
+        this.target = null;
+        this.attacking = false;
+        this.health = 1 + Math.floor(difficulty / 3); // Takes more clicks at higher difficulty
+        this.size = 1;
+    }
+    update(dt) {
+        this.phase += dt * 8;
+        // Find nearest flower to attack
+        if (!this.target || !flowers.includes(this.target)) {
+            let closest = null, minDist = Infinity;
+            flowers.forEach(f => {
+                if (f.stage > 0) {
+                    const d = Math.abs(f.x - this.x);
+                    if (d < minDist) { minDist = d; closest = f; }
+                }
+            });
+            this.target = closest;
+        }
+        if (this.target) {
+            const dx = this.target.x - this.x;
+            this.dir = dx > 0 ? 1 : -1;
+            this.x += this.dir * this.speed * dt;
+            if (Math.abs(dx) < 15) {
+                this.attacking = true;
+                this.target.health -= dt * 0.15 * difficulty;
+                if (this.target.health <= 0) {
+                    hearts--;
+                    updateHearts();
+                    particles.push(...Array.from({length:8}, () => new Particle(this.target.x, this.target.y-20, '#ff4444')));
+                    flowers = flowers.filter(f => f !== this.target);
+                    this.target = null;
+                    this.attacking = false;
+                }
+            }
+        } else {
+            this.x += this.dir * this.speed * dt;
+        }
+        return this.x > -50 && this.x < W + 50 && this.health > 0;
+    }
+    draw() {
+        const x = this.x, y = this.y;
+        // Body segments
+        ctx.fillStyle = '#8B4513';
+        for (let i = 0; i < 5; i++) {
+            const sx = x - this.dir * i * 6;
+            const sy = y - 3 + Math.sin(this.phase + i) * 2;
+            ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI*2); ctx.fill();
+        }
+        // Head
+        ctx.fillStyle = '#654321';
+        ctx.beginPath(); ctx.arc(x + this.dir*4, y-4, 5, 0, Math.PI*2); ctx.fill();
+        // Eyes
+        ctx.fillStyle = '#ff0';
+        ctx.beginPath(); ctx.arc(x + this.dir*6, y-6, 2, 0, Math.PI*2); ctx.fill();
+        // Antennae
+        ctx.strokeStyle = '#654321'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x+this.dir*6, y-8); ctx.lineTo(x+this.dir*10, y-14); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+this.dir*4, y-8); ctx.lineTo(x+this.dir*2, y-14); ctx.stroke();
+        // Health (multi-hit at higher levels)
+        if (this.health > 1) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px Quicksand';
+            ctx.textAlign = 'center';
+            ctx.fillText(this.health + 'x', x, y - 16);
+        }
+        // Click zone
+        ctx.fillStyle = 'rgba(255,100,100,0.1)';
+        ctx.beginPath(); ctx.arc(x, y-3, 20, 0, Math.PI*2); ctx.fill();
+    }
+    contains(mx, my) {
+        return Math.hypot(mx - this.x, my - (this.y-3)) < 25;
+    }
+    hit() {
+        this.health--;
+        if (this.health <= 0) {
+            pestsKilled++;
+            score += 5 * difficulty;
+            addCombo();
+            particles.push(...Array.from({length:6}, () => new Particle(this.x, this.y, '#ffe080')));
+            return true;
+        }
+        particles.push(new Particle(this.x, this.y, '#fff'));
+        return false;
+    }
+}
+
+// ============================================
+// POWERUP
+// ============================================
+class PowerUp {
+    constructor() {
+        this.x = Math.random() * (W - 100) + 50;
+        this.y = -30;
+        this.vy = 30 + Math.random() * 20;
+        this.type = ['rain','shield','boost','megasparkle'][Math.floor(Math.random()*4)];
+        this.emoji = {rain:'🌧️',shield:'🛡️',boost:'⚡',megasparkle:'💎'}[this.type];
+        this.phase = Math.random() * Math.PI * 2;
+        this.collected = false;
+    }
+    update(dt) {
+        this.phase += dt * 3;
+        this.y += this.vy * dt;
+        this.x += Math.sin(this.phase) * 0.5;
+        return this.y < GROUND + 30 && !this.collected;
+    }
+    draw() {
+        const glow = (Math.sin(this.phase) + 1) / 2;
+        ctx.globalAlpha = 0.2 + glow * 0.15;
+        ctx.fillStyle = '#ffffa0';
+        ctx.beginPath(); ctx.arc(this.x, this.y, 22, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.font = '24px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.emoji, this.x, this.y + 8);
+    }
+    contains(mx, my) { return Math.hypot(mx-this.x, my-this.y) < 25; }
+    activate() {
+        this.collected = true;
+        if (this.type === 'rain') {
+            flowers.forEach(f => { f.watered = true; f.waterTimer = 3; });
+            showToast('🌧️ Rain! All flowers watered!');
+        } else if (this.type === 'shield') {
+            flowers.forEach(f => { f.health = Math.min(1, f.health + 0.5); });
+            showToast('🛡️ Shield! Flowers healed!');
+        } else if (this.type === 'boost') {
+            flowers.forEach(f => { f.growth += 0.4; });
+            showToast('⚡ Boost! Growth accelerated!');
+        } else if (this.type === 'megasparkle') {
+            sparkleCount += 15;
+            showToast('💎 Mega Sparkle! +15 sparkles!');
+        }
+        for (let i = 0; i < 15; i++) particles.push(new Particle(this.x, this.y, '#ffffa0'));
+    }
+}
+
+// ============================================
+// SPARKLE, PARTICLE, BUTTERFLY
+// ============================================
+class Sparkle {
+    constructor(x, y) {
+        this.x = x || Math.random()*W;
+        this.y = y || -10;
+        this.vy = 15 + Math.random()*20;
+        this.vx = Math.random()*10 - 5;
+        this.size = 3 + Math.random()*4;
+        this.phase = Math.random()*Math.PI*2;
+        this.color = PALETTE[Math.floor(Math.random()*PALETTE.length)];
+    }
+    update(dt) {
+        this.phase += dt * 5;
+        this.y += this.vy * dt;
+        this.x += this.vx * dt;
+        // Auto-collect near fairy
+        const d = Math.hypot(fairy.x-this.x, fairy.y-this.y);
+        if (d < 50) {
+            sparkleCount++;
+            for (let i=0;i<3;i++) particles.push(new Particle(this.x,this.y,this.color));
+            return false;
+        }
+        return this.y < GROUND + 20;
+    }
+    draw() {
+        const b = (Math.sin(this.phase)+1)/2;
+        const sz = this.size * (0.5+0.5*b);
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = this.color;
+        ctx.beginPath(); ctx.arc(this.x,this.y,sz*2,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath(); ctx.arc(this.x,this.y,sz,0,Math.PI*2); ctx.fill();
+        if (b>0.7) {
+            ctx.globalAlpha = 0.5;
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath(); ctx.moveTo(this.x-sz*2,this.y); ctx.lineTo(this.x+sz*2,this.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(this.x,this.y-sz*2); ctx.lineTo(this.x,this.y+sz*2); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+    }
+}
+
+class Particle {
+    constructor(x,y,color) {
+        this.x=x; this.y=y; this.color=color||'#fff';
+        this.vx=(Math.random()-0.5)*120; this.vy=-Math.random()*100-30;
+        this.life=1; this.size=1+Math.random()*3;
+    }
+    update(dt) { this.life-=dt*2; this.x+=this.vx*dt; this.y+=this.vy*dt; this.vy+=200*dt; return this.life>0; }
+    draw() {
+        ctx.globalAlpha=this.life;
+        ctx.fillStyle=this.color;
+        ctx.beginPath(); ctx.arc(this.x,this.y,this.size*this.life,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    }
+}
+
+class Butterfly {
+    constructor(x,y) {
+        this.x=x; this.y=y; this.phase=Math.random()*Math.PI*2;
+        this.life=5+Math.random()*5; this.color=PALETTE[Math.floor(Math.random()*PALETTE.length)];
+        this.sparkleTimer=1+Math.random()*2;
+    }
+    update(dt) {
+        this.phase+=dt*6; this.life-=dt;
+        this.x+=Math.sin(this.phase*0.3)*30*dt;
+        this.y+=Math.cos(this.phase*0.4)*15*dt - 5*dt;
+        this.sparkleTimer-=dt;
+        if(this.sparkleTimer<=0) {
+            sparkles.push(new Sparkle(this.x+Math.random()*20-10, this.y+Math.random()*10));
+            this.sparkleTimer=1.5+Math.random()*2;
+        }
+        return this.life>0 && this.y>-30;
+    }
+    draw() {
+        const f=(Math.sin(this.phase)+1)/2;
+        const sp=5*(0.3+f*0.7);
+        ctx.fillStyle=this.color; ctx.globalAlpha=0.6;
+        ctx.beginPath(); ctx.ellipse(this.x-sp,this.y,sp,3,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(this.x+sp,this.y,sp,3,0,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+        ctx.fillStyle='#432'; ctx.beginPath(); ctx.ellipse(this.x,this.y,1.5,4,0,0,Math.PI*2); ctx.fill();
+    }
+}
+
+// ============================================
+// FAIRY (follows mouse)
+// ============================================
+function drawFairy() {
+    const x=fairy.x, y=fairy.y;
+    const t=gameTime*8;
+    const flap=(Math.sin(t)+1)/2;
+    const sp=12*(0.3+flap*0.7);
+    // Glow
+    ctx.globalAlpha=0.15; ctx.fillStyle='#ff80ff';
+    ctx.beginPath(); ctx.arc(x,y,20,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+    // Wings
+    ctx.fillStyle='rgba(255,150,220,0.5)';
+    ctx.beginPath(); ctx.ellipse(x-sp,y-5,sp,8,-0.3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+sp,y-5,sp,8,0.3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(180,140,255,0.4)';
+    ctx.beginPath(); ctx.ellipse(x-sp*0.7,y+2,sp*0.7,5,-0.2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+sp*0.7,y+2,sp*0.7,5,0.2,0,Math.PI*2); ctx.fill();
+    // Body
+    ctx.fillStyle='#e0a0ff';
+    ctx.beginPath(); ctx.ellipse(x,y,4,8,0,0,Math.PI*2); ctx.fill();
+    // Head
+    ctx.fillStyle='#f0c0ff';
+    ctx.beginPath(); ctx.arc(x,y-11,5,0,Math.PI*2); ctx.fill();
+    // Wand
+    ctx.strokeStyle='#ddf'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x+5,y-2); ctx.lineTo(x+14,y-16); ctx.stroke();
+    ctx.fillStyle='#ffe'; ctx.beginPath(); ctx.arc(x+14,y-16,3,0,Math.PI*2); ctx.fill();
+}
+
+// ============================================
+// BACKGROUND
+// ============================================
+function drawBg() {
+    // Sky gradient
+    const grad = ctx.createLinearGradient(0,0,0,GROUND);
+    grad.addColorStop(0, '#0a0618');
+    grad.addColorStop(0.5, '#1a0830');
+    grad.addColorStop(1, '#2a1040');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,W,GROUND);
+    // Stars
+    Math.seedrandom && Math.seedrandom(42);
+    ctx.fillStyle = '#fff';
+    for (let i=0;i<40;i++) {
+        const sx=(i*137+50)%W, sy=(i*89+20)%(GROUND-50);
+        const tw=(Math.sin(gameTime*((i%5)+1)*0.5+i)+1)/2;
+        if(tw>0.4) { ctx.globalAlpha=tw*0.6; ctx.beginPath(); ctx.arc(sx,sy,tw,0,Math.PI*2); ctx.fill(); }
+    }
+    ctx.globalAlpha=1;
+    // Ground
+    ctx.fillStyle = '#1a3020';
+    ctx.fillRect(0,GROUND,W,H-GROUND);
+    // Grass
+    ctx.strokeStyle='#2a5030';
+    for(let gx=0;gx<W;gx+=5) {
+        const gh=5+((gx*7)%8);
+        ctx.beginPath(); ctx.moveTo(gx,GROUND);
+        ctx.lineTo(gx+Math.sin(gameTime+gx*0.1)*2,GROUND-gh); ctx.stroke();
+    }
+}
+
+// ============================================
+// SPAWN LOGIC
+// ============================================
+let weedTimer=3, pestTimer=8, sparkleTimer=1, powerupTimer=15;
+
+function spawnThings(dt) {
+    difficulty = 1 + gameTime / 45; // Gets harder every 45 seconds
+
+    // Weeds
+    weedTimer -= dt;
+    if (weedTimer <= 0) {
+        weeds.push(new Weed());
+        weedTimer = Math.max(2, 6 - difficulty * 0.5) + Math.random() * 3;
+    }
+
+    // Pests (start after 30 seconds)
+    if (gameTime > 30) {
+        pestTimer -= dt;
+        if (pestTimer <= 0 && flowers.length > 0) {
+            pests.push(new Pest());
+            pestTimer = Math.max(3, 10 - difficulty * 0.8) + Math.random() * 4;
+        }
+    }
+
+    // Sparkles
+    sparkleTimer -= dt;
+    if (sparkleTimer <= 0) {
+        sparkles.push(new Sparkle());
+        sparkleTimer = Math.max(0.5, 2 - difficulty * 0.1) + Math.random();
+    }
+
+    // Power-ups (every 20-40 seconds)
+    powerupTimer -= dt;
+    if (powerupTimer <= 0) {
+        powerups.push(new PowerUp());
+        powerupTimer = 20 + Math.random() * 20;
+    }
+}
+
+// ============================================
+// COMBO SYSTEM
+// ============================================
+function addCombo() {
+    combo++;
+    comboTimer = 3;
+    if (combo > 1) {
+        score += combo * 2;
+        const el = document.getElementById('combo-display');
+        el.style.display = 'block';
+        el.textContent = combo + 'x COMBO! +' + (combo*2);
+        el.style.animation = 'none'; el.offsetHeight; el.style.animation = 'pulse 0.5s ease';
+    }
+}
+
+// ============================================
+// UI
+// ============================================
+function updateUI() {
+    document.getElementById('sparkles').textContent = sparkleCount;
+    document.getElementById('bloomed').textContent = totalBloomed;
+    document.getElementById('pests-killed').textContent = pestsKilled;
+    const mins = Math.floor(gameTime/60);
+    const secs = Math.floor(gameTime%60);
+    document.getElementById('timer').textContent = mins + ':' + (secs<10?'0':'') + secs;
+}
+function updateHearts() {
+    const h = document.getElementById('hearts');
+    h.textContent = '💖'.repeat(Math.max(0,hearts)) + '🖤'.repeat(Math.max(0,5-hearts));
+}
+
+let toastMsg='', toastTimer=0;
+function showToast(msg) { toastMsg=msg; toastTimer=2; }
+
+// ============================================
+// GAME OVER
+// ============================================
+function endGame() {
+    gameOver = true;
+    score += Math.floor(gameTime) * 2;
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-stats').innerHTML =
+        `🌸 ${totalBloomed} flowers bloomed<br>🐛 ${pestsKilled} pests defeated<br>⏱ ${Math.floor(gameTime)} seconds survived<br>📈 Max difficulty: ${difficulty.toFixed(1)}x`;
+    document.getElementById('game-over').classList.add('active');
+
+    // Save score
+    fetch('/api/scores', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({game:'Fairy Garden', score, details:{bloomed:totalBloomed, pests:pestsKilled, time:Math.floor(gameTime)}}),
+        credentials:'include'
+    }).catch(()=>{});
+}
+
+// ============================================
+// CLICK HANDLER
+// ============================================
+canvas.addEventListener('mousemove', e => { fairy.x=e.clientX; fairy.y=e.clientY; });
+canvas.addEventListener('mousedown', e => { mouseDown=true; handleClick(e.clientX, e.clientY); });
+canvas.addEventListener('mouseup', () => mouseDown=false);
+
+function handleClick(mx, my) {
+    if (gameOver) return;
+
+    // Click pests
+    for (let i=pests.length-1;i>=0;i--) {
+        if (pests[i].contains(mx,my)) {
+            if (pests[i].hit()) pests.splice(i,1);
+            return;
+        }
+    }
+    // Click weeds
+    for (let i=weeds.length-1;i>=0;i--) {
+        if (weeds[i].contains(mx,my)) {
+            score += 3; addCombo();
+            particles.push(...Array.from({length:5},()=>new Particle(weeds[i].x,weeds[i].y-10,'#5b5')));
+            weeds.splice(i,1);
+            return;
+        }
+    }
+    // Click powerups
+    for (let i=powerups.length-1;i>=0;i--) {
+        if (powerups[i].contains(mx,my)) {
+            powerups[i].activate();
+            powerups.splice(i,1);
+            return;
+        }
+    }
+    // Plant flower on ground
+    if (my > GROUND - 30 && my < H - 10 && sparkleCount >= plantCost) {
+        const tooClose = flowers.some(f => Math.abs(f.x-mx)<25);
+        if (!tooClose) {
+            sparkleCount -= plantCost;
+            flowers.push(new Flower(mx));
+            particles.push(...Array.from({length:5},()=>new Particle(mx,GROUND,'#96ffdc')));
+        }
+    }
+}
+
+// ============================================
+// GAME LOOP
+// ============================================
+function startGame() {
+    flowers=[]; weeds=[]; pests=[]; sparkles=[]; particles=[]; butterflies=[]; powerups=[];
+    sparkleCount=15; hearts=5; totalBloomed=0; pestsKilled=0;
+    gameTime=0; difficulty=1; score=0; combo=0; comboTimer=0;
+    gameOver=false;
+    weedTimer=5; pestTimer=12; sparkleTimer=1; powerupTimer=15;
+    updateHearts();
+    document.getElementById('game-over').classList.remove('active');
+}
+
+function update() {
+    const dt = 1/60;
+    if (!gameOver) {
+        gameTime += dt;
+        comboTimer -= dt;
+        if (comboTimer <= 0) { combo = 0; document.getElementById('combo-display').style.display='none'; }
+        toastTimer -= dt;
+
+        spawnThings(dt);
+
+        // Update everything
+        flowers = flowers.filter(f => f.update(dt, Math.hypot(fairy.x-f.x, fairy.y-f.y)<60));
+        weeds = weeds.filter(w => w.update(dt));
+        pests = pests.filter(p => p.update(dt));
+        sparkles = sparkles.filter(s => s.update(dt));
+        particles = particles.filter(p => p.update(dt));
+        butterflies = butterflies.filter(b => b.update(dt));
+        powerups = powerups.filter(p => p.update(dt));
+
+        // Check dead flowers
+        flowers.forEach(f => {
+            if (f.health <= 0) {
+                hearts--;
+                updateHearts();
+                particles.push(...Array.from({length:8},()=>new Particle(f.x,f.y-20,'#ff4444')));
+            }
+        });
+        flowers = flowers.filter(f => f.health > 0);
+
+        if (hearts <= 0) endGame();
+        updateUI();
+    }
+
+    // Draw
+    drawBg();
+    flowers.forEach(f => f.draw());
+    weeds.forEach(w => w.draw());
+    pests.forEach(p => p.draw());
+    powerups.forEach(p => p.draw());
+    sparkles.forEach(s => s.draw());
+    butterflies.forEach(b => b.draw());
+    particles.forEach(p => p.draw());
+    drawFairy();
+
+    // Difficulty indicator
+    if (difficulty > 1.5) {
+        ctx.fillStyle = '#ff96c8'; ctx.globalAlpha = 0.6;
+        ctx.font = '12px Quicksand'; ctx.textAlign = 'right';
+        ctx.fillText('Difficulty: ' + difficulty.toFixed(1) + 'x', W-20, GROUND+20);
+        ctx.globalAlpha = 1;
+    }
+
+    // Toast
+    if (toastTimer > 0) {
+        ctx.globalAlpha = Math.min(1, toastTimer);
+        ctx.fillStyle = 'rgba(20,10,35,0.8)';
+        ctx.font = '18px Quicksand'; ctx.textAlign = 'center';
+        const tw = ctx.measureText(toastMsg).width;
+        ctx.fillRect(W/2-tw/2-15, H/2-60, tw+30, 36);
+        ctx.strokeStyle = 'rgba(180,150,255,0.4)';
+        ctx.strokeRect(W/2-tw/2-15, H/2-60, tw+30, 36);
+        ctx.fillStyle = '#f0d0ff';
+        ctx.fillText(toastMsg, W/2, H/2-38);
+        ctx.globalAlpha = 1;
+    }
+
+    // Plant cost hint
+    ctx.fillStyle='rgba(180,150,220,0.4)'; ctx.font='12px Quicksand'; ctx.textAlign='center';
+    ctx.fillText(`Click ground to plant (${plantCost}✨) • Click weeds/pests to remove • Fairy waters nearby flowers`, W/2, H-10);
+
+    requestAnimationFrame(update);
+}
+
+startGame();
+update();
+</script>
+</body>
+</html>
