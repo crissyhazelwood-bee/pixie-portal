@@ -1264,7 +1264,7 @@
         function generateHoroscope(sign) {
             const today = new Date().toISOString().slice(0, 10);
             const seed = horoscopeHash(today + ':' + sign + ':' + getUserSeed());
-            const pick = (arr, offset) => arr[(seed + offset) % arr.length];
+            const pick = (arr, offset) => arr[horoscopeHash(seed + ':' + offset) % arr.length];
 
             const opening = pick(H_OPENINGS, 0);
             const middle = pick(H_MIDDLES, 7);
