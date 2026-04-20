@@ -53,8 +53,8 @@
     <div class="tap-text">Tap to Fly</div>
     <div class="subtitle">Dodge thorns, collect gems, fly forever!</div>
     <div style="color:#706080; font-size:13px; margin-top:24px; line-height:2; text-align:center;">
-        <span style="color:#b496ff;">SPACE</span> or <span style="color:#b496ff;">HOLD CLICK</span> to fly up<br>
-        Release to fall &middot; Collect <span style="color:#ff96c8;">💎</span> and <span style="color:#ffd700;">⭐</span> for points
+        <span style="color:#b496ff;">SPACE</span> or <span style="color:#b496ff;">CLICK</span> to jump<br>
+        Collect <span style="color:#ff96c8;">💎</span> and <span style="color:#ffd700;">⭐</span> for points
     </div>
 </div>
 
@@ -111,8 +111,8 @@ var YELLOW = '#ffffa0';
 var GOLD = '#c9a84c';
 var BG = '#0a0614';
 
-var GRAVITY = 900;
-var LIFT = -500;
+var GRAVITY = 1200;
+var JUMP_FORCE = -420;
 var MAX_FALL = 600;
 var MAX_RISE = -450;
 var BASE_SCROLL_SPEED = 200;
@@ -686,12 +686,8 @@ function update(dt) {
     nextObstacleX -= scrollSpeed * dt;
     nextCollectibleX -= scrollSpeed * dt;
 
-    // Fairy physics
-    if (holding) {
-        fairyVY += LIFT * dt;
-    } else {
-        fairyVY += GRAVITY * dt;
-    }
+    // Fairy physics — gravity always pulls down
+    fairyVY += GRAVITY * dt;
     fairyVY = Math.max(MAX_RISE, Math.min(MAX_FALL, fairyVY));
     fairyY += fairyVY * dt;
 
@@ -946,36 +942,27 @@ function resize() {
 // ============================================
 // EVENT LISTENERS
 // ============================================
+function doJump() {
+    if (state === 'playing') {
+        fairyVY = JUMP_FORCE;
+    }
+}
+
 document.addEventListener('mousedown', function(e) {
     e.preventDefault();
-    holding = true;
     if (state === 'start') startGame();
-});
-document.addEventListener('mouseup', function(e) {
-    holding = false;
+    else doJump();
 });
 document.addEventListener('touchstart', function(e) {
     e.preventDefault();
-    holding = true;
     if (state === 'start') startGame();
+    else doJump();
 }, { passive: false });
-document.addEventListener('touchend', function(e) {
-    holding = false;
-});
-document.addEventListener('touchcancel', function(e) {
-    holding = false;
-});
-// Keyboard support
 document.addEventListener('keydown', function(e) {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
-        holding = true;
         if (state === 'start') startGame();
-    }
-});
-document.addEventListener('keyup', function(e) {
-    if (e.code === 'Space' || e.code === 'ArrowUp') {
-        holding = false;
+        else doJump();
     }
 });
 
