@@ -49,43 +49,58 @@ That hurts everyone.
 ### 5. EVERY CHANGE GETS DEPLOYED
 - After pushing, deploy to Cloudflare Pages:
   ```
-  wrangler pages deploy public --project-name=fae-portal
+  npx wrangler pages deploy public --project-name=fae-portal
   ```
-- Verify the deploy succeeded. If it fails, fix it and redeploy.
+- If the change affects the Worker/API (functions/ or wrangler.toml), also:
+  ```
+  npx wrangler deploy
+  ```
+- Verify the deployment succeeded before saying "done."
 
-### 6. DO NOT GUESS — ASK
-- If the instruction is unclear, ask for clarification.
-- Do not interpret "open my site" as "rename my site."
-- Do not interpret "change this" as "change this and also five other things."
+### 6. TEST BEFORE DEPLOYING
+- Run the dev server locally first: `npx wrangler pages dev public`
+- Verify the change works before pushing to production.
+- If you can't test locally, say so — don't just deploy blind.
 
-### 7. KEEP FILES IN SYNC
-- Root HTML files = dev copies.
-- `public/` folder = what gets deployed.
-- If you change one, change the other. Always.
+### 7. DO NOT DELETE DATA
+- Never drop tables, truncate databases, or delete user records unless explicitly asked.
+- If a migration is needed, ADD columns/tables. Don't remove old ones without being asked.
+
+### 8. DO NOT CHANGE DEPENDENCIES
+- Do not add, remove, or upgrade packages unless explicitly asked.
+- Do not "update" wrangler, node, or any dependency. It works as-is.
+
+### 9. DO NOT TOUCH INFRASTRUCTURE
+- Do not modify wrangler.toml bindings, D1 database IDs, or account settings.
+- Do not change DNS records, custom domains, or SSL settings.
+- If something infra-related needs changing, tell the owner — don't do it yourself.
+
+### 10. DO NOT GUESS
+- If you're unsure what the owner wants, ASK. Do not assume.
+- If a request is ambiguous, clarify before acting.
+- Wrong code is worse than no code.
 
 ---
 
-## HOW TO OPEN URLS ON THIS MACHINE
-
-```
-powershell.exe -Command "Start-Process 'https://the-url-here.com'"
-```
-
-Do NOT use `start`, `explorer.exe`, or `cmd.exe /c start`. They don't work here.
-
----
-
-## PROJECT STRUCTURE
+## FILE STRUCTURE — KNOW WHAT YOU'RE TOUCHING
 
 ```
 pixie-portal/
-├── CLAUDE.md              ← YOU ARE HERE. READ IT.
-├── wrangler.toml          ← Cloudflare Pages config + D1 binding
-├── package.json           ← dependencies (bcryptjs)
-├── server.py              ← LOCAL dev server only (Flask, port 5000)
-├── pixie_portal.db        ← LOCAL SQLite db (dev only, not deployed)
-├── public/                ← THIS IS WHAT GETS DEPLOYED
-│   ├── index.html         ← main site / homepage
+├── CLAUDE.md              ← YOU ARE HERE
+├── .gitignore
+├── wrangler.toml          ← Worker/API config (DO NOT MODIFY unless asked)
+├── package.json
+├── server.py              ← LOCAL dev server (Flask, port 5000)
+├── index.html             ← Homepage
+├── spellbook.html         ← Spellbook page
+├── fairy_garden.html      ← Fairy Garden game
+├── fairy_flight.html      ← Fairy Flight game
+├── frog_box.html          ← Frog Box game
+├── constellation.html     ← Constellation page
+├── pixie_pet.html         ← Pixie Pet page
+├── serve_game.py          ← Game server logic
+├── public/                ← Static assets served by Pages (THIS GETS DEPLOYED)
+│   ├── index.html         ← MUST stay in sync with root index.html
 │   ├── fairy_garden.html
 │   ├── fairy_flight.html
 │   ├── spellbook.html
@@ -106,41 +121,70 @@ pixie-portal/
 │   └── _utils/
 │       ├── auth.js        ← session cookie signing (HMAC)
 │       └── db.js          ← D1 helper
-├── *.html (root)          ← dev copies, keep in sync with public/
 └── node_modules/          ← gitignored
 ```
 
----
-
-## TECH STACK
-
-| Layer | Tech | Notes |
-|-------|------|-------|
-| Hosting | Cloudflare Pages | Static files + Functions |
-| Domain | pixie-portal.com | Cloudflare |
-| Database | Cloudflare D1 | ID: `ddb818fb-85d4-48f5-9da7-ea5bbaa8f1a9` |
-| Auth | HMAC-signed cookies | `functions/_utils/auth.js` |
-| Local dev | Flask (Python) | `python server.py` → localhost:5000 |
-| Deploy | Wrangler CLI | `wrangler pages deploy public --project-name=fae-portal` |
-| Repo | GitHub | `crissyhazelwood-bee/pixie-portal` |
+**IMPORTANT:** Root HTML files and `public/` HTML files must stay in sync.
+If you change `index.html`, also update `public/index.html` (and vice versa).
 
 ---
 
-## DEPLOYMENT WORKFLOW
+## DEPLOYMENT CHECKLIST
+
+Every time you make changes, run through this:
+
+- [ ] Tested locally with `npx wrangler pages dev public`
+- [ ] `git add -A && git commit -m "message" && git push`
+- [ ] Deployed static: `npx wrangler pages deploy public --project-name=fae-portal`
+- [ ] Deployed Worker (if API changed): `npx wrangler deploy`
+- [ ] Verified live at https://pixie-portal.com
+- [ ] Verified no errors in browser console
+
+---
+
+## USEFUL COMMANDS
 
 ```bash
-# 1. Test locally
-python server.py
-# verify at http://localhost:5000
+# Open links in browser (Windows)
+powershell.exe -Command "Start-Process 'URL'"
 
-# 2. Commit
-git add -A
-git commit -m "what you changed"
-git push
+# Dev server
+npx wrangler pages dev public
 
-# 3. Deploy
-wrangler pages deploy public --project-name=fae-portal
+# Deploy static assets
+npx wrangler pages deploy public --project-name=fae-portal
+
+# Deploy Worker/API
+npx wrangler deploy
+
+# Git workflow
+git add -A && git commit -m "message" && git push
+
+# Check D1 database
+npx wrangler d1 execute pixie_portal_db --command "SELECT * FROM users LIMIT 5"
+
+# Check deployment status
+npx wrangler pages deployment list --project-name=fae-portal
 ```
+
+---
+
+## EMERGENCY CONTACTS / REFERENCES
+
+- **Cloudflare Dashboard:** https://dash.cloudflare.com/9c6282449b6e05f0e67bec7ff7826851
+- **Pages Project:** https://dash.cloudflare.com/9c6282449b6e05f0e67bec7ff7826851/pages/view/fae-portal
+- **DNS Records:** https://dash.cloudflare.com/9c6282449b6e05f0e67bec7ff7826851/pixie-portal.com/dns/records
+- **GitHub Repo:** https://github.com/crissyhazelwood-bee/pixie-portal
+
+---
+
+## FINAL NOTE
+
+This project has been burned before by AI assistants who thought they knew better. They didn't. Every unauthorized change cost hours to undo.
+
+Be precise. Be minimal. Be correct.
+
+If you follow these rules, you're helping. If you don't, you're hurting. Choose wisely.
 
 ---
 
