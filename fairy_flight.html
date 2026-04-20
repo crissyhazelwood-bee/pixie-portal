@@ -252,7 +252,7 @@ function placeEntities() {
     ];
     shadows = corners.slice(0, shadowCount).map(function(p) {
         return { c:p.c, r:p.r, px:cellCX(p.c), py:cellCY(p.r),
-                 tc:p.c, tr:p.r, moving:false, path:[], moveTimer:0, moveInterval:moveInterval, pathTimer:0 };
+                 tc:p.c, tr:p.r, moving:false, lastDir:0, moveTimer:0, moveInterval:moveInterval };
     });
 }
 
@@ -384,8 +384,6 @@ function update(dt) {
     var shadowSpeed = CELL * 3.0;
     for (var si = 0; si < shadows.length; si++) {
         var sh = shadows[si];
-        sh.pathTimer += dt;
-        if (sh.pathTimer >= 1.0) { sh.pathTimer = 0; sh.path = bfs(sh.c, sh.r, player.c, player.r); }
 
         if (sh.moving) {
             var tx2 = cellCX(sh.tc), ty2 = cellCY(sh.tr);
@@ -399,7 +397,23 @@ function update(dt) {
             sh.moveTimer += dt;
             if (sh.moveTimer >= sh.moveInterval / 60) {
                 sh.moveTimer = 0;
-                if (sh.path.length) { var nx = sh.path.shift(); sh.tc = nx.c; sh.tr = nx.r; sh.moving = true; }
+                var validDirs = [];
+                for (var di2 = 0; di2 < DIRS.length; di2++) {
+                    var dd = DIRS[di2];
+                    if (maze[sh.r][sh.c] & dd) validDirs.push(dd);
+                }
+                if (validDirs.length) {
+                    var chosen;
+                    if (sh.lastDir && (maze[sh.r][sh.c] & sh.lastDir) && Math.random() < 0.5) {
+                        chosen = sh.lastDir;
+                    } else {
+                        chosen = validDirs[Math.floor(Math.random() * validDirs.length)];
+                    }
+                    sh.lastDir = chosen;
+                    sh.tc = sh.c + DX[chosen];
+                    sh.tr = sh.r + DY[chosen];
+                    sh.moving = true;
+                }
             }
         }
 
