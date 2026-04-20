@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>The Portal ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#060410; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
+        canvas { display:block; }
+
+        #start-screen {
+            position:fixed; inset:0; z-index:100;
+            display:flex; flex-direction:column; justify-content:center; align-items:center;
+            cursor:pointer;
+            background: radial-gradient(ellipse at center, rgba(30,10,60,0.98) 0%, rgba(5,2,12,0.99) 100%);
+        }
+        #start-screen h1 {
+            font-family:'Pacifico',cursive; font-size:54px;
+            background:linear-gradient(135deg,#ff96c8,#b496ff,#96ffdc,#ff96c8);
+            background-size:300% 300%; -webkit-background-clip:text; background-clip:text;
+            -webkit-text-fill-color:transparent; animation:gradShift 5s ease infinite;
+            margin-bottom:6px; padding:0 10px;
+        }
+        @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .portal-orb { font-size:90px; margin:14px 0; animation:orbPulse 4s ease-in-out infinite; filter:drop-shadow(0 0 40px rgba(180,150,255,0.7)); }
+        @keyframes orbPulse { 0%,100%{transform:scale(1) rotate(0deg)} 50%{transform:scale(1.08) rotate(5deg)} }
+        .step-text { color:#b496ff; font-size:21px; font-weight:600; margin-top:16px; animation:blink 2s ease-in-out infinite; letter-spacing:2px; }
+        @keyframes blink { 0%,100%{opacity:0.35} 50%{opacity:1} }
+        .start-hint { color:#504060; font-size:13px; margin-top:12px; letter-spacing:1px; }
+
+        #ui {
+            position:fixed; top:0; left:0; right:0; padding:10px 20px;
+            display:none; justify-content:space-between; align-items:center;
+            z-index:10; pointer-events:none;
+            background:linear-gradient(180deg,rgba(6,4,16,0.88) 0%,transparent 100%);
+        }
+        #ui > * { pointer-events:auto; }
+        .back-btn { color:#b496ff; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+        #zone-name { color:#f0d0ff; font-size:14px; font-weight:600; letter-spacing:1px; }
+
+        #dpad { position:fixed; bottom:36px; right:22px; z-index:20; display:none; width:132px; height:132px; }
+        #dpad button {
+            position:absolute; width:44px; height:44px;
+            background:rgba(180,150,255,0.14); border:1px solid rgba(180,150,255,0.28);
+            border-radius:12px; color:#b496ff; font-size:18px; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            -webkit-tap-highlight-color:transparent;
+        }
+        #dpad button:active { background:rgba(180,150,255,0.32); }
+        #dpad .d-up    { top:0;    left:44px; }
+        #dpad .d-down  { top:88px; left:44px; }
+        #dpad .d-left  { top:44px; left:0; }
+        #dpad .d-right { top:44px; left:88px; }
+    </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="start-screen" onclick="enterPortal()">
+    <h1>~ The Portal ~</h1>
+    <div class="portal-orb">🌀</div>
+    <div class="step-text">Step Through</div>
+    <div class="start-hint">Arrow keys · WASD · or D-Pad</div>
+</div>
+
+<div id="ui">
+    <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
+    <div id="zone-name">The Meadow</div>
+</div>
+
+<div id="dpad">
+    <button class="d-up"    onpointerdown="dp('u',1)" onpointerup="dp('u',0)" onpointercancel="dp('u',0)">▲</button>
+    <button class="d-down"  onpointerdown="dp('d',1)" onpointerup="dp('d',0)" onpointercancel="dp('d',0)">▼</button>
+    <button class="d-left"  onpointerdown="dp('l',1)" onpointerup="dp('l',0)" onpointercancel="dp('l',0)">◀</button>
+    <button class="d-right" onpointerdown="dp('r',1)" onpointerup="dp('r',0)" onpointercancel="dp('r',0)">▶</button>
+</div>
+
+<script>
+window.onerror = function(m,u,l){ document.body.innerHTML='<div style="color:#ff96c8;padding:40px;font-size:15px;">ERROR: '+m+'<br>Line '+l+'</div>'; };
+
+// ── Tile IDs ───────────────────────────────────────────────────────────────────
+var TG=0,TD=1,TW=2,TF=3,TK=4,TS=5,TY=6,TN=7,TR=8,TO=9; // grass,dirt,water,flowers,dark,stone,fairyring,sand,tree,rock
+var WALK=[1,1,0,1,1,1,1,1,0,0];
+
+// ── Canvas ─────────────────────────────────────────────────────────────────────
+var canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+var SW,SH,TW_px,TH_px; // screen width/height, tile pixel width/height
+
+function resize(){
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+    SW=canvas.width; SH=canvas.height;
+    TW_px=Math.min(64,Math.max(32,Math.floor(SW/14)));
+    TH_px=Math.round(TW_px*0.65);
+}
+window.addEventListener('resize',resize); resize();
+
+// ── Seeded RNG ─────────────────────────────────────────────────────────────────
+function mkRng(seed){
+    var s=seed;
+    return function(){ s=(s*16807)%2147483647; return (s-1)/2147483646; };
+}
+
+// ── Map ────────────────────────────────────────────────────────────────────────
+var MR=40,MC=55,map;
+
+function buildMap(){
+    var rng=mkRng(1337),r,c,i,m=[];
+    for(r=0;r<MR;r++){m[r]=[];for(c=0;c<MC;c++)m[r][c]=TG;}
+
+    // Tree border + dark grass band
+    for(r=0;r<MR;r++) for(c=0;c<MC;c++){
+        if(r<2||r>=MR-2||c<2||c>=MC-2) m[r][c]=TR;
+        else if(r<4||r>=MR-4||c<4||c>=MC-4) m[r][c]=TK;
+    }
+
+    // Lake — ellipse top-right
+    var lR=8,lC=43,lA=4.2,lB=5.5;
+    for(r=3;r<MR-3;r++) for(c=3;c<MC-3;c++){
+        var d=((r-lR)/lA)*((r-lR)/lA)+((c-lC)/lB)*((c-lC)/lB);
+        if(d<1.0) m[r][c]=TW;
+        else if(d<1.4&&(m[r][c]===TG||m[r][c]===TK)) m[r][c]=TN;
+    }
+
+    // Main stone cross — row 20 horizontal, col 27 vertical
+    var pR=20,pC=27;
+    for(c=4;c<MC-4;c++) if(m[pR][c]!==TW&&m[pR][c]!==TR) m[pR][c]=TS;
+    for(r=4;r<MR-4;r++) if(m[r][pC]!==TW&&m[r][pC]!==TR) m[r][pC]=TS;
+
+    // Fairy ring at crossroads
+    m[pR][pC]=TY;
+
+    // Dirt path: lake outlet south to main path
+    for(r=14;r<pR;r++) if(m[r][43]===TG||m[r][43]===TK) m[r][43]=TD;
+    // Dirt spur east-west at row pR-3
+    for(c=pC+1;c<=43;c++) if(m[pR-3][c]===TG) m[pR-3][c]=TD;
+    if(m[pR-3][pC]===TS) {} // keep stone
+    else m[pR-3][pC]=TD;
+
+    // Interior tree clusters
+    [[10,12],[15,47],[28,10],[33,42],[36,26],[8,28]].forEach(function(cl){
+        for(var dr=-2;dr<=2;dr++) for(var dc=-2;dc<=2;dc++){
+            var rr=cl[0]+dr,cc=cl[1]+dc;
+            if(rr>4&&rr<MR-4&&cc>4&&cc<MC-4&&m[rr][cc]===TG&&rng()<0.6) m[rr][cc]=TR;
+        }
+    });
+
+    // Flower patches
+    for(i=0;i<65;i++){
+        var fr=Math.floor(rng()*(MR-10))+5,fc=Math.floor(rng()*(MC-10))+5;
+        if(m[fr][fc]===TG) m[fr][fc]=TF;
+    }
+    // Rocks
+    for(i=0;i<20;i++){
+        var rr=Math.floor(rng()*(MR-10))+5,rc=Math.floor(rng()*(MC-10))+5;
+        if(m[rr][rc]===TG) m[rr][rc]=TO;
+    }
+
+    return m;
+}
+
+// ── Tile drawing ───────────────────────────────────────────────────────────────
+function fillTile(sx,sy,color){
+    ctx.fillStyle=color; ctx.fillRect(sx,sy,TW_px,TH_px);
+}
+
+function tileGrass(sx,sy){
+    fillTile(sx,sy,'#5a9e47');
+    ctx.fillStyle='#4d8c3c';
+    ctx.fillRect(sx+TW_px*.2,sy+TH_px*.3,2,3); ctx.fillRect(sx+TW_px*.55,sy+TH_px*.15,2,3);
+    ctx.fillRect(sx+TW_px*.75,sy+TH_px*.6,2,3); ctx.fillRect(sx+TW_px*.38,sy+TH_px*.7,2,2);
+}
+function tileDark(sx,sy){
+    fillTile(sx,sy,'#3d7030');
+    ctx.fillStyle='#335f28';
+    ctx.fillRect(sx+TW_px*.3,sy+TH_px*.25,2,3); ctx.fillRect(sx+TW_px*.65,sy+TH_px*.6,2,2);
+}
+function tileDirt(sx,sy){
+    fillTile(sx,sy,'#9e7848');
+    ctx.fillStyle='#8a6438';
+    ctx.fillRect(sx+TW_px*.22,sy+TH_px*.35,3,2); ctx.fillRect(sx+TW_px*.6,sy+TH_px*.2,2,2);
+    ctx.fillRect(sx+TW_px*.72,sy+TH_px*.65,3,2);
+}
+function tileWater(sx,sy,t){
+    var w=Math.sin(t*1.4+sx*.015)*.06;
+    var g=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
+    g.addColorStop(0,'#4488cc'); g.addColorStop(1,'#2d66aa');
+    ctx.fillStyle=g; ctx.fillRect(sx,sy,TW_px,TH_px);
+    ctx.globalAlpha=0.22+w;
+    ctx.fillStyle='#88ccff';
+    ctx.fillRect(sx+TW_px*.08,sy+TH_px*.2,TW_px*.38,TH_px*.14);
+    ctx.fillRect(sx+TW_px*.52,sy+TH_px*.58,TW_px*.32,TH_px*.14);
+    ctx.globalAlpha=1;
+}
+function tileFlowers(sx,sy,t){
+    tileGrass(sx,sy);
+    var bob=Math.sin(t*.9+sx*.1)*.5;
+    var clrs=['#ff96c8','#ffffa0','#ff7744','#b496ff','#fff'];
+    [[.18,.3],[.5,.5],[.72,.22],[.33,.72],[.62,.62]].forEach(function(p,i){
+        ctx.fillStyle=clrs[i]; ctx.beginPath();
+        ctx.arc(sx+p[0]*TW_px,sy+p[1]*TH_px+bob,2.5,0,Math.PI*2); ctx.fill();
+    });
+}
+function tileStone(sx,sy){
+    fillTile(sx,sy,'#848494');
+    ctx.fillStyle='#9294a4'; ctx.fillRect(sx+1,sy+1,TW_px/2-2,TH_px/2-2);
+    ctx.fillRect(sx+TW_px/2+1,sy+TH_px/2+1,TW_px/2-2,TH_px/2-2);
+    ctx.strokeStyle='#767688'; ctx.lineWidth=0.5; ctx.strokeRect(sx+.5,sy+.5,TW_px-1,TH_px-1);
+}
+function tileFairyRing(sx,sy,t){
+    tileStone(sx,sy);
+    var cx=sx+TW_px/2,cy=sy+TH_px/2;
+    var g=0.4+Math.sin(t*2.2)*.2;
+    ctx.strokeStyle='rgba(180,150,255,'+g+')'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.arc(cx,cy,TW_px*.32,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='rgba(180,150,255,'+(g*.25)+')';
+    ctx.beginPath(); ctx.arc(cx,cy,TW_px*.32,0,Math.PI*2); ctx.fill();
+    for(var i=0;i<7;i++){
+        var a=(i/7)*Math.PI*2+t*.4;
+        ctx.fillStyle='rgba(255,255,200,'+(0.55+Math.sin(t*2.5+i)*.35)+')';
+        ctx.beginPath(); ctx.arc(cx+Math.cos(a)*TW_px*.32,cy+Math.sin(a)*TH_px*.32,2,0,Math.PI*2); ctx.fill();
+    }
+}
+function tileSand(sx,sy){
+    fillTile(sx,sy,'#d4b87a');
+    ctx.fillStyle='#c0a464';
+    ctx.fillRect(sx+TW_px*.2,sy+TH_px*.35,2,2); ctx.fillRect(sx+TW_px*.58,sy+TH_px*.62,2,2);
+    ctx.fillRect(sx+TW_px*.78,sy+TH_px*.2,3,2);
+}
+function tileTree(sx,sy){
+    // ground shadow under canopy
+    ctx.fillStyle='#2d5522'; ctx.fillRect(sx,sy,TW_px,TH_px);
+    // trunk
+    var tx=sx+TW_px/2;
+    ctx.fillStyle='#5c3418';
+    ctx.fillRect(tx-4,sy-Math.round(TH_px*.5),8,Math.round(TH_px*.65));
+    // canopy layers (back to front = bottom circle last)
+    ctx.fillStyle='#245520';
+    ctx.beginPath(); ctx.arc(tx,sy-Math.round(TH_px*.95),TW_px*.42,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#2e6e28';
+    ctx.beginPath(); ctx.arc(tx-4,sy-Math.round(TH_px*1.1),TW_px*.3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#389030';
+    ctx.beginPath(); ctx.arc(tx+5,sy-Math.round(TH_px*.75),TW_px*.28,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#44a838';
+    ctx.beginPath(); ctx.arc(tx,sy-Math.round(TH_px*1.25),TW_px*.22,0,Math.PI*2); ctx.fill();
+}
+function tileRock(sx,sy){
+    tileGrass(sx,sy);
+    var rx=sx+TW_px/2,ry=sy+TH_px*.52;
+    ctx.fillStyle='rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(rx,ry+5,TW_px*.26,TH_px*.18,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#6e6e80'; ctx.beginPath(); ctx.ellipse(rx,ry,TW_px*.28,TH_px*.32,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#848498'; ctx.beginPath(); ctx.ellipse(rx-3,ry-4,TW_px*.16,TH_px*.16,-.3,0,Math.PI*2); ctx.fill();
+}
+
+function drawTile(type,sx,sy,t){
+    switch(type){
+        case TG: tileGrass(sx,sy); break;
+        case TD: tileDirt(sx,sy); break;
+        case TW: tileWater(sx,sy,t); break;
+        case TF: tileFlowers(sx,sy,t); break;
+        case TK: tileDark(sx,sy); break;
+        case TS: tileStone(sx,sy); break;
+        case TY: tileFairyRing(sx,sy,t); break;
+        case TN: tileSand(sx,sy); break;
+        case TR: tileTree(sx,sy); break;
+        case TO: tileRock(sx,sy); break;
+    }
+}
+
+// ── Camera ─────────────────────────────────────────────────────────────────────
+var cam={x:0,y:0};
+function w2s(col,row){ return {x:Math.round(col*TW_px-cam.x), y:Math.round(row*TH_px-cam.y)}; }
+
+// ── Player ─────────────────────────────────────────────────────────────────────
+var pl={col:27,row:22,px:0,py:0,tc:27,tr:22,moving:false,dir:'d',flip:false};
+
+function initPlayer(){
+    pl.col=27; pl.row=22;
+    pl.px=pl.col*TW_px; pl.py=pl.row*TH_px;
+    pl.tc=pl.col; pl.tr=pl.row; pl.moving=false;
+}
+
+function drawPlayer(cx,cy,t){
+    // Ground shadow
+    ctx.fillStyle='rgba(0,0,0,.28)';
+    ctx.beginPath(); ctx.ellipse(cx,cy+TH_px*.3,TW_px*.22,TH_px*.13,0,0,Math.PI*2); ctx.fill();
+    // Fairy dust trail
+    if(Math.random()<0.4) spawnDust(cx,cy+TH_px*.1);
+    // Bob
+    var bob=Math.sin(t*3.2)*2.5;
+    ctx.save();
+    if(pl.flip){ ctx.translate(cx,0); ctx.scale(-1,1); ctx.translate(-cx,0); }
+    ctx.font=Math.round(TW_px*.78)+'px serif';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.shadowColor='#ff96c8'; ctx.shadowBlur=18;
+    ctx.fillText('🧚',cx,cy+bob);
+    ctx.shadowBlur=0; ctx.restore();
+}
+
+// ── Particles ──────────────────────────────────────────────────────────────────
+var parts=[];
+var DUST_CLR=['#ff96c8','#ffffa0','#b496ff','#96ffdc'];
+function spawnDust(x,y){
+    var a=Math.random()*Math.PI*2, spd=12+Math.random()*25;
+    parts.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd-15,life:1,ml:0.5+Math.random()*.4,r:1+Math.random()*2,c:DUST_CLR[Math.floor(Math.random()*4)]});
+}
+function spawnBurst(x,y){
+    for(var i=0;i<12;i++){
+        var a=Math.PI*2*i/12+Math.random()*.4, spd=30+Math.random()*70;
+        parts.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:1,ml:.6+Math.random()*.4,r:2+Math.random()*3,c:DUST_CLR[Math.floor(Math.random()*4)]});
+    }
+}
+
+// ── Zone names ─────────────────────────────────────────────────────────────────
+var ZONES=[
+    {r1:4,c1:36,r2:16,c2:52,name:'🌊 The Lake'},
+    {r1:17,c1:23,r2:23,c2:31,name:'✨ The Fairy Ring'},
+    {r1:0,c1:0,r2:MR,c2:MC,name:'🌿 The Meadow'},
+];
+var curZone='';
+function checkZone(){
+    var n='🌿 The Meadow';
+    for(var i=0;i<ZONES.length-1;i++){
+        var z=ZONES[i];
+        if(pl.row>=z.r1&&pl.row<z.r2&&pl.col>=z.c1&&pl.col<z.c2){n=z.name;break;}
+    }
+    if(n!==curZone){curZone=n;document.getElementById('zone-name').textContent=n;}
+}
+
+// ── Input ──────────────────────────────────────────────────────────────────────
+var keys={};
+document.addEventListener('keydown',function(e){
+    keys[e.key]=true;
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup',function(e){keys[e.key]=false;});
+function dp(d,v){ keys['_'+d]=v; }
+
+function inputDir(){
+    if(keys['ArrowUp']   ||keys['w']||keys['W']||keys['_u']) return 'u';
+    if(keys['ArrowDown'] ||keys['s']||keys['S']||keys['_d']) return 'd';
+    if(keys['ArrowLeft'] ||keys['a']||keys['A']||keys['_l']) return 'l';
+    if(keys['ArrowRight']||keys['d']||keys['D']||keys['_r']) return 'r';
+    return null;
+}
+var DC={u:[0,-1],d:[0,1],l:[-1,0],r:[1,0]};
+
+// ── Update ─────────────────────────────────────────────────────────────────────
+var SPEED=5.0; // tiles/sec
+function update(dt){
+    if(pl.moving){
+        var spd=SPEED*TW_px;
+        var tx=pl.tc*TW_px, ty=pl.tr*TH_px;
+        var dx=tx-pl.px, dy=ty-pl.py;
+        var dist=Math.sqrt(dx*dx+dy*dy), step=spd*dt;
+        if(dist<=step){
+            pl.px=tx; pl.py=ty; pl.col=pl.tc; pl.row=pl.tr; pl.moving=false;
+            if(map[pl.row][pl.col]===TY) spawnBurst(pl.px+TW_px/2,pl.py+TH_px*.3);
+            checkZone();
+        } else { pl.px+=dx/dist*step; pl.py+=dy/dist*step; }
+    } else {
+        var dir=inputDir();
+        if(dir){
+            var d=DC[dir], nc=pl.col+d[0], nr=pl.row+d[1];
+            if(nc>=0&&nc<MC&&nr>=0&&nr<MR&&WALK[map[nr][nc]]){
+                pl.tc=nc; pl.tr=nr; pl.moving=true;
+                pl.dir=dir; pl.flip=(dir==='l');
+            }
+        }
+    }
+
+    // Camera lerp — clamp to world bounds
+    var tcx=pl.px-SW/2+TW_px/2, tcy=pl.py-SH/2+TH_px/2;
+    tcx=Math.max(0,Math.min(MC*TW_px-SW,tcx));
+    tcy=Math.max(0,Math.min(MR*TH_px-SH,tcy));
+    cam.x+=(tcx-cam.x)*.11; cam.y+=(tcy-cam.y)*.11;
+
+    // Particles
+    for(var i=parts.length-1;i>=0;i--){
+        var p=parts[i];
+        p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=55*dt;
+        p.life-=dt/p.ml;
+        if(p.life<=0) parts.splice(i,1);
+    }
+}
+
+// ── Draw ───────────────────────────────────────────────────────────────────────
+function draw(t){
+    ctx.fillStyle='#060410'; ctx.fillRect(0,0,SW,SH);
+    if(!started) return;
+
+    // Visible tile range (add buffer for tree canopy bleed)
+    var c0=Math.max(0,Math.floor(cam.x/TW_px)-1);
+    var c1=Math.min(MC-1,Math.ceil((cam.x+SW)/TW_px)+1);
+    var r0=Math.max(0,Math.floor(cam.y/TH_px)-3);
+    var r1=Math.min(MR-1,Math.ceil((cam.y+SH)/TH_px)+1);
+
+    // Player visual row for depth sort
+    var plVR=Math.round(pl.py/TH_px);
+    var plDrawn=false;
+
+    for(var row=r0;row<=r1;row++){
+        // Draw all tiles in this row
+        for(var col=c0;col<=c1;col++){
+            var s=w2s(col,row);
+            drawTile(map[row][col],s.x,s.y,t);
+        }
+        // Insert player at correct depth
+        if(!plDrawn&&row>=plVR){
+            var ps=w2s(0,0);
+            var pcx=Math.round(pl.px-cam.x)+TW_px/2;
+            var pcy=Math.round(pl.py-cam.y);
+            drawPlayer(pcx,pcy,t);
+            plDrawn=true;
+        }
+    }
+    if(!plDrawn){
+        drawPlayer(Math.round(pl.px-cam.x)+TW_px/2,Math.round(pl.py-cam.y),t);
+    }
+
+    // Particles
+    for(var i=0;i<parts.length;i++){
+        var p=parts[i];
+        ctx.globalAlpha=p.life*.9;
+        ctx.fillStyle=p.c; ctx.shadowColor=p.c; ctx.shadowBlur=5;
+        ctx.beginPath(); ctx.arc(p.x-cam.x,p.y-cam.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+
+    // Vignette
+    var vg=ctx.createRadialGradient(SW/2,SH/2,SH*.25,SW/2,SH/2,SH*.9);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(2,1,8,.55)');
+    ctx.fillStyle=vg; ctx.fillRect(0,0,SW,SH);
+}
+
+// ── Main loop ──────────────────────────────────────────────────────────────────
+var started=false,lastTS=0,gt=0;
+
+function loop(ts){
+    var dt=Math.min((ts-lastTS)/1000,.05); lastTS=ts;
+    if(started) gt+=dt;
+    if(started) update(dt);
+    draw(gt);
+    requestAnimationFrame(loop);
+}
+
+function enterPortal(){
+    if(started) return;
+    document.getElementById('start-screen').style.display='none';
+    document.getElementById('ui').style.display='flex';
+    if('ontouchstart' in window) document.getElementById('dpad').style.display='block';
+    map=buildMap();
+    initPlayer();
+    checkZone();
+    started=true;
+}
+
+requestAnimationFrame(loop);
+</script>
+
+<!-- Bug report -->
+<div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;">
+    <button onclick="document.getElementById('bm').style.display='flex'" style="background:rgba(6,4,16,0.75);border:1px solid rgba(180,150,255,0.22);color:#604878;font-family:'Quicksand',sans-serif;font-size:12px;padding:6px 16px;border-radius:20px;cursor:pointer;backdrop-filter:blur(6px);">🐛 report a bug</button>
+</div>
+<div id="bm" style="display:none;position:fixed;inset:0;background:rgba(5,2,12,0.88);z-index:10000;justify-content:center;align-items:center;backdrop-filter:blur(4px);">
+    <div style="background:linear-gradient(135deg,#1a1030,#0d0820);border:1px solid rgba(180,150,255,0.2);border-radius:20px;padding:32px;width:380px;max-width:92vw;">
+        <h3 style="font-family:'Pacifico',cursive;color:#ff96c8;margin-bottom:12px;">Report a Bug</h3>
+        <textarea id="bd" placeholder="What went wrong?" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(180,150,255,0.2);background:rgba(20,12,35,0.8);color:#f0d0ff;font-family:'Quicksand',sans-serif;font-size:14px;resize:vertical;min-height:100px;margin-bottom:14px;"></textarea>
+        <div style="display:flex;gap:10px;">
+            <button onclick="(function(){var d=document.getElementById('bd').value.trim();if(!d)return;window.location.href='mailto:crissy@pixieportalgames.com?subject=Pixie+Portal+Bug+Report&body='+encodeURIComponent('Page: '+window.location.pathname+'\n\n'+d);document.getElementById('bm').style.display='none';document.getElementById('bd').value='';})()" style="flex:1;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Send 🐛</button>
+            <button onclick="document.getElementById('bm').style.display='none'" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(180,150,255,0.3);background:transparent;color:#b496ff;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
