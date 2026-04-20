@@ -150,15 +150,15 @@ function getDir() {
 
 // ── Maze ─────────────────────────────────────────────────────────────────────
 function layoutMaze() {
-    CELL = Math.max(28, 46 - level * 2);
-    var targetC = 7 + level * 2;
-    var targetR = 5 + level * 2;
+    CELL = Math.max(22, 36 - level);
+    var targetC = 19 + level * 2;
+    var targetR = 13 + level * 2;
     mazeC = Math.min(targetC, Math.floor((W_px - 16) / CELL));
     mazeR = Math.min(targetR, Math.floor((H_px - 60) / CELL));
     if (mazeC % 2 === 0) mazeC--;
     if (mazeR % 2 === 0) mazeR--;
-    mazeC = Math.max(5, mazeC);
-    mazeR = Math.max(5, mazeR);
+    mazeC = Math.max(7, mazeC);
+    mazeR = Math.max(7, mazeR);
     offX = Math.floor((W_px - mazeC * CELL) / 2);
     offY = Math.floor(50 + (H_px - 50 - mazeR * CELL) / 2);
 }
@@ -385,7 +385,7 @@ function update(dt) {
     for (var si = 0; si < shadows.length; si++) {
         var sh = shadows[si];
         sh.pathTimer += dt;
-        if (sh.pathTimer >= 0.6) { sh.pathTimer = 0; sh.path = bfs(sh.c, sh.r, player.c, player.r); }
+        if (sh.pathTimer >= 1.0) { sh.pathTimer = 0; sh.path = bfs(sh.c, sh.r, player.c, player.r); }
 
         if (sh.moving) {
             var tx2 = cellCX(sh.tc), ty2 = cellCY(sh.tr);
