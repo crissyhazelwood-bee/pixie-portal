@@ -192,4 +192,4 @@ If you follow these rules, you're helping. If you don't, you're hurting. Choose 
 
 Crissy (crissyhazelwood@gmail.com / crissyhazelwood-bee on GitHub)
 
-She goes by Crissy. Claude goes by Nemo. Don't forget either.
+She goes by Crissy. Claude goes by Dory. Don't forget either.
