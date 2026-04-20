@@ -87,7 +87,7 @@ var WALK=[1,1,0,1,1,1,1,1,0,0];
 
 // ── Canvas ─────────────────────────────────────────────────────────────────────
 var canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
-var SW,SH,TW_px,TH_px; // screen width/height, tile pixel width/height
+var SW,SH,TW_px,TH_px;
 
 function resize(){
     canvas.width=window.innerWidth; canvas.height=window.innerHeight;
@@ -116,7 +116,7 @@ function buildMap(){
         else if(r<4||r>=MR-4||c<4||c>=MC-4) m[r][c]=TK;
     }
 
-    // Lake — ellipse top-right
+    // Lake — ellipse top-right (center r=8, c=43)
     var lR=8,lC=43,lA=4.2,lB=5.5;
     for(r=3;r<MR-3;r++) for(c=3;c<MC-3;c++){
         var d=((r-lR)/lA)*((r-lR)/lA)+((c-lC)/lB)*((c-lC)/lB);
@@ -136,8 +136,7 @@ function buildMap(){
     for(r=14;r<pR;r++) if(m[r][43]===TG||m[r][43]===TK) m[r][43]=TD;
     // Dirt spur east-west at row pR-3
     for(c=pC+1;c<=43;c++) if(m[pR-3][c]===TG) m[pR-3][c]=TD;
-    if(m[pR-3][pC]===TS) {} // keep stone
-    else m[pR-3][pC]=TD;
+    if(m[pR-3][pC]===TS) {} else m[pR-3][pC]=TD;
 
     // Interior tree clusters
     [[10,12],[15,47],[28,10],[33,42],[36,26],[8,28]].forEach(function(cl){
@@ -161,97 +160,223 @@ function buildMap(){
     return m;
 }
 
-// ── Tile drawing ───────────────────────────────────────────────────────────────
-function fillTile(sx,sy,color){
-    ctx.fillStyle=color; ctx.fillRect(sx,sy,TW_px,TH_px);
+// ── Tile helpers ───────────────────────────────────────────────────────────────
+function tileEdge(sx,sy,alpha){
+    var a=alpha||0.22;
+    var g=ctx.createLinearGradient(sx,sy+TH_px*0.62,sx,sy+TH_px);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,'+a+')');
+    ctx.fillStyle=g; ctx.fillRect(sx,sy+Math.round(TH_px*0.62),TW_px,Math.round(TH_px*0.38)+1);
 }
 
+// ── Tile drawing ───────────────────────────────────────────────────────────────
 function tileGrass(sx,sy){
-    fillTile(sx,sy,'#5a9e47');
-    ctx.fillStyle='#4d8c3c';
-    ctx.fillRect(sx+TW_px*.2,sy+TH_px*.3,2,3); ctx.fillRect(sx+TW_px*.55,sy+TH_px*.15,2,3);
-    ctx.fillRect(sx+TW_px*.75,sy+TH_px*.6,2,3); ctx.fillRect(sx+TW_px*.38,sy+TH_px*.7,2,2);
-}
-function tileDark(sx,sy){
-    fillTile(sx,sy,'#3d7030');
-    ctx.fillStyle='#335f28';
-    ctx.fillRect(sx+TW_px*.3,sy+TH_px*.25,2,3); ctx.fillRect(sx+TW_px*.65,sy+TH_px*.6,2,2);
-}
-function tileDirt(sx,sy){
-    fillTile(sx,sy,'#9e7848');
-    ctx.fillStyle='#8a6438';
-    ctx.fillRect(sx+TW_px*.22,sy+TH_px*.35,3,2); ctx.fillRect(sx+TW_px*.6,sy+TH_px*.2,2,2);
-    ctx.fillRect(sx+TW_px*.72,sy+TH_px*.65,3,2);
-}
-function tileWater(sx,sy,t){
-    var w=Math.sin(t*1.4+sx*.015)*.06;
     var g=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
-    g.addColorStop(0,'#4488cc'); g.addColorStop(1,'#2d66aa');
+    g.addColorStop(0,'#72c054'); g.addColorStop(0.55,'#5a9e47'); g.addColorStop(1,'#3e7830');
     ctx.fillStyle=g; ctx.fillRect(sx,sy,TW_px,TH_px);
-    ctx.globalAlpha=0.22+w;
-    ctx.fillStyle='#88ccff';
-    ctx.fillRect(sx+TW_px*.08,sy+TH_px*.2,TW_px*.38,TH_px*.14);
-    ctx.fillRect(sx+TW_px*.52,sy+TH_px*.58,TW_px*.32,TH_px*.14);
-    ctx.globalAlpha=1;
+    // Blade details
+    ctx.fillStyle='#3a7228';
+    var blades=[[.08,.18,2,5],[.22,.48,2,6],[.38,.12,1,4],[.48,.65,2,5],[.63,.3,2,6],[.76,.52,1,4],[.86,.2,2,5],[.14,.72,2,4],[.54,.82,1,3],[.92,.7,1,4]];
+    blades.forEach(function(b){ctx.fillRect(sx+b[0]*TW_px,sy+b[1]*TH_px,b[2],b[3]);});
+    // Top highlight
+    ctx.fillStyle='rgba(150,230,100,0.1)';
+    ctx.fillRect(sx,sy,TW_px,Math.round(TH_px*0.32));
+    tileEdge(sx,sy,0.2);
 }
+
+function tileDark(sx,sy){
+    var g=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
+    g.addColorStop(0,'#4a8836'); g.addColorStop(1,'#2c561e');
+    ctx.fillStyle=g; ctx.fillRect(sx,sy,TW_px,TH_px);
+    ctx.fillStyle='#235018';
+    [[.18,.28,2,5],[.52,.14,2,6],[.76,.58,2,5],[.38,.74,1,4],[.88,.38,2,4]].forEach(function(b){
+        ctx.fillRect(sx+b[0]*TW_px,sy+b[1]*TH_px,b[2],b[3]);
+    });
+    tileEdge(sx,sy,0.3);
+}
+
+function tileDirt(sx,sy){
+    var g=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
+    g.addColorStop(0,'#b28852'); g.addColorStop(1,'#7a5830');
+    ctx.fillStyle=g; ctx.fillRect(sx,sy,TW_px,TH_px);
+    // Pebbles
+    ctx.fillStyle='rgba(80,48,18,0.4)';
+    [[.16,.28,4,2],[.50,.16,3,2],[.70,.56,5,2],[.34,.72,3,2],[.84,.38,3,2]].forEach(function(p){
+        ctx.fillRect(sx+p[0]*TW_px,sy+p[1]*TH_px,p[2],p[3]);
+    });
+    ctx.fillStyle='rgba(150,115,60,0.45)';
+    [[.28,.46,2,2],[.65,.26,2,2],[.82,.72,2,2]].forEach(function(p){
+        ctx.fillRect(sx+p[0]*TW_px,sy+p[1]*TH_px,p[2],p[3]);
+    });
+    tileEdge(sx,sy,0.25);
+}
+
+function tileWater(sx,sy,t){
+    var g=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
+    g.addColorStop(0,'#5aaae0'); g.addColorStop(0.5,'#3d80c8'); g.addColorStop(1,'#1e58a0');
+    ctx.fillStyle=g; ctx.fillRect(sx,sy,TW_px,TH_px);
+    // Animated wave strips
+    var w1=Math.sin(t*1.3+sx*.02)*2.5, w2=Math.sin(t*0.85+sx*.016+1.8)*2;
+    ctx.fillStyle='rgba(130,200,255,0.28)';
+    ctx.fillRect(sx+2,sy+Math.round(TH_px*0.22+w1),Math.round(TW_px*.62),Math.round(TH_px*.12));
+    ctx.fillStyle='rgba(130,200,255,0.18)';
+    ctx.fillRect(sx+Math.round(TW_px*.18),sy+Math.round(TH_px*0.58+w2),Math.round(TW_px*.55),Math.round(TH_px*.11));
+    // Glint
+    var glint=0.5+Math.sin(t*3.2+sx*.05)*0.5;
+    if(glint>0.82){
+        ctx.fillStyle='rgba(255,255,255,'+(glint*0.38)+')';
+        ctx.beginPath(); ctx.arc(sx+TW_px*.62,sy+TH_px*.28,2,0,Math.PI*2); ctx.fill();
+    }
+    // Edge foam
+    ctx.fillStyle='rgba(210,240,255,0.16)';
+    ctx.fillRect(sx,sy,TW_px,3);
+    ctx.fillRect(sx,sy,2,TH_px);
+    tileEdge(sx,sy,0.28);
+}
+
 function tileFlowers(sx,sy,t){
     tileGrass(sx,sy);
-    var bob=Math.sin(t*.9+sx*.1)*.5;
-    var clrs=['#ff96c8','#ffffa0','#ff7744','#b496ff','#fff'];
-    [[.18,.3],[.5,.5],[.72,.22],[.33,.72],[.62,.62]].forEach(function(p,i){
-        ctx.fillStyle=clrs[i]; ctx.beginPath();
-        ctx.arc(sx+p[0]*TW_px,sy+p[1]*TH_px+bob,2.5,0,Math.PI*2); ctx.fill();
+    var bob=Math.sin(t*0.85+sx*.12)*1.8;
+    // [x, y, petalColor, centerColor, radiusFactor]
+    var flowers=[
+        [.16,.30,'#ff96c8','#fff8a0',.13],
+        [.50,.52,'#b496ff','#ffff80',.12],
+        [.74,.20,'#ff7744','#ffff90',.11],
+        [.33,.72,'#ffffff','#ffcc44',.10],
+        [.66,.62,'#ffaadd','#ffffff',.11],
+    ];
+    flowers.forEach(function(f){
+        var fx=sx+f[0]*TW_px, fy=sy+f[1]*TH_px+bob;
+        var pr=f[4]*TW_px;
+        // 5 petals
+        ctx.fillStyle=f[2];
+        for(var p=0;p<5;p++){
+            var a=p/5*Math.PI*2;
+            ctx.beginPath();
+            ctx.arc(fx+Math.cos(a)*pr*1.35,fy+Math.sin(a)*pr*.95,pr*.72,0,Math.PI*2);
+            ctx.fill();
+        }
+        // Center
+        ctx.fillStyle=f[3];
+        ctx.beginPath(); ctx.arc(fx,fy,pr*.55,0,Math.PI*2); ctx.fill();
     });
 }
+
 function tileStone(sx,sy){
-    fillTile(sx,sy,'#848494');
-    ctx.fillStyle='#9294a4'; ctx.fillRect(sx+1,sy+1,TW_px/2-2,TH_px/2-2);
-    ctx.fillRect(sx+TW_px/2+1,sy+TH_px/2+1,TW_px/2-2,TH_px/2-2);
-    ctx.strokeStyle='#767688'; ctx.lineWidth=0.5; ctx.strokeRect(sx+.5,sy+.5,TW_px-1,TH_px-1);
+    var g=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
+    g.addColorStop(0,'#9898ac'); g.addColorStop(1,'#6c6c7e');
+    ctx.fillStyle=g; ctx.fillRect(sx,sy,TW_px,TH_px);
+    // Flagstone grout lines
+    ctx.strokeStyle='rgba(55,55,68,0.55)';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(sx,sy+TH_px*0.5); ctx.lineTo(sx+TW_px,sy+TH_px*0.5);
+    ctx.moveTo(sx+TW_px*0.5,sy); ctx.lineTo(sx+TW_px*0.5,sy+TH_px*0.5);
+    ctx.moveTo(sx+TW_px*0.25,sy+TH_px*0.5); ctx.lineTo(sx+TW_px*0.25,sy+TH_px);
+    ctx.moveTo(sx+TW_px*0.75,sy+TH_px*0.5); ctx.lineTo(sx+TW_px*0.75,sy+TH_px);
+    ctx.stroke();
+    // Highlight top-left stone
+    ctx.fillStyle='rgba(180,180,205,0.18)';
+    ctx.fillRect(sx+1,sy+1,TW_px*0.5-2,TH_px*0.5-2);
+    tileEdge(sx,sy,0.32);
 }
+
 function tileFairyRing(sx,sy,t){
     tileStone(sx,sy);
-    var cx=sx+TW_px/2,cy=sy+TH_px/2;
-    var g=0.4+Math.sin(t*2.2)*.2;
-    ctx.strokeStyle='rgba(180,150,255,'+g+')'; ctx.lineWidth=2.5;
-    ctx.beginPath(); ctx.arc(cx,cy,TW_px*.32,0,Math.PI*2); ctx.stroke();
-    ctx.fillStyle='rgba(180,150,255,'+(g*.25)+')';
-    ctx.beginPath(); ctx.arc(cx,cy,TW_px*.32,0,Math.PI*2); ctx.fill();
-    for(var i=0;i<7;i++){
-        var a=(i/7)*Math.PI*2+t*.4;
-        ctx.fillStyle='rgba(255,255,200,'+(0.55+Math.sin(t*2.5+i)*.35)+')';
-        ctx.beginPath(); ctx.arc(cx+Math.cos(a)*TW_px*.32,cy+Math.sin(a)*TH_px*.32,2,0,Math.PI*2); ctx.fill();
+    var cx=sx+TW_px/2, cy=sy+TH_px/2;
+    var pulse=0.5+Math.sin(t*2.2)*0.3;
+    // Outer glow ring (one shadowBlur call — only one fairy ring tile exists)
+    ctx.save();
+    ctx.shadowColor='#b496ff'; ctx.shadowBlur=22;
+    ctx.strokeStyle='rgba(200,160,255,'+(0.5+pulse*0.3)+')';
+    ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(cx,cy,TW_px*.38,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+    // Inner fill pulse (no shadow needed)
+    ctx.fillStyle='rgba(180,140,255,'+(pulse*.14)+')';
+    ctx.beginPath(); ctx.arc(cx,cy,TW_px*.38,0,Math.PI*2); ctx.fill();
+    // Second inner ring
+    ctx.strokeStyle='rgba(255,200,255,'+(0.28+pulse*0.18)+')';
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(cx,cy,TW_px*.24,0,Math.PI*2); ctx.stroke();
+    // 9 rotating sparkle dots
+    for(var i=0;i<9;i++){
+        var a=(i/9)*Math.PI*2+t*.55;
+        var blink=0.35+Math.sin(t*3+i*1.3)*.4;
+        ctx.fillStyle='rgba(255,240,200,'+blink+')';
+        ctx.beginPath();
+        ctx.arc(cx+Math.cos(a)*TW_px*.38,cy+Math.sin(a)*TH_px*.38,1.5+blink*1.2,0,Math.PI*2);
+        ctx.fill();
     }
+    // Center glow dot
+    ctx.fillStyle='rgba(255,220,255,'+(0.6+Math.sin(t*2.5)*.3)+')';
+    ctx.beginPath(); ctx.arc(cx,cy,2.8,0,Math.PI*2); ctx.fill();
 }
+
 function tileSand(sx,sy){
-    fillTile(sx,sy,'#d4b87a');
-    ctx.fillStyle='#c0a464';
-    ctx.fillRect(sx+TW_px*.2,sy+TH_px*.35,2,2); ctx.fillRect(sx+TW_px*.58,sy+TH_px*.62,2,2);
-    ctx.fillRect(sx+TW_px*.78,sy+TH_px*.2,3,2);
+    var g=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
+    g.addColorStop(0,'#e8cc88'); g.addColorStop(1,'#bfa060');
+    ctx.fillStyle=g; ctx.fillRect(sx,sy,TW_px,TH_px);
+    // Ripple marks
+    ctx.strokeStyle='rgba(155,118,55,0.28)';
+    ctx.lineWidth=0.8;
+    for(var i=0;i<3;i++){
+        var ry=sy+TH_px*(0.24+i*0.26);
+        ctx.beginPath(); ctx.moveTo(sx+TW_px*.08,ry); ctx.lineTo(sx+TW_px*.88,ry); ctx.stroke();
+    }
+    tileEdge(sx,sy,0.18);
 }
+
 function tileTree(sx,sy){
-    // ground shadow under canopy
-    ctx.fillStyle='#2d5522'; ctx.fillRect(sx,sy,TW_px,TH_px);
-    // trunk
+    var gd=ctx.createLinearGradient(sx,sy,sx,sy+TH_px);
+    gd.addColorStop(0,'#1c4018'); gd.addColorStop(1,'#122c10');
+    ctx.fillStyle=gd; ctx.fillRect(sx,sy,TW_px,TH_px);
+    // Trunk with gradient
     var tx=sx+TW_px/2;
-    ctx.fillStyle='#5c3418';
-    ctx.fillRect(tx-4,sy-Math.round(TH_px*.5),8,Math.round(TH_px*.65));
-    // canopy layers (back to front = bottom circle last)
-    ctx.fillStyle='#245520';
-    ctx.beginPath(); ctx.arc(tx,sy-Math.round(TH_px*.95),TW_px*.42,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#2e6e28';
-    ctx.beginPath(); ctx.arc(tx-4,sy-Math.round(TH_px*1.1),TW_px*.3,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#389030';
-    ctx.beginPath(); ctx.arc(tx+5,sy-Math.round(TH_px*.75),TW_px*.28,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#44a838';
-    ctx.beginPath(); ctx.arc(tx,sy-Math.round(TH_px*1.25),TW_px*.22,0,Math.PI*2); ctx.fill();
+    var tkW=Math.max(5,Math.round(TW_px*.13));
+    var tkH=Math.round(TH_px*.65);
+    var tkg=ctx.createLinearGradient(tx-tkW,0,tx+tkW,0);
+    tkg.addColorStop(0,'#3a1e0c'); tkg.addColorStop(0.45,'#6e4020'); tkg.addColorStop(1,'#3a1e0c');
+    ctx.fillStyle=tkg;
+    ctx.fillRect(tx-Math.round(tkW/2),sy-Math.round(TH_px*.5),tkW,tkH);
+    // Canopy — back shadow
+    ctx.fillStyle='#1a3e16';
+    ctx.beginPath(); ctx.arc(tx,sy-Math.round(TH_px*.95),TW_px*.46,0,Math.PI*2); ctx.fill();
+    // Canopy — main radial gradient
+    var cg=ctx.createRadialGradient(tx-TW_px*.1,sy-Math.round(TH_px*1.06),0,tx,sy-Math.round(TH_px*.95),TW_px*.44);
+    cg.addColorStop(0,'#62cc50'); cg.addColorStop(0.5,'#3c8c28'); cg.addColorStop(1,'#1c5012');
+    ctx.fillStyle=cg;
+    ctx.beginPath(); ctx.arc(tx,sy-Math.round(TH_px*.95),TW_px*.44,0,Math.PI*2); ctx.fill();
+    // Left sub-blob
+    var cg2=ctx.createRadialGradient(tx-TW_px*.22,sy-Math.round(TH_px*1.14),0,tx-TW_px*.18,sy-Math.round(TH_px*1.1),TW_px*.28);
+    cg2.addColorStop(0,'#5ab844'); cg2.addColorStop(1,'#2e7020');
+    ctx.fillStyle=cg2;
+    ctx.beginPath(); ctx.arc(tx-TW_px*.18,sy-Math.round(TH_px*1.1),TW_px*.28,0,Math.PI*2); ctx.fill();
+    // Right sub-blob
+    ctx.fillStyle='#48a438';
+    ctx.beginPath(); ctx.arc(tx+TW_px*.18,sy-Math.round(TH_px*.8),TW_px*.24,0,Math.PI*2); ctx.fill();
+    // Top highlight ball
+    ctx.fillStyle='#74dc58';
+    ctx.beginPath(); ctx.arc(tx+TW_px*.04,sy-Math.round(TH_px*1.28),TW_px*.17,0,Math.PI*2); ctx.fill();
 }
+
 function tileRock(sx,sy){
     tileGrass(sx,sy);
-    var rx=sx+TW_px/2,ry=sy+TH_px*.52;
-    ctx.fillStyle='rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(rx,ry+5,TW_px*.26,TH_px*.18,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#6e6e80'; ctx.beginPath(); ctx.ellipse(rx,ry,TW_px*.28,TH_px*.32,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#848498'; ctx.beginPath(); ctx.ellipse(rx-3,ry-4,TW_px*.16,TH_px*.16,-.3,0,Math.PI*2); ctx.fill();
+    var rx=sx+TW_px/2, ry=sy+TH_px*.5;
+    // Drop shadow
+    ctx.fillStyle='rgba(0,0,0,.25)';
+    ctx.beginPath(); ctx.ellipse(rx+4,ry+7,TW_px*.28,TH_px*.15,-.08,0,Math.PI*2); ctx.fill();
+    // Rock body
+    var rg=ctx.createRadialGradient(rx-TW_px*.1,ry-TH_px*.14,0,rx,ry,TW_px*.3);
+    rg.addColorStop(0,'#9898b0'); rg.addColorStop(0.55,'#6e6e88'); rg.addColorStop(1,'#4c4c60');
+    ctx.fillStyle=rg;
+    ctx.beginPath(); ctx.ellipse(rx,ry,TW_px*.3,TH_px*.28,0,0,Math.PI*2); ctx.fill();
+    // Specular
+    ctx.fillStyle='rgba(210,210,230,0.32)';
+    ctx.beginPath(); ctx.ellipse(rx-TW_px*.08,ry-TH_px*.1,TW_px*.14,TH_px*.1,-.4,0,Math.PI*2); ctx.fill();
+    // Crack
+    ctx.strokeStyle='rgba(35,35,48,0.32)';
+    ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(rx-TW_px*.05,ry-TH_px*.12); ctx.lineTo(rx+TW_px*.08,ry+TH_px*.08); ctx.stroke();
 }
 
 function drawTile(type,sx,sy,t){
@@ -283,34 +408,117 @@ function initPlayer(){
 }
 
 function drawPlayer(cx,cy,t){
+    var bob=Math.sin(t*3.2)*2.8;
+    var py=cy+bob;
     // Ground shadow
-    ctx.fillStyle='rgba(0,0,0,.28)';
-    ctx.beginPath(); ctx.ellipse(cx,cy+TH_px*.3,TW_px*.22,TH_px*.13,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.24)';
+    ctx.beginPath(); ctx.ellipse(cx,cy+TH_px*.28,TW_px*.21,TH_px*.12,0,0,Math.PI*2); ctx.fill();
     // Fairy dust trail
-    if(Math.random()<0.4) spawnDust(cx,cy+TH_px*.1);
-    // Bob
-    var bob=Math.sin(t*3.2)*2.5;
+    if(Math.random()<0.45) spawnDust(cx,cy+TH_px*.08);
+    // Fairy emoji with layered glow
     ctx.save();
     if(pl.flip){ ctx.translate(cx,0); ctx.scale(-1,1); ctx.translate(-cx,0); }
-    ctx.font=Math.round(TW_px*.78)+'px serif';
+    var sz=Math.round(TW_px*.88);
+    ctx.font=sz+'px serif';
     ctx.textAlign='center'; ctx.textBaseline='bottom';
-    ctx.shadowColor='#ff96c8'; ctx.shadowBlur=18;
-    ctx.fillText('🧚',cx,cy+bob);
-    ctx.shadowBlur=0; ctx.restore();
+    ctx.shadowColor='#ff96c8'; ctx.shadowBlur=26;
+    ctx.fillText('🧚',cx,py);
+    ctx.shadowColor='#b496ff'; ctx.shadowBlur=14;
+    ctx.fillText('🧚',cx,py);
+    ctx.shadowBlur=0;
+    ctx.restore();
 }
 
 // ── Particles ──────────────────────────────────────────────────────────────────
 var parts=[];
-var DUST_CLR=['#ff96c8','#ffffa0','#b496ff','#96ffdc'];
+var DUST_CLR=['#ff96c8','#ffffa0','#b496ff','#96ffdc','#fff'];
+
 function spawnDust(x,y){
-    var a=Math.random()*Math.PI*2, spd=12+Math.random()*25;
-    parts.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd-15,life:1,ml:0.5+Math.random()*.4,r:1+Math.random()*2,c:DUST_CLR[Math.floor(Math.random()*4)]});
+    var a=Math.random()*Math.PI*2, spd=10+Math.random()*22;
+    parts.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd-12,life:1,ml:0.45+Math.random()*.4,r:1.2+Math.random()*2.2,c:DUST_CLR[Math.floor(Math.random()*DUST_CLR.length)]});
 }
+
 function spawnBurst(x,y){
-    for(var i=0;i<12;i++){
-        var a=Math.PI*2*i/12+Math.random()*.4, spd=30+Math.random()*70;
-        parts.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:1,ml:.6+Math.random()*.4,r:2+Math.random()*3,c:DUST_CLR[Math.floor(Math.random()*4)]});
+    for(var i=0;i<16;i++){
+        var a=Math.PI*2*i/16+Math.random()*.35, spd=28+Math.random()*75;
+        parts.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd-10,life:1,ml:.55+Math.random()*.5,r:2+Math.random()*3.5,c:DUST_CLR[Math.floor(Math.random()*DUST_CLR.length)]});
     }
+}
+
+// ── Fireflies ──────────────────────────────────────────────────────────────────
+var fireflies=[];
+var FFY_MAX=30;
+var FFY_CLR=['#ffffa0','#c0ffb0','#fff0b0','#e0ffff'];
+
+function updateFireflies(dt,t){
+    if(fireflies.length<FFY_MAX){
+        var wx=cam.x+Math.random()*SW*1.3-SW*.15;
+        var wy=cam.y+Math.random()*SH*1.3-SH*.15;
+        var col=Math.floor(wx/TW_px)|0, row=Math.floor(wy/TH_px)|0;
+        if(col>=0&&col<MC&&row>=0&&row<MR){
+            var tile=map[row][col];
+            if(tile===TG||tile===TF||tile===TK){
+                fireflies.push({
+                    wx:wx,wy:wy,
+                    vx:(Math.random()-.5)*14,
+                    vy:(Math.random()-.5)*9,
+                    phase:Math.random()*Math.PI*2,
+                    freq:1.4+Math.random()*2.2,
+                    life:1,ml:4+Math.random()*6,
+                    r:1.5+Math.random()*1.5,
+                    c:FFY_CLR[Math.floor(Math.random()*FFY_CLR.length)]
+                });
+            }
+        }
+    }
+    for(var i=fireflies.length-1;i>=0;i--){
+        var f=fireflies[i];
+        f.wx+=f.vx*dt;
+        f.wy+=f.vy*dt;
+        f.vx+=(Math.random()-.5)*12*dt;
+        f.vy+=(Math.random()-.5)*9*dt;
+        f.vx*=0.985; f.vy*=0.985;
+        f.life-=dt/f.ml;
+        if(f.life<=0||f.wx<cam.x-120||f.wx>cam.x+SW+120||f.wy<cam.y-120||f.wy>cam.y+SH+120){
+            fireflies.splice(i,1);
+        }
+    }
+}
+
+function drawFireflies(t){
+    for(var i=0;i<fireflies.length;i++){
+        var f=fireflies[i];
+        var glow=0.28+Math.sin(t*f.freq+f.phase)*0.38;
+        if(glow<0.04) continue;
+        var sx=Math.round(f.wx-cam.x), sy=Math.round(f.wy-cam.y);
+        ctx.save();
+        ctx.globalAlpha=f.life*Math.max(0,glow);
+        ctx.shadowColor=f.c; ctx.shadowBlur=10;
+        ctx.fillStyle=f.c;
+        ctx.beginPath(); ctx.arc(sx,sy,f.r,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+    }
+}
+
+// ── Ambient glow overlays ──────────────────────────────────────────────────────
+function drawAmbientGlow(t){
+    // Fairy ring glow — crossroads at col 27, row 20
+    var frWX=27*TW_px+TW_px/2, frWY=20*TH_px+TH_px/2;
+    var frSX=frWX-cam.x, frSY=frWY-cam.y;
+    var frPulse=0.09+Math.sin(t*1.8)*.035;
+    var frG=ctx.createRadialGradient(frSX,frSY,TW_px*.5,frSX,frSY,TW_px*6.5);
+    frG.addColorStop(0,'rgba(175,130,255,'+frPulse+')');
+    frG.addColorStop(1,'rgba(175,130,255,0)');
+    ctx.fillStyle=frG; ctx.fillRect(0,0,SW,SH);
+
+    // Lake glow — center col 43, row 8
+    var lkWX=43*TW_px+TW_px/2, lkWY=8*TH_px+TH_px/2;
+    var lkSX=lkWX-cam.x, lkSY=lkWY-cam.y;
+    var lkPulse=0.065+Math.sin(t*.9+1.2)*.022;
+    var lkG=ctx.createRadialGradient(lkSX,lkSY,TW_px,lkSX,lkSY,TW_px*10);
+    lkG.addColorStop(0,'rgba(55,118,210,'+lkPulse+')');
+    lkG.addColorStop(1,'rgba(55,118,210,0)');
+    ctx.fillStyle=lkG; ctx.fillRect(0,0,SW,SH);
 }
 
 // ── Zone names ─────────────────────────────────────────────────────────────────
@@ -348,8 +556,8 @@ function inputDir(){
 var DC={u:[0,-1],d:[0,1],l:[-1,0],r:[1,0]};
 
 // ── Update ─────────────────────────────────────────────────────────────────────
-var SPEED=5.0; // tiles/sec
-function update(dt){
+var SPEED=5.0;
+function update(dt,t){
     if(pl.moving){
         var spd=SPEED*TW_px;
         var tx=pl.tc*TW_px, ty=pl.tr*TH_px;
@@ -371,7 +579,7 @@ function update(dt){
         }
     }
 
-    // Camera lerp — clamp to world bounds
+    // Camera lerp — clamp to world
     var tcx=pl.px-SW/2+TW_px/2, tcy=pl.py-SH/2+TH_px/2;
     tcx=Math.max(0,Math.min(MC*TW_px-SW,tcx));
     tcy=Math.max(0,Math.min(MR*TH_px-SH,tcy));
@@ -380,18 +588,23 @@ function update(dt){
     // Particles
     for(var i=parts.length-1;i>=0;i--){
         var p=parts[i];
-        p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=55*dt;
+        p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=58*dt;
         p.life-=dt/p.ml;
         if(p.life<=0) parts.splice(i,1);
     }
+
+    updateFireflies(dt,t);
 }
 
 // ── Draw ───────────────────────────────────────────────────────────────────────
 function draw(t){
-    ctx.fillStyle='#060410'; ctx.fillRect(0,0,SW,SH);
+    // Gradient background
+    var bgG=ctx.createLinearGradient(0,0,0,SH);
+    bgG.addColorStop(0,'#090522'); bgG.addColorStop(1,'#040210');
+    ctx.fillStyle=bgG; ctx.fillRect(0,0,SW,SH);
     if(!started) return;
 
-    // Visible tile range (add buffer for tree canopy bleed)
+    // Visible tile range (buffer for tree canopy bleed)
     var c0=Math.max(0,Math.floor(cam.x/TW_px)-1);
     var c1=Math.min(MC-1,Math.ceil((cam.x+SW)/TW_px)+1);
     var r0=Math.max(0,Math.floor(cam.y/TH_px)-3);
@@ -402,14 +615,11 @@ function draw(t){
     var plDrawn=false;
 
     for(var row=r0;row<=r1;row++){
-        // Draw all tiles in this row
         for(var col=c0;col<=c1;col++){
             var s=w2s(col,row);
             drawTile(map[row][col],s.x,s.y,t);
         }
-        // Insert player at correct depth
         if(!plDrawn&&row>=plVR){
-            var ps=w2s(0,0);
             var pcx=Math.round(pl.px-cam.x)+TW_px/2;
             var pcy=Math.round(pl.py-cam.y);
             drawPlayer(pcx,pcy,t);
@@ -420,18 +630,24 @@ function draw(t){
         drawPlayer(Math.round(pl.px-cam.x)+TW_px/2,Math.round(pl.py-cam.y),t);
     }
 
-    // Particles
+    // Ambient glow (soft colored halos over tiles)
+    drawAmbientGlow(t);
+
+    // Fireflies
+    drawFireflies(t);
+
+    // Dust particles
     for(var i=0;i<parts.length;i++){
         var p=parts[i];
-        ctx.globalAlpha=p.life*.9;
-        ctx.fillStyle=p.c; ctx.shadowColor=p.c; ctx.shadowBlur=5;
+        ctx.globalAlpha=p.life*.88;
+        ctx.fillStyle=p.c; ctx.shadowColor=p.c; ctx.shadowBlur=6;
         ctx.beginPath(); ctx.arc(p.x-cam.x,p.y-cam.y,p.r,0,Math.PI*2); ctx.fill();
     }
     ctx.globalAlpha=1; ctx.shadowBlur=0;
 
     // Vignette
-    var vg=ctx.createRadialGradient(SW/2,SH/2,SH*.25,SW/2,SH/2,SH*.9);
-    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(2,1,8,.55)');
+    var vg=ctx.createRadialGradient(SW/2,SH/2,SH*.2,SW/2,SH/2,SH*.88);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(1,0,7,.65)');
     ctx.fillStyle=vg; ctx.fillRect(0,0,SW,SH);
 }
 
@@ -440,8 +656,7 @@ var started=false,lastTS=0,gt=0;
 
 function loop(ts){
     var dt=Math.min((ts-lastTS)/1000,.05); lastTS=ts;
-    if(started) gt+=dt;
-    if(started) update(dt);
+    if(started){ gt+=dt; update(dt,gt); }
     draw(gt);
     requestAnimationFrame(loop);
 }
