@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firefly Chase ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#040210; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
+        canvas { display:block; position:relative; z-index:1; }
+
+        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(4,2,16,0.9),transparent); pointer-events:none; }
+        #ui > * { pointer-events:auto; }
+        .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
+        .stat { color:#f0d0ff; font-size:14px; font-weight:600; }
+        .stat-val { color:#c8ff50; font-size:18px; font-weight:700; }
+        .hearts { font-size:20px; letter-spacing:3px; }
+        .back-btn { color:#b496ff; text-decoration:none; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; }
+        .back-btn:hover { border-color:#c8ff50; color:#c8ff50; }
+
+        #start-screen { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(4,2,16,0.97); z-index:100; display:flex; justify-content:center; align-items:center; flex-direction:column; cursor:pointer; }
+        #start-screen h1 { font-family:'Pacifico',cursive; color:#c8ff50; font-size:52px; margin-bottom:10px; text-shadow:0 0 40px rgba(200,255,80,0.5); }
+        #start-screen .ff-bounce { font-size:80px; animation:ffBounce 1.5s ease-in-out infinite; filter:drop-shadow(0 0 20px rgba(200,255,80,0.6)); }
+        @keyframes ffBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-25px)} }
+        #start-screen .tap-text { color:#b496ff; font-size:20px; font-weight:600; margin-top:20px; animation:fadeInOut 2s ease-in-out infinite; }
+        @keyframes fadeInOut { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        #start-screen .subtitle { color:#6a5090; font-size:14px; margin-top:8px; }
+
+        #game-over { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(2,1,8,0.92); z-index:100; justify-content:center; align-items:center; flex-direction:column; }
+        #game-over.active { display:flex; }
+        #game-over h1 { font-family:'Pacifico',cursive; color:#c8ff50; font-size:48px; margin-bottom:10px; text-shadow:0 0 30px rgba(200,255,80,0.4); }
+        #game-over .final-score { font-size:60px; font-weight:700; color:#ffffa0; margin:15px 0; text-shadow:0 0 20px rgba(255,255,160,0.3); }
+        #game-over .stats { color:#b496ff; font-size:16px; margin-bottom:25px; line-height:2; text-align:center; }
+        #game-over button { padding:12px 30px; border-radius:25px; border:none; background:linear-gradient(135deg,#c8ff50,#b496ff); color:#040210; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin:5px; transition:transform 0.2s; }
+        #game-over button:hover { transform:scale(1.05); box-shadow:0 5px 25px rgba(200,255,80,0.3); }
+        #game-over .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
+        #game-over .ghost-btn:hover { border-color:#c8ff50; color:#c8ff50; }
+    </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="start-screen" onclick="startGame()">
+    <h1>Firefly Chase</h1>
+    <div class="ff-bounce">🌟</div>
+    <div class="tap-text">Tap to Flutter</div>
+    <div class="subtitle">Weave through branches, dodge spiders, glow forever!</div>
+    <div style="color:#504060; font-size:13px; margin-top:24px; line-height:2; text-align:center;">
+        <span style="color:#b496ff;">SPACE</span> or <span style="color:#b496ff;">CLICK</span> to flutter up<br>
+        Collect <span style="color:#c8ff50;">🌟</span> and <span style="color:#ff96c8;">🌺</span> for points
+    </div>
+</div>
+
+<div id="ui" style="display:none;">
+    <div class="ui-left">
+        <a class="back-btn" onclick="window.location.href='/'">← Portal</a>
+        <div class="stat">🌟 <span class="stat-val" id="orbs">0</span></div>
+    </div>
+    <div class="ui-right">
+        <div class="stat">✦ <span class="stat-val" id="score">0</span></div>
+        <div class="hearts" id="hearts">💖💖💖</div>
+    </div>
+</div>
+
+<div id="game-over">
+    <h1>Night Falls</h1>
+    <div class="final-score" id="final-score">0</div>
+    <div class="stats" id="final-stats"></div>
+    <button onclick="startGame()">Glow Again ✦</button>
+    <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
+</div>
+
+<script>
+// ============================================
+// ERROR HANDLER
+// ============================================
+window.onerror = function(msg, url, line) {
+    document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
+    var ss = document.getElementById('start-screen');
+    if (ss) ss.innerHTML = '<h1 style="color:red;font-size:16px;padding:40px;">ERROR: ' + msg + '<br>Line: ' + line + '</h1>';
+    return false;
+};
+
+// ============================================
+// CANVAS SETUP
+// ============================================
+var canvas = document.getElementById('game');
+var ctx = canvas.getContext('2d');
+var W = 0;
+var H = 0;
+
+// ============================================
+// COLORS & CONSTANTS
+// ============================================
+var GLOW  = '#c8ff50';
+var GLOW2 = '#aaff00';
+var PINK  = '#ff96c8';
+var PURPLE = '#b496ff';
+var YELLOW = '#ffffa0';
+var BG = '#040210';
+
+var GRAVITY = 1100;
+var FLUTTER_FORCE = -400;
+var MAX_FALL = 550;
+var MAX_RISE = -420;
+var BASE_SCROLL_SPEED = 190;
+var FIREFLY_X_RATIO = 0.18;
+var GAP_MIN = 145;
+var GAP_MAX = 205;
+var OBSTACLE_SPACING_MIN = 290;
+var OBSTACLE_SPACING_MAX = 430;
+var FIREFLY_RADIUS = 14;
+var INVINCIBILITY_HIT_DURATION = 2.0;
+var SPEED_INCREASE_INTERVAL = 400;
+var SPEED_INCREASE_FACTOR = 0.09;
+
+// ============================================
+// GAME STATE
+// ============================================
+var state = 'start';
+var ffX = 0;
+var ffY = 0;
+var ffVY = 0;
+var hearts = 3;
+var score = 0;
+var distScore = 0;
+var orbCount = 0;
+var scrollSpeed = BASE_SCROLL_SPEED;
+var speedLevel = 0;
+var lastTime = 0;
+var gameTime = 0;
+var invincible = false;
+var invincibleTimer = 0;
+var shakeX = 0;
+var shakeY = 0;
+var shakeMag = 0;
+var glowPulse = 0;
+
+var obstacles = [];
+var collectibles = [];
+var particles = [];
+var trailParticles = [];
+var bgTrees = [];
+var bgFireflies = [];
+var bgStars = [];
+
+var nextObstacleX = 0;
+var nextCollectibleX = 0;
+
+// ============================================
+// DOM ELEMENTS
+// ============================================
+var startScreen   = document.getElementById('start-screen');
+var gameOverScreen = document.getElementById('game-over');
+var uiBar         = document.getElementById('ui');
+var scoreEl       = document.getElementById('score');
+var orbsEl        = document.getElementById('orbs');
+var heartsEl      = document.getElementById('hearts');
+var finalScoreEl  = document.getElementById('final-score');
+var finalStatsEl  = document.getElementById('final-stats');
+
+// ============================================
+// BACKGROUND
+// ============================================
+function initBackground() {
+    bgStars = [];
+    bgTrees = [];
+    bgFireflies = [];
+
+    for (var i = 0; i < 60; i++) {
+        bgStars.push({
+            x: Math.random() * W,
+            y: Math.random() * H * 0.55,
+            size: Math.random() * 1.5 + 0.4,
+            alpha: Math.random() * 0.5 + 0.1,
+            phase: Math.random() * Math.PI * 2,
+            speed: Math.random() * 2 + 0.5
+        });
+    }
+
+    // Far trees (slowest)
+    for (var i = 0; i < 10; i++) {
+        bgTrees.push({
+            x: Math.random() * W * 1.5,
+            h: Math.random() * 120 + 80,
+            w: Math.random() * 50 + 30,
+            layer: 0,
+            color: 'rgba(8,4,20,0.85)'
+        });
+    }
+    // Mid trees
+    for (var i = 0; i < 8; i++) {
+        bgTrees.push({
+            x: Math.random() * W * 1.5,
+            h: Math.random() * 160 + 100,
+            w: Math.random() * 70 + 40,
+            layer: 1,
+            color: 'rgba(6,3,14,0.92)'
+        });
+    }
+    // Near trees (fastest)
+    for (var i = 0; i < 6; i++) {
+        bgTrees.push({
+            x: Math.random() * W * 1.2,
+            h: Math.random() * 200 + 120,
+            w: Math.random() * 90 + 50,
+            layer: 2,
+            color: 'rgba(4,2,10,0.97)'
+        });
+    }
+
+    // Ambient background fireflies
+    for (var i = 0; i < 18; i++) {
+        bgFireflies.push({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 30,
+            vy: (Math.random() - 0.5) * 20,
+            phase: Math.random() * Math.PI * 2,
+            glowSpeed: Math.random() * 2 + 1,
+            size: Math.random() * 2.5 + 1.5
+        });
+    }
+}
+
+function drawBackground(dt) {
+    // Stars peeking through canopy
+    for (var i = 0; i < bgStars.length; i++) {
+        var s = bgStars[i];
+        var a = s.alpha * (0.5 + 0.5 * Math.sin(gameTime * s.speed + s.phase));
+        ctx.fillStyle = 'rgba(220,200,255,' + a + ')';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    var layerSpeeds = [0.08, 0.25, 0.55];
+    for (var i = 0; i < bgTrees.length; i++) {
+        var t = bgTrees[i];
+        t.x -= scrollSpeed * layerSpeeds[t.layer] * dt;
+        if (t.x + t.w < -60) t.x += W + t.w + 200;
+
+        ctx.fillStyle = t.color;
+        // Trunk
+        var trunkW = t.w * 0.18;
+        ctx.fillRect(t.x + t.w * 0.5 - trunkW * 0.5, H - t.h * 0.5, trunkW, t.h * 0.5);
+        // Lower canopy
+        ctx.beginPath();
+        ctx.moveTo(t.x, H - t.h * 0.4);
+        ctx.lineTo(t.x + t.w * 0.5, H - t.h);
+        ctx.lineTo(t.x + t.w, H - t.h * 0.4);
+        ctx.closePath();
+        ctx.fill();
+        // Upper canopy layer
+        ctx.beginPath();
+        ctx.moveTo(t.x + t.w * 0.08, H - t.h * 0.6);
+        ctx.lineTo(t.x + t.w * 0.5, H - t.h * 1.1);
+        ctx.lineTo(t.x + t.w * 0.92, H - t.h * 0.6);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Ambient fireflies in background
+    for (var i = 0; i < bgFireflies.length; i++) {
+        var f = bgFireflies[i];
+        f.phase += dt * f.glowSpeed;
+        f.x += f.vx * dt - scrollSpeed * 0.04 * dt;
+        f.y += f.vy * dt;
+        if (f.x < -20) f.x += W + 40;
+        if (f.x > W + 20) f.x -= W + 40;
+        if (f.y < 0) f.y += H;
+        if (f.y > H) f.y -= H;
+        var glow = 0.3 + 0.7 * Math.abs(Math.sin(f.phase));
+        ctx.save();
+        ctx.globalAlpha = glow * 0.55;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = GLOW;
+        ctx.fillStyle = GLOW;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.size * glow, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// ============================================
+// OBSTACLES
+// ============================================
+function createBranch(x) {
+    var gapSize = GAP_MIN + Math.random() * (GAP_MAX - GAP_MIN);
+    gapSize = Math.max(gapSize - speedLevel * 4, 110);
+    var gapY = Math.random() * (H - gapSize - 100) + 50;
+    return {
+        type: 'branch',
+        x: x,
+        gapY: gapY,
+        gapSize: gapSize,
+        width: 44 + Math.random() * 18,
+        passed: false
+    };
+}
+
+function createSpider(x) {
+    var hangY = Math.random() * (H * 0.5) + H * 0.08;
+    return {
+        type: 'spider',
+        x: x,
+        hangY: hangY,
+        radius: 20 + Math.random() * 12,
+        swayPhase: Math.random() * Math.PI * 2,
+        swayAmp: 18 + Math.random() * 22,
+        swaySpeed: 1.2 + Math.random() * 0.8,
+        passed: false
+    };
+}
+
+function spawnObstacle() {
+    var x = nextObstacleX;
+    var ob = Math.random() < 0.65 ? createBranch(x) : createSpider(x);
+    obstacles.push(ob);
+    var spacing = OBSTACLE_SPACING_MIN + Math.random() * (OBSTACLE_SPACING_MAX - OBSTACLE_SPACING_MIN);
+    spacing = Math.max(spacing - speedLevel * 8, 210);
+    nextObstacleX = x + spacing;
+}
+
+// ============================================
+// COLLECTIBLES
+// ============================================
+function spawnCollectible() {
+    var x = nextCollectibleX;
+    var y = Math.random() * (H - 100) + 50;
+    var roll = Math.random();
+    var type, emoji, points;
+    if (roll < 0.08) {
+        type = 'flower'; emoji = '🌺'; points = 50;
+    } else if (roll < 0.26) {
+        type = 'mushroom'; emoji = '🍄'; points = 25;
+    } else {
+        type = 'orb'; emoji = '🌟'; points = 10;
+    }
+    collectibles.push({
+        type: type, x: x, y: y, emoji: emoji, points: points,
+        bobPhase: Math.random() * Math.PI * 2,
+        collected: false
+    });
+    nextCollectibleX = x + 110 + Math.random() * 170;
+}
+
+// ============================================
+// PARTICLES
+// ============================================
+function spawnParticles(x, y, color, count, spread) {
+    for (var i = 0; i < count; i++) {
+        var angle = Math.random() * Math.PI * 2;
+        var spd = Math.random() * spread + 30;
+        particles.push({
+            x: x, y: y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 1.0,
+            decay: 1.5 + Math.random(),
+            size: Math.random() * 4 + 2,
+            color: color
+        });
+    }
+}
+
+function spawnTrail(x, y) {
+    trailParticles.push({
+        x: x + (Math.random() - 0.5) * 8,
+        y: y + (Math.random() - 0.5) * 8,
+        life: 1.0,
+        decay: 2.2,
+        size: Math.random() * 3 + 1.5,
+        color: Math.random() < 0.6 ? GLOW : YELLOW
+    });
+}
+
+// ============================================
+// COLLISION
+// ============================================
+function checkObstacleCollision(ob) {
+    var fr = FIREFLY_RADIUS;
+    if (ob.type === 'branch') {
+        if (ffX + fr > ob.x && ffX - fr < ob.x + ob.width) {
+            if (ffY - fr < ob.gapY || ffY + fr > ob.gapY + ob.gapSize) return true;
+        }
+    } else if (ob.type === 'spider') {
+        var sx = ob.x + Math.sin(ob.swayPhase) * ob.swayAmp;
+        var dx = ffX - sx;
+        var dy = ffY - ob.hangY;
+        return Math.sqrt(dx * dx + dy * dy) < fr + ob.radius * 0.8;
+    }
+    return false;
+}
+
+function checkCollectibleCollision(col) {
+    var dx = ffX - col.x;
+    var dy = ffY - col.y;
+    return Math.sqrt(dx * dx + dy * dy) < FIREFLY_RADIUS + 20;
+}
+
+// ============================================
+// HIT & GAME OVER
+// ============================================
+function hitFirefly() {
+    if (invincible) return;
+    hearts--;
+    heartsEl.textContent = '💖'.repeat(Math.max(hearts, 0));
+    invincible = true;
+    invincibleTimer = INVINCIBILITY_HIT_DURATION;
+    shakeMag = 12;
+    spawnParticles(ffX, ffY, '#ff4466', 15, 100);
+    if (hearts <= 0) gameOver();
+}
+
+function gameOver() {
+    state = 'over';
+    uiBar.style.display = 'none';
+    finalScoreEl.textContent = Math.floor(score);
+    finalStatsEl.innerHTML =
+        '🌲 Distance: ' + Math.floor(distScore) + '<br>' +
+        '🌟 Collected: ' + orbCount + '<br>' +
+        '⏱ Time: ' + formatTime(gameTime);
+    gameOverScreen.classList.add('active');
+}
+
+function formatTime(t) {
+    var m = Math.floor(t / 60);
+    var s = Math.floor(t % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+// ============================================
+// DRAWING
+// ============================================
+function drawBranch(ob) {
+    var w = ob.width;
+    var grad = ctx.createLinearGradient(ob.x, 0, ob.x + w, 0);
+    grad.addColorStop(0, '#0c0620');
+    grad.addColorStop(0.5, '#18093a');
+    grad.addColorStop(1, '#0c0620');
+    ctx.fillStyle = grad;
+    ctx.fillRect(ob.x, 0, w, ob.gapY);
+    ctx.fillRect(ob.x, ob.gapY + ob.gapSize, w, H - ob.gapY - ob.gapSize);
+
+    // Bark texture lines
+    ctx.strokeStyle = 'rgba(50,20,80,0.45)';
+    ctx.lineWidth = 1;
+    for (var lx = ob.x + 6; lx < ob.x + w - 4; lx += 9) {
+        ctx.beginPath();
+        ctx.moveTo(lx, 0); ctx.lineTo(lx, ob.gapY); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(lx, ob.gapY + ob.gapSize); ctx.lineTo(lx, H); ctx.stroke();
+    }
+
+    // Glowing gap edges
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = 'rgba(100,200,50,0.4)';
+    ctx.strokeStyle = 'rgba(100,200,50,0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ob.x, ob.gapY);
+    for (var px = ob.x; px <= ob.x + w; px += 10) {
+        ctx.lineTo(px, ob.gapY + Math.sin((px + gameTime * 40) * 0.06) * 4);
+    }
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ob.x, ob.gapY + ob.gapSize);
+    for (var px = ob.x; px <= ob.x + w; px += 10) {
+        ctx.lineTo(px, ob.gapY + ob.gapSize + Math.sin((px + gameTime * 40) * 0.06) * 4);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Leaf clusters at gap edges
+    ctx.fillStyle = 'rgba(20,60,10,0.65)';
+    for (var lx = ob.x; lx <= ob.x + w; lx += 14) {
+        ctx.beginPath();
+        ctx.ellipse(lx, ob.gapY + 8, 5, 9, Math.sin(lx) * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(lx, ob.gapY + ob.gapSize - 8, 5, 9, Math.sin(lx) * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function drawSpider(ob) {
+    var sx = ob.x + Math.sin(ob.swayPhase) * ob.swayAmp;
+    var sy = ob.hangY;
+
+    ctx.save();
+
+    // Web string
+    ctx.strokeStyle = 'rgba(180,160,200,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(sx, 0);
+    ctx.lineTo(sx, sy - ob.radius);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Web cross threads
+    ctx.strokeStyle = 'rgba(180,160,200,0.18)';
+    ctx.lineWidth = 0.8;
+    for (var wy = 30; wy < sy - ob.radius; wy += 35) {
+        var spread = 18 + wy * 0.14;
+        ctx.beginPath(); ctx.moveTo(sx - spread, wy); ctx.lineTo(sx + spread, wy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sx - spread * 0.5, wy - 14); ctx.lineTo(sx + spread * 0.5, wy - 14); ctx.stroke();
+    }
+
+    // Spider body
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = 'rgba(100,50,150,0.5)';
+
+    // Abdomen
+    ctx.fillStyle = '#1a0830';
+    ctx.beginPath();
+    ctx.ellipse(sx, sy + ob.radius * 0.3, ob.radius * 0.65, ob.radius * 0.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cephalothorax
+    ctx.fillStyle = '#261040';
+    ctx.beginPath();
+    ctx.arc(sx, sy - ob.radius * 0.2, ob.radius * 0.45, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eyes
+    ctx.fillStyle = '#cc2244';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#ff0030';
+    ctx.beginPath(); ctx.arc(sx - 6, sy - ob.radius * 0.3, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(sx + 6, sy - ob.radius * 0.3, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Legs (4 pairs)
+    ctx.strokeStyle = 'rgba(60,30,90,0.9)';
+    ctx.lineWidth = 1.5;
+    var legAngles = [-0.7, -0.35, 0.35, 0.7];
+    for (var li = 0; li < legAngles.length; li++) {
+        var ang = legAngles[li];
+        ctx.beginPath();
+        ctx.moveTo(sx - ob.radius * 0.5, sy);
+        ctx.quadraticCurveTo(sx - ob.radius * 1.5, sy + ang * ob.radius * 0.5, sx - ob.radius * 2.2, sy + ang * ob.radius);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(sx + ob.radius * 0.5, sy);
+        ctx.quadraticCurveTo(sx + ob.radius * 1.5, sy + ang * ob.radius * 0.5, sx + ob.radius * 2.2, sy + ang * ob.radius);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+function drawCollectible(col, dt) {
+    col.bobPhase += dt * 2.5;
+    var by = col.y + Math.sin(col.bobPhase) * 7;
+    ctx.save();
+    ctx.font = '22px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    if (col.type === 'orb') {
+        ctx.shadowBlur = 18; ctx.shadowColor = 'rgba(200,255,80,0.7)';
+    } else if (col.type === 'mushroom') {
+        ctx.shadowBlur = 15; ctx.shadowColor = 'rgba(255,100,150,0.6)';
+    } else {
+        ctx.shadowBlur = 22; ctx.shadowColor = 'rgba(255,150,200,0.7)';
+    }
+    ctx.fillText(col.emoji, col.x, by);
+    ctx.restore();
+}
+
+function drawFirefly() {
+    ctx.save();
+    if (invincible && Math.floor(invincibleTimer * 10) % 2 === 0) ctx.globalAlpha = 0.35;
+
+    glowPulse += 0.08;
+    var glowR = 20 + Math.sin(glowPulse) * 8;
+
+    // Soft outer halo
+    var halo = ctx.createRadialGradient(ffX, ffY, 0, ffX, ffY, glowR * 2.5);
+    halo.addColorStop(0, 'rgba(200,255,80,0.18)');
+    halo.addColorStop(1, 'rgba(200,255,80,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(ffX, ffY, glowR * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Body tilts with velocity
+    var tilt = Math.atan2(ffVY * 0.3, 100) * 0.5;
+    ctx.save();
+    ctx.translate(ffX, ffY);
+    ctx.rotate(tilt);
+
+    // Wings (semi-transparent)
+    ctx.globalAlpha *= 0.3;
+    ctx.fillStyle = GLOW;
+    ctx.beginPath(); ctx.ellipse(-5, -6, 9, 4, -0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(5, -6, 9, 4, 0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = invincible && Math.floor(invincibleTimer * 10) % 2 === 0 ? 0.35 : 1;
+
+    // Body
+    ctx.fillStyle = '#3a1a0a';
+    ctx.beginPath(); ctx.ellipse(0, 0, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+
+    // Glowing abdomen
+    ctx.shadowBlur = glowR;
+    ctx.shadowColor = GLOW;
+    ctx.fillStyle = GLOW;
+    ctx.beginPath(); ctx.arc(0, 3, 5, 0, Math.PI * 2); ctx.fill();
+
+    // Bright core
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#eeffaa';
+    ctx.beginPath(); ctx.arc(0, 3, 2.5, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+    ctx.restore();
+}
+
+function drawTrail() {
+    for (var i = 0; i < trailParticles.length; i++) {
+        var p = trailParticles[i];
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life * 0.55;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+function drawParticles() {
+    for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+// ============================================
+// UPDATE
+// ============================================
+function update(dt) {
+    gameTime += dt;
+
+    var newLevel = Math.floor(score / SPEED_INCREASE_INTERVAL);
+    if (newLevel !== speedLevel) speedLevel = newLevel;
+    scrollSpeed = BASE_SCROLL_SPEED * (1 + speedLevel * SPEED_INCREASE_FACTOR);
+
+    nextObstacleX -= scrollSpeed * dt;
+    nextCollectibleX -= scrollSpeed * dt;
+
+    // Physics
+    ffVY += GRAVITY * dt;
+    ffVY = Math.max(MAX_RISE, Math.min(MAX_FALL, ffVY));
+    ffY += ffVY * dt;
+
+    if (ffY < FIREFLY_RADIUS)      { ffY = FIREFLY_RADIUS;      ffVY = 0; }
+    if (ffY > H - FIREFLY_RADIUS)  { ffY = H - FIREFLY_RADIUS;  ffVY = 0; }
+
+    distScore += dt * 10;
+    score = Math.floor(distScore);
+    scoreEl.textContent = score;
+
+    if (invincible) {
+        invincibleTimer -= dt;
+        if (invincibleTimer <= 0) invincible = false;
+    }
+
+    if (shakeMag > 0) {
+        shakeMag *= Math.pow(0.05, dt);
+        shakeX = (Math.random() - 0.5) * shakeMag * 2;
+        shakeY = (Math.random() - 0.5) * shakeMag * 2;
+        if (shakeMag < 0.5) { shakeMag = 0; shakeX = 0; shakeY = 0; }
+    }
+
+    // Obstacles
+    for (var i = obstacles.length - 1; i >= 0; i--) {
+        var ob = obstacles[i];
+        ob.x -= scrollSpeed * dt;
+        if (ob.type === 'spider') ob.swayPhase += ob.swaySpeed * dt;
+        var rightEdge = ob.type === 'spider' ? ob.x + ob.swayAmp + ob.radius : ob.x + ob.width;
+        if (rightEdge < -120) { obstacles.splice(i, 1); continue; }
+        if (!ob.passed && ob.x < ffX) ob.passed = true;
+        if (checkObstacleCollision(ob)) hitFirefly();
+    }
+    while (nextObstacleX < ffX + W + 200) spawnObstacle();
+
+    // Collectibles
+    for (var i = collectibles.length - 1; i >= 0; i--) {
+        var col = collectibles[i];
+        col.x -= scrollSpeed * dt;
+        if (col.x < -50) { collectibles.splice(i, 1); continue; }
+        if (!col.collected && checkCollectibleCollision(col)) {
+            col.collected = true;
+            score += col.points;
+            distScore += col.points;
+            orbCount++;
+            orbsEl.textContent = orbCount;
+            var pcol = col.type === 'flower' ? PINK : col.type === 'mushroom' ? '#ff7070' : GLOW;
+            spawnParticles(col.x, col.y, pcol, 10, 60);
+            collectibles.splice(i, 1);
+        }
+    }
+    while (nextCollectibleX < ffX + W + 200) spawnCollectible();
+
+    // Trail
+    spawnTrail(ffX - 8, ffY + 2);
+    for (var i = trailParticles.length - 1; i >= 0; i--) {
+        var p = trailParticles[i];
+        p.x -= scrollSpeed * dt * 0.25;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) trailParticles.splice(i, 1);
+    }
+
+    for (var i = particles.length - 1; i >= 0; i--) {
+        var p = particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+}
+
+// ============================================
+// DRAW
+// ============================================
+function draw(dt) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
+    drawBackground(dt);
+
+    for (var i = 0; i < obstacles.length; i++) {
+        if (obstacles[i].type === 'branch') drawBranch(obstacles[i]);
+        else if (obstacles[i].type === 'spider') drawSpider(obstacles[i]);
+    }
+
+    for (var i = 0; i < collectibles.length; i++) {
+        if (!collectibles[i].collected) drawCollectible(collectibles[i], dt);
+    }
+
+    drawTrail();
+    drawFirefly();
+    drawParticles();
+
+    ctx.restore();
+}
+
+// ============================================
+// MAIN LOOP
+// ============================================
+function gameLoop(timestamp) {
+    requestAnimationFrame(gameLoop);
+    if (lastTime === 0) { lastTime = timestamp; return; }
+    var dt = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+    dt = Math.min(dt, 0.05);
+
+    if (state === 'playing') {
+        update(dt);
+        draw(dt);
+    } else if (state === 'start') {
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = BG;
+        ctx.fillRect(0, 0, W, H);
+        drawBackground(dt);
+        gameTime += dt;
+    } else if (state === 'over') {
+        draw(0);
+    }
+}
+
+// ============================================
+// START GAME
+// ============================================
+function startGame() {
+    state = 'playing';
+    hearts = 3;
+    score = 0;
+    distScore = 0;
+    orbCount = 0;
+    ffX = W * FIREFLY_X_RATIO;
+    ffY = H / 2;
+    ffVY = 0;
+    scrollSpeed = BASE_SCROLL_SPEED;
+    speedLevel = 0;
+    invincible = false;
+    invincibleTimer = 0;
+    shakeMag = 0;
+    shakeX = 0;
+    shakeY = 0;
+    gameTime = 0;
+    glowPulse = 0;
+    obstacles = [];
+    collectibles = [];
+    particles = [];
+    trailParticles = [];
+    nextObstacleX = W + 100;
+    nextCollectibleX = W + 200;
+
+    heartsEl.textContent = '💖💖💖';
+    scoreEl.textContent = '0';
+    orbsEl.textContent = '0';
+
+    startScreen.style.display = 'none';
+    gameOverScreen.classList.remove('active');
+    uiBar.style.display = 'flex';
+    lastTime = 0;
+
+    for (var i = 0; i < 5; i++) spawnObstacle();
+    for (var i = 0; i < 8; i++) spawnCollectible();
+}
+
+// ============================================
+// RESIZE
+// ============================================
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    ffX = W * FIREFLY_X_RATIO;
+    initBackground();
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+function doFlutter() {
+    if (state === 'playing') ffVY = FLUTTER_FORCE;
+}
+
+document.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    if (state === 'start') startGame();
+    else doFlutter();
+});
+document.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    if (state === 'start') startGame();
+    else doFlutter();
+}, { passive: false });
+document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        if (state === 'start') startGame();
+        else doFlutter();
+    }
+});
+
+window.addEventListener('resize', resize);
+
+// ============================================
+// INIT
+// ============================================
+resize();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
