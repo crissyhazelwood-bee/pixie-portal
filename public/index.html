@@ -1255,9 +1255,15 @@
             return Math.abs(h);
         }
 
+        function getUserSeed() {
+            let uid = localStorage.getItem('pixie-uid');
+            if (!uid) { uid = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2); localStorage.setItem('pixie-uid', uid); }
+            return uid;
+        }
+
         function generateHoroscope(sign) {
             const today = new Date().toISOString().slice(0, 10);
-            const seed = horoscopeHash(today + ':' + sign);
+            const seed = horoscopeHash(today + ':' + sign + ':' + getUserSeed());
             const pick = (arr, offset) => arr[(seed + offset) % arr.length];
 
             const opening = pick(H_OPENINGS, 0);
@@ -1354,7 +1360,7 @@
 
         function getTodayTarot() {
             const today = new Date().toISOString().slice(0, 10);
-            const seed = horoscopeHash('fairy-tarot:' + today);
+            const seed = horoscopeHash('fairy-tarot:' + today + ':' + getUserSeed());
             const indices = [];
             let s = seed;
             while (indices.length < 3) {
