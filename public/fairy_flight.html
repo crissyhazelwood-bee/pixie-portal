@@ -58,7 +58,7 @@
     <div class="subtitle">Navigate the enchanted maze, collect gems, find the portal!</div>
     <div style="color:#706080; font-size:13px; margin-top:24px; line-height:2; text-align:center;">
         <span style="color:#b496ff;">ARROWS</span> or <span style="color:#b496ff;">WASD</span> to fly<br>
-        Collect all <span style="color:#ff96c8;">💎</span> to unlock the <span style="color:#ffffa0;">✨</span> portal
+        Collect <span style="color:#ff96c8;">💎</span> gems for bonus points and reach the <span style="color:#ffffa0;">✨</span> portal!
     </div>
 </div>
 
@@ -229,10 +229,16 @@ function placeEntities() {
 
     var gemCount = 4 + level * 2;
     var pool = [];
-    var r, c;
-    for (r = 0; r < mazeR; r++)
-        for (c = 0; c < mazeC; c++)
-            if (c !== 0 || r !== 0) pool.push({c:c, r:r});
+    var r, c, di3, passages;
+    for (r = 0; r < mazeR; r++) {
+        for (c = 0; c < mazeC; c++) {
+            if (c === 0 && r === 0) continue;
+            if (c === mazeC - 1 && r === mazeR - 1) continue;
+            passages = 0;
+            for (di3 = 0; di3 < DIRS.length; di3++) { if (maze[r][c] & DIRS[di3]) passages++; }
+            if (passages >= 2) pool.push({c:c, r:r});
+        }
+    }
     shuffle(pool);
 
     gems = pool.slice(0, Math.min(gemCount, pool.length)).map(function(p) {
@@ -242,13 +248,13 @@ function placeEntities() {
     totalGems = gems.length;
     collectedGems = 0;
 
-    portal = { c: mazeC - 1, r: mazeR - 1, open: false, phase: 0 };
+    portal = { c: mazeC - 1, r: mazeR - 1, open: true, phase: 0 };
 
     var shadowCount = Math.min(1 + Math.floor((level - 1) / 2), 4);
     var moveInterval = Math.max(10, 38 - level * 4);
     var corners = [
-        {c:mazeC-1, r:mazeR-1}, {c:mazeC-1, r:0}, {c:0, r:mazeR-1},
-        {c:Math.floor(mazeC/2), r:mazeR-1}
+        {c:Math.floor(mazeC/2), r:0}, {c:mazeC-1, r:0},
+        {c:0, r:mazeR-1}, {c:Math.floor(mazeC/2), r:Math.floor(mazeR/2)}
     ];
     shadows = corners.slice(0, shadowCount).map(function(p) {
         return { c:p.c, r:p.r, px:cellCX(p.c), py:cellCY(p.r),
@@ -353,7 +359,6 @@ function update(dt) {
 
     // ── Portal ──
     portal.phase += dt;
-    if (!portal.open && collectedGems >= totalGems) portal.open = true;
 
     // ── Gems ──
     for (var i = 0; i < gems.length; i++) {
