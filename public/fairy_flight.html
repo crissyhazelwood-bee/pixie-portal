@@ -10,7 +10,7 @@
         body { background:#0a0614; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
         canvas { display:block; position:relative; z-index:1; }
 
-        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent); pointer-events:none; }
+        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent); pointer-events:none; display:none; }
         #ui > * { pointer-events:auto; }
         .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
         .stat { color:#f0d0ff; font-size:14px; font-weight:600; }
@@ -37,11 +37,15 @@
         #game-over .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
         #game-over .ghost-btn:hover { border-color:#ff96c8; color:#ff96c8; }
 
-        #powerup-bar { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:10; display:none; }
-        #powerup-bar .bar-bg { width:200px; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
-        #powerup-bar .bar-fill { height:100%; background:linear-gradient(90deg,#ff96c8,#b496ff,#96ffdc,#ffffa0,#ff96c8); background-size:400% 100%; animation:rainbowShift 1s linear infinite; border-radius:4px; transition:width 0.1s; }
-        @keyframes rainbowShift { 0%{background-position:0% 50%} 100%{background-position:400% 50%} }
-        #powerup-bar .bar-label { color:#ffffa0; font-size:11px; text-align:center; margin-bottom:4px; font-weight:700; letter-spacing:1px; }
+        #level-banner { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:50; font-family:'Pacifico',cursive; color:#ff96c8; font-size:46px; text-shadow:0 0 40px rgba(255,150,200,0.7); pointer-events:none; text-align:center; white-space:nowrap; }
+
+        #dpad { position:fixed; bottom:50px; right:30px; z-index:20; display:none; width:150px; height:150px; }
+        #dpad button { position:absolute; width:50px; height:50px; background:rgba(180,150,255,0.12); border:1px solid rgba(180,150,255,0.25); border-radius:12px; color:#b496ff; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+        #dpad button:active { background:rgba(180,150,255,0.3); }
+        #dpad .d-up    { top:0;    left:50px; }
+        #dpad .d-down  { top:100px;left:50px; }
+        #dpad .d-left  { top:50px; left:0;    }
+        #dpad .d-right { top:50px; left:100px;}
     </style>
 </head>
 <body>
@@ -50,42 +54,44 @@
 <div id="start-screen" onclick="startGame()">
     <h1>Fairy Flight</h1>
     <div class="fairy-bounce">🧚</div>
-    <div class="tap-text">Tap to Fly</div>
-    <div class="subtitle">Dodge thorns, collect gems, fly forever!</div>
+    <div class="tap-text">Tap to Enter the Maze</div>
+    <div class="subtitle">Navigate the enchanted maze, collect gems, find the portal!</div>
     <div style="color:#706080; font-size:13px; margin-top:24px; line-height:2; text-align:center;">
-        <span style="color:#b496ff;">SPACE</span> or <span style="color:#b496ff;">CLICK</span> to jump<br>
-        Collect <span style="color:#ff96c8;">💎</span> and <span style="color:#ffd700;">⭐</span> for points
+        <span style="color:#b496ff;">ARROWS</span> or <span style="color:#b496ff;">WASD</span> to fly<br>
+        Collect all <span style="color:#ff96c8;">💎</span> to unlock the <span style="color:#ffffa0;">✨</span> portal
     </div>
 </div>
 
-<div id="ui" style="display:none;">
+<div id="ui">
     <div class="ui-left">
-        <a class="back-btn" onclick="window.location.href='/'">← Portal</a>
-        <div class="stat">💎 <span class="stat-val" id="gems">0</span></div>
+        <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
+        <div class="stat">💎 <span class="stat-val" id="gems">0/0</span></div>
     </div>
     <div class="ui-right">
+        <div class="stat">Level <span class="stat-val" id="level-disp">1</span></div>
         <div class="stat">✨ <span class="stat-val" id="score">0</span></div>
         <div class="hearts" id="hearts">💖💖💖</div>
     </div>
 </div>
 
+<div id="level-banner"></div>
+
 <div id="game-over">
-    <h1>Game Over</h1>
+    <h1>Lost in the Maze</h1>
     <div class="final-score" id="final-score">0</div>
     <div class="stats" id="final-stats"></div>
     <button onclick="startGame()">Play Again ✦</button>
     <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
 </div>
 
-<div id="powerup-bar">
-    <div class="bar-label">✨ INVINCIBLE ✨</div>
-    <div class="bar-bg"><div class="bar-fill" id="powerup-fill"></div></div>
+<div id="dpad">
+    <button class="d-up"    onpointerdown="dpadSet('up',true)"    onpointerup="dpadSet('up',false)"    onpointercancel="dpadSet('up',false)">▲</button>
+    <button class="d-down"  onpointerdown="dpadSet('down',true)"  onpointerup="dpadSet('down',false)"  onpointercancel="dpadSet('down',false)">▼</button>
+    <button class="d-left"  onpointerdown="dpadSet('left',true)"  onpointerup="dpadSet('left',false)"  onpointercancel="dpadSet('left',false)">◀</button>
+    <button class="d-right" onpointerdown="dpadSet('right',true)" onpointerup="dpadSet('right',false)" onpointercancel="dpadSet('right',false)">▶</button>
 </div>
 
 <script>
-// ============================================
-// ERROR HANDLER (must be first)
-// ============================================
 window.onerror = function(msg, url, line) {
     document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
     var ss = document.getElementById('start-screen');
@@ -93,887 +99,531 @@ window.onerror = function(msg, url, line) {
     return false;
 };
 
-// ============================================
-// CANVAS SETUP
-// ============================================
+// ── Direction constants ──────────────────────────────────────────────────────
+var N = 1, S = 2, E = 4, W = 8;
+var OPP  = {}; OPP[N]=S; OPP[S]=N; OPP[E]=W; OPP[W]=E;
+var DX   = {}; DX[N]=0;  DX[S]=0;  DX[E]=1;  DX[W]=-1;
+var DY   = {}; DY[N]=-1; DY[S]=1;  DY[E]=0;  DY[W]=0;
+var DIRS = [N, S, E, W];
+
+// ── Canvas ───────────────────────────────────────────────────────────────────
 var canvas = document.getElementById('game');
-var ctx = canvas.getContext('2d');
-var W = 0;
-var H = 0;
+var ctx    = canvas.getContext('2d');
+var W_px = 0, H_px = 0;
 
-// ============================================
-// COLORS & CONSTANTS
-// ============================================
-var PINK = '#ff96c8';
-var PURPLE = '#b496ff';
-var MINT = '#96ffdc';
-var YELLOW = '#ffffa0';
-var GOLD = '#c9a84c';
-var BG = '#0a0614';
+function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    W_px = canvas.width;
+    H_px = canvas.height;
+}
+window.addEventListener('resize', function() { resize(); if (gameState === 'playing') layoutMaze(); });
+resize();
 
-var GRAVITY = 1200;
-var JUMP_FORCE = -420;
-var MAX_FALL = 600;
-var MAX_RISE = -450;
-var BASE_SCROLL_SPEED = 200;
-var FAIRY_X_RATIO = 0.18;
-var GAP_SIZE_MIN = 140;
-var GAP_SIZE_MAX = 200;
-var OBSTACLE_SPACING_MIN = 280;
-var OBSTACLE_SPACING_MAX = 420;
-var FAIRY_RADIUS = 18;
-var INVINCIBILITY_HIT_DURATION = 2.0;
-var POWERUP_DURATION = 5.0;
-var SPEED_INCREASE_INTERVAL = 500;
-var SPEED_INCREASE_FACTOR = 0.08;
-
-// ============================================
-// GAME STATE
-// ============================================
-var state = 'start';
-var fairyX = 0;
-var fairyY = 0;
-var fairyVY = 0;
-var hearts = 3;
-var score = 0;
-var distanceScore = 0;
-var gemCount = 0;
-var scrollSpeed = BASE_SCROLL_SPEED;
-var speedLevel = 0;
-var holding = false;
-var lastTime = 0;
-var gameTime = 0;
-
-var invincible = false;
-var invincibleTimer = 0;
-var isPowerUp = false;
-var hitFlashTimer = 0;
-
-var shakeX = 0;
-var shakeY = 0;
-var shakeMagnitude = 0;
-
-var obstacles = [];
-var collectibles = [];
+// ── Game state ───────────────────────────────────────────────────────────────
+var gameState = 'start';
+var level, score, lives, totalGems, collectedGems;
+var maze, mazeC, mazeR, CELL, offX, offY;
+var player, gems, shadows, portal;
+var frame = 0, lastTime = 0;
+var bannerTimer = 0, dyingTimer = 0;
+var savedScore = false;
 var particles = [];
-var trailParticles = [];
 var bgStars = [];
-var bgMountains = [];
-var bgTrees = [];
 
-var nextObstacleX = 0;
-var nextCollectibleX = 0;
+// ── Input ────────────────────────────────────────────────────────────────────
+var keys = {};
+document.addEventListener('keydown', function(e) {
+    keys[e.key] = true;
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup', function(e) { keys[e.key] = false; });
+function dpadSet(dir, val) { keys['pad_' + dir] = val; }
 
-// Rainbow trail hue for power-up
-var rainbowHue = 0;
+function getDir() {
+    if (keys['ArrowUp']    || keys['w'] || keys['W'] || keys['pad_up'])    return N;
+    if (keys['ArrowDown']  || keys['s'] || keys['S'] || keys['pad_down'])  return S;
+    if (keys['ArrowLeft']  || keys['a'] || keys['A'] || keys['pad_left'])  return W;
+    if (keys['ArrowRight'] || keys['d'] || keys['D'] || keys['pad_right']) return E;
+    return 0;
+}
 
-// ============================================
-// DOM ELEMENTS
-// ============================================
-var startScreen = document.getElementById('start-screen');
-var gameOverScreen = document.getElementById('game-over');
-var uiBar = document.getElementById('ui');
-var scoreEl = document.getElementById('score');
-var gemsEl = document.getElementById('gems');
-var heartsEl = document.getElementById('hearts');
-var finalScoreEl = document.getElementById('final-score');
-var finalStatsEl = document.getElementById('final-stats');
-var powerupBar = document.getElementById('powerup-bar');
-var powerupFill = document.getElementById('powerup-fill');
+// ── Maze ─────────────────────────────────────────────────────────────────────
+function layoutMaze() {
+    CELL = Math.max(28, 46 - level * 2);
+    var targetC = 7 + level * 2;
+    var targetR = 5 + level * 2;
+    mazeC = Math.min(targetC, Math.floor((W_px - 16) / CELL));
+    mazeR = Math.min(targetR, Math.floor((H_px - 60) / CELL));
+    if (mazeC % 2 === 0) mazeC--;
+    if (mazeR % 2 === 0) mazeR--;
+    mazeC = Math.max(5, mazeC);
+    mazeR = Math.max(5, mazeR);
+    offX = Math.floor((W_px - mazeC * CELL) / 2);
+    offY = Math.floor(50 + (H_px - 50 - mazeR * CELL) / 2);
+}
 
-// ============================================
-// PARALLAX BACKGROUND
-// ============================================
-function initBackground() {
+function generateMaze() {
+    maze = [];
+    var r, c;
+    for (r = 0; r < mazeR; r++) { maze[r] = []; for (c = 0; c < mazeC; c++) maze[r][c] = 0; }
+    var visited = [];
+    for (r = 0; r < mazeR; r++) { visited[r] = []; for (c = 0; c < mazeC; c++) visited[r][c] = 0; }
+    var stack = [{c:0, r:0}];
+    visited[0][0] = 1;
+    while (stack.length) {
+        var cur = stack[stack.length - 1];
+        var nbrs = [];
+        for (var di = 0; di < DIRS.length; di++) {
+            var d = DIRS[di];
+            var nc = cur.c + DX[d], nr = cur.r + DY[d];
+            if (nc >= 0 && nc < mazeC && nr >= 0 && nr < mazeR && !visited[nr][nc])
+                nbrs.push({d:d, nc:nc, nr:nr});
+        }
+        if (nbrs.length) {
+            var pick = nbrs[Math.floor(Math.random() * nbrs.length)];
+            maze[cur.r][cur.c] |= pick.d;
+            maze[pick.nr][pick.nc] |= OPP[pick.d];
+            visited[pick.nr][pick.nc] = 1;
+            stack.push({c:pick.nc, r:pick.nr});
+        } else { stack.pop(); }
+    }
+}
+
+function cellCX(c) { return offX + c * CELL + CELL / 2; }
+function cellCY(r) { return offY + r * CELL + CELL / 2; }
+
+// ── BFS ───────────────────────────────────────────────────────────────────────
+function bfs(fc, fr, tc, tr) {
+    if (fc === tc && fr === tr) return [];
+    var visited = [], prev = [], r, c;
+    for (r = 0; r < mazeR; r++) {
+        visited[r] = []; prev[r] = [];
+        for (c = 0; c < mazeC; c++) { visited[r][c] = 0; prev[r][c] = null; }
+    }
+    var q = [[fc, fr]]; visited[fr][fc] = 1;
+    while (q.length) {
+        var cur = q.shift(); c = cur[0]; r = cur[1];
+        if (c === tc && r === tr) {
+            var path = [], cc = tc, rr = tr;
+            while (cc !== fc || rr !== fr) {
+                path.unshift({c:cc, r:rr});
+                var p = prev[rr][cc]; cc = p.c; rr = p.r;
+            }
+            return path;
+        }
+        for (var di = 0; di < DIRS.length; di++) {
+            var d = DIRS[di];
+            if (maze[r][c] & d) {
+                var nc = c + DX[d], nr = r + DY[d];
+                if (!visited[nr][nc]) { visited[nr][nc]=1; prev[nr][nc]={c:c,r:r}; q.push([nc,nr]); }
+            }
+        }
+    }
+    return [];
+}
+
+// ── Entity placement ──────────────────────────────────────────────────────────
+function placeEntities() {
+    player = { c:0, r:0, px:cellCX(0), py:cellCY(0), tc:0, tr:0, moving:false, invincible:0 };
+
+    var gemCount = 4 + level * 2;
+    var pool = [];
+    var r, c;
+    for (r = 0; r < mazeR; r++)
+        for (c = 0; c < mazeC; c++)
+            if (c !== 0 || r !== 0) pool.push({c:c, r:r});
+    shuffle(pool);
+
+    gems = pool.slice(0, Math.min(gemCount, pool.length)).map(function(p) {
+        return { c:p.c, r:p.r, collected:false, phase:Math.random()*Math.PI*2,
+                 type: Math.random() < 0.2 ? 'star' : 'gem' };
+    });
+    totalGems = gems.length;
+    collectedGems = 0;
+
+    portal = { c: mazeC - 1, r: mazeR - 1, open: false, phase: 0 };
+
+    var shadowCount = Math.min(1 + Math.floor((level - 1) / 2), 4);
+    var moveInterval = Math.max(10, 38 - level * 4);
+    var corners = [
+        {c:mazeC-1, r:mazeR-1}, {c:mazeC-1, r:0}, {c:0, r:mazeR-1},
+        {c:Math.floor(mazeC/2), r:mazeR-1}
+    ];
+    shadows = corners.slice(0, shadowCount).map(function(p) {
+        return { c:p.c, r:p.r, px:cellCX(p.c), py:cellCY(p.r),
+                 tc:p.c, tr:p.r, moving:false, path:[], moveTimer:0, moveInterval:moveInterval, pathTimer:0 };
+    });
+}
+
+function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+function initBgStars() {
     bgStars = [];
-    bgMountains = [];
-    bgTrees = [];
-    for (var i = 0; i < 80; i++) {
-        bgStars.push({
-            x: Math.random() * W * 2,
-            y: Math.random() * H,
-            size: Math.random() * 2 + 0.5,
-            alpha: Math.random() * 0.6 + 0.2,
-            twinkle: Math.random() * 3 + 1,
-            phase: Math.random() * Math.PI * 2
-        });
-    }
-    for (var i = 0; i < 8; i++) {
-        bgMountains.push({
-            x: i * (W / 3) + Math.random() * 100,
-            width: Math.random() * 200 + 150,
-            height: Math.random() * 120 + 80,
-            color: 'rgba(' + (15 + Math.floor(Math.random() * 15)) + ',' + (10 + Math.floor(Math.random() * 10)) + ',' + (30 + Math.floor(Math.random() * 20)) + ',0.8)'
-        });
-    }
-    for (var i = 0; i < 12; i++) {
-        bgTrees.push({
-            x: i * (W / 4) + Math.random() * 120,
-            height: Math.random() * 100 + 60,
-            width: Math.random() * 40 + 20,
-            color: Math.random() > 0.5 ? 'rgba(20,10,40,0.9)' : 'rgba(30,15,50,0.9)'
-        });
+    for (var i = 0; i < 60; i++) {
+        bgStars.push({ x: Math.random()*W_px, y: Math.random()*H_px,
+            r: Math.random()*1.5+0.3, a: Math.random()*0.5+0.1, phase: Math.random()*Math.PI*2 });
     }
 }
 
-// ============================================
-// OBSTACLE CLASSES
-// ============================================
-function createVineObstacle(x) {
-    var gapSize = GAP_SIZE_MIN + Math.random() * (GAP_SIZE_MAX - GAP_SIZE_MIN);
-    gapSize = Math.max(gapSize - speedLevel * 5, 100);
-    var gapY = Math.random() * (H - gapSize - 120) + 60;
-    return {
-        type: 'vine',
-        x: x,
-        gapY: gapY,
-        gapSize: gapSize,
-        width: 50 + Math.random() * 20,
-        thorns: [],
-        passed: false
-    };
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-over').classList.remove('active');
+    document.getElementById('ui').style.display = 'flex';
+    if ('ontouchstart' in window) document.getElementById('dpad').style.display = 'block';
+    gameState = 'playing';
+    level = 1; score = 0; lives = 3; savedScore = false;
+    particles = [];
+    initBgStars();
+    beginLevel();
 }
 
-function createCloudObstacle(x) {
-    var cy = Math.random() * (H - 200) + 100;
-    var radius = 50 + Math.random() * 40;
-    return {
-        type: 'cloud',
-        x: x,
-        y: cy,
-        radius: radius,
-        wobblePhase: Math.random() * Math.PI * 2,
-        wobbleSpeed: 1.5 + Math.random(),
-        wobbleAmp: 30 + Math.random() * 20,
-        baseY: cy,
-        passed: false
-    };
+function beginLevel() {
+    collectedGems = 0;
+    layoutMaze();
+    generateMaze();
+    placeEntities();
+    updateHUD();
 }
 
-function createBrambleObstacle(x) {
-    var segments = [];
-    var numGaps = 1 + Math.floor(Math.random() * 2);
-    var sectionH = H / (numGaps * 2 + 1);
-    for (var i = 0; i < numGaps * 2 + 1; i++) {
-        if (i % 2 === 0) {
-            segments.push({
-                y: i * sectionH,
-                h: sectionH,
-                isWall: true
-            });
-        }
-    }
-    return {
-        type: 'bramble',
-        x: x,
-        width: 40 + Math.random() * 30,
-        segments: segments,
-        passed: false
-    };
-}
-
-function spawnObstacle() {
-    var roll = Math.random();
-    var x = nextObstacleX;
-    var ob;
-    if (roll < 0.45) {
-        ob = createVineObstacle(x);
-    } else if (roll < 0.75) {
-        ob = createCloudObstacle(x);
-    } else {
-        ob = createBrambleObstacle(x);
-    }
-    obstacles.push(ob);
-    var spacing = OBSTACLE_SPACING_MIN + Math.random() * (OBSTACLE_SPACING_MAX - OBSTACLE_SPACING_MIN);
-    spacing = Math.max(spacing - speedLevel * 10, 200);
-    nextObstacleX = x + spacing;
-}
-
-// ============================================
-// COLLECTIBLES
-// ============================================
-function spawnCollectible() {
-    var x = nextCollectibleX;
-    var y = Math.random() * (H - 120) + 60;
-    var roll = Math.random();
-    var type, emoji, points;
-    if (roll < 0.08) {
-        type = 'powerup';
-        emoji = '✨';
-        points = 0;
-    } else if (roll < 0.22) {
-        type = 'star';
-        emoji = '⭐';
-        points = 50;
-    } else {
-        type = 'gem';
-        emoji = '💎';
-        points = 10;
-    }
-    collectibles.push({
-        type: type,
-        x: x,
-        y: y,
-        emoji: emoji,
-        points: points,
-        bobPhase: Math.random() * Math.PI * 2,
-        collected: false
-    });
-    nextCollectibleX = x + 120 + Math.random() * 180;
-}
-
-// ============================================
-// PARTICLES
-// ============================================
-function spawnParticles(x, y, color, count, spread) {
-    for (var i = 0; i < count; i++) {
-        var angle = Math.random() * Math.PI * 2;
-        var speed = Math.random() * spread + 30;
-        particles.push({
-            x: x,
-            y: y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            life: 1.0,
-            decay: 1.5 + Math.random(),
-            size: Math.random() * 4 + 2,
-            color: color
-        });
-    }
-}
-
-function spawnTrailParticle(x, y) {
-    var color;
-    if (isPowerUp) {
-        rainbowHue = (rainbowHue + 5) % 360;
-        color = 'hsl(' + rainbowHue + ', 100%, 70%)';
-    } else {
-        color = PINK;
-    }
-    trailParticles.push({
-        x: x + (Math.random() - 0.5) * 10,
-        y: y + (Math.random() - 0.5) * 10,
-        life: 1.0,
-        decay: isPowerUp ? 1.2 : 2.0,
-        size: isPowerUp ? (Math.random() * 6 + 3) : (Math.random() * 3 + 1.5),
-        color: color
-    });
-}
-
-// ============================================
-// COLLISION DETECTION
-// ============================================
-function checkFairyObstacleCollision(ob) {
-    var fx = fairyX;
-    var fy = fairyY;
-    var fr = FAIRY_RADIUS;
-
-    if (ob.type === 'vine') {
-        var left = ob.x;
-        var right = ob.x + ob.width;
-        if (fx + fr > left && fx - fr < right) {
-            if (fy - fr < ob.gapY || fy + fr > ob.gapY + ob.gapSize) {
-                return true;
-            }
-        }
-    } else if (ob.type === 'cloud') {
-        var dx = fx - ob.x;
-        var dy = fy - ob.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < fr + ob.radius * 0.8) {
-            return true;
-        }
-    } else if (ob.type === 'bramble') {
-        var left = ob.x;
-        var right = ob.x + ob.width;
-        if (fx + fr > left && fx - fr < right) {
-            for (var i = 0; i < ob.segments.length; i++) {
-                var seg = ob.segments[i];
-                if (seg.isWall) {
-                    if (fy + fr > seg.y && fy - fr < seg.y + seg.h) {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    return false;
-}
-
-function checkCollectibleCollision(col) {
-    var dx = fairyX - col.x;
-    var dy = fairyY - col.y;
-    return Math.sqrt(dx * dx + dy * dy) < FAIRY_RADIUS + 20;
-}
-
-// ============================================
-// HIT & GAME OVER
-// ============================================
-function hitFairy() {
-    if (invincible) return;
-    hearts--;
-    heartsEl.textContent = '💖'.repeat(Math.max(hearts, 0));
-    invincible = true;
-    invincibleTimer = INVINCIBILITY_HIT_DURATION;
-    isPowerUp = false;
-    powerupBar.style.display = 'none';
-    shakeMagnitude = 12;
-    spawnParticles(fairyX, fairyY, '#ff4466', 15, 100);
-    if (hearts <= 0) {
-        gameOver();
-    }
-}
-
-function gameOver() {
-    state = 'over';
-    uiBar.style.display = 'none';
-    powerupBar.style.display = 'none';
-    var totalScore = Math.floor(distanceScore) + gemCount * 10;
-    finalScoreEl.textContent = Math.floor(score);
-    finalStatsEl.innerHTML =
-        '📏 Distance: ' + Math.floor(distanceScore) + '<br>' +
-        '💎 Gems: ' + gemCount + '<br>' +
-        '⏱ Time: ' + formatTime(gameTime);
-    gameOverScreen.classList.add('active');
-}
-
-function formatTime(t) {
-    var m = Math.floor(t / 60);
-    var s = Math.floor(t % 60);
-    return m + ':' + (s < 10 ? '0' : '') + s;
-}
-
-// ============================================
-// DRAWING FUNCTIONS
-// ============================================
-function drawBackground(dt) {
-    // Stars (slow parallax)
-    for (var i = 0; i < bgStars.length; i++) {
-        var s = bgStars[i];
-        s.x -= scrollSpeed * 0.1 * dt;
-        if (s.x < -10) s.x += W + 20;
-        var a = s.alpha * (0.5 + 0.5 * Math.sin(gameTime * s.twinkle + s.phase));
-        ctx.fillStyle = 'rgba(200,180,255,' + a + ')';
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    // Mountains (medium parallax)
-    for (var i = 0; i < bgMountains.length; i++) {
-        var m = bgMountains[i];
-        m.x -= scrollSpeed * 0.3 * dt;
-        if (m.x + m.width < -50) m.x += W + m.width + 200;
-        ctx.fillStyle = m.color;
-        ctx.beginPath();
-        ctx.moveTo(m.x, H);
-        ctx.lineTo(m.x + m.width / 2, H - m.height);
-        ctx.lineTo(m.x + m.width, H);
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    // Trees (fast parallax)
-    for (var i = 0; i < bgTrees.length; i++) {
-        var t = bgTrees[i];
-        t.x -= scrollSpeed * 0.6 * dt;
-        if (t.x + t.width < -50) t.x += W + t.width + 200;
-        ctx.fillStyle = t.color;
-        // Trunk
-        ctx.fillRect(t.x + t.width / 2 - 4, H - t.height * 0.4, 8, t.height * 0.4);
-        // Canopy
-        ctx.beginPath();
-        ctx.moveTo(t.x, H - t.height * 0.4);
-        ctx.lineTo(t.x + t.width / 2, H - t.height);
-        ctx.lineTo(t.x + t.width, H - t.height * 0.4);
-        ctx.closePath();
-        ctx.fill();
-    }
-}
-
-function drawVine(ob) {
-    // Top vine
-    var grad = ctx.createLinearGradient(ob.x, 0, ob.x + ob.width, 0);
-    grad.addColorStop(0, '#1a0a2e');
-    grad.addColorStop(0.5, '#2a1040');
-    grad.addColorStop(1, '#1a0a2e');
-    ctx.fillStyle = grad;
-    ctx.fillRect(ob.x, 0, ob.width, ob.gapY);
-    ctx.fillRect(ob.x, ob.gapY + ob.gapSize, ob.width, H - ob.gapY - ob.gapSize);
-
-    // Glow edges
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = 'rgba(180,100,255,0.4)';
-    ctx.strokeStyle = 'rgba(180,100,255,0.6)';
-    ctx.lineWidth = 2;
-    // Top vine bottom edge
-    ctx.beginPath();
-    ctx.moveTo(ob.x, ob.gapY);
-    for (var px = ob.x; px <= ob.x + ob.width; px += 8) {
-        ctx.lineTo(px, ob.gapY + Math.sin((px + gameTime * 60) * 0.05) * 5);
-    }
-    ctx.stroke();
-    // Bottom vine top edge
-    ctx.beginPath();
-    ctx.moveTo(ob.x, ob.gapY + ob.gapSize);
-    for (var px = ob.x; px <= ob.x + ob.width; px += 8) {
-        ctx.lineTo(px, ob.gapY + ob.gapSize + Math.sin((px + gameTime * 60) * 0.05) * 5);
-    }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Thorns
-    ctx.fillStyle = '#4a1860';
-    for (var tx = ob.x + 5; tx < ob.x + ob.width - 5; tx += 12) {
-        // Top thorns hanging down
-        ctx.beginPath();
-        ctx.moveTo(tx - 4, ob.gapY);
-        ctx.lineTo(tx, ob.gapY + 12);
-        ctx.lineTo(tx + 4, ob.gapY);
-        ctx.fill();
-        // Bottom thorns pointing up
-        ctx.beginPath();
-        ctx.moveTo(tx - 4, ob.gapY + ob.gapSize);
-        ctx.lineTo(tx, ob.gapY + ob.gapSize - 12);
-        ctx.lineTo(tx + 4, ob.gapY + ob.gapSize);
-        ctx.fill();
-    }
-}
-
-function drawCloud(ob) {
-    ctx.save();
-    ctx.shadowBlur = 25;
-    ctx.shadowColor = 'rgba(60,20,100,0.6)';
-    var g = ctx.createRadialGradient(ob.x, ob.y, 0, ob.x, ob.y, ob.radius);
-    g.addColorStop(0, 'rgba(40,15,60,0.9)');
-    g.addColorStop(0.6, 'rgba(30,10,50,0.7)');
-    g.addColorStop(1, 'rgba(20,5,35,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(ob.x, ob.y, ob.radius, 0, Math.PI * 2);
-    ctx.fill();
-    // Sub-clouds
-    ctx.beginPath();
-    ctx.arc(ob.x - ob.radius * 0.5, ob.y - ob.radius * 0.3, ob.radius * 0.6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(ob.x + ob.radius * 0.4, ob.y + ob.radius * 0.2, ob.radius * 0.5, 0, Math.PI * 2);
-    ctx.fill();
-    // Purple edge glow
-    ctx.strokeStyle = 'rgba(120,60,180,0.3)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(ob.x, ob.y, ob.radius * 0.9, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
-}
-
-function drawBramble(ob) {
-    for (var i = 0; i < ob.segments.length; i++) {
-        var seg = ob.segments[i];
-        if (!seg.isWall) continue;
-        var grad = ctx.createLinearGradient(ob.x, seg.y, ob.x + ob.width, seg.y);
-        grad.addColorStop(0, '#1a0a2e');
-        grad.addColorStop(0.5, '#2d1045');
-        grad.addColorStop(1, '#1a0a2e');
-        ctx.fillStyle = grad;
-        ctx.fillRect(ob.x, seg.y, ob.width, seg.h);
-        // Thorns on edges
-        ctx.fillStyle = '#4a1860';
-        for (var tx = ob.x + 5; tx < ob.x + ob.width - 5; tx += 10) {
-            ctx.beginPath();
-            ctx.moveTo(tx - 3, seg.y);
-            ctx.lineTo(tx, seg.y - 8);
-            ctx.lineTo(tx + 3, seg.y);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(tx - 3, seg.y + seg.h);
-            ctx.lineTo(tx, seg.y + seg.h + 8);
-            ctx.lineTo(tx + 3, seg.y + seg.h);
-            ctx.fill();
-        }
-        // Glow edges
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = 'rgba(180,100,255,0.3)';
-        ctx.strokeStyle = 'rgba(140,80,200,0.4)';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(ob.x, seg.y, ob.width, seg.h);
-        ctx.shadowBlur = 0;
-    }
-}
-
-function drawCollectible(col, dt) {
-    col.bobPhase += dt * 3;
-    var by = col.y + Math.sin(col.bobPhase) * 6;
-    ctx.save();
-    ctx.font = '24px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    if (col.type === 'gem') {
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = 'rgba(255,150,200,0.6)';
-    } else if (col.type === 'star') {
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = 'rgba(201,168,76,0.7)';
-    } else {
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = 'rgba(150,255,220,0.7)';
-    }
-    ctx.fillText(col.emoji, col.x, by);
-    ctx.restore();
-}
-
-function drawFairy() {
-    ctx.save();
-    // Flashing when hit-invincible
-    if (invincible && !isPowerUp && Math.floor(invincibleTimer * 10) % 2 === 0) {
-        ctx.globalAlpha = 0.4;
-    }
-    // Glow aura
-    if (isPowerUp) {
-        rainbowHue = (rainbowHue + 2) % 360;
-        ctx.shadowBlur = 35;
-        ctx.shadowColor = 'hsl(' + rainbowHue + ', 100%, 60%)';
-    } else {
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = 'rgba(255,150,200,0.6)';
-    }
-    ctx.font = '36px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🧚', fairyX, fairyY);
-    ctx.restore();
-}
-
-function drawTrail() {
-    for (var i = 0; i < trailParticles.length; i++) {
-        var p = trailParticles[i];
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.life * 0.6;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-}
-
-function drawParticles() {
-    for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.life;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-}
-
-// ============================================
-// UPDATE
-// ============================================
+// ── Update ────────────────────────────────────────────────────────────────────
 function update(dt) {
-    gameTime += dt;
+    frame++;
 
-    // Speed progression
-    var newLevel = Math.floor(score / SPEED_INCREASE_INTERVAL);
-    if (newLevel !== speedLevel) {
-        speedLevel = newLevel;
-    }
-    scrollSpeed = BASE_SCROLL_SPEED * (1 + speedLevel * SPEED_INCREASE_FACTOR);
-
-    // Scroll spawn cursors so obstacles keep appearing
-    nextObstacleX -= scrollSpeed * dt;
-    nextCollectibleX -= scrollSpeed * dt;
-
-    // Fairy physics — gravity always pulls down
-    fairyVY += GRAVITY * dt;
-    fairyVY = Math.max(MAX_RISE, Math.min(MAX_FALL, fairyVY));
-    fairyY += fairyVY * dt;
-
-    // Clamp to screen
-    if (fairyY < FAIRY_RADIUS) {
-        fairyY = FAIRY_RADIUS;
-        fairyVY = 0;
-    }
-    if (fairyY > H - FAIRY_RADIUS) {
-        fairyY = H - FAIRY_RADIUS;
-        fairyVY = 0;
-    }
-
-    // Score
-    distanceScore += dt * 10;
-    score = Math.floor(distanceScore);
-    scoreEl.textContent = score;
-
-    // Invincibility timer
-    if (invincible) {
-        invincibleTimer -= dt;
-        if (invincibleTimer <= 0) {
-            invincible = false;
-            isPowerUp = false;
-            powerupBar.style.display = 'none';
+    if (gameState === 'dying') {
+        dyingTimer -= dt;
+        if (dyingTimer <= 0) {
+            if (lives <= 0) { endGame(); return; }
+            gameState = 'playing';
+            player.c = 0; player.r = 0;
+            player.px = cellCX(0); player.py = cellCY(0);
+            player.tc = 0; player.tr = 0; player.moving = false;
+            player.invincible = 2.5;
         }
-        if (isPowerUp) {
-            powerupBar.style.display = 'block';
-            powerupFill.style.width = Math.max(0, (invincibleTimer / POWERUP_DURATION) * 100) + '%';
-        }
-    }
-
-    // Screen shake decay
-    if (shakeMagnitude > 0) {
-        shakeMagnitude *= Math.pow(0.05, dt);
-        shakeX = (Math.random() - 0.5) * shakeMagnitude * 2;
-        shakeY = (Math.random() - 0.5) * shakeMagnitude * 2;
-        if (shakeMagnitude < 0.5) {
-            shakeMagnitude = 0;
-            shakeX = 0;
-            shakeY = 0;
-        }
-    }
-
-    // Move obstacles
-    for (var i = obstacles.length - 1; i >= 0; i--) {
-        var ob = obstacles[i];
-        ob.x -= scrollSpeed * dt;
-        if (ob.type === 'cloud') {
-            ob.wobblePhase += ob.wobbleSpeed * dt;
-            ob.y = ob.baseY + Math.sin(ob.wobblePhase) * ob.wobbleAmp;
-        }
-        // Remove off-screen
-        var rightEdge = ob.type === 'cloud' ? ob.x + ob.radius : ob.x + (ob.width || 70);
-        if (rightEdge < -100) {
-            obstacles.splice(i, 1);
-            continue;
-        }
-        // Collision
-        if (!ob.passed && ob.x < fairyX) {
-            ob.passed = true;
-        }
-        if (checkFairyObstacleCollision(ob)) {
-            hitFairy();
-        }
-    }
-
-    // Spawn obstacles
-    while (nextObstacleX < fairyX + W + 200) {
-        spawnObstacle();
-    }
-
-    // Move collectibles
-    for (var i = collectibles.length - 1; i >= 0; i--) {
-        var col = collectibles[i];
-        col.x -= scrollSpeed * dt;
-        if (col.x < -50) {
-            collectibles.splice(i, 1);
-            continue;
-        }
-        if (!col.collected && checkCollectibleCollision(col)) {
-            col.collected = true;
-            if (col.type === 'powerup') {
-                invincible = true;
-                isPowerUp = true;
-                invincibleTimer = POWERUP_DURATION;
-                spawnParticles(col.x, col.y, MINT, 20, 80);
-            } else {
-                score += col.points;
-                distanceScore += col.points;
-                gemCount++;
-                gemsEl.textContent = gemCount;
-                var color = col.type === 'star' ? GOLD : PINK;
-                spawnParticles(col.x, col.y, color, 10, 60);
-            }
-            collectibles.splice(i, 1);
-        }
-    }
-
-    // Spawn collectibles
-    while (nextCollectibleX < fairyX + W + 200) {
-        spawnCollectible();
-    }
-
-    // Trail particles
-    spawnTrailParticle(fairyX - 10, fairyY);
-    if (isPowerUp) {
-        spawnTrailParticle(fairyX - 5, fairyY + (Math.random() - 0.5) * 15);
-    }
-
-    for (var i = trailParticles.length - 1; i >= 0; i--) {
-        var p = trailParticles[i];
-        p.x -= scrollSpeed * dt * 0.3;
-        p.life -= p.decay * dt;
-        if (p.life <= 0) {
-            trailParticles.splice(i, 1);
-        }
-    }
-
-    // Particles
-    for (var i = particles.length - 1; i >= 0; i--) {
-        var p = particles[i];
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.life -= p.decay * dt;
-        if (p.life <= 0) {
-            particles.splice(i, 1);
-        }
-    }
-}
-
-// ============================================
-// DRAW
-// ============================================
-function draw(dt) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = BG;
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.save();
-    ctx.translate(shakeX, shakeY);
-
-    drawBackground(dt);
-
-    // Draw obstacles
-    for (var i = 0; i < obstacles.length; i++) {
-        var ob = obstacles[i];
-        if (ob.type === 'vine') drawVine(ob);
-        else if (ob.type === 'cloud') drawCloud(ob);
-        else if (ob.type === 'bramble') drawBramble(ob);
-    }
-
-    // Draw collectibles
-    for (var i = 0; i < collectibles.length; i++) {
-        if (!collectibles[i].collected) {
-            drawCollectible(collectibles[i], dt);
-        }
-    }
-
-    // Trail + fairy
-    drawTrail();
-    drawFairy();
-    drawParticles();
-
-    ctx.restore();
-}
-
-// ============================================
-// MAIN LOOP
-// ============================================
-function gameLoop(timestamp) {
-    requestAnimationFrame(gameLoop);
-    if (lastTime === 0) {
-        lastTime = timestamp;
         return;
     }
-    var dt = (timestamp - lastTime) / 1000;
-    lastTime = timestamp;
-    // Cap delta time to prevent huge jumps
-    dt = Math.min(dt, 0.05);
 
-    if (state === 'playing') {
-        update(dt);
-        draw(dt);
-    } else if (state === 'start') {
-        // Draw ambient background on start screen
-        ctx.clearRect(0, 0, W, H);
-        ctx.fillStyle = BG;
-        ctx.fillRect(0, 0, W, H);
-        drawBackground(dt);
-        gameTime += dt;
-    } else if (state === 'over') {
-        // Keep drawing the frozen scene
-        draw(0);
+    if (gameState === 'levelup') {
+        bannerTimer -= dt;
+        if (bannerTimer <= 0) {
+            document.getElementById('level-banner').style.display = 'none';
+            level++;
+            beginLevel();
+            gameState = 'playing';
+        }
+        return;
+    }
+
+    if (gameState !== 'playing') return;
+
+    if (player.invincible > 0) player.invincible -= dt;
+
+    // ── Player ──
+    var speed = CELL * 4.5;
+    if (player.moving) {
+        var tx = cellCX(player.tc), ty = cellCY(player.tr);
+        var dx = tx - player.px, dy = ty - player.py;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        var step = speed * dt;
+        if (dist <= step) {
+            player.px = tx; player.py = ty;
+            player.c = player.tc; player.r = player.tr;
+            player.moving = false;
+        } else {
+            player.px += dx/dist * step;
+            player.py += dy/dist * step;
+        }
+    } else {
+        var dir = getDir();
+        if (dir && (maze[player.r][player.c] & dir)) {
+            player.tc = player.c + DX[dir];
+            player.tr = player.r + DY[dir];
+            player.moving = true;
+        }
+    }
+
+    // Trail particle
+    if (frame % 3 === 0) spawnParticle(player.px, player.py, '#ff96c8', 0.4, 1.5);
+
+    // ── Portal ──
+    portal.phase += dt;
+    if (!portal.open && collectedGems >= totalGems) portal.open = true;
+
+    // ── Gems ──
+    for (var i = 0; i < gems.length; i++) {
+        var g = gems[i];
+        if (g.collected) continue;
+        g.phase += dt * 2.5;
+        if (g.c === player.c && g.r === player.r) {
+            g.collected = true; collectedGems++;
+            score += g.type === 'star' ? 50 : 10;
+            spawnBurst(cellCX(g.c), cellCY(g.r), g.type === 'star' ? '#ffffa0' : '#ff96c8', 10);
+            updateHUD();
+        }
+    }
+
+    // ── Portal exit ──
+    if (portal.open && player.c === portal.c && player.r === portal.r) {
+        score += level * 100;
+        gameState = 'levelup';
+        bannerTimer = 1.5;
+        var banner = document.getElementById('level-banner');
+        banner.textContent = 'Level ' + level + ' Complete! ✦';
+        banner.style.display = 'block';
+        updateHUD();
+        return;
+    }
+
+    // ── Shadows ──
+    var shadowSpeed = CELL * 3.0;
+    for (var si = 0; si < shadows.length; si++) {
+        var sh = shadows[si];
+        sh.pathTimer += dt;
+        if (sh.pathTimer >= 0.6) { sh.pathTimer = 0; sh.path = bfs(sh.c, sh.r, player.c, player.r); }
+
+        if (sh.moving) {
+            var tx2 = cellCX(sh.tc), ty2 = cellCY(sh.tr);
+            var dx2 = tx2 - sh.px, dy2 = ty2 - sh.py;
+            var dist2 = Math.sqrt(dx2*dx2 + dy2*dy2);
+            var step2 = shadowSpeed * dt;
+            if (dist2 <= step2) {
+                sh.px = tx2; sh.py = ty2; sh.c = sh.tc; sh.r = sh.tr; sh.moving = false;
+            } else { sh.px += dx2/dist2 * step2; sh.py += dy2/dist2 * step2; }
+        } else {
+            sh.moveTimer += dt;
+            if (sh.moveTimer >= sh.moveInterval / 60) {
+                sh.moveTimer = 0;
+                if (sh.path.length) { var nx = sh.path.shift(); sh.tc = nx.c; sh.tr = nx.r; sh.moving = true; }
+            }
+        }
+
+        if (player.invincible <= 0) {
+            var ddx = sh.px - player.px, ddy = sh.py - player.py;
+            if (Math.sqrt(ddx*ddx + ddy*ddy) < CELL * 0.52) {
+                lives--;
+                spawnBurst(player.px, player.py, '#ff4466', 14);
+                updateHUD();
+                gameState = 'dying';
+                dyingTimer = 0.8;
+                return;
+            }
+        }
+    }
+
+    // ── Particles ──
+    for (var pi = particles.length - 1; pi >= 0; pi--) {
+        var p = particles[pi];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.vy += 60 * dt;
+        p.life -= dt / p.maxLife;
+        if (p.life <= 0) particles.splice(pi, 1);
     }
 }
 
-// ============================================
-// START GAME
-// ============================================
-function startGame() {
-    state = 'playing';
-    hearts = 3;
-    score = 0;
-    distanceScore = 0;
-    gemCount = 0;
-    fairyX = W * FAIRY_X_RATIO;
-    fairyY = H / 2;
-    fairyVY = 0;
-    scrollSpeed = BASE_SCROLL_SPEED;
-    speedLevel = 0;
-    invincible = false;
-    invincibleTimer = 0;
-    isPowerUp = false;
-    shakeMagnitude = 0;
-    shakeX = 0;
-    shakeY = 0;
-    gameTime = 0;
-    obstacles = [];
-    collectibles = [];
-    particles = [];
-    trailParticles = [];
-    nextObstacleX = W + 100;
-    nextCollectibleX = W + 200;
-
-    heartsEl.textContent = '💖💖💖';
-    scoreEl.textContent = '0';
-    gemsEl.textContent = '0';
-
-    startScreen.style.display = 'none';
-    gameOverScreen.classList.remove('active');
-    uiBar.style.display = 'flex';
-    powerupBar.style.display = 'none';
-
-    lastTime = 0;
-
-    // Pre-spawn some obstacles and collectibles
-    for (var i = 0; i < 5; i++) spawnObstacle();
-    for (var i = 0; i < 8; i++) spawnCollectible();
+function spawnParticle(x, y, color, maxLife, r) {
+    particles.push({ x:x, y:y, vx:(Math.random()-0.5)*40, vy:(Math.random()-0.5)*40,
+        life:1, maxLife:maxLife, r:r||2, color:color });
 }
 
-// ============================================
-// RESIZE
-// ============================================
-function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    fairyX = W * FAIRY_X_RATIO;
-    initBackground();
-}
-
-// ============================================
-// EVENT LISTENERS
-// ============================================
-function doJump() {
-    if (state === 'playing') {
-        fairyVY = JUMP_FORCE;
+function spawnBurst(x, y, color, count) {
+    for (var i = 0; i < count; i++) {
+        var a = Math.PI*2*i/count, spd = 60 + Math.random()*80;
+        particles.push({ x:x, y:y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
+            life:1, maxLife:0.6+Math.random()*0.4, r:Math.random()*4+2, color:color });
     }
 }
 
-document.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    if (state === 'start') startGame();
-    else doJump();
-});
-document.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    if (state === 'start') startGame();
-    else doJump();
-}, { passive: false });
-document.addEventListener('keydown', function(e) {
-    if (e.code === 'Space' || e.code === 'ArrowUp') {
-        e.preventDefault();
-        if (state === 'start') startGame();
-        else doJump();
+// ── HUD ───────────────────────────────────────────────────────────────────────
+function updateHUD() {
+    document.getElementById('gems').textContent = collectedGems + '/' + totalGems;
+    document.getElementById('score').textContent = score;
+    document.getElementById('level-disp').textContent = level;
+    var h = '';
+    for (var i = 0; i < 3; i++) h += i < lives ? '💖' : '🖤';
+    document.getElementById('hearts').textContent = h;
+}
+
+// ── End game ──────────────────────────────────────────────────────────────────
+function endGame() {
+    gameState = 'over';
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-stats').innerHTML =
+        'Levels cleared: ' + (level - 1) + '<br>Gems collected: ' + collectedGems;
+    document.getElementById('game-over').classList.add('active');
+    if (!savedScore) {
+        savedScore = true;
+        fetch('/api/scores', { method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ game:'fairy_flight', score:score, details:{ level:level, gems:collectedGems } })
+        }).catch(function(){});
     }
-});
+}
 
-window.addEventListener('resize', resize);
+// ── Draw ──────────────────────────────────────────────────────────────────────
+function draw(ts) {
+    ctx.fillStyle = '#0a0614';
+    ctx.fillRect(0, 0, W_px, H_px);
 
-// ============================================
-// INIT
-// ============================================
-resize();
-requestAnimationFrame(gameLoop);
+    if (gameState === 'start' || gameState === 'over') return;
 
+    // Stars
+    for (var i = 0; i < bgStars.length; i++) {
+        var s = bgStars[i];
+        var a = s.a * (0.5 + 0.5 * Math.sin(ts * 0.8 + s.phase));
+        ctx.fillStyle = 'rgba(200,180,255,' + a + ')';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Maze floor
+    ctx.fillStyle = 'rgba(20, 8, 40, 0.65)';
+    ctx.fillRect(offX, offY, mazeC * CELL, mazeR * CELL);
+
+    // Portal (behind gems)
+    drawPortal(ts);
+
+    // Gems
+    for (var i = 0; i < gems.length; i++) {
+        var g = gems[i];
+        if (g.collected) continue;
+        var gx = cellCX(g.c), gy = cellCY(g.r);
+        var pulse = 0.7 + 0.3 * Math.sin(g.phase);
+        ctx.save();
+        ctx.shadowColor = g.type === 'star' ? '#ffffa0' : '#ff96c8';
+        ctx.shadowBlur = 12 * pulse;
+        ctx.font = Math.round(CELL * 0.55) + 'px serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(g.type === 'star' ? '⭐' : '💎', gx, gy);
+        ctx.restore();
+    }
+
+    // Maze walls
+    ctx.save();
+    ctx.strokeStyle = 'rgba(130, 70, 210, 0.85)';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#9060d0'; ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.rect(offX, offY, mazeC * CELL, mazeR * CELL);
+    for (var r = 0; r < mazeR; r++) {
+        for (var c = 0; c < mazeC; c++) {
+            var x = offX + c * CELL, y = offY + r * CELL;
+            if (c < mazeC - 1 && !(maze[r][c] & E)) {
+                ctx.moveTo(x + CELL, y); ctx.lineTo(x + CELL, y + CELL);
+            }
+            if (r < mazeR - 1 && !(maze[r][c] & S)) {
+                ctx.moveTo(x, y + CELL); ctx.lineTo(x + CELL, y + CELL);
+            }
+        }
+    }
+    ctx.stroke(); ctx.restore();
+
+    // Particles
+    ctx.save();
+    for (var pi = 0; pi < particles.length; pi++) {
+        var p = particles[pi];
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1; ctx.restore();
+
+    // Shadows
+    for (var si = 0; si < shadows.length; si++) drawShadow(shadows[si], ts);
+
+    // Fairy
+    drawFairy(ts);
+}
+
+function drawPortal(ts) {
+    var px = cellCX(portal.c), py = cellCY(portal.r);
+    var pulse = 0.6 + 0.4 * Math.sin(portal.phase * 3);
+
+    if (!portal.open) {
+        // Locked: dim grey glow
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        ctx.shadowColor = '#9080b0'; ctx.shadowBlur = 8;
+        ctx.font = Math.round(CELL * 0.6) + 'px serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#9080b0';
+        ctx.fillText('🔒', px, py);
+        ctx.restore();
+        return;
+    }
+
+    // Open: glowing portal
+    ctx.save();
+    ctx.shadowColor = '#ffffa0'; ctx.shadowBlur = 30 * pulse;
+    var grad = ctx.createRadialGradient(px, py, 0, px, py, CELL * 0.55);
+    grad.addColorStop(0, 'rgba(255,255,160,' + (0.4 * pulse) + ')');
+    grad.addColorStop(1, 'rgba(255,255,160,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(px, py, CELL * 0.55, 0, Math.PI*2); ctx.fill();
+
+    ctx.font = Math.round(CELL * 0.65) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('✨', px, py);
+    ctx.restore();
+}
+
+function drawFairy(ts) {
+    var flicker = player.invincible > 0 && Math.floor(player.invincible * 8) % 2 === 0;
+    if (flicker) return;
+
+    var t = ts * 0.001;
+    ctx.save();
+    ctx.shadowColor = '#ff96c8'; ctx.shadowBlur = 18;
+
+    // Outer glow
+    var grad = ctx.createRadialGradient(player.px, player.py, 0, player.px, player.py, CELL * 0.38);
+    grad.addColorStop(0, 'rgba(255,150,200,0.35)');
+    grad.addColorStop(1, 'rgba(255,150,200,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(player.px, player.py, CELL * 0.38, 0, Math.PI*2); ctx.fill();
+
+    ctx.font = Math.round(CELL * 0.7) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🧚', player.px, player.py);
+    ctx.restore();
+}
+
+function drawShadow(sh, ts) {
+    var t = ts * 0.001;
+    ctx.save();
+    ctx.shadowColor = 'rgba(80,0,120,0.9)'; ctx.shadowBlur = 18;
+
+    var grad = ctx.createRadialGradient(sh.px, sh.py, 0, sh.px, sh.py, CELL * 0.42);
+    grad.addColorStop(0, 'rgba(60,0,100,0.95)');
+    grad.addColorStop(0.5, 'rgba(30,0,60,0.7)');
+    grad.addColorStop(1, 'rgba(10,0,30,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(sh.px, sh.py, CELL*0.38 + Math.sin(t*3)*3, CELL*0.32 + Math.cos(t*2.5)*3, t*0.5, 0, Math.PI*2);
+    ctx.fill();
+
+    var eyeOff = CELL * 0.1;
+    ctx.fillStyle = 'rgba(200,80,255,0.9)';
+    ctx.shadowColor = '#c050ff'; ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(sh.px - eyeOff, sh.py - 2, 3, 0, Math.PI*2);
+    ctx.arc(sh.px + eyeOff, sh.py - 2, 3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+}
+
+// ── Loop ──────────────────────────────────────────────────────────────────────
+function loop(ts) {
+    var dt = lastTime ? Math.min((ts - lastTime) / 1000, 0.05) : 0;
+    lastTime = ts;
+    update(dt);
+    draw(ts);
+    requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 </script>
 
 <!-- Bug Report -->
@@ -986,9 +636,7 @@ requestAnimationFrame(gameLoop);
     </div>
     <p style="color:#9080b0;font-size:13px;margin-bottom:14px;">Found something broken? Crissy wants to know!</p>
     <textarea id="bug-desc" placeholder="What went wrong? What were you doing?" style="width:100%;height:110px;background:rgba(20,12,35,0.8);border:1px solid rgba(180,150,255,0.2);border-radius:10px;color:#f0d0ff;font-family:Quicksand,sans-serif;font-size:13px;padding:10px 12px;resize:none;outline:none;box-sizing:border-box;"></textarea>
-    <button onclick="(function(){var d=document.getElementById('bug-desc').value.trim();if(!d)return;var b='Page: '+window.location.pathname+'
-
-'+d;window.location.href='mailto:crissyhazelwood@gmail.com?subject='+encodeURIComponent('Pixie Portal Bug Report')+'&body='+encodeURIComponent(b);document.getElementById('bug-modal').style.display='none';document.getElementById('bug-desc').value='';})();" style="margin-top:12px;width:100%;padding:10px;border-radius:20px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:Quicksand,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Send Bug Report &#x2726;</button>
+    <button onclick="(function(){var d=document.getElementById('bug-desc').value.trim();if(!d)return;var b='Page: '+window.location.pathname+'\n\n'+d;window.location.href='mailto:crissyhazelwood@gmail.com?subject='+encodeURIComponent('Pixie Portal Bug Report')+'&body='+encodeURIComponent(b);document.getElementById('bug-modal').style.display='none';document.getElementById('bug-desc').value='';})();" style="margin-top:12px;width:100%;padding:10px;border-radius:20px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:Quicksand,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Send Bug Report &#x2726;</button>
   </div>
 </div>
 </body>
