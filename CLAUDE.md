@@ -2,55 +2,89 @@
 
 ## READ THIS FIRST. NO EXCEPTIONS.
 
-This is a live production site at **pixieportal.com**. Real users visit it. Every bad change goes live. Every "creative liberty" you take costs time to undo and moves the project backwards. That hurts everyone.
+This is a live production site. Real users visit it. Every bad change goes live.
+Every "creative liberty" you take costs time to undo and moves the project backwards.
+That hurts everyone.
 
 **Do exactly what is asked. Nothing more. Nothing less.**
 
 ---
 
-## Rules
+## PROJECT OVERVIEW
 
-1. **Do NOT rename, rebrand, or restyle anything unless explicitly told to.** The site is called "Pixie Portal." Do not change it to something else because you think it sounds better.
-
-2. **Do NOT add features, refactor code, or "improve" things beyond the request.** A bug fix is a bug fix. A new feature is just that feature. Don't sneak in extra changes.
-
-3. **Do NOT guess what the user wants.** If the instruction is ambiguous, ask. Do not interpret "open my site" as "rename my site."
-
-4. **Test before you deploy.** Run the site locally (port 5000) and verify your change works before pushing to production.
-
-5. **Deploy after every change that should go live.** The deploy command is:
-   ```
-   cd /c/Users/criss/pixie-portal
-   wrangler pages deploy public --project-name=fae-portal
-   ```
-
-6. **Keep `public/` and root HTML files in sync.** The root HTML files are dev copies. The `public/` folder is what gets deployed to Cloudflare Pages. If you change one, change the other.
-
-7. **Always commit and push to GitHub after changes.**
-   ```
-   git add -A
-   git commit -m "description of what changed"
-   git push origin main
-   ```
-
-8. **Opening URLs on this Windows machine:**
-   ```
-   powershell.exe -Command "Start-Process 'https://the-url-here.com'"
-   ```
-   Do NOT use `start`, `explorer.exe`, or `cmd.exe /c start`. They don't work reliably here.
+- **Live site:** https://pixie-portal.com
+- **Pages project:** fae-portal (Cloudflare Pages)
+- **Backup URL:** https://fae-portal.pages.dev
+- **GitHub repo:** https://github.com/crissyhazelwood-bee/pixie-portal
+- **Database:** Cloudflare D1 (pixie_portal.db / binding: DB)
+- **Account ID:** 9c6282449b6e05f0e67bec7ff7826851
+- **Zone ID (pixie-portal.com):** 57929d138e6ff1e5f6f87fb2e75975ef
 
 ---
 
-## Project Structure
+## ABSOLUTE RULES — VIOLATION = FAILURE
+
+### 1. DO NOT RENAME ANYTHING
+- Do not rename files, folders, functions, routes, or variables unless explicitly asked.
+- Do not "clean up" names. Do not "make them more consistent." Leave them alone.
+- If something is named weird, that's the owner's problem, not yours.
+
+### 2. DO NOT ADD FEATURES
+- If asked to fix a bug, fix ONLY the bug. Do not add "improvements."
+- If asked to add a feature, add ONLY that feature. Do not add related features.
+- No "while I was in there I also..." — NO. Stop.
+
+### 3. DO NOT REBRAND OR RESTYLE
+- Do not change colors, fonts, layouts, emoji, or wording unless explicitly asked.
+- Do not "modernize" the UI. Do not "make it look better." It looks how the owner wants.
+- If the owner says "make it sparkle," then make it sparkle. Otherwise, hands off.
+
+### 4. EVERY CHANGE GETS COMMITTED AND PUSHED
+- After ANY change, you MUST:
+  1. `git add -A`
+  2. `git commit -m "descriptive message about what changed"`
+  3. `git push`
+- No exceptions. No "I'll push later." Push NOW.
+
+### 5. EVERY CHANGE GETS DEPLOYED
+- After pushing, deploy to Cloudflare Pages:
+  ```
+  wrangler pages deploy public --project-name=fae-portal
+  ```
+- Verify the deploy succeeded. If it fails, fix it and redeploy.
+
+### 6. DO NOT GUESS — ASK
+- If the instruction is unclear, ask for clarification.
+- Do not interpret "open my site" as "rename my site."
+- Do not interpret "change this" as "change this and also five other things."
+
+### 7. KEEP FILES IN SYNC
+- Root HTML files = dev copies.
+- `public/` folder = what gets deployed.
+- If you change one, change the other. Always.
+
+---
+
+## HOW TO OPEN URLS ON THIS MACHINE
+
+```
+powershell.exe -Command "Start-Process 'https://the-url-here.com'"
+```
+
+Do NOT use `start`, `explorer.exe`, or `cmd.exe /c start`. They don't work here.
+
+---
+
+## PROJECT STRUCTURE
 
 ```
 pixie-portal/
-├── CLAUDE.md              ← you are here
+├── CLAUDE.md              ← YOU ARE HERE. READ IT.
 ├── wrangler.toml          ← Cloudflare Pages config + D1 binding
 ├── package.json           ← dependencies (bcryptjs)
 ├── server.py              ← LOCAL dev server only (Flask, port 5000)
-├── pixie_portal.db        ← LOCAL SQLite db (dev only)
-├── public/                ← DEPLOYED to Cloudflare Pages
+├── pixie_portal.db        ← LOCAL SQLite db (dev only, not deployed)
+├── public/                ← THIS IS WHAT GETS DEPLOYED
 │   ├── index.html         ← main site / homepage
 │   ├── fairy_garden.html
 │   ├── fairy_flight.html
@@ -73,46 +107,45 @@ pixie-portal/
 │       ├── auth.js        ← session cookie signing (HMAC)
 │       └── db.js          ← D1 helper
 ├── *.html (root)          ← dev copies, keep in sync with public/
-└── node_modules/
+└── node_modules/          ← gitignored
 ```
 
 ---
 
-## Tech Stack
+## TECH STACK
 
 | Layer | Tech | Notes |
 |-------|------|-------|
 | Hosting | Cloudflare Pages | Static files + Functions |
-| Domain | pixieportal.com | Cloudflare Registrar |
-| Database | Cloudflare D1 | SQLite-compatible, ID: `ddb818fb-85d4-48f5-9da7-ea5bbaa8f1a9` |
-| Auth | HMAC-signed cookies | See `functions/_utils/auth.js` |
+| Domain | pixie-portal.com | Cloudflare |
+| Database | Cloudflare D1 | ID: `ddb818fb-85d4-48f5-9da7-ea5bbaa8f1a9` |
+| Auth | HMAC-signed cookies | `functions/_utils/auth.js` |
 | Local dev | Flask (Python) | `python server.py` → localhost:5000 |
-| Deploy tool | Wrangler CLI | `wrangler pages deploy public --project-name=fae-portal` |
-| Repo | GitHub | github.com/crissyhazelwood-bee/pixie-portal |
+| Deploy | Wrangler CLI | `wrangler pages deploy public --project-name=fae-portal` |
+| Repo | GitHub | `crissyhazelwood-bee/pixie-portal` |
 
 ---
 
-## Deployment Checklist
+## DEPLOYMENT WORKFLOW
 
-Before deploying, verify:
-- [ ] Change works locally at http://localhost:5000
-- [ ] Both root HTML and `public/` HTML are updated
-- [ ] No debug code or console.logs left in
-- [ ] Commit is clean and descriptive
+```bash
+# 1. Test locally
+python server.py
+# verify at http://localhost:5000
 
----
+# 2. Commit
+git add -A
+git commit -m "what you changed"
+git push
 
-## What NOT to Do
-
-- Don't rename the project
-- Don't change the visual theme unless asked
-- Don't restructure files unless asked
-- Don't add dependencies unless absolutely necessary
-- Don't modify wrangler.toml unless deploying infrastructure changes
-- Don't be clever. Be correct.
+# 3. Deploy
+wrangler pages deploy public --project-name=fae-portal
+```
 
 ---
 
-## Owner
+## OWNER
 
 Crissy (crissyhazelwood@gmail.com / crissyhazelwood-bee on GitHub)
+
+She goes by Crissy. Claude goes by Nemo. Don't forget either.
