@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>Pixie Portal Ad</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Nunito:wght@300;400;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 390px;
+  height: 844px;
+  overflow: hidden;
+  background: #07031a;
+  font-family: 'Nunito', sans-serif;
+  color: #f0d8ff;
+}
+
+/* ── Static gradient BG ── */
+.bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 20%, rgba(120,60,200,0.3) 0%, transparent 55%),
+              radial-gradient(ellipse at 80% 80%, rgba(255,100,180,0.2) 0%, transparent 55%),
+              radial-gradient(ellipse at 50% 50%, rgba(40,10,80,1) 0%, #07031a 100%);
+}
+
+/* ── Sparkle particles (slow drift) ── */
+.sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sparkle {
+  position: absolute;
+  border-radius: 50%;
+  animation: sparkleFloat linear infinite;
+}
+@keyframes sparkleFloat {
+  0%   { transform: translateY(110%); opacity: 0; }
+  15%  { opacity: 0.5; }
+  85%  { opacity: 0.3; }
+  100% { transform: translateY(-10%); opacity: 0; }
+}
+
+/* ── Shimmer overlay on text ── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* ── Slides ── */
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 32px 70px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  transition: opacity 1s cubic-bezier(.4,0,.2,1), transform 1s cubic-bezier(.4,0,.2,1);
+}
+.slide.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.slide.exit {
+  opacity: 0;
+  transform: translateY(-30px) scale(1.05);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* ── Logo ── */
+.logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #e8b8f0;
+  margin-bottom: 4px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 20px rgba(180,150,255,0.4);
+}
+.logo-dot {
+  font-size: 13px;
+  color: #6040a0;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+
+/* ── Feature icon ── */
+.icon {
+  font-size: 88px;
+  margin-bottom: 18px;
+  display: block;
+  animation: iconFloat 6s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(200,150,255,0.5));
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ── Titles ── */
+.feature-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #f0c8e8;
+  text-shadow: 0 0 20px rgba(255,150,200,0.3);
+}
+.feature-desc {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #c8a8ee;
+  max-width: 310px;
+  margin-bottom: 22px;
+  font-weight: 400;
+}
+.feature-desc strong { color: #f0d8ff; font-weight: 700; }
+
+/* ── Glow divider ── */
+.divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #b496ff, transparent);
+  margin: 14px auto;
+  box-shadow: 0 0 8px rgba(180,150,255,0.8);
+}
+
+/* ── Tags ── */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.tag {
+  background: rgba(180,150,255,0.1);
+  border: 1px solid rgba(180,150,255,0.35);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  color: #b496ff;
+  backdrop-filter: blur(4px);
+}
+
+/* ── CTA button ── */
+.cta-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff96c8, #a060ff);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 17px;
+  padding: 15px 40px;
+  border-radius: 40px;
+  letter-spacing: 1px;
+  margin-top: 10px;
+  box-shadow: 0 0 28px rgba(180,100,255,0.45);
+}
+
+/* ── Mockup card ── */
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(180,150,255,0.2);
+  border-radius: 20px;
+  padding: 16px;
+  width: 100%;
+  max-width: 310px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.card-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.card-avatar { font-size: 22px; }
+.card-meta { font-size: 12px; color: #7060a0; }
+.card-entry {
+  background: rgba(180,150,255,0.07);
+  border: 1px solid rgba(180,150,255,0.15);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.card-title { font-size: 13px; color: #d0b0ff; font-weight: 700; }
+.card-body  { font-size: 11px; color: #7060a0; margin-top: 3px; }
+.card-animate-btn {
+  background: linear-gradient(135deg, rgba(255,150,200,0.14), rgba(150,100,255,0.14));
+  border: 1px solid rgba(180,150,255,0.3);
+  border-radius: 10px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #c0a0ff;
+  gap: 6px;
+}
+
+/* ── Zodiac ring ── */
+.zodiac-ring {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  max-width: 300px;
+  margin: 14px 0;
+}
+.z-sign {
+  width: 52px;
+  height: 52px;
+  background: rgba(180,150,255,0.08);
+  border: 1px solid rgba(180,150,255,0.2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+/* ── Tarot cards ── */
+.tarot-spread {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10px;
+  margin: 14px 0 20px;
+}
+.tarot-card {
+  width: 76px;
+  height: 120px;
+  background: linear-gradient(160deg, #1a0830, #2e1260);
+  border: 1px solid rgba(180,150,255,0.4);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(180,150,255,0.15);
+}
+.tarot-card:nth-child(1) { transform: rotate(-8deg) translateY(8px); animation: cardFloat 7s ease-in-out infinite; }
+.tarot-card:nth-child(2) { transform: rotate(0deg) translateY(-6px);  animation: cardFloat 7s ease-in-out infinite; animation-delay: -2.5s; }
+.tarot-card:nth-child(3) { transform: rotate(8deg)  translateY(8px);  animation: cardFloat 7s ease-in-out infinite; animation-delay: -5s; }
+@keyframes cardFloat {
+  0%,100% { transform: translateY(0px) rotate(var(--r, 0deg)); }
+  50%      { transform: translateY(-7px) rotate(var(--r, 0deg)); }
+}
+
+/* ── Games grid ── */
+.games-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 16px;
+}
+.game-tile {
+  background: rgba(180,150,255,0.07);
+  border: 1px solid rgba(180,150,255,0.18);
+  border-radius: 16px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.game-emoji { font-size: 30px; display: block; margin-bottom: 6px; }
+.game-name  { font-size: 11px; color: #b496ff; font-weight: 600; }
+
+/* ── Progress dots ── */
+.dots {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 7px;
+  z-index: 20;
+}
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 3px;
+  background: rgba(180,150,255,0.25);
+  transition: all 0.5s cubic-bezier(.4,0,.2,1);
+}
+.dot.active {
+  width: 22px;
+  background: linear-gradient(90deg, #ff96c8, #b496ff);
+  box-shadow: 0 0 8px rgba(180,150,255,0.6);
+}
+
+/* ── URL pill ── */
+.url-pill {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(180,150,255,0.25);
+  border-radius: 20px;
+  padding: 5px 18px;
+  font-size: 12px;
+  color: #7050a0;
+  letter-spacing: 1px;
+  z-index: 20;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+</style>
+</head>
+<body>
+
+<div class="bg-gradient"></div>
+
+<!-- Sparkle particles -->
+<div class="sparkles" id="sparkles"></div>
+
+<div class="url-pill">✦ pixie-portal.com</div>
+
+<!-- SLIDE 0: Intro -->
+<div class="slide active" id="slide-0">
+  <div class="logo">Pixie Portal</div>
+  <div class="logo-dot">games · journal · magic</div>
+  <span class="icon">🌙</span>
+  <div class="feature-title">Your Magical Space</div>
+  <div class="divider"></div>
+  <div class="feature-desc">
+    A free magical world with an AI <strong>dream journal</strong>, <strong>horoscope</strong>, <strong>tarot readings</strong>, and <strong>fairy games</strong> ✨
+  </div>
+  <div class="tags">
+    <span class="tag">✦ Free forever</span>
+    <span class="tag">No app needed</span>
+    <span class="tag">Sign up free</span>
+  </div>
+</div>
+
+<!-- SLIDE 1: Dream Journal -->
+<div class="slide" id="slide-1">
+  <span class="icon">📖</span>
+  <div class="feature-title">Dream Journal</div>
+  <div class="card">
+    <div class="card-row">
+      <span class="card-avatar">🦋</span>
+      <span class="card-meta">your private dream diary</span>
+    </div>
+    <div class="card-entry">
+      <div class="card-title">Flying over crystal caves</div>
+      <div class="card-body">I was soaring above glowing purple caves...</div>
+    </div>
+    <div class="card-animate-btn">✦ &nbsp; Animate this dream &nbsp; ✦</div>
+  </div>
+  <div class="feature-desc">
+    Write your dreams and turn them into <strong>AI animations</strong> — anime, watercolor, fantasy, surreal ✦
+  </div>
+  <div class="tags">
+    <span class="tag">AI Video</span>
+    <span class="tag">Private</span>
+    <span class="tag">1 free/day</span>
+  </div>
+</div>
+
+<!-- SLIDE 2: Horoscope -->
+<div class="slide" id="slide-2">
+  <span class="icon">⭐</span>
+  <div class="feature-title">Daily Horoscope</div>
+  <div class="zodiac-ring">
+    <div class="z-sign">♈</div><div class="z-sign">♉</div><div class="z-sign">♊</div>
+    <div class="z-sign">♋</div><div class="z-sign">♌</div><div class="z-sign">♍</div>
+    <div class="z-sign">♎</div><div class="z-sign">♏</div><div class="z-sign">♐</div>
+    <div class="z-sign">♑</div><div class="z-sign">♒</div><div class="z-sign">♓</div>
+  </div>
+  <div class="feature-desc">
+    Get your <strong>personalized daily reading</strong> — love, career, energy, and what the stars say is coming ✦
+  </div>
+  <div class="tags">
+    <span class="tag">All 12 signs</span>
+    <span class="tag">Updated daily</span>
+  </div>
+</div>
+
+<!-- SLIDE 3: Tarot -->
+<div class="slide" id="slide-3">
+  <span class="icon">🃏</span>
+  <div class="feature-title">Tarot Readings</div>
+  <div class="tarot-spread">
+    <div class="tarot-card">🌟</div>
+    <div class="tarot-card">🌙</div>
+    <div class="tarot-card">☀️</div>
+  </div>
+  <div class="feature-desc">
+    Draw from a <strong>full 78-card deck</strong> — single card pulls, past/present/future spreads, and more ✦
+  </div>
+  <div class="tags">
+    <span class="tag">Full deck</span>
+    <span class="tag">Multiple spreads</span>
+    <span class="tag">Free</span>
+  </div>
+</div>
+
+<!-- SLIDE 4: Games -->
+<div class="slide" id="slide-4">
+  <span class="icon">🧚</span>
+  <div class="feature-title">Fairy Games</div>
+  <div class="games-grid">
+    <div class="game-tile"><span class="game-emoji">🧚</span><span class="game-name">Fairy Flight</span></div>
+    <div class="game-tile"><span class="game-emoji">🌸</span><span class="game-name">Fairy Garden</span></div>
+    <div class="game-tile"><span class="game-emoji">🐸</span><span class="game-name">Frog Box</span></div>
+    <div class="game-tile"><span class="game-emoji">🌀</span><span class="game-name">The Portal</span></div>
+  </div>
+  <div class="feature-desc">
+    Play <strong>magical mini-games</strong> and compete on the leaderboard ✦
+  </div>
+</div>
+
+<!-- SLIDE 5: CTA -->
+<div class="slide" id="slide-5">
+  <div class="logo">Pixie Portal</div>
+  <div class="logo-dot">free forever ✦</div>
+  <span class="icon" style="font-size:100px;">✨</span>
+  <div class="feature-desc" style="font-size:18px;margin-bottom:30px;">
+    <strong>Dream Journal · Horoscope</strong><br>
+    <strong>Tarot · Fairy Games</strong><br><br>
+    All free. No app. Just magic.
+  </div>
+  <div class="cta-btn">Enter the Portal ✦</div>
+  <div style="margin-top:18px;font-size:13px;color:#503870;letter-spacing:1px;">pixie-portal.com</div>
+</div>
+
+<!-- Progress dots -->
+<div class="dots">
+  <div class="dot active" id="dot-0"></div>
+  <div class="dot" id="dot-1"></div>
+  <div class="dot" id="dot-2"></div>
+  <div class="dot" id="dot-3"></div>
+  <div class="dot" id="dot-4"></div>
+  <div class="dot" id="dot-5"></div>
+</div>
+
+<script>
+  // Sparkle particles — slow, calm drift
+  const sparklesEl = document.getElementById('sparkles');
+  const colors = ['#ff96c8','#b496ff','#d0c0ff','#ffd8f0'];
+  for (let i = 0; i < 18; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const size = Math.random() * 3 + 1.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      bottom:0;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${12 + Math.random()*10}s;
+      animation-delay:${-Math.random()*22}s;
+      opacity:${0.25 + Math.random()*0.3};
+    `;
+    sparklesEl.appendChild(s);
+  }
+
+  // Slide controller
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  let current = 0;
+
+  window._adTimer = null;
+
+  function goTo(next) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    dots[current].classList.remove('active');
+    const prev = current;
+    current = next;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    setTimeout(() => slides[prev].classList.remove('exit'), 1000);
+  }
+
+  window._adTimer = setInterval(() => {
+    goTo((current + 1) % slides.length);
+  }, 6000);
+
+  dots.forEach((d, i) => d.addEventListener('click', () => {
+    clearInterval(window._adTimer);
+    goTo(i);
+    window._adTimer = setInterval(() => goTo((current + 1) % slides.length), 6000);
+  }));
+</script>
+</body>
+</html>

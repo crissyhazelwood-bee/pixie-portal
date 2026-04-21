@@ -1312,7 +1312,7 @@
             });
             const data = await res.json();
             if (data.url) { window.location.href = data.url; }
-            else { toast('Something went wrong ✦'); }
+            else { toast((data.detail || data.error || 'Something went wrong') + ' ✦'); }
         }
 
         async function loadJournal() {
