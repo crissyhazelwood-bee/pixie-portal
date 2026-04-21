@@ -13,11 +13,26 @@ export async function onRequestPost({ request, env }) {
     ).bind(username.toLowerCase(), username.toLowerCase()).all();
 
     const user = results[0];
-    if (!user || !(await verifyPassword(password, user.password_hash))) {
+    if (!user) {
         return new Response(JSON.stringify({ error: "Invalid username or password" }), {
             status: 401, headers: { "Content-Type": "application/json" }
         });
     }
+
+    // Detect old bcrypt hashes — these users need to reset via email
+    if (user.password_hash && user.password_hash.startsWith('$2')) {
+        return new Response(JSON.stringify({
+            error: "Your account needs a password reset. Use \"Forgot your password?\" to get a reset link sent to your email.",
+            needs_reset: true
+        }), { status: 401, headers: { "Content-Type": "application/json" } });
+    }
+
+    if (!(await verifyPassword(password, user.password_hash))) {
+        return new Response(JSON.stringify({ error: "Invalid username or password" }), {
+            status: 401, headers: { "Content-Type": "application/json" }
+        });
+    }
+
     const cookie = await createSessionCookie(env, user.id);
     return new Response(JSON.stringify({
         success: true,
