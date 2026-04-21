@@ -38,7 +38,7 @@ export async function onRequestPost({ request, env }) {
             "INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)"
         ).bind(user.id, tokenHash, expiresAt).run();
 
-        // Send email via Mailgun
+        // Send email via Resend
         const resetLink = `https://pixie-portal.com/?reset=${token}`;
         const emailHtml = `
             <div style="font-family:'Helvetica Neue',sans-serif;max-width:520px;margin:0 auto;background:#0d0820;padding:40px;border-radius:16px;">
@@ -54,20 +54,18 @@ export async function onRequestPost({ request, env }) {
             </div>
         `;
 
-        const body = new URLSearchParams({
-            from: "Pixie Portal <mailgun@" + env.MAILGUN_DOMAIN + ">",
-            to: email,
-            subject: "Reset your Pixie Portal password ✦",
-            html: emailHtml
-        });
-
-        await fetch(`https://api.mailgun.net/v3/${env.MAILGUN_DOMAIN}/messages`, {
+        await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
-                "Authorization": "Basic " + btoa("api:" + env.MAILGUN_API_KEY),
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+                "Content-Type": "application/json"
             },
-            body: body.toString()
+            body: JSON.stringify({
+                from: "Pixie Portal <portal@pixie-portal.com>",
+                to: [email],
+                subject: "Reset your Pixie Portal password ✦",
+                html: emailHtml
+            })
         });
 
         return new Response(JSON.stringify({ success: true }), {
