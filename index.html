@@ -383,15 +383,31 @@
         .tarot-draw-btn:hover { transform: scale(1.05); box-shadow: 0 5px 30px rgba(201,168,76,0.25); background: linear-gradient(135deg, rgba(201,168,76,0.25), rgba(180,150,255,0.25)); }
         .tarot-draw-btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
 
+        .nav-hamburger { display: none; background: none; border: none; cursor: pointer; font-size: 22px; color: #b496ff; padding: 4px; line-height: 1; }
+
         @media (max-width: 768px) {
             .hero-title { font-size: 42px; }
-            nav .links { gap: 12px; }
-            nav .links a { font-size: 11px; letter-spacing: 1px; }
             .about-content { flex-direction: column; text-align: center; }
             .profile-header { flex-direction: column; text-align: center; }
             .tarot-card-wrap { width: 160px; height: 272px; }
             .tarot-spread { gap: 16px; }
             .scene-fairy { font-size: 34px !important; }
+        }
+
+        @media (max-width: 640px) {
+            nav { padding: 12px 20px; }
+            .nav-hamburger { display: block; }
+            nav .links {
+                display: none; flex-direction: column; align-items: stretch;
+                position: fixed; top: 54px; left: 0; right: 0;
+                background: rgba(8,4,18,0.98); backdrop-filter: blur(12px);
+                padding: 6px 24px 18px; gap: 0;
+                border-bottom: 1px solid rgba(180,150,255,0.15);
+            }
+            nav .links.open { display: flex; }
+            nav .links a { padding: 13px 0; font-size: 13px; letter-spacing: 1px; display: block; border-bottom: 1px solid rgba(180,150,255,0.07); }
+            #nav-auth { flex-direction: row; flex-wrap: wrap; padding: 12px 0 0; gap: 8px; }
+            #nav-user { flex-wrap: wrap; padding: 12px 0 0; }
         }
     </style>
 </head>
@@ -401,7 +417,7 @@
     <!-- Navigation -->
     <nav>
         <div class="logo" onclick="showPage('home')">Pixie Portal</div>
-        <div class="links">
+        <div class="links" id="nav-links">
             <a onclick="showPage('home')">Home</a>
             <a onclick="showPage('games')">Games</a>
             <a onclick="showPage('horoscope')">Horoscope</a>
@@ -417,6 +433,7 @@
                 <a onclick="doLogout()" style="font-size:11px;">logout</a>
             </div>
         </div>
+        <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()">☰</button>
     </nav>
 
     <!-- Book Opening Overlay -->
@@ -923,6 +940,11 @@
         // NAVIGATION
         // ============================================
         function showPage(id) {
+            const nl = document.getElementById('nav-links');
+            const nh = document.getElementById('nav-hamburger');
+            if (nl) nl.classList.remove('open');
+            if (nh) nh.textContent = '☰';
+
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const page = document.getElementById('page-' + id);
             if (page) page.classList.add('active');
@@ -932,6 +954,13 @@
             if (id === 'profile' && currentUser) loadProfile();
             if (id === 'journal-page') { showBookAnimation(); loadJournal(); }
             if (id !== 'journal-page') clearDreamPollers();
+        }
+
+        function toggleMobileNav() {
+            const links = document.getElementById('nav-links');
+            const btn = document.getElementById('nav-hamburger');
+            const isOpen = links.classList.toggle('open');
+            btn.textContent = isOpen ? '✕' : '☰';
         }
 
         // ============================================
