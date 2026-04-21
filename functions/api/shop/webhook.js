@@ -32,12 +32,19 @@ export async function onRequestPost({ request, env }) {
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
         const userId = parseInt(session.client_reference_id, 10);
+        const product = session.metadata?.product;
         const credits = parseInt(session.metadata?.credits, 10);
 
         if (userId && credits) {
             await env.DB.prepare(
                 "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
             ).bind(credits, userId).run();
+        }
+
+        if (userId && product === "fairy_pet") {
+            await env.DB.prepare(
+                "UPDATE users SET fairy_purchased = 1 WHERE id = ?"
+            ).bind(userId).run();
         }
     }
 

@@ -958,6 +958,22 @@
                 </div>
             </div>
             <p style="color:#504060;font-size:12px;text-align:center;margin-top:20px;">Everyone gets 1 free animation per day ✦ Credits never expire</p>
+            <hr style="border:none;border-top:1px solid rgba(180,150,255,0.15);margin:28px 0 20px;">
+            <h3 style="color:#e0aaff;margin:0 0 6px;">Desktop Pet</h3>
+            <p class="sub" style="margin-bottom:16px;">a tiny fairy for your computer ✦</p>
+            <div id="fairy-shop-card" class="pack-card pack-featured" style="max-width:320px;margin:0 auto;text-align:center;" onclick="buyFairy()">
+                <div style="font-size:48px;margin-bottom:8px;">🧚</div>
+                <div style="font-size:15px;font-weight:700;color:#f0d0ff;margin-bottom:4px;">Neon Fairy Desktop Pet</div>
+                <div style="font-size:12px;color:#b496ff;margin-bottom:12px;">Windows 10/11 · one-time download</div>
+                <div class="pack-price">$4.44</div>
+                <button class="btn btn-primary btn-small" style="width:100%;margin-top:14px;">Buy ✦</button>
+            </div>
+            <div id="fairy-download-card" style="display:none;max-width:320px;margin:0 auto;text-align:center;">
+                <div style="font-size:48px;margin-bottom:8px;">🧚</div>
+                <div style="font-size:15px;font-weight:700;color:#f0d0ff;margin-bottom:8px;">Neon Fairy Desktop Pet</div>
+                <p style="color:#80ff80;font-size:13px;margin-bottom:12px;">✦ Already purchased!</p>
+                <a href="/api/shop/fairy-download" class="btn btn-primary btn-small" style="display:block;text-align:center;text-decoration:none;">Download ✦</a>
+            </div>
         </div>
     </div>
 
@@ -1305,6 +1321,24 @@
             }
         }
 
+        async function buyFairy() {
+            if (!currentUser) { openModal('login'); return; }
+            const res = await fetch(API + '/api/shop/fairy-checkout', {
+                method: 'POST', credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.url) { window.location.href = data.url; }
+            else { console.error('Fairy checkout error:', data.detail || data.error); toast('Payment failed — please try again ✦'); }
+        }
+
+        function updateFairyShopCard() {
+            if (!currentUser) return;
+            if (currentUser.fairy_purchased) {
+                document.getElementById('fairy-shop-card').style.display = 'none';
+                document.getElementById('fairy-download-card').style.display = 'block';
+            }
+        }
+
         async function buyPack(pack) {
             const res = await fetch(API + '/api/shop/checkout', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1515,6 +1549,7 @@
                 document.getElementById('edit-bio').value = currentUser.bio || '';
                 document.getElementById('edit-avatar').value = currentUser.avatar_emoji || '✦';
             }
+            if (id === 'shop') updateFairyShopCard();
         }
         function closeModals() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
@@ -1937,6 +1972,23 @@
                 if (json.user) { currentUser = json.user; updateCreditsDisplay(); }
                 toast('Credits added to your account ✦');
                 showPage('journal-page');
+            }
+            if (urlParams.get('purchase') === 'fairy') {
+                const sessionId = urlParams.get('session_id');
+                history.replaceState({}, '', '/');
+                toast('Your fairy is ready! ✦ Open the shop to download her.');
+                openModal('shop');
+                if (sessionId) {
+                    // Show download card immediately using session verification
+                    document.getElementById('fairy-shop-card').style.display = 'none';
+                    const dlCard = document.getElementById('fairy-download-card');
+                    dlCard.style.display = 'block';
+                    dlCard.querySelector('a').href = '/api/shop/fairy-download?session_id=' + sessionId;
+                }
+                // Also refresh user in case webhook already fired
+                const res = await fetch(API + '/api/me', { credentials: 'include' });
+                const json = await res.json();
+                if (json.user) { currentUser = json.user; updateFairyShopCard(); }
             }
         })();
     </script>

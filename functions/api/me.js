@@ -5,5 +5,5 @@ export async function onRequestGet({ request, env }) {
   if (!userId) return new Response(JSON.stringify({ user: null }), { headers: { "Content-Type": "application/json" } });
   const user = await getUserById(env, userId);
   if (!user) return new Response(JSON.stringify({ user: null }), { headers: { "Content-Type": "application/json" } });
-  return new Response(JSON.stringify({ user: { id: user.id, username: user.username, display_name: user.display_name, bio: user.bio, avatar_emoji: user.avatar_emoji, animation_credits: user.animation_credits ?? 0 } }), { headers: { "Content-Type": "application/json" } });
+  return new Response(JSON.stringify({ user: { id: user.id, username: user.username, display_name: user.display_name, bio: user.bio, avatar_emoji: user.avatar_emoji, animation_credits: user.animation_credits ?? 0, fairy_purchased: !!user.fairy_purchased } }), { headers: { "Content-Type": "application/json" } });
 }
