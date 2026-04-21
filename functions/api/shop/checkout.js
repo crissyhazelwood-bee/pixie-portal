@@ -37,7 +37,7 @@ export async function onRequestPost({ request, env }) {
     });
 
     const session = await res.json();
-    if (!session.url) return resp({ error: "Failed to create session" }, 500);
+    if (!session.url) return resp({ error: "Failed to create session", detail: session.error?.message || JSON.stringify(session) }, 500);
 
     return resp({ url: session.url });
 }
