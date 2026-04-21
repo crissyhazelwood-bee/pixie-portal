@@ -817,6 +817,21 @@
         </div>
     </div>
 
+
+    <!-- Reset password from email link -->
+    <div class="modal-overlay" id="modal-reset-link">
+        <div class="modal" style="text-align:center;">
+            <h2>Set New Password</h2>
+            <p class="sub">choose a new password for your account ✦</p>
+            <div class="form-group" style="text-align:left;">
+                <label>New Password</label>
+                <input type="password" id="reset-link-pass" placeholder="your new password">
+            </div>
+            <div class="form-error" id="reset-link-error"></div>
+            <button class="btn btn-primary" onclick="doConfirmReset()" style="width:100%;margin-top:10px;">Save Password ✦</button>
+        </div>
+    </div>
+
     <!-- New Journal Entry -->
     <div class="modal-overlay" id="modal-new-entry">
         <div class="modal">
@@ -962,6 +977,63 @@
                     document.getElementById('recovery-code-display').textContent = json.recoveryCode;
                     document.getElementById('modal-recovery-code').classList.add('active');
                 }
+            }
+        }
+
+        function switchRecoverTab(tab) {
+            const isEmail = tab === 'email';
+            document.getElementById('recover-panel-email').style.display = isEmail ? 'block' : 'none';
+            document.getElementById('recover-panel-code').style.display = isEmail ? 'none' : 'block';
+            document.getElementById('recover-tab-email').style.background = isEmail ? 'rgba(180,150,255,0.15)' : 'transparent';
+            document.getElementById('recover-tab-email').style.color = isEmail ? '#b496ff' : '#604878';
+            document.getElementById('recover-tab-email').style.borderColor = isEmail ? '#b496ff' : 'rgba(180,150,255,0.2)';
+            document.getElementById('recover-tab-code').style.background = isEmail ? 'transparent' : 'rgba(180,150,255,0.15)';
+            document.getElementById('recover-tab-code').style.color = isEmail ? '#604878' : '#b496ff';
+            document.getElementById('recover-tab-code').style.borderColor = isEmail ? 'rgba(180,150,255,0.2)' : '#b496ff';
+        }
+
+        async function doRequestReset() {
+            const email = document.getElementById('recover-email').value.trim();
+            document.getElementById('recover-email-error').textContent = '';
+            document.getElementById('recover-email-sent').style.display = 'none';
+            if (!email) { document.getElementById('recover-email-error').textContent = 'Please enter your email'; return; }
+            const res = await fetch(API + '/api/reset-request', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email })
+            });
+            const json = await res.json();
+            if (json.error) {
+                document.getElementById('recover-email-error').textContent = json.error;
+            } else {
+                document.getElementById('recover-email-sent').style.display = 'block';
+            }
+        }
+
+        var pendingResetToken = null;
+
+        async function doConfirmReset() {
+            const new_password = document.getElementById('reset-link-pass').value;
+            document.getElementById('reset-link-error').textContent = '';
+            if (!new_password) { document.getElementById('reset-link-error').textContent = 'Please enter a new password'; return; }
+            const res = await fetch(API + '/api/reset-confirm', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token: pendingResetToken, new_password }), credentials: 'include'
+            });
+            const json = await res.json();
+            if (json.error) {
+                document.getElementById('reset-link-error').textContent = json.error;
+            } else {
+                pendingResetToken = null;
+                currentUser = json.user;
+                onLogin();
+                closeModals();
+                toast('Password updated! ✦');
+                if (json.recoveryCode) {
+                    document.getElementById('recovery-new-code-display').textContent = json.recoveryCode;
+                    document.getElementById('modal-recovery-code-new').classList.add('active');
+                }
+                // Clean URL
+                window.history.replaceState({}, '', '/');
             }
         }
 
@@ -1594,6 +1666,13 @@
 
         // Check if already logged in
         checkSession();
+            // Handle password reset link from email
+            const urlParams = new URLSearchParams(window.location.search);
+            const resetToken = urlParams.get('reset');
+            if (resetToken) {
+                pendingResetToken = resetToken;
+                openModal('reset-link');
+            }
     </script>
 
 <!-- Bug Report -->
