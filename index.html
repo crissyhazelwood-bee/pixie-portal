@@ -165,6 +165,18 @@
         .entry-video-wrap { margin-top: 14px; }
         .dream-video { width: 100%; border-radius: 12px; max-height: 360px; display: block; }
 
+        /* Shop / credits */
+        .journal-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .credits-pill { display: flex; align-items: center; gap: 8px; background: rgba(180,150,255,0.1); border: 1px solid rgba(180,150,255,0.2); border-radius: 20px; padding: 6px 14px; font-size: 13px; color: #b496ff; font-weight: 600; }
+        .shop-packs { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .pack-card { flex: 1; min-width: 120px; background: rgba(20,10,40,0.8); border: 1px solid rgba(180,150,255,0.2); border-radius: 16px; padding: 20px 16px; text-align: center; cursor: pointer; transition: all 0.3s; position: relative; }
+        .pack-card:hover { border-color: #b496ff; transform: translateY(-2px); }
+        .pack-featured { border-color: rgba(255,150,200,0.5); background: rgba(255,150,200,0.06); }
+        .pack-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#ff96c8,#b496ff); color: #0a0614; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; white-space: nowrap; }
+        .pack-amount { font-size: 34px; font-weight: 700; color: #ff96c8; line-height: 1; }
+        .pack-label { color: #9080b0; font-size: 12px; margin: 4px 0 8px; }
+        .pack-price { font-size: 17px; font-weight: 700; color: #b496ff; }
+
         /* Book opening overlay */
         #book-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(5,2,15,0.97); }
         #book-overlay.hiding { animation: book-fade-out 0.7s ease forwards; }
@@ -740,7 +752,13 @@
             </div>
 
             <div id="journal-logged-in" style="display:none;">
-                <button class="btn btn-primary" onclick="openModal('new-entry')" style="margin-bottom:30px;">✦ New Entry</button>
+                <div class="journal-top-row">
+                    <button class="btn btn-primary" onclick="openModal('new-entry')">✦ New Entry</button>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="credits-pill" id="credits-display" style="display:none;">✦ <span id="credits-count">0</span> credits</div>
+                        <button class="btn btn-ghost btn-small" onclick="openModal('shop')">Buy Animations ✦</button>
+                    </div>
+                </div>
                 <div id="journal-entries"></div>
             </div>
         </section>
@@ -828,6 +846,37 @@
             <div class="form-error" id="signup-error"></div>
             <button class="btn btn-primary" onclick="doSignup()" style="width:100%; margin-top:10px;">Create Account ✦</button>
             <p class="form-switch">Already have an account? <a onclick="openModal('login')">Log In</a></p>
+        </div>
+    </div>
+
+    <!-- Shop — Buy Animation Credits -->
+    <div class="modal-overlay" id="modal-shop">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>Dream Animation Credits</h2>
+            <p class="sub">animate your dreams to life ✦</p>
+            <div class="shop-packs">
+                <div class="pack-card" onclick="buyPack('starter')">
+                    <div class="pack-amount">5</div>
+                    <div class="pack-label">animations</div>
+                    <div class="pack-price">$2.99</div>
+                    <button class="btn btn-primary btn-small" style="width:100%;margin-top:14px;">Buy ✦</button>
+                </div>
+                <div class="pack-card pack-featured" onclick="buyPack('value')">
+                    <div class="pack-badge">Best Value</div>
+                    <div class="pack-amount">20</div>
+                    <div class="pack-label">animations</div>
+                    <div class="pack-price">$9.99</div>
+                    <button class="btn btn-primary btn-small" style="width:100%;margin-top:14px;">Buy ✦</button>
+                </div>
+                <div class="pack-card" onclick="buyPack('max')">
+                    <div class="pack-amount">50</div>
+                    <div class="pack-label">animations</div>
+                    <div class="pack-price">$19.99</div>
+                    <button class="btn btn-primary btn-small" style="width:100%;margin-top:14px;">Buy ✦</button>
+                </div>
+            </div>
+            <p style="color:#504060;font-size:12px;text-align:center;margin-top:20px;">Everyone gets 1 free animation per day ✦ Credits never expire</p>
         </div>
     </div>
 
@@ -1076,8 +1125,30 @@
             loadJournal();
         }
 
+        function updateCreditsDisplay() {
+            if (!currentUser) return;
+            const credits = currentUser.animation_credits ?? 0;
+            const pill = document.getElementById('credits-display');
+            const count = document.getElementById('credits-count');
+            if (pill && count) {
+                count.textContent = credits;
+                pill.style.display = credits > 0 ? 'flex' : 'none';
+            }
+        }
+
+        async function buyPack(pack) {
+            const res = await fetch(API + '/api/shop/checkout', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pack }), credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.url) { window.location.href = data.url; }
+            else { toast('Something went wrong ✦'); }
+        }
+
         async function loadJournal() {
             if (!currentUser) return;
+            updateCreditsDisplay();
             const res = await fetch(API + '/api/journal', { credentials: 'include' });
             const json = await res.json();
             const container = document.getElementById('journal-entries');
@@ -1155,7 +1226,7 @@
                 area.innerHTML = '<div class="video-loading"><span class="video-spin">✦</span> Generating your dream video...</div>';
                 startDreamPolling(id);
             } else if (data.error === 'limit_reached') {
-                area.innerHTML = '<div class="video-failed">You\'ve already animated a dream today ✦ Come back tomorrow!</div>';
+                area.innerHTML = '<div class="video-failed" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">You\'ve used your free animation today ✦ <button class="btn btn-primary btn-small" onclick="openModal(\'shop\')">Buy More ✦</button></div>';
             } else {
                 area.innerHTML = '<div class="video-failed">Could not start generation ✦</div>' + animateButtonHtml(id);
             }
@@ -1679,6 +1750,24 @@
 
         // Check if already logged in
         checkSession();
+
+        // Handle URL query params
+        (async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const resetToken = urlParams.get('reset');
+            if (resetToken) {
+                pendingResetToken = resetToken;
+                openModal('reset-link');
+            }
+            if (urlParams.get('purchase') === 'success') {
+                history.replaceState({}, '', '/');
+                const res = await fetch(API + '/api/me', { credentials: 'include' });
+                const json = await res.json();
+                if (json.user) { currentUser = json.user; updateCreditsDisplay(); }
+                toast('Credits added to your account ✦');
+                showPage('journal-page');
+            }
+        })();
     </script>
 
 <!-- Bug Report -->

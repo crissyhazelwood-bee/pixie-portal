@@ -9,7 +9,7 @@ const STYLE_PREFIXES = {
     fantasy: "magical fantasy illustration style, ethereal glowing light, enchanted atmosphere, ",
 };
 
-const EXEMPT_USER_IDS = [1]; // Crissy (thatbee) is never rate-limited
+const EXEMPT_USER_IDS = [1]; // Crissy (thatbee) — unlimited
 
 export async function onRequestPost({ params, request, env }) {
     const userId = await getSessionUserId(env, request);
@@ -17,14 +17,22 @@ export async function onRequestPost({ params, request, env }) {
 
     const { style = "auto" } = await request.json().catch(() => ({}));
 
-    // Daily limit: one animation per user per 24 hours (admins exempt)
+    let useCredit = false;
+
     if (!EXEMPT_USER_IDS.includes(userId)) {
         const since = Date.now() / 1000 - 86400;
-        const { results: limitCheck } = await env.DB.prepare(
+        const { results: dailyCheck } = await env.DB.prepare(
             "SELECT 1 FROM journal_entries WHERE user_id = ? AND video_started_at > ? LIMIT 1"
         ).bind(userId, since).all();
-        if (limitCheck.length > 0) {
-            return resp({ error: "limit_reached" }, 429);
+
+        if (dailyCheck.length > 0) {
+            // Daily free already used — check purchased credits
+            const { results: userRes } = await env.DB.prepare(
+                "SELECT animation_credits FROM users WHERE id = ?"
+            ).bind(userId).all();
+            const credits = userRes[0]?.animation_credits ?? 0;
+            if (credits <= 0) return resp({ error: "limit_reached" }, 429);
+            useCredit = true;
         }
     }
 
@@ -59,6 +67,12 @@ export async function onRequestPost({ params, request, env }) {
     await env.DB.prepare(
         "UPDATE journal_entries SET video_prediction_id = ?, video_status = 'processing', video_started_at = ? WHERE id = ? AND user_id = ?"
     ).bind(prediction.id, now, params.id, userId).run();
+
+    if (useCredit) {
+        await env.DB.prepare(
+            "UPDATE users SET animation_credits = animation_credits - 1 WHERE id = ?"
+        ).bind(userId).run();
+    }
 
     return resp({ status: "processing", prediction_id: prediction.id });
 }
