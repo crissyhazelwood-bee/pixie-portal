@@ -154,6 +154,31 @@
         .entry-delete { background: none; border: none; color: #504060; cursor: pointer; font-size: 16px; transition: color 0.3s; }
         .entry-delete:hover { color: #ff6688; }
 
+        /* Dream video */
+        .animate-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .style-picker { background: rgba(20,10,40,0.8); border: 1px solid rgba(180,150,255,0.2); color: #b496ff; border-radius: 20px; padding: 6px 14px; font-family: 'Quicksand', sans-serif; font-size: 12px; cursor: pointer; outline: none; }
+        .style-picker:hover { border-color: rgba(255,150,200,0.4); }
+        .video-loading { display: flex; align-items: center; gap: 8px; color: #b496ff; font-size: 13px; margin-top: 14px; }
+        .video-spin { display: inline-block; animation: dream-spin 1.5s linear infinite; }
+        @keyframes dream-spin { to { transform: rotate(360deg); } }
+        .video-failed { color: #ff6688; font-size: 13px; margin-top: 14px; }
+        .entry-video-wrap { margin-top: 14px; }
+        .dream-video { width: 100%; border-radius: 12px; max-height: 360px; display: block; }
+
+        /* Book opening overlay */
+        #book-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(5,2,15,0.97); }
+        #book-overlay.hiding { animation: book-fade-out 0.7s ease forwards; }
+        @keyframes book-fade-out { to { opacity: 0; } }
+        .book-wrap { perspective: 1400px; }
+        .book { width: 300px; height: 380px; position: relative; transform-style: preserve-3d; }
+        .book-left { position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: linear-gradient(160deg,#2a0840,#18052a); border: 1px solid rgba(255,150,200,0.3); border-radius: 4px 0 0 4px; transform-origin: right center; display: flex; flex-direction: column; align-items: center; justify-content: center; backface-visibility: hidden; animation: book-left-open 1.4s cubic-bezier(0.4,0,0.2,1) 0.3s forwards; }
+        @keyframes book-left-open { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(-162deg); box-shadow: -20px 0 50px rgba(0,0,0,0.8); } }
+        .book-right { position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: linear-gradient(160deg,#18052a,#0d0820); border: 1px solid rgba(180,150,255,0.2); border-radius: 0 4px 4px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .book-spine { position: absolute; top: 0; left: calc(50% - 3px); width: 6px; height: 100%; background: linear-gradient(to bottom,#ff96c8,#b496ff); border-radius: 2px; }
+        .book-cover-star { font-size: 32px; animation: dream-spin 4s linear infinite; margin-bottom: 10px; }
+        .book-cover-title { color: #ff96c8; font-family: 'Pacifico', cursive; font-size: 14px; text-align: center; }
+        .book-page-line { height: 2px; background: rgba(180,150,255,0.12); border-radius: 2px; margin-bottom: 10px; width: 100%; }
+
         /* Scores */
         .score-row {
             display: flex; justify-content: space-between; align-items: center;
@@ -393,6 +418,26 @@
             </div>
         </div>
     </nav>
+
+    <!-- Book Opening Overlay -->
+    <div id="book-overlay" style="display:none;">
+        <div class="book-wrap">
+            <div class="book">
+                <div class="book-left">
+                    <div class="book-cover-star">✦</div>
+                    <div class="book-cover-title">Dream Journal</div>
+                </div>
+                <div class="book-right">
+                    <div class="book-page-line"></div>
+                    <div class="book-page-line"></div>
+                    <div class="book-page-line"></div>
+                    <div class="book-page-line"></div>
+                    <div class="book-page-line"></div>
+                </div>
+                <div class="book-spine"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- ============ HOME PAGE ============ -->
     <div class="page active" id="page-home">
@@ -948,7 +993,8 @@
             observeReveals();
 
             if (id === 'profile' && currentUser) loadProfile();
-            if (id === 'journal-page') loadJournal();
+            if (id === 'journal-page') { showBookAnimation(); loadJournal(); }
+            if (id !== 'journal-page') clearDreamPollers();
         }
 
         // ============================================
@@ -1168,7 +1214,7 @@
             const html = json.entries.map(e => {
                 const date = new Date(e.created_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 const mood = MOOD_EMOJIS[e.mood] || '💭';
-                return `<div class="journal-entry">
+                return `<div class="journal-entry" data-entry-id="${e.id}">
                     <div class="entry-header">
                         <span class="entry-mood">${mood}</span>
                         <span class="entry-date">${date}</span>
@@ -1176,11 +1222,97 @@
                     </div>
                     ${e.title ? `<div class="entry-title">${escHtml(e.title)}</div>` : ''}
                     <div class="entry-content">${escHtml(e.content)}</div>
+                    ${entryVideoSection(e)}
                 </div>`;
             }).join('');
 
             container.innerHTML = html;
             if (profileContainer) profileContainer.innerHTML = html;
+
+            // Auto-poll any entries still processing
+            json.entries.forEach(e => { if (e.video_status === 'processing') startDreamPolling(e.id); });
+        }
+
+        function entryVideoSection(e) {
+            if (e.video_status === 'done' && e.video_url) {
+                const u = safeVideoUrl(e.video_url);
+                return u ? `<div class="entry-video-wrap"><video src="${u}" controls loop class="dream-video"></video></div>` : '';
+            }
+            if (e.video_status === 'processing') {
+                return `<div id="animate-area-${e.id}" class="video-loading"><span class="video-spin">✦</span> Generating your dream video...</div>`;
+            }
+            return `<div id="animate-area-${e.id}">${animateButtonHtml(e.id)}</div>`;
+        }
+
+        function animateButtonHtml(id) {
+            return `<div class="animate-row">
+                <select class="style-picker" id="style-${id}">
+                    <option value="auto">✦ Auto Style</option>
+                    <option value="anime">🌸 Anime</option>
+                    <option value="watercolor">🎨 Watercolor</option>
+                    <option value="cartoon">🌈 Cartoon</option>
+                    <option value="surreal">🌀 Surreal</option>
+                    <option value="fantasy">🧚 Fantasy</option>
+                </select>
+                <button class="btn btn-primary btn-small" onclick="animateDream(${id})">Animate Dream ✦</button>
+            </div>`;
+        }
+
+        function safeVideoUrl(url) {
+            return (typeof url === 'string' && url.startsWith('https://')) ? url.replace(/"/g, '%22') : '';
+        }
+
+        async function animateDream(id) {
+            const area = document.getElementById('animate-area-' + id);
+            if (!area) return;
+            const style = document.getElementById('style-' + id)?.value || 'auto';
+            area.innerHTML = '<div class="video-loading"><span class="video-spin">✦</span> Starting...</div>';
+            const res = await fetch(API + '/api/journal/' + id + '/animate', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ style }), credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.status === 'processing') {
+                area.innerHTML = '<div class="video-loading"><span class="video-spin">✦</span> Generating your dream video...</div>';
+                startDreamPolling(id);
+            } else {
+                area.innerHTML = '<div class="video-failed">Could not start generation ✦</div>' + animateButtonHtml(id);
+            }
+        }
+
+        function startDreamPolling(id) {
+            window._dreamPollers = window._dreamPollers || {};
+            if (window._dreamPollers[id]) return;
+            window._dreamPollers[id] = setInterval(async () => {
+                const area = document.getElementById('animate-area-' + id);
+                if (!area) { clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id]; return; }
+                const res = await fetch(API + '/api/journal/' + id + '/animate', { credentials: 'include' });
+                const data = await res.json();
+                if (data.status === 'done') {
+                    clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id];
+                    const u = safeVideoUrl(data.video_url);
+                    if (u) area.outerHTML = `<div class="entry-video-wrap"><video src="${u}" controls loop autoplay class="dream-video"></video></div>`;
+                } else if (data.status === 'failed') {
+                    clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id];
+                    area.innerHTML = '<div class="video-failed">Generation failed ✦</div>' + animateButtonHtml(id);
+                }
+            }, 6000);
+        }
+
+        function clearDreamPollers() {
+            const p = window._dreamPollers || {};
+            Object.keys(p).forEach(id => { clearInterval(p[id]); delete p[id]; });
+        }
+
+        function showBookAnimation() {
+            if (sessionStorage.getItem('book-opened')) return;
+            sessionStorage.setItem('book-opened', '1');
+            const overlay = document.getElementById('book-overlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                overlay.classList.add('hiding');
+                setTimeout(() => { overlay.style.display = 'none'; overlay.classList.remove('hiding'); }, 700);
+            }, 2100);
         }
 
         async function deleteEntry(id) {
