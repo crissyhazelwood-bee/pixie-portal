@@ -15,7 +15,7 @@ export async function onRequestPost({ params, request, env }) {
     const userId = await getSessionUserId(env, request);
     if (!userId) return resp({ error: "Unauthorized" }, 401);
 
-    const { style = "auto" } = await request.json().catch(() => ({}));
+    const { style = "auto", prompt_override = null } = await request.json().catch(() => ({}));
 
     let useCredit = false;
 
@@ -43,7 +43,7 @@ export async function onRequestPost({ params, request, env }) {
 
     const entry = results[0];
     const prefix = STYLE_PREFIXES[style] || "";
-    const text = [entry.title, entry.content].filter(Boolean).join(". ").slice(0, 350);
+    const text = prompt_override || [entry.title, entry.content].filter(Boolean).join(". ").slice(0, 350);
     const prompt = `${prefix}Cinematic animated sequence: ${text}. Dreamy glowing atmosphere, ethereal magical visuals, smooth motion.`;
 
     const replicateRes = await fetch(
