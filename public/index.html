@@ -1312,7 +1312,7 @@
             });
             const data = await res.json();
             if (data.url) { window.location.href = data.url; }
-            else { toast((data.detail || data.error || 'Something went wrong') + ' ✦'); }
+            else { console.error('Checkout error:', data.detail || data.error); toast('Payment failed — please try again ✦'); }
         }
 
         async function loadJournal() {
