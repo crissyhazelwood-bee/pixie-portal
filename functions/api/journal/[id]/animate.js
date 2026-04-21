@@ -9,11 +9,24 @@ const STYLE_PREFIXES = {
     fantasy: "magical fantasy illustration style, ethereal glowing light, enchanted atmosphere, ",
 };
 
+const EXEMPT_USER_IDS = [1]; // Crissy (thatbee) is never rate-limited
+
 export async function onRequestPost({ params, request, env }) {
     const userId = await getSessionUserId(env, request);
     if (!userId) return resp({ error: "Unauthorized" }, 401);
 
     const { style = "auto" } = await request.json().catch(() => ({}));
+
+    // Daily limit: one animation per user per 24 hours (admins exempt)
+    if (!EXEMPT_USER_IDS.includes(userId)) {
+        const since = Date.now() / 1000 - 86400;
+        const { results: limitCheck } = await env.DB.prepare(
+            "SELECT 1 FROM journal_entries WHERE user_id = ? AND video_started_at > ? LIMIT 1"
+        ).bind(userId, since).all();
+        if (limitCheck.length > 0) {
+            return resp({ error: "limit_reached" }, 429);
+        }
+    }
 
     const { results } = await env.DB.prepare(
         "SELECT id, title, content FROM journal_entries WHERE id = ? AND user_id = ?"
@@ -42,9 +55,10 @@ export async function onRequestPost({ params, request, env }) {
     const prediction = await replicateRes.json();
     if (!prediction.id) return resp({ error: "Failed to start generation" }, 500);
 
+    const now = Date.now() / 1000;
     await env.DB.prepare(
-        "UPDATE journal_entries SET video_prediction_id = ?, video_status = 'processing' WHERE id = ? AND user_id = ?"
-    ).bind(prediction.id, params.id, userId).run();
+        "UPDATE journal_entries SET video_prediction_id = ?, video_status = 'processing', video_started_at = ? WHERE id = ? AND user_id = ?"
+    ).bind(prediction.id, now, params.id, userId).run();
 
     return resp({ status: "processing", prediction_id: prediction.id });
 }

@@ -1304,6 +1304,8 @@
             if (data.status === 'processing') {
                 area.innerHTML = '<div class="video-loading"><span class="video-spin">✦</span> Generating your dream video...</div>';
                 startDreamPolling(id);
+            } else if (data.error === 'limit_reached') {
+                area.innerHTML = '<div class="video-failed">You\'ve already animated a dream today ✦ Come back tomorrow!</div>';
             } else {
                 area.innerHTML = '<div class="video-failed">Could not start generation ✦</div>' + animateButtonHtml(id);
             }
