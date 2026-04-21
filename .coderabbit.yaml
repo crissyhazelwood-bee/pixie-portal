@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: "en-US"
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "functions/api/**"
+      instructions: >
+        This is a Cloudflare Workers API. Focus on: security vulnerabilities,
+        missing auth checks, SQL injection, input validation, and correct error
+        handling. Flag anything that could expose user data or allow unauthorized
+        access. The auth helper is in functions/_utils/auth.js.
+    - path: "public/*.html"
+      instructions: >
+        These are standalone browser games built with vanilla HTML, CSS, and
+        canvas-based JavaScript. Do not flag inline styles, lack of semantic
+        HTML, or absence of a build system — that is intentional. Focus on
+        JavaScript bugs, canvas rendering issues, game logic errors, memory
+        leaks in animation loops, and anything that would break on mobile.
+    - path: "database/**"
+      instructions: >
+        Review SQL migrations for correctness, data safety, and whether they
+        are backwards-compatible. Flag any destructive operations (DROP, TRUNCATE)
+        or missing indexes on columns used in WHERE clauses.
+    - path: "migrations/**"
+      instructions: >
+        Same as database — check for destructive operations, missing rollback
+        safety, and data integrity issues.
+
+chat:
+  auto_reply: true
