@@ -3,8 +3,8 @@ import { createSessionCookie } from "../_utils/auth.js";
 
 export async function onRequestPost({ request, env }) {
     try {
-        const { token, new_password } = await request.json();
-        if (!token || !new_password) {
+        const { email, code, new_password } = await request.json();
+        if (!email || !code || !new_password) {
             return new Response(JSON.stringify({ error: "Missing fields" }), {
                 status: 400, headers: { "Content-Type": "application/json" }
             });
@@ -15,15 +15,27 @@ export async function onRequestPost({ request, env }) {
             });
         }
 
-        const tokenHash = await hashRecoveryCode(token);
+        // Look up user by email
+        const { results: userRes } = await env.DB.prepare(
+            "SELECT id FROM users WHERE email = ?"
+        ).bind(email.toLowerCase()).all();
+
+        if (!userRes[0]) {
+            return new Response(JSON.stringify({ error: "Invalid code" }), {
+                status: 401, headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        const userId = userRes[0].id;
+        const codeHash = await hashRecoveryCode(code);
         const now = Date.now() / 1000;
 
         const { results } = await env.DB.prepare(
-            "SELECT t.id as token_id, u.* FROM password_reset_tokens t JOIN users u ON t.user_id = u.id WHERE t.token_hash = ? AND t.used = 0 AND t.expires_at > ?"
-        ).bind(tokenHash, now).all();
+            "SELECT t.id as token_id, u.* FROM password_reset_tokens t JOIN users u ON t.user_id = u.id WHERE t.user_id = ? AND t.token_hash = ? AND t.used = 0 AND t.expires_at > ?"
+        ).bind(userId, codeHash, now).all();
 
         if (!results[0]) {
-            return new Response(JSON.stringify({ error: "Reset link is invalid or has expired" }), {
+            return new Response(JSON.stringify({ error: "Code is invalid or has expired" }), {
                 status: 401, headers: { "Content-Type": "application/json" }
             });
         }
