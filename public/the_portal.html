@@ -41,6 +41,19 @@
         .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
         #zone-name { color:#f0d0ff; font-size:14px; font-weight:600; letter-spacing:1px; }
 
+        /* UI action buttons */
+        .ui-btn-row { display:flex; gap:8px; }
+        .ui-btn {
+            font-family:'Quicksand',sans-serif; font-size:12px; font-weight:700;
+            cursor:pointer; padding:6px 13px; border-radius:20px;
+            background:transparent; letter-spacing:0.4px; transition:all 0.18s;
+        }
+        .ui-btn-fairy { color:#ff96c8; border:1px solid rgba(255,150,200,0.35); }
+        .ui-btn-fairy:hover { border-color:#ff96c8; background:rgba(255,150,200,0.1); }
+        .ui-btn-build { color:#96ffdc; border:1px solid rgba(150,255,220,0.3); }
+        .ui-btn-build:hover { border-color:#96ffdc; background:rgba(150,255,220,0.1); }
+        .ui-btn-build.active { background:#96ffdc; color:#060410; border-color:#96ffdc; }
+
         #dpad { position:fixed; bottom:36px; right:22px; z-index:20; display:none; width:132px; height:132px; }
         #dpad button {
             position:absolute; width:44px; height:44px;
@@ -54,6 +67,102 @@
         #dpad .d-down  { top:88px; left:44px; }
         #dpad .d-left  { top:44px; left:0; }
         #dpad .d-right { top:44px; left:88px; }
+
+        /* Modal base */
+        .modal-bg {
+            display:none; position:fixed; inset:0; z-index:200;
+            background:rgba(5,2,12,0.9); backdrop-filter:blur(5px);
+            justify-content:center; align-items:center;
+        }
+        .modal-bg.open { display:flex; }
+        .modal-card {
+            background:linear-gradient(135deg,#1a1030,#0d0820);
+            border:1px solid rgba(180,150,255,0.22); border-radius:22px;
+            padding:28px 26px; width:440px; max-width:94vw; max-height:88vh; overflow-y:auto;
+        }
+        .modal-card h3 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:22px; margin-bottom:20px; }
+        .form-label { color:#b496ff; font-size:11px; font-weight:700; letter-spacing:1.2px; margin-bottom:8px; display:block; }
+        .form-section { margin-bottom:18px; }
+        .text-input {
+            width:100%; padding:10px 14px; border-radius:12px;
+            border:1px solid rgba(180,150,255,0.22); background:rgba(20,12,40,0.85);
+            color:#f0d0ff; font-family:'Quicksand',sans-serif; font-size:14px;
+        }
+        .text-input:focus { outline:none; border-color:#b496ff; }
+        .swatch-row { display:flex; flex-wrap:wrap; gap:8px; }
+        .sw {
+            border-radius:50%; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
+            width:30px; height:30px; border:2px solid rgba(255,255,255,0.08);
+        }
+        .sw:hover { transform:scale(1.15); }
+        .sw.on { box-shadow:0 0 0 3px rgba(255,255,255,0.7); }
+        .sw-emoji {
+            width:46px; height:46px; border-radius:12px; font-size:26px;
+            display:flex; align-items:center; justify-content:center;
+            background:rgba(180,150,255,0.08); border:2px solid rgba(180,150,255,0.15);
+            cursor:pointer; transition:all 0.15s;
+        }
+        .sw-emoji:hover { background:rgba(180,150,255,0.18); }
+        .sw-emoji.on { border-color:#ff96c8; background:rgba(255,150,200,0.15); box-shadow:0 0 0 1px #ff96c8; }
+        .wing-opt {
+            padding:7px 14px; border-radius:14px; cursor:pointer; font-size:12px; font-weight:600;
+            border:1px solid rgba(180,150,255,0.18); color:#806090; background:rgba(20,12,40,0.7);
+            transition:all 0.15s;
+        }
+        .wing-opt:hover { border-color:#b496ff; color:#b496ff; }
+        .wing-opt.on { border-color:#ff96c8; color:#ff96c8; background:rgba(255,150,200,0.12); }
+        .modal-btns { display:flex; gap:10px; margin-top:22px; }
+        .btn-save {
+            flex:1; padding:11px; border-radius:12px; border:none; cursor:pointer;
+            font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px;
+            background:linear-gradient(135deg,#ff96c8,#b496ff); color:#0a0614;
+        }
+        .btn-cancel {
+            flex:1; padding:11px; border-radius:12px; cursor:pointer;
+            font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px;
+            border:1px solid rgba(180,150,255,0.28); background:transparent; color:#b496ff;
+        }
+
+        /* Build panel */
+        #build-panel {
+            position:fixed; bottom:0; left:0; right:0; z-index:30;
+            background:rgba(6,4,22,0.97); border-top:1px solid rgba(180,150,255,0.18);
+            padding:12px 16px 26px; transform:translateY(100%);
+            transition:transform 0.32s cubic-bezier(.4,0,.2,1);
+        }
+        #build-panel.open { transform:translateY(0); }
+        .bp-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+        .bp-tab {
+            padding:5px 13px; border-radius:16px; font-size:12px; font-weight:700;
+            cursor:pointer; border:1px solid rgba(180,150,255,0.2); color:#604870;
+            letter-spacing:0.4px; transition:all 0.15s; background:transparent;
+            font-family:'Quicksand',sans-serif;
+        }
+        .bp-tab.active { border-color:#b496ff; color:#b496ff; background:rgba(180,150,255,0.12); }
+        .bp-erase {
+            margin-left:auto; padding:5px 13px; border-radius:16px; font-size:12px; font-weight:700;
+            cursor:pointer; border:1px solid rgba(255,100,100,0.25); color:#a06060;
+            background:transparent; transition:all 0.15s; font-family:'Quicksand',sans-serif;
+        }
+        .bp-erase.active { border-color:#ff8888; color:#ff8888; background:rgba(255,100,100,0.15); }
+        .palette { display:flex; gap:10px; flex-wrap:wrap; max-height:130px; overflow-y:auto; padding-bottom:2px; }
+        .pi {
+            width:54px; height:54px; border-radius:14px; cursor:pointer; flex-shrink:0;
+            border:2px solid rgba(180,150,255,0.15); background:rgba(20,12,45,0.75);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            font-size:22px; transition:all 0.15s;
+        }
+        .pi:hover { border-color:#b496ff; background:rgba(180,150,255,0.12); transform:scale(1.06); }
+        .pi.active { border-color:#ff96c8; background:rgba(255,150,200,0.15); }
+        .pi span { font-size:9px; color:#806090; margin-top:2px; line-height:1; text-align:center; }
+        .bp-hint { color:#3a2848; font-size:11px; text-align:center; margin-top:10px; letter-spacing:0.3px; }
+
+        /* Build cursor indicator */
+        #build-cursor {
+            display:none; position:fixed; pointer-events:none; z-index:25;
+            font-size:28px; transform:translate(-50%,-100%); opacity:0.75;
+            filter:drop-shadow(0 0 8px rgba(255,150,200,0.8));
+        }
     </style>
 </head>
 <body>
@@ -69,13 +178,108 @@
 <div id="ui">
     <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
     <div id="zone-name">The Meadow</div>
+    <div class="ui-btn-row">
+        <button class="ui-btn ui-btn-fairy" onclick="openCustomizer()">&#x2728; Fairy</button>
+        <button id="build-btn" class="ui-btn ui-btn-build" onclick="toggleBuild()">&#x1F528; Build</button>
+    </div>
 </div>
 
 <div id="dpad">
-    <button class="d-up"    onpointerdown="dp('u',1)" onpointerup="dp('u',0)" onpointercancel="dp('u',0)">▲</button>
-    <button class="d-down"  onpointerdown="dp('d',1)" onpointerup="dp('d',0)" onpointercancel="dp('d',0)">▼</button>
-    <button class="d-left"  onpointerdown="dp('l',1)" onpointerup="dp('l',0)" onpointercancel="dp('l',0)">◀</button>
-    <button class="d-right" onpointerdown="dp('r',1)" onpointerup="dp('r',0)" onpointercancel="dp('r',0)">▶</button>
+    <button class="d-up"    onpointerdown="dp('u',1)" onpointerup="dp('u',0)" onpointercancel="dp('u',0)">&#x25B2;</button>
+    <button class="d-down"  onpointerdown="dp('d',1)" onpointerup="dp('d',0)" onpointercancel="dp('d',0)">&#x25BC;</button>
+    <button class="d-left"  onpointerdown="dp('l',1)" onpointerup="dp('l',0)" onpointercancel="dp('l',0)">&#x25C0;</button>
+    <button class="d-right" onpointerdown="dp('r',1)" onpointerup="dp('r',0)" onpointercancel="dp('r',0)">&#x25B6;</button>
+</div>
+
+<!-- Floating cursor emoji for build mode -->
+<div id="build-cursor"></div>
+
+<!-- ════════════ FAIRY CUSTOMIZER MODAL ════════════ -->
+<div id="cust-modal" class="modal-bg">
+    <div class="modal-card">
+        <h3>&#x2728; Your Fairy</h3>
+
+        <div class="form-section">
+            <label class="form-label">FAIRY NAME</label>
+            <input id="fairy-name-input" class="text-input" type="text" maxlength="20" placeholder="Name your fairy...">
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">FAIRY TYPE</label>
+            <div class="swatch-row" id="gender-row">
+                <div class="sw-emoji on" data-gender="" onclick="selectGender(this)">&#x1F9DA;</div>
+                <div class="sw-emoji" data-gender="&#x200D;&#x2640;&#xFE0F;" onclick="selectGender(this)">&#x1F9DA;&#x200D;&#x2640;&#xFE0F;</div>
+                <div class="sw-emoji" data-gender="&#x200D;&#x2642;&#xFE0F;" onclick="selectGender(this)">&#x1F9DA;&#x200D;&#x2642;&#xFE0F;</div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">SKIN TONE</label>
+            <div class="swatch-row" id="skin-row">
+                <div class="sw on"  style="background:linear-gradient(135deg,#ffd9a0,#ffb870)" data-skin=""        onclick="selectSkin(this)" title="Default"></div>
+                <div class="sw"     style="background:linear-gradient(135deg,#fde7c8,#f5c992)" data-skin="&#x1F3FB;" onclick="selectSkin(this)" title="Light"></div>
+                <div class="sw"     style="background:linear-gradient(135deg,#eabd8a,#d49c5a)" data-skin="&#x1F3FC;" onclick="selectSkin(this)" title="Medium-Light"></div>
+                <div class="sw"     style="background:linear-gradient(135deg,#c68642,#a5632a)" data-skin="&#x1F3FD;" onclick="selectSkin(this)" title="Medium"></div>
+                <div class="sw"     style="background:linear-gradient(135deg,#8d5524,#6b3d16)" data-skin="&#x1F3FE;" onclick="selectSkin(this)" title="Medium-Dark"></div>
+                <div class="sw"     style="background:linear-gradient(135deg,#4a2912,#2e160a)" data-skin="&#x1F3FF;" onclick="selectSkin(this)" title="Dark"></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">WING STYLE</label>
+            <div class="swatch-row" id="wing-row">
+                <div class="wing-opt on" data-wing="butterfly" onclick="selectWing(this)">&#x1F98B; Butterfly</div>
+                <div class="wing-opt"    data-wing="dragonfly" onclick="selectWing(this)">&#x2728; Dragonfly</div>
+                <div class="wing-opt"    data-wing="petal"     onclick="selectWing(this)">&#x1F338; Petal</div>
+                <div class="wing-opt"    data-wing="sparkle"   onclick="selectWing(this)">&#x2B50; Sparkle</div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">GLOW COLOR</label>
+            <div class="swatch-row" id="glow-row">
+                <div class="sw on" style="background:#ff96c8" data-glow="#ff96c8" onclick="selectGlow(this)"></div>
+                <div class="sw"    style="background:#b496ff" data-glow="#b496ff" onclick="selectGlow(this)"></div>
+                <div class="sw"    style="background:#96ffdc" data-glow="#96ffdc" onclick="selectGlow(this)"></div>
+                <div class="sw"    style="background:#96c8ff" data-glow="#96c8ff" onclick="selectGlow(this)"></div>
+                <div class="sw"    style="background:#ffd700" data-glow="#ffd700" onclick="selectGlow(this)"></div>
+                <div class="sw"    style="background:#ff7744" data-glow="#ff7744" onclick="selectGlow(this)"></div>
+                <div class="sw"    style="background:#ffffff" data-glow="#ffffff" onclick="selectGlow(this)"></div>
+            </div>
+        </div>
+
+        <div class="modal-btns">
+            <button class="btn-save" onclick="saveFairyAndClose()">Save &#x2728;</button>
+            <button class="btn-cancel" onclick="closeCustomizer()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════ BUILD PANEL ════════════ -->
+<div id="build-panel">
+    <div class="bp-header">
+        <button class="bp-tab active" onclick="setBuildTab('buildings',this)">&#x1F3E1; Buildings</button>
+        <button class="bp-tab"        onclick="setBuildTab('gardens',this)">&#x1F338; Gardens</button>
+        <button class="bp-tab"        onclick="setBuildTab('decor',this)">&#x1F3EE; Decor</button>
+        <button id="erase-btn" class="bp-erase" onclick="toggleErase()">&#x1F5D1; Erase</button>
+    </div>
+    <div class="palette" id="palette-grid"></div>
+    <div class="bp-hint" id="build-hint">Select an item then click the world to place it &mdash; right-click to erase</div>
+</div>
+
+<!-- Bug report -->
+<div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;">
+    <button onclick="document.getElementById('bm').style.display='flex'" style="background:rgba(6,4,16,0.75);border:1px solid rgba(180,150,255,0.22);color:#604878;font-family:'Quicksand',sans-serif;font-size:12px;padding:6px 16px;border-radius:20px;cursor:pointer;backdrop-filter:blur(6px);">&#x1F41B; report a bug</button>
+</div>
+<div id="bm" style="display:none;position:fixed;inset:0;background:rgba(5,2,12,0.88);z-index:10000;justify-content:center;align-items:center;backdrop-filter:blur(4px);">
+    <div style="background:linear-gradient(135deg,#1a1030,#0d0820);border:1px solid rgba(180,150,255,0.2);border-radius:20px;padding:32px;width:380px;max-width:92vw;">
+        <h3 style="font-family:'Pacifico',cursive;color:#ff96c8;margin-bottom:12px;">Report a Bug</h3>
+        <textarea id="bd" placeholder="What went wrong?" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(180,150,255,0.2);background:rgba(20,12,35,0.8);color:#f0d0ff;font-family:'Quicksand',sans-serif;font-size:14px;resize:vertical;min-height:100px;margin-bottom:14px;"></textarea>
+        <div style="display:flex;gap:10px;">
+            <button onclick="(function(){var d=document.getElementById('bd').value.trim();if(!d)return;window.location.href='mailto:crissy@pixieportalgames.com?subject=Pixie+Portal+Bug+Report&body='+encodeURIComponent('Page: '+window.location.pathname+'\n\n'+d);document.getElementById('bm').style.display='none';document.getElementById('bd').value='';})()" style="flex:1;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Send &#x1F41B;</button>
+            <button onclick="document.getElementById('bm').style.display='none'" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(180,150,255,0.3);background:transparent;color:#b496ff;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Cancel</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -363,6 +567,365 @@ function drawTile(type,sx,sy,t){
     }
 }
 
+// ══════════════════════════════════════════════════════
+// ── FAIRY CUSTOMIZATION ────────────────────────────────
+// ══════════════════════════════════════════════════════
+var fairy={gender:'',skin:'',glowColor:'#ff96c8',wingStyle:'butterfly',name:''};
+
+function fairyEmoji(){
+    // 🧚 (U+1F9DA) + skin tone modifier + gender modifier
+    return '\uD83E\uDDDA'+(fairy.skin||'')+(fairy.gender||'');
+}
+
+function loadFairy(){
+    try{
+        var s=localStorage.getItem('portal_fairy');
+        if(s){ var d=JSON.parse(s); if(d&&typeof d==='object') Object.assign(fairy,d); }
+    }catch(e){}
+}
+function saveFairy(){
+    try{ localStorage.setItem('portal_fairy',JSON.stringify(fairy)); }catch(e){}
+}
+
+// Wings drawn BEFORE the fairy emoji (so they appear behind)
+function drawWings(cx,cy,t){
+    ctx.save();
+    switch(fairy.wingStyle){
+        case 'dragonfly': drawDragonflyWings(cx,cy,t); break;
+        case 'petal':     drawPetalWings(cx,cy,t); break;
+        case 'sparkle':   drawSparkleWings(cx,cy,t); break;
+        default:          drawButterflyWings(cx,cy,t);
+    }
+    ctx.restore();
+}
+
+function drawButterflyWings(cx,cy,t){
+    var flap=Math.sin(t*4.5)*0.18;
+    var gc=fairy.glowColor;
+    ctx.shadowColor=gc; ctx.shadowBlur=18;
+    // upper wings
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.bezierCurveTo(cx-HW*0.15,cy-HH*0.7,cx-HW*(1.2+flap),cy-HH*1.0,cx-HW*(0.7+flap*0.5),cy+HH*0.1);
+    ctx.bezierCurveTo(cx-HW*0.4,cy+HH*0.2,cx-HW*0.05,cy,cx,cy);
+    ctx.moveTo(cx,cy);
+    ctx.bezierCurveTo(cx+HW*0.15,cy-HH*0.7,cx+HW*(1.2+flap),cy-HH*1.0,cx+HW*(0.7+flap*0.5),cy+HH*0.1);
+    ctx.bezierCurveTo(cx+HW*0.4,cy+HH*0.2,cx+HW*0.05,cy,cx,cy);
+    ctx.fillStyle=gc+'2e'; ctx.fill();
+    ctx.strokeStyle=gc+'aa'; ctx.lineWidth=1.5; ctx.stroke();
+    // lower wings
+    ctx.beginPath();
+    ctx.moveTo(cx,cy+HH*0.1);
+    ctx.bezierCurveTo(cx-HW*0.1,cy+HH*0.4,cx-HW*(0.75+flap*0.3),cy+HH*0.75,cx-HW*(0.35+flap*0.2),cy+HH*0.55);
+    ctx.bezierCurveTo(cx-HW*0.2,cy+HH*0.4,cx-HW*0.05,cy+HH*0.25,cx,cy+HH*0.1);
+    ctx.moveTo(cx,cy+HH*0.1);
+    ctx.bezierCurveTo(cx+HW*0.1,cy+HH*0.4,cx+HW*(0.75+flap*0.3),cy+HH*0.75,cx+HW*(0.35+flap*0.2),cy+HH*0.55);
+    ctx.bezierCurveTo(cx+HW*0.2,cy+HH*0.4,cx+HW*0.05,cy+HH*0.25,cx,cy+HH*0.1);
+    ctx.fillStyle=gc+'1a'; ctx.fill();
+    ctx.strokeStyle=gc+'66'; ctx.lineWidth=1; ctx.stroke();
+    ctx.shadowBlur=0;
+}
+
+function drawDragonflyWings(cx,cy,t){
+    var flap=Math.sin(t*9)*0.07;
+    var gc=fairy.glowColor;
+    ctx.shadowColor=gc; ctx.shadowBlur=14;
+    // 4 elongated wings
+    var defs=[
+        [-HW*1.3,-HH*0.25,-HW*0.7,HH*0.18,-flap],
+        [ HW*1.3,-HH*0.25, HW*0.7,HH*0.18, flap],
+        [-HW*1.1, HH*0.3, -HW*0.5,HH*0.55,-flap*0.5],
+        [ HW*1.1, HH*0.3,  HW*0.5,HH*0.55, flap*0.5]
+    ];
+    defs.forEach(function(d){
+        ctx.save();
+        ctx.translate(cx,cy);
+        ctx.rotate(d[4]);
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.bezierCurveTo(d[0]*0.5,d[1]*0.4,d[0],d[1]*0.6,d[0],d[1]);
+        ctx.bezierCurveTo(d[0]*0.8,d[3]*0.5,d[2],d[3],0,0);
+        ctx.fillStyle=gc+'22'; ctx.fill();
+        ctx.strokeStyle=gc+'99'; ctx.lineWidth=1.2; ctx.stroke();
+        ctx.restore();
+    });
+    ctx.shadowBlur=0;
+}
+
+function drawPetalWings(cx,cy,t){
+    var drift=Math.sin(t*1.8)*0.1;
+    var gc=fairy.glowColor;
+    ctx.shadowColor=gc; ctx.shadowBlur=16;
+    var petals=[
+        {side:-1,vy:-1,scale:1.0},
+        {side: 1,vy:-1,scale:1.0},
+        {side:-1,vy: 1,scale:0.7},
+        {side: 1,vy: 1,scale:0.7}
+    ];
+    petals.forEach(function(p,i){
+        ctx.save();
+        ctx.translate(cx+p.side*HW*0.06,cy+p.vy*HH*0.1);
+        ctx.rotate(p.side*(0.35+drift)+(p.vy>0?0.4:0));
+        ctx.scale(p.side,1);
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.bezierCurveTo(HW*0.2*p.scale,-HH*0.9*p.scale,HW*0.9*p.scale,-HH*0.8*p.scale,HW*0.55*p.scale,HH*0.15*p.scale);
+        ctx.bezierCurveTo(HW*0.3*p.scale,HH*0.3*p.scale,HW*0.05*p.scale,HH*0.1*p.scale,0,0);
+        ctx.fillStyle=gc+(i<2?'28':'1a');
+        ctx.fill();
+        ctx.strokeStyle=gc+(i<2?'99':'66'); ctx.lineWidth=1;
+        ctx.stroke();
+        ctx.restore();
+    });
+    ctx.shadowBlur=0;
+}
+
+function drawSparkleWings(cx,cy,t){
+    var gc=fairy.glowColor;
+    ctx.shadowColor=gc; ctx.shadowBlur=22;
+    var count=14;
+    for(var i=0;i<count;i++){
+        var a=(i/count)*Math.PI*2+t*0.7;
+        var dist=HW*(0.55+Math.sin(t*1.8+i*0.9)*0.28);
+        var blink=0.25+Math.sin(t*3.5+i*1.6)*0.45;
+        if(blink<0.04) continue;
+        ctx.globalAlpha=Math.max(0,blink);
+        ctx.fillStyle=gc;
+        var px=cx+Math.cos(a)*dist, py=cy+Math.sin(a)*dist*0.52;
+        ctx.beginPath(); ctx.arc(px,py,1.4+blink*2,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+}
+
+// ── Customizer UI handlers ─────────────────────────────────────────────────────
+function openCustomizer(){
+    document.getElementById('fairy-name-input').value=fairy.name||'';
+    // sync gender
+    document.querySelectorAll('#gender-row .sw-emoji').forEach(function(el){
+        el.classList.toggle('on',(el.getAttribute('data-gender')||'')===(fairy.gender||''));
+    });
+    // sync skin
+    document.querySelectorAll('#skin-row .sw').forEach(function(el){
+        el.classList.toggle('on',(el.getAttribute('data-skin')||'')===(fairy.skin||''));
+    });
+    // sync wing
+    document.querySelectorAll('#wing-row .wing-opt').forEach(function(el){
+        el.classList.toggle('on',el.getAttribute('data-wing')===fairy.wingStyle);
+    });
+    // sync glow
+    document.querySelectorAll('#glow-row .sw').forEach(function(el){
+        el.classList.toggle('on',el.getAttribute('data-glow')===fairy.glowColor);
+    });
+    document.getElementById('cust-modal').classList.add('open');
+}
+function closeCustomizer(){
+    document.getElementById('cust-modal').classList.remove('open');
+}
+function saveFairyAndClose(){
+    fairy.name=document.getElementById('fairy-name-input').value.trim();
+    saveFairy();
+    closeCustomizer();
+}
+function selectGender(el){
+    document.querySelectorAll('#gender-row .sw-emoji').forEach(function(e){e.classList.remove('on');});
+    el.classList.add('on');
+    fairy.gender=el.getAttribute('data-gender')||'';
+}
+function selectSkin(el){
+    document.querySelectorAll('#skin-row .sw').forEach(function(e){e.classList.remove('on');});
+    el.classList.add('on');
+    fairy.skin=el.getAttribute('data-skin')||'';
+}
+function selectWing(el){
+    document.querySelectorAll('#wing-row .wing-opt').forEach(function(e){e.classList.remove('on');});
+    el.classList.add('on');
+    fairy.wingStyle=el.getAttribute('data-wing');
+}
+function selectGlow(el){
+    document.querySelectorAll('#glow-row .sw').forEach(function(e){e.classList.remove('on');});
+    el.classList.add('on');
+    fairy.glowColor=el.getAttribute('data-glow');
+}
+document.getElementById('cust-modal').addEventListener('click',function(e){
+    if(e.target===this) closeCustomizer();
+});
+
+// ══════════════════════════════════════════════════════
+// ── PLACED OBJECTS ─────────────────────────────────────
+// ══════════════════════════════════════════════════════
+var placed={};  // key: "tr,tc" -> {emoji, label}
+
+function loadPlaced(){
+    try{
+        var s=localStorage.getItem('portal_placed');
+        if(s){ var d=JSON.parse(s); if(d&&typeof d==='object') placed=d; }
+    }catch(e){}
+}
+function savePlaced(){
+    try{ localStorage.setItem('portal_placed',JSON.stringify(placed)); }catch(e){}
+}
+
+function drawPlaced(tc,tr,sx,sy){
+    var obj=placed[tr+','+tc];
+    if(!obj) return;
+    var cx=sx+HW, cy=sy+HH;
+    var sz=Math.round(HW*1.55);
+    ctx.save();
+    ctx.font=sz+'px serif';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.shadowColor='rgba(180,150,255,0.7)'; ctx.shadowBlur=16;
+    ctx.fillText(obj.emoji,cx,cy-Math.round(HH*0.2));
+    ctx.shadowBlur=0;
+    ctx.restore();
+}
+
+// ══════════════════════════════════════════════════════
+// ── BUILD MODE ─────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+var buildMode=false, eraseMode=false, selectedItem=null, buildTab='buildings';
+
+var PALETTE={
+    buildings:[
+        {emoji:'🏡',label:'Cottage'},  {emoji:'🏠',label:'House'},
+        {emoji:'🏰',label:'Castle'},   {emoji:'🏯',label:'Pagoda'},
+        {emoji:'🛖',label:'Hut'},      {emoji:'⛺',label:'Tent'},
+        {emoji:'🏚',label:'Old House'},{emoji:'🪵',label:'Log Cabin'},
+        {emoji:'🗼',label:'Tower'},    {emoji:'⛩',label:'Shrine'},
+    ],
+    gardens:[
+        {emoji:'🌸',label:'Blossom'},  {emoji:'🌺',label:'Hibiscus'},
+        {emoji:'🌻',label:'Sunflower'},{emoji:'🌼',label:'Daisy'},
+        {emoji:'🌷',label:'Tulip'},    {emoji:'🌹',label:'Rose'},
+        {emoji:'🍄',label:'Mushroom'}, {emoji:'🌿',label:'Fern'},
+        {emoji:'🌳',label:'Oak'},      {emoji:'🌲',label:'Pine'},
+        {emoji:'🎋',label:'Bamboo'},   {emoji:'🪷',label:'Lotus'},
+        {emoji:'🌵',label:'Cactus'},   {emoji:'🌾',label:'Wheat'},
+        {emoji:'🍀',label:'Clover'},   {emoji:'🪴',label:'Potted'},
+        {emoji:'🌱',label:'Sprout'},   {emoji:'🍁',label:'Maple'},
+    ],
+    decor:[
+        {emoji:'🏮',label:'Lantern'},  {emoji:'⛲',label:'Fountain'},
+        {emoji:'🪑',label:'Bench'},    {emoji:'🪨',label:'Boulder'},
+        {emoji:'⭐',label:'Star Stone'},{emoji:'🔮',label:'Crystal'},
+        {emoji:'🕯️',label:'Candle'},   {emoji:'🌙',label:'Moon Stone'},
+        {emoji:'💫',label:'Sparkle'},  {emoji:'🪄',label:'Wand'},
+        {emoji:'🎠',label:'Carousel'}, {emoji:'🧺',label:'Basket'},
+        {emoji:'🎪',label:'Big Top'},  {emoji:'🗿',label:'Statue'},
+        {emoji:'🪞',label:'Mirror'},   {emoji:'🎭',label:'Masks'},
+        {emoji:'🌈',label:'Rainbow'},  {emoji:'🧿',label:'Orb'},
+    ]
+};
+
+function toggleBuild(){
+    buildMode=!buildMode;
+    var btn=document.getElementById('build-btn');
+    var panel=document.getElementById('build-panel');
+    if(buildMode){
+        btn.classList.add('active');
+        panel.classList.add('open');
+        renderPalette();
+    } else {
+        btn.classList.remove('active');
+        panel.classList.remove('open');
+        eraseMode=false;
+        selectedItem=null;
+        document.getElementById('erase-btn').classList.remove('active');
+        document.getElementById('build-cursor').style.display='none';
+    }
+}
+
+function setBuildTab(tab,el){
+    buildTab=tab; selectedItem=null;
+    document.querySelectorAll('.bp-tab').forEach(function(t){t.classList.remove('active');});
+    el.classList.add('active');
+    renderPalette();
+}
+
+function toggleErase(){
+    eraseMode=!eraseMode;
+    selectedItem=null;
+    var btn=document.getElementById('erase-btn');
+    if(eraseMode){
+        btn.classList.add('active');
+        document.getElementById('build-cursor').style.display='block';
+        document.getElementById('build-cursor').textContent='🗑️';
+        renderPalette();
+    } else {
+        btn.classList.remove('active');
+        document.getElementById('build-cursor').style.display='none';
+    }
+}
+
+function renderPalette(){
+    var grid=document.getElementById('palette-grid');
+    var items=PALETTE[buildTab]||[];
+    grid.innerHTML='';
+    items.forEach(function(item){
+        var div=document.createElement('div');
+        div.className='pi'+(selectedItem&&selectedItem.emoji===item.emoji?' active':'');
+        div.innerHTML=item.emoji+'<span>'+item.label+'</span>';
+        div.onclick=function(){
+            eraseMode=false;
+            document.getElementById('erase-btn').classList.remove('active');
+            selectedItem=(selectedItem&&selectedItem.emoji===item.emoji)?null:item;
+            if(selectedItem){
+                document.getElementById('build-cursor').textContent=item.emoji;
+                document.getElementById('build-cursor').style.display='block';
+            } else {
+                document.getElementById('build-cursor').style.display='none';
+            }
+            document.querySelectorAll('.pi').forEach(function(p){p.classList.remove('active');});
+            if(selectedItem) div.classList.add('active');
+        };
+        grid.appendChild(div);
+    });
+}
+
+// Convert screen coords → iso tile coords
+function screenToTile(sx,sy){
+    var u=sx-OX+cam.x;
+    var v=sy-OY+cam.y;
+    var col=Math.round((u/HW+v/HH)/2);
+    var row=Math.round((v/HH-u/HW)/2);
+    return{tc:col,tr:row};
+}
+
+// Follow mouse with build cursor
+window.addEventListener('mousemove',function(e){
+    var cur=document.getElementById('build-cursor');
+    if(!buildMode||(cur.style.display==='none')) return;
+    cur.style.left=e.clientX+'px';
+    cur.style.top=e.clientY+'px';
+});
+
+// Canvas click: place or erase
+canvas.addEventListener('pointerdown',function(e){
+    if(!started||!buildMode) return;
+    if(!selectedItem&&!eraseMode) return;
+    var rect=canvas.getBoundingClientRect();
+    var pos=screenToTile(e.clientX-rect.left, e.clientY-rect.top);
+    if(pos.tc<0||pos.tc>=MC||pos.tr<0||pos.tr>=MR) return;
+    var key=pos.tr+','+pos.tc;
+    if(eraseMode){
+        delete placed[key];
+    } else {
+        placed[key]={emoji:selectedItem.emoji,label:selectedItem.label};
+    }
+    savePlaced();
+    e.stopPropagation();
+},{passive:false});
+
+// Right-click to erase quickly
+canvas.addEventListener('contextmenu',function(e){
+    if(!started||!buildMode) return;
+    e.preventDefault();
+    var rect=canvas.getBoundingClientRect();
+    var pos=screenToTile(e.clientX-rect.left, e.clientY-rect.top);
+    if(pos.tc<0||pos.tc>=MC||pos.tr<0||pos.tr>=MR) return;
+    delete placed[pos.tr+','+pos.tc];
+    savePlaced();
+});
+
 // ── Player ─────────────────────────────────────────────────────────────────────
 var pl={tc:27,tr:22,wx:0,wy:0,moving:false,dir:'r',flip:false};
 
@@ -377,23 +940,44 @@ function drawPlayer(t){
     var pcx=Math.round(pl.wx-cam.x)+OX+HW;
     var pcy=Math.round(pl.wy-cam.y)+OY+HH;
     var bob=Math.sin(t*3.2)*2.8, py=pcy+bob;
+
+    // Ground shadow
     ctx.fillStyle='rgba(0,0,0,.24)';
     ctx.beginPath(); ctx.ellipse(pcx,pcy+HH*.25,HW*.28,HH*.22,0,0,Math.PI*2); ctx.fill();
+
     if(Math.random()<0.45) spawnDust(pcx,py);
+
+    // Wings (behind fairy)
+    drawWings(pcx,py-Math.round(HH*0.3),t);
+
+    // Fairy emoji
     ctx.save();
     if(pl.flip){ ctx.translate(pcx,0); ctx.scale(-1,1); ctx.translate(-pcx,0); }
     var sz=Math.round(HW*1.6);
     ctx.font=sz+'px serif';
     ctx.textAlign='center'; ctx.textBaseline='bottom';
-    ctx.shadowColor='#ff96c8'; ctx.shadowBlur=26;
-    ctx.fillText('🧚',pcx,py);
-    ctx.shadowColor='#b496ff'; ctx.shadowBlur=14;
-    ctx.fillText('🧚',pcx,py);
+    ctx.shadowColor=fairy.glowColor; ctx.shadowBlur=26;
+    ctx.fillText(fairyEmoji(),pcx,py);
+    ctx.shadowColor=fairy.glowColor; ctx.shadowBlur=14;
+    ctx.fillText(fairyEmoji(),pcx,py);
     ctx.shadowBlur=0;
     ctx.restore();
+
+    // Fairy name floating above
+    if(fairy.name){
+        ctx.save();
+        var nameSz=Math.max(10,Math.round(HH*0.72));
+        ctx.font='700 '+nameSz+'px Quicksand,sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='bottom';
+        ctx.shadowColor=fairy.glowColor; ctx.shadowBlur=14;
+        ctx.fillStyle='#f8e8ff';
+        ctx.fillText(fairy.name,pcx,py-sz*0.92);
+        ctx.shadowBlur=0;
+        ctx.restore();
+    }
 }
 
-// ── Particles — screen space ────────────────────────────────────────────────────
+// ── Particles ──────────────────────────────────────────────────────────────────
 var parts=[];
 var DUST_CLR=['#ff96c8','#ffffa0','#b496ff','#96ffdc','#fff'];
 
@@ -409,7 +993,7 @@ function spawnBurst(x,y){
     }
 }
 
-// ── Fireflies — iso world space ─────────────────────────────────────────────────
+// ── Fireflies ──────────────────────────────────────────────────────────────────
 var fireflies=[];
 var FFY_MAX=28;
 var FFY_CLR=['#ffffa0','#c0ffb0','#fff0b0','#e0ffff'];
@@ -481,13 +1065,13 @@ function drawAmbientGlow(t){
 
 // ── Zone names ─────────────────────────────────────────────────────────────────
 var ZONES=[
-    {r1:4,c1:36,r2:16,c2:52,name:'🌊 The Lake'},
-    {r1:17,c1:23,r2:23,c2:31,name:'✨ The Fairy Ring'},
-    {r1:0,c1:0,r2:MR,c2:MC,name:'🌿 The Meadow'}
+    {r1:4,c1:36,r2:16,c2:52,name:'\uD83C\uDF0A The Lake'},
+    {r1:17,c1:23,r2:23,c2:31,name:'\u2728 The Fairy Ring'},
+    {r1:0,c1:0,r2:MR,c2:MC,name:'\uD83C\uDF3F The Meadow'}
 ];
 var curZone='';
 function checkZone(){
-    var n='🌿 The Meadow';
+    var n=ZONES[ZONES.length-1].name;
     for(var i=0;i<ZONES.length-1;i++){
         var z=ZONES[i];
         if(pl.tr>=z.r1&&pl.tr<z.r2&&pl.tc>=z.c1&&pl.tc<z.c2){n=z.name;break;}
@@ -561,7 +1145,6 @@ function draw(t){
     ctx.fillStyle=bgG; ctx.fillRect(0,0,SW,SH);
     if(!started) return;
 
-    // Depth range — vertical screen extent in iso depth units
     var depthMin=Math.max(0,Math.floor((cam.y-OY-TH_px*5)/HH)-1);
     var depthMax=Math.min(MR+MC-2,Math.ceil((cam.y-OY+SH)/HH)+2);
 
@@ -575,9 +1158,9 @@ function draw(t){
             var dc=depth-dr;
             if(dc<0||dc>=MC) continue;
             var sp=tileScreenPos(dc,dr);
-            // Cull off-screen (extra vertical buffer for tree canopies)
             if(sp.sx+TW_px<0||sp.sx>SW||sp.sy+TH_px*5<0||sp.sy>SH) continue;
             drawTile(map[dr][dc],sp.sx,sp.sy,t);
+            drawPlaced(dc,dr,sp.sx,sp.sy);
         }
         if(!plDrawn&&depth>=plDepth){ drawPlayer(t); plDrawn=true; }
     }
@@ -616,26 +1199,13 @@ function enterPortal(){
     if('ontouchstart' in window) document.getElementById('dpad').style.display='block';
     map=buildMap();
     initPlayer();
+    loadFairy();
+    loadPlaced();
     checkZone();
     started=true;
 }
 
 requestAnimationFrame(loop);
 </script>
-
-<!-- Bug report -->
-<div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;">
-    <button onclick="document.getElementById('bm').style.display='flex'" style="background:rgba(6,4,16,0.75);border:1px solid rgba(180,150,255,0.22);color:#604878;font-family:'Quicksand',sans-serif;font-size:12px;padding:6px 16px;border-radius:20px;cursor:pointer;backdrop-filter:blur(6px);">🐛 report a bug</button>
-</div>
-<div id="bm" style="display:none;position:fixed;inset:0;background:rgba(5,2,12,0.88);z-index:10000;justify-content:center;align-items:center;backdrop-filter:blur(4px);">
-    <div style="background:linear-gradient(135deg,#1a1030,#0d0820);border:1px solid rgba(180,150,255,0.2);border-radius:20px;padding:32px;width:380px;max-width:92vw;">
-        <h3 style="font-family:'Pacifico',cursive;color:#ff96c8;margin-bottom:12px;">Report a Bug</h3>
-        <textarea id="bd" placeholder="What went wrong?" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(180,150,255,0.2);background:rgba(20,12,35,0.8);color:#f0d0ff;font-family:'Quicksand',sans-serif;font-size:14px;resize:vertical;min-height:100px;margin-bottom:14px;"></textarea>
-        <div style="display:flex;gap:10px;">
-            <button onclick="(function(){var d=document.getElementById('bd').value.trim();if(!d)return;window.location.href='mailto:crissy@pixieportalgames.com?subject=Pixie+Portal+Bug+Report&body='+encodeURIComponent('Page: '+window.location.pathname+'\n\n'+d);document.getElementById('bm').style.display='none';document.getElementById('bd').value='';})()" style="flex:1;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Send 🐛</button>
-            <button onclick="document.getElementById('bm').style.display='none'" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(180,150,255,0.3);background:transparent;color:#b496ff;font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;">Cancel</button>
-        </div>
-    </div>
-</div>
 </body>
 </html>
