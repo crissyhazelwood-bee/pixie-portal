@@ -34,6 +34,13 @@ export async function onRequestPost({ request, env }) {
         "UPDATE portal_players SET points = points + ?, streak = ?, last_daily_at = ? WHERE user_id = ?"
     ).bind(pointsEarned, newStreak, now, userId).run();
 
+    // Pappy (user_id=9) gets 10 animation credits per daily claim
+    if (userId === 9) {
+        await env.DB.prepare(
+            "UPDATE users SET animation_credits = COALESCE(animation_credits, 0) + 10 WHERE id = ?"
+        ).bind(userId).run();
+    }
+
     return resp({ success: true, pointsEarned, bonus, streak: newStreak, totalPoints: player.points + pointsEarned });
 }
 
