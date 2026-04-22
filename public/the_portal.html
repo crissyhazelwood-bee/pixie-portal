@@ -300,6 +300,68 @@
         .shop-item.lvl-locked { opacity:0.55; cursor:not-allowed; }
         .shop-item.lvl-locked:hover { transform:none; border-color:rgba(180,150,255,0.18); background:rgba(20,16,8,0.7); }
         .shop-item.lvl-locked .si-cost { color:#6050a0; }
+
+        /* ── Mobile ──────────────────────────────────────── */
+        @media (max-width: 640px) {
+            /* Start screen */
+            #start-screen h1 { font-size:36px; }
+            .portal-orb { font-size:64px; }
+            .step-text { font-size:17px; }
+
+            /* Top HUD — wrap button row onto second line */
+            #ui { flex-wrap:wrap; padding:6px 10px 4px; gap:4px; }
+            .back-btn { font-size:11px; padding:6px 10px; min-height:34px; }
+            #zone-name { font-size:12px; }
+            #portal-stats { gap:4px !important; }
+            .stat-pill { font-size:9px; padding:2px 6px; }
+            .ui-btn-row {
+                width:100%; order:3;
+                overflow-x:auto; flex-wrap:nowrap;
+                gap:5px; padding-bottom:2px;
+                -webkit-overflow-scrolling:touch;
+                scrollbar-width:none;
+            }
+            .ui-btn-row::-webkit-scrollbar { display:none; }
+            .ui-btn { font-size:11px; padding:7px 11px; white-space:nowrap; min-height:34px; }
+
+            /* D-pad — nudge away from edge */
+            #dpad { bottom:18px; right:14px; }
+
+            /* Modals — reduce padding, respect safe area */
+            .modal-card {
+                padding:16px 14px;
+                max-width:98vw;
+                max-height:calc(100dvh - 48px);
+                border-radius:16px;
+            }
+            .modal-card h3 { font-size:19px; margin-bottom:14px; }
+
+            /* Tap targets — swatches */
+            .sw { width:38px; height:38px; }
+            .sw-emoji { width:52px; height:52px; font-size:28px; }
+            .wing-opt { padding:9px 13px; font-size:12px; min-height:36px; }
+
+            /* Modal buttons */
+            .btn-save, .btn-cancel { padding:14px; font-size:15px; }
+            .sz-btn { padding:8px 13px; font-size:12px; min-height:36px; }
+            .bp-tab { padding:7px 13px; min-height:34px; }
+
+            /* Build palette — slightly bigger tiles */
+            .pi { width:60px; height:60px; font-size:24px; }
+            .palette { max-height:160px; }
+
+            /* Garden slots */
+            .herb-slot { width:72px; height:90px; }
+            .herb-opt { padding:8px 11px; font-size:12px; min-height:36px; }
+
+            /* Shop items */
+            .shop-item { width:85px; padding:12px 6px; }
+
+            /* Bottom panels — safe area for notched iPhones */
+            #build-panel, #garden-panel {
+                padding-bottom:max(26px, env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 <body>
@@ -309,7 +371,7 @@
     <h1>~ The Portal ~</h1>
     <div class="portal-orb">🌀</div>
     <div class="step-text">Step Through</div>
-    <div class="start-hint">Arrow keys · WASD · or D-Pad</div>
+    <div class="start-hint">D-Pad to move · arrow keys / WASD on desktop</div>
 </div>
 
 <div id="ui">
@@ -352,7 +414,7 @@
 
         <div class="form-section">
             <label class="form-label">FAIRY NAME</label>
-            <input id="fairy-name-input" class="text-input" type="text" maxlength="20" placeholder="Name your fairy...">
+            <input id="fairy-name-input" class="text-input" type="text" maxlength="20" placeholder="Name your fairy..." inputmode="none">
         </div>
 
         <div class="form-section">
