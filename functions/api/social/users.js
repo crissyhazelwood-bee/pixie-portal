@@ -49,10 +49,22 @@ export async function onRequestGet({ request, env }) {
     }
 
     if (search) {
+        const userId = await getSessionUserId(env, request);
         const q = `%${search}%`;
         const { results } = await env.DB.prepare(
             "SELECT id, username, display_name, avatar_emoji FROM users WHERE username LIKE ? OR display_name LIKE ? LIMIT 10"
         ).bind(q, q).all();
+
+        if (userId && results.length) {
+            const followChecks = await Promise.all(
+                results.map(u =>
+                    env.DB.prepare("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?")
+                        .bind(userId, u.id).all().catch(() => ({ results: [] }))
+                )
+            );
+            results.forEach((u, i) => { u.is_following = followChecks[i].results.length > 0; });
+        }
+
         return resp({ users: results });
     }
 

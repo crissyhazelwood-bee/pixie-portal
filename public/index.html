@@ -2022,7 +2022,7 @@
             const el = document.getElementById('friends-search-results');
             if (!q.trim()) { el.innerHTML = ''; return; }
             friendsSearchTimeout = setTimeout(async () => {
-                const res = await fetch(API + '/api/social/users?search=' + encodeURIComponent(q));
+                const res = await fetch(API + '/api/social/users?search=' + encodeURIComponent(q), { credentials: 'include' });
                 const data = await res.json();
                 const users = data.users || [];
                 if (!users.length) { el.innerHTML = '<div style="color:#9080b0;font-size:13px;padding:8px 4px;">No users found</div>'; return; }
@@ -2035,7 +2035,7 @@
             clearTimeout(searchTimeout);
             if (!q.trim()) { document.getElementById('user-search-results').innerHTML = ''; return; }
             searchTimeout = setTimeout(async () => {
-                const res = await fetch(API + '/api/social/users?search=' + encodeURIComponent(q));
+                const res = await fetch(API + '/api/social/users?search=' + encodeURIComponent(q), { credentials: 'include' });
                 const data = await res.json();
                 const el = document.getElementById('user-search-results');
                 if (!el) return;
@@ -2050,7 +2050,7 @@
             clearTimeout(dmSearchTimeout);
             if (!q.trim()) { document.getElementById('dm-search-results').innerHTML = ''; return; }
             dmSearchTimeout = setTimeout(async () => {
-                const res = await fetch(API + '/api/social/users?search=' + encodeURIComponent(q));
+                const res = await fetch(API + '/api/social/users?search=' + encodeURIComponent(q), { credentials: 'include' });
                 const data = await res.json();
                 const el = document.getElementById('dm-search-results');
                 if (!el) return;
@@ -2068,13 +2068,14 @@
 
         function userCardHtml(u) {
             const isSelf = currentUser && u.id === currentUser.id;
+            const following = !!u.is_following;
             return `<div class="user-card">
                 <div class="social-avatar-circle" onclick="viewPublicProfile('${escHtml(u.username)}')">${u.avatar_emoji||'✦'}</div>
                 <div class="user-card-info">
                     <div class="user-card-name" onclick="viewPublicProfile('${escHtml(u.username)}')">${escHtml(u.display_name||u.username)}</div>
                     <div class="user-card-sub">@${escHtml(u.username)}</div>
                 </div>
-                ${!isSelf && currentUser ? `<button class="follow-btn" id="follow-btn-${u.id}" onclick="toggleFollowUser(${u.id})">Follow</button>` : ''}
+                ${!isSelf && currentUser ? `<button class="follow-btn${following?' following':''}" id="follow-btn-${u.id}" onclick="toggleFollowUser(${u.id})">${following?'Following':'Follow'}</button>` : ''}
             </div>`;
         }
 
