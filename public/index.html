@@ -1109,6 +1109,7 @@
             if (id === 'profile' && currentUser) loadProfile();
             if (id === 'journal-page') { showBookAnimation(); loadJournal(); }
             if (id !== 'journal-page') clearDreamPollers();
+            if (id === 'games') loadLeaderboard();
         }
 
         function toggleMobileNav() {
@@ -1562,6 +1563,68 @@
             await fetch(API + '/api/journal/' + id, { method: 'DELETE', credentials: 'include' });
             toast('Entry deleted');
             loadJournal();
+        }
+
+        // ============================================
+        // LEADERBOARD
+        // ============================================
+        async function loadLeaderboard() {
+            const area = document.getElementById('leaderboard-area');
+            if (!area) return;
+            area.innerHTML = '<div style="text-align:center;color:#b090d0;padding:20px;">Loading...</div>';
+
+            const games = [
+                { id: 'Fairy Garden',           label: 'Fairy Garden' },
+                { id: 'Pixie Pet: sparkle-catch', label: 'Sparkle Catch' },
+                { id: 'Pixie Pet: bubble-pop',   label: 'Bubble Pop' },
+                { id: 'Pixie Pet: memory',       label: 'Memory' },
+                { id: 'Pixie Pet: spell-seq',    label: 'Spell Sequence' },
+            ];
+
+            let tabsHtml = '<div class="profile-tabs">';
+            games.forEach(function(g, i) {
+                tabsHtml += '<button class="profile-tab' + (i===0?' active':'') + '" onclick="lbSwitchTab(\'lb-tab-' + i + '\',this)">' + g.label + '</button>';
+            });
+            tabsHtml += '</div>';
+
+            let contentHtml = '';
+            games.forEach(function(g, i) {
+                contentHtml += '<div class="tab-content' + (i===0?' active':'') + '" id="lb-tab-' + i + '"><div style="text-align:center;color:#b090d0;padding:20px;">Loading...</div></div>';
+            });
+
+            area.innerHTML = tabsHtml + contentHtml;
+
+            games.forEach(function(g, i) {
+                fetch(API + '/api/leaderboard/' + encodeURIComponent(g.id))
+                    .then(function(r){ return r.json(); })
+                    .then(function(data) {
+                        var el = document.getElementById('lb-tab-' + i);
+                        if (!el) return;
+                        var rows = data.leaderboard || [];
+                        if (!rows.length) {
+                            el.innerHTML = '<div class="empty" style="padding:20px;"><span class="empty-icon">🏆</span><div class="empty-text">No scores yet!</div></div>';
+                            return;
+                        }
+                        var medals = ['🥇','🥈','🥉'];
+                        el.innerHTML = rows.map(function(row, ri) {
+                            var rankClass = ri===0?'gold':ri===1?'silver':ri===2?'bronze':'';
+                            var rank = ri < 3 ? medals[ri] : '#'+(ri+1);
+                            return '<div class="lb-row"><div class="lb-rank ' + rankClass + '">' + rank + '</div><div class="lb-name">' + (row.avatar_emoji||'✦') + ' ' + (row.display_name||'Anon') + '</div><div class="lb-score">' + row.score + '</div></div>';
+                        }).join('');
+                    })
+                    .catch(function() {
+                        var el = document.getElementById('lb-tab-' + i);
+                        if (el) el.innerHTML = '<div class="empty" style="padding:20px;"><div class="empty-text">Could not load scores</div></div>';
+                    });
+            });
+        }
+
+        function lbSwitchTab(tabId, btn) {
+            document.querySelectorAll('#leaderboard-area .profile-tab').forEach(function(t){ t.classList.remove('active'); });
+            document.querySelectorAll('#leaderboard-area .tab-content').forEach(function(t){ t.classList.remove('active'); });
+            btn.classList.add('active');
+            var tab = document.getElementById(tabId);
+            if (tab) tab.classList.add('active');
         }
 
         // ============================================
