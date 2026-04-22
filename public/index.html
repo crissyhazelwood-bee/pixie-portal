@@ -1040,6 +1040,12 @@
     <footer>
         <div class="sparkles">✦ ⋆ ✧ ⋆ ✦</div>
         <p>pixie portal &copy; 2026 crissy — made with magic</p>
+        <p style="margin:16px 0 8px;color:#7a5a9a;font-size:12px;">support development ✦</p>
+        <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+            <button onclick="donate(500)"  class="btn btn-ghost btn-small" style="font-size:12px;">✦ $5</button>
+            <button onclick="donate(1000)" class="btn btn-ghost btn-small" style="font-size:12px;">✦ $10</button>
+            <button onclick="donate(1500)" class="btn btn-ghost btn-small" style="font-size:12px;">✦ $15</button>
+        </div>
     </footer>
 
     <script src="tarot-deck.js"></script>
@@ -1387,6 +1393,16 @@
             } else if (animData.status === 'processing') {
                 startDreamPolling(created.id);
             }
+        }
+
+        async function donate(amount) {
+            const res = await fetch(API + '/api/shop/donate', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount })
+            });
+            const data = await res.json();
+            if (data.url) { window.location.href = data.url; }
+            else { toast('Something went wrong ✦'); }
         }
 
         async function buyFairy() {
@@ -2040,6 +2056,10 @@
                 if (json.user) { currentUser = json.user; updateCreditsDisplay(); }
                 toast('Credits added to your account ✦');
                 showPage('journal-page');
+            }
+            if (urlParams.get('donated') === 'true') {
+                history.replaceState({}, '', '/');
+                toast('Thank you for supporting Pixie Portal ✦');
             }
             if (urlParams.get('purchase') === 'fairy') {
                 const sessionId = urlParams.get('session_id');
