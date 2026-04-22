@@ -197,10 +197,10 @@
         .herb-slot .slot-emoji { font-size:22px; }
         .herb-slot .slot-name { font-size:8px; color:#70a880; text-align:center; line-height:1.2; }
         .herb-slot .slot-bar {
-            width:44px; height:3px; border-radius:2px;
-            background:rgba(150,255,180,0.12); overflow:hidden;
+            width:48px; height:5px; border-radius:3px;
+            background:rgba(150,255,180,0.15); overflow:hidden;
         }
-        .herb-slot .slot-bar-fill { height:100%; border-radius:2px; background:#96ffdc; }
+        .herb-slot .slot-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#56c87a,#96ffdc); }
         .herb-slot .slot-ready { color:#ffd700; font-size:8px; font-weight:700; }
         .herb-slot .slot-empty { font-size:11px; color:#2a4035; }
 
@@ -1739,7 +1739,8 @@ function draw(t){
             if(dc<0||dc>=MC) continue;
             var sp=tileScreenPos(dc,dr);
             if(sp.sx+TW_px<0||sp.sx>SW||sp.sy+TH_px*5<0||sp.sy>SH) continue;
-            drawTile(map[dr][dc],sp.sx,sp.sy,t);
+            var tType=(dr>=23&&dr<=25&&dc>=22&&dc<=24)?TG:map[dr][dc];
+            drawTile(tType,sp.sx,sp.sy,t);
             drawPlaced(dc,dr,sp.sx,sp.sy);
         }
         if(depth===49) drawMushroomHouse(t);
@@ -1817,6 +1818,7 @@ var portalData = null;
 var gardenOpen = false;
 var pickerSlot = null;
 var _toastTimer = null;
+var _gardenRefreshTimer = null;
 
 function getGLevel(pts) {
     return [...LEVELS_G].reverse().find(function(l){ return pts >= l.minPoints; }) || LEVELS_G[0];
@@ -1909,10 +1911,12 @@ function toggleGarden() {
         panel.classList.add('open');
         if (buildMode) toggleBuild();
         renderGardenSlots();
+        _gardenRefreshTimer = setInterval(renderGardenSlots, 30000);
     } else {
         btn.classList.remove('active');
         panel.classList.remove('open');
         closePlantPicker();
+        if (_gardenRefreshTimer) { clearInterval(_gardenRefreshTimer); _gardenRefreshTimer = null; }
     }
 }
 
@@ -1938,14 +1942,22 @@ function renderGardenSlots() {
             div.classList.add('has-plant');
             var herb = HERBS_G[plant.herb];
             if (!herb) { container.appendChild(div); continue; }
-            var isReady = plant.stage === 2;
-            var progPct = Math.round((plant.progress || 0) * 100);
-            var displayEmoji = plant.stage === 0 ? '\uD83C\uDF31' : herb.emoji;
+            // Compute progress from timestamps so it stays accurate after any action
+            var nowSec = Math.floor(Date.now() / 1000);
+            var elapsed = nowSec - (plant.planted_at || 0);
+            var growSecs = herb.hours * 3600;
+            var progress = Math.min(1, elapsed / growSecs);
+            var stage = elapsed >= growSecs ? 2 : (elapsed >= growSecs * 0.5 ? 1 : 0);
+            var isReady = stage === 2;
+            var progPct = Math.round(progress * 100);
+            var displayEmoji = stage === 0 ? '\uD83C\uDF31' : herb.emoji;
+            var secsLeft = Math.max(0, growSecs - elapsed);
+            var timeStr = isReady ? '' : (secsLeft < 60 ? secsLeft + 's' : secsLeft < 3600 ? Math.ceil(secsLeft/60) + 'm' : (secsLeft/3600).toFixed(1) + 'h');
             div.innerHTML =
-                '<div class="slot-emoji" style="opacity:' + (plant.stage === 0 ? '0.55' : '1') + '">' + displayEmoji + '</div>' +
+                '<div class="slot-emoji" style="opacity:' + (stage === 0 ? '0.6' : '1') + '">' + displayEmoji + '</div>' +
                 '<div class="slot-name">' + herb.name + '</div>' +
                 '<div class="slot-bar"><div class="slot-bar-fill" style="width:' + progPct + '%"></div></div>' +
-                (isReady ? '<div class="slot-ready">Harvest!</div>' : '<div style="font-size:8px;color:#3a5040;">' + progPct + '%</div>');
+                (isReady ? '<div class="slot-ready">Harvest!</div>' : '<div style="font-size:8px;color:#3a5040;">' + progPct + '% \u00b7 ' + timeStr + '</div>');
             (function(si, ready) {
                 div.onclick = function(){ ready ? harvestHerb(si) : waterHerb(si); };
                 div.oncontextmenu = function(e){ e.preventDefault(); removeHerb(si); };
