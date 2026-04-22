@@ -26,8 +26,11 @@ export async function onRequestPost({ request, env }) {
         const safeName = (user.display_name || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
         // Generate a 6-digit code
-        const arr = crypto.getRandomValues(new Uint32Array(1));
-        const code = String(arr[0] % 900000 + 100000);
+        // BUG-17 fix: rejection sampling eliminates modulo bias (2^32 is not divisible by 900000)
+        const limit = Math.floor(4294967296 / 900000) * 900000;
+        let rand;
+        do { rand = crypto.getRandomValues(new Uint32Array(1))[0]; } while (rand >= limit);
+        const code = String(rand % 900000 + 100000);
         const codeHash = await hashRecoveryCode(code);
         const expiresAt = Date.now() / 1000 + 3600; // 1 hour
 

@@ -1342,22 +1342,27 @@
                 email: document.getElementById('signup-email').value,
                 password: document.getElementById('signup-pass').value,
             };
-            const res = await fetch(API + '/api/signup', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data), credentials: 'include'
-            });
-            const json = await res.json();
-            if (json.error) {
-                document.getElementById('signup-error').textContent = json.error;
-            } else {
-                currentUser = json.user;
-                onLogin();
-                closeModals();
-                toast('Welcome to Pixie Portal, ' + currentUser.display_name + '! ✦');
-                if (json.recoveryCode) {
-                    document.getElementById('recovery-code-display').textContent = json.recoveryCode;
-                    document.getElementById('modal-recovery-code').classList.add('active');
+            // BUG-20 fix: catch network errors so the UI doesn't die silently
+            try {
+                const res = await fetch(API + '/api/signup', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data), credentials: 'include'
+                });
+                const json = await res.json();
+                if (json.error) {
+                    document.getElementById('signup-error').textContent = json.error;
+                } else {
+                    currentUser = json.user;
+                    onLogin();
+                    closeModals();
+                    toast('Welcome to Pixie Portal, ' + currentUser.display_name + '! ✦');
+                    if (json.recoveryCode) {
+                        document.getElementById('recovery-code-display').textContent = json.recoveryCode;
+                        document.getElementById('modal-recovery-code').classList.add('active');
+                    }
                 }
+            } catch(e) {
+                document.getElementById('signup-error').textContent = 'Connection error. Please try again.';
             }
         }
 
@@ -1450,18 +1455,23 @@
                 username: document.getElementById('login-user').value,
                 password: document.getElementById('login-pass').value,
             };
-            const res = await fetch(API + '/api/login', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data), credentials: 'include'
-            });
-            const json = await res.json();
-            if (json.error) {
-                document.getElementById('login-error').textContent = json.error;
-            } else {
-                currentUser = json.user;
-                onLogin();
-                closeModals();
-                toast('Welcome back, ' + currentUser.display_name + '! ✦');
+            // BUG-20 fix: catch network errors so the UI doesn't die silently
+            try {
+                const res = await fetch(API + '/api/login', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data), credentials: 'include'
+                });
+                const json = await res.json();
+                if (json.error) {
+                    document.getElementById('login-error').textContent = json.error;
+                } else {
+                    currentUser = json.user;
+                    onLogin();
+                    closeModals();
+                    toast('Welcome back, ' + currentUser.display_name + '! ✦');
+                }
+            } catch(e) {
+                document.getElementById('login-error').textContent = 'Connection error. Please try again.';
             }
         }
 
@@ -1747,7 +1757,14 @@
         }
 
         function safeVideoUrl(url) {
-            return (typeof url === 'string' && url.startsWith('https://')) ? url.replace(/"/g, '%22') : '';
+            // BUG-21 fix: validate host against known Replicate CDN domain, not just protocol
+            if (typeof url !== 'string') return '';
+            try {
+                const parsed = new URL(url);
+                if (parsed.protocol !== 'https:') return '';
+                if (!parsed.hostname.endsWith('.replicate.delivery') && parsed.hostname !== 'replicate.delivery') return '';
+                return url.replace(/"/g, '%22');
+            } catch(e) { return ''; }
         }
 
         async function animateDream(id) {

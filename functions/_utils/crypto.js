@@ -22,6 +22,8 @@ export async function verifyPassword(password, stored) {
     if (parts.length !== 3) return false;
     const [, saltHex, storedHash] = parts;
     const salt = new Uint8Array(saltHex.match(/.{2}/g).map(b => parseInt(b, 16)));
+    // BUG-13 fix: decode stored hash to bytes so we can do constant-time comparison
+    const storedBytes = new Uint8Array(storedHash.match(/.{2}/g).map(b => parseInt(b, 16)));
     const enc = new TextEncoder();
     const keyMaterial = await crypto.subtle.importKey(
         'raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']
@@ -30,8 +32,11 @@ export async function verifyPassword(password, stored) {
         { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
         keyMaterial, 256
     );
-    const computed = Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
-    return computed === storedHash;
+    const computedBytes = new Uint8Array(bits);
+    // Constant-time byte comparison — no short-circuit on mismatch
+    let diff = 0;
+    for (let i = 0; i < computedBytes.length; i++) diff |= computedBytes[i] ^ storedBytes[i];
+    return diff === 0;
 }
 
 export function generateRecoveryCode() {

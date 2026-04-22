@@ -9,6 +9,12 @@ export async function onRequestPost({ request, env }) {
                 status: 400, headers: { "Content-Type": "application/json" }
             });
         }
+        // BUG-09 fix: enforce minimum password length on signup (matches recover/reset-confirm)
+        if (password.length < 6) {
+            return new Response(JSON.stringify({ error: "Password must be at least 6 characters" }), {
+                status: 400, headers: { "Content-Type": "application/json" }
+            });
+        }
         const hash = await hashPassword(password);
         const recoveryCode = generateRecoveryCode();
         const recoveryHash = await hashRecoveryCode(recoveryCode);
@@ -33,8 +39,14 @@ export async function onRequestPost({ request, env }) {
             user: { id: userId, username, display_name: display_name || username, avatar_emoji: "✦" }
         }), { headers: { "Content-Type": "application/json", "Set-Cookie": cookie } });
     } catch (e) {
-        return new Response(JSON.stringify({ error: "Username or email already taken" }), {
-            status: 400, headers: { "Content-Type": "application/json" }
+        // BUG-15 fix: distinguish UNIQUE constraint violations from other errors
+        if (e.message && e.message.includes("UNIQUE constraint failed")) {
+            return new Response(JSON.stringify({ error: "Username or email already taken" }), {
+                status: 400, headers: { "Content-Type": "application/json" }
+            });
+        }
+        return new Response(JSON.stringify({ error: "Signup failed, please try again" }), {
+            status: 500, headers: { "Content-Type": "application/json" }
         });
     }
 }
