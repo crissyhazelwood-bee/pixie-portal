@@ -770,10 +770,15 @@ function drawTile(type,sx,sy,t){
 // ══════════════════════════════════════════════════════
 var fairy={gender:'',skin:'',glowColor:'#ff96c8',wingStyle:'butterfly',name:''};
 
-function fairyEmoji(){
-    // 🧚 (U+1F9DA) + skin tone modifier + gender modifier
-    return '\uD83E\uDDDA'+(fairy.skin||'')+(fairy.gender||'');
-}
+// Skin tone emoji modifier → actual colors (skin, hair)
+var SKIN_MAP={
+    '':        {s:'#ffd9a0',h:'#c89828'},
+    '\uD83C\uDFFB':{s:'#fde7c8',h:'#c09020'},
+    '\uD83C\uDFFC':{s:'#eabd8a',h:'#7a4415'},
+    '\uD83C\uDFFD':{s:'#c68642',h:'#3c1c08'},
+    '\uD83C\uDFFE':{s:'#8d5524',h:'#1c0c05'},
+    '\uD83C\uDFFF':{s:'#4a2912',h:'#0c0403'},
+};
 
 function loadFairy(){
     try{
@@ -1105,6 +1110,9 @@ window.addEventListener('mousemove',function(e){
     cur.style.top=e.clientY+'px';
 });
 
+// ── Drag-to-pan state ──────────────────────────────────────────────────────────
+var drag={on:false,px:0,py:0,camX:0,camY:0,moved:false};
+
 // Canvas pointer handling: build placement + drag-to-pan
 canvas.addEventListener('pointerdown',function(e){
     if(!started) return;
@@ -1124,14 +1132,14 @@ canvas.addEventListener('pointerdown',function(e){
     drag.camX=cam.x; drag.camY=cam.y;
     e.preventDefault();
 },{passive:false});
-canvas.addEventListener('pointermove',function(e){
+window.addEventListener('pointermove',function(e){
     if(!drag.on) return;
     var dx=e.clientX-drag.px, dy=e.clientY-drag.py;
     if(!drag.moved&&Math.sqrt(dx*dx+dy*dy)>5) drag.moved=true;
     if(drag.moved){ cam.x=drag.camX-dx; cam.y=drag.camY-dy; }
 },{passive:true});
-canvas.addEventListener('pointerup',function(){ drag.on=false; drag.moved=false; });
-canvas.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; });
+window.addEventListener('pointerup',function(){ drag.on=false; drag.moved=false; });
+window.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; });
 
 // Right-click to erase quickly
 canvas.addEventListener('contextmenu',function(e){
@@ -1143,9 +1151,6 @@ canvas.addEventListener('contextmenu',function(e){
     delete placed[pos.tr+','+pos.tc];
     savePlaced();
 });
-
-// ── Drag-to-pan ────────────────────────────────────────────────────────────────
-var drag={on:false,px:0,py:0,camX:0,camY:0,moved:false};
 
 // ── Player ─────────────────────────────────────────────────────────────────────
 var pl={tc:27,tr:22,wx:0,wy:0,moving:false,dir:'r',flip:false};
@@ -1160,42 +1165,149 @@ function initPlayer(){
 function drawPlayer(t){
     var pcx=Math.round(pl.wx-cam.x)+OX+HW;
     var pcy=Math.round(pl.wy-cam.y)+OY+HH;
-    var bob=Math.sin(t*3.2)*2.8, py=pcy+bob;
+    var bob=Math.sin(t*3.2)*2.5;
+    var feet=pcy+bob;
+
+    var H=Math.round(HW*1.9);
+    var gc=fairy.glowColor;
+    var sm=SKIN_MAP[fairy.skin]||SKIN_MAP[''];
+    var skinC=sm.s, hairC=sm.h;
+    var headR=Math.round(H*0.155);
 
     // Ground shadow
-    ctx.fillStyle='rgba(0,0,0,.24)';
-    ctx.beginPath(); ctx.ellipse(pcx,pcy+HH*.25,HW*.28,HH*.22,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.22)';
+    ctx.beginPath(); ctx.ellipse(pcx,pcy+HH*.2,HW*.3,HH*.2,0,0,Math.PI*2); ctx.fill();
 
-    if(Math.random()<0.45) spawnDust(pcx,py);
+    if(Math.random()<0.38) spawnDust(pcx,feet-H*0.1);
 
-    // Wings (behind fairy)
-    drawWings(pcx,py-Math.round(HH*0.3),t);
+    // Wings — attached at shoulder/upper-back
+    drawWings(pcx,feet-H*0.60,t);
 
-    // Fairy emoji
     ctx.save();
     if(pl.flip){ ctx.translate(pcx,0); ctx.scale(-1,1); ctx.translate(-pcx,0); }
-    var sz=Math.round(HW*1.6);
-    ctx.font=sz+'px serif';
-    ctx.textAlign='center'; ctx.textBaseline='bottom';
-    ctx.shadowColor=fairy.glowColor; ctx.shadowBlur=26;
-    ctx.fillText(fairyEmoji(),pcx,py);
-    ctx.shadowColor=fairy.glowColor; ctx.shadowBlur=14;
-    ctx.fillText(fairyEmoji(),pcx,py);
-    ctx.shadowBlur=0;
+
+    var armSwing=Math.sin(t*3.0)*H*0.06;
+    var shoulderY=feet-H*0.62;
+    var waistY=feet-H*0.35;
+    var headCY=feet-H*0.80;
+
+    // ── Dress/skirt ───────────────────────────────────────
+    ctx.save();
+    ctx.shadowColor=gc; ctx.shadowBlur=16;
+    ctx.beginPath();
+    ctx.moveTo(pcx-H*0.07,shoulderY+H*0.07);
+    ctx.bezierCurveTo(pcx-H*0.22,waistY,pcx-H*0.32,feet-H*0.1,pcx-H*0.24,feet-H*0.01);
+    ctx.quadraticCurveTo(pcx,feet+H*0.05,pcx+H*0.24,feet-H*0.01);
+    ctx.bezierCurveTo(pcx+H*0.32,feet-H*0.1,pcx+H*0.22,waistY,pcx+H*0.07,shoulderY+H*0.07);
+    ctx.closePath();
+    ctx.fillStyle=gc+'cc'; ctx.fill();
+    // Shimmer
+    ctx.globalAlpha=0.3+Math.sin(t*2.8)*0.1;
+    ctx.strokeStyle='rgba(255,255,255,0.8)';
+    ctx.lineWidth=H*0.02; ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(pcx-H*0.03,shoulderY+H*0.1);
+    ctx.quadraticCurveTo(pcx-H*0.13,waistY+H*0.04,pcx-H*0.09,feet-H*0.08);
+    ctx.stroke();
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
     ctx.restore();
 
-    // Fairy name floating above
+    // ── Torso ─────────────────────────────────────────────
+    ctx.fillStyle=skinC;
+    ctx.beginPath();
+    ctx.ellipse(pcx,shoulderY+H*0.09,H*0.08,H*0.1,0,0,Math.PI*2);
+    ctx.fill();
+
+    // ── Arms ──────────────────────────────────────────────
+    ctx.save();
+    ctx.strokeStyle=skinC;
+    ctx.lineWidth=Math.max(2,H*0.05); ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath();
+    ctx.moveTo(pcx-H*0.07,shoulderY+H*0.04);
+    ctx.quadraticCurveTo(pcx-H*0.18,shoulderY+H*0.17+armSwing,pcx-H*0.21,shoulderY+H*0.31+armSwing);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pcx+H*0.07,shoulderY+H*0.04);
+    ctx.quadraticCurveTo(pcx+H*0.18,shoulderY+H*0.17-armSwing,pcx+H*0.21,shoulderY+H*0.31-armSwing);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Hair (behind head sphere) ─────────────────────────
+    ctx.fillStyle=hairC;
+    ctx.beginPath();
+    ctx.arc(pcx,headCY,headR*1.06,Math.PI,0);
+    ctx.bezierCurveTo(pcx+headR*1.35,headCY+headR*0.55,pcx+headR*1.1,headCY+headR*1.9,pcx+headR*0.44,shoulderY);
+    ctx.lineTo(pcx-headR*0.44,shoulderY);
+    ctx.bezierCurveTo(pcx-headR*1.1,headCY+headR*1.9,pcx-headR*1.35,headCY+headR*0.55,pcx,headCY-headR*0.06);
+    ctx.closePath();
+    ctx.fill();
+    // Hair highlight
+    ctx.globalAlpha=0.22;
+    ctx.fillStyle='rgba(255,220,160,1)';
+    ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+
+    // ── Head sphere ───────────────────────────────────────
+    ctx.save();
+    ctx.shadowColor=gc; ctx.shadowBlur=10;
+    ctx.fillStyle=skinC;
+    ctx.beginPath(); ctx.arc(pcx,headCY,headR,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    // Soft face highlight
+    ctx.globalAlpha=0.2;
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath(); ctx.arc(pcx-headR*0.22,headCY-headR*0.26,headR*0.44,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.restore();
+
+    // Blush
+    ctx.globalAlpha=0.38;
+    ctx.fillStyle='#ffaacc';
+    ctx.beginPath(); ctx.ellipse(pcx-headR*0.53,headCY+headR*0.1,headR*0.3,headR*0.17,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(pcx+headR*0.53,headCY+headR*0.1,headR*0.3,headR*0.17,0,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+
+    // Eyes
+    var blink=Math.sin(t*0.7+1.5)>0.88?0.12:1;
+    ctx.fillStyle='#1a0a2e';
+    ctx.beginPath(); ctx.ellipse(pcx-headR*0.33,headCY-headR*0.04,headR*0.13,headR*0.14*blink,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(pcx+headR*0.33,headCY-headR*0.04,headR*0.13,headR*0.14*blink,0,0,Math.PI*2); ctx.fill();
+    if(blink>0.4){
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath(); ctx.arc(pcx-headR*0.29,headCY-headR*0.09,headR*0.048,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(pcx+headR*0.37,headCY-headR*0.09,headR*0.048,0,Math.PI*2); ctx.fill();
+    }
+    // Smile
+    ctx.strokeStyle='#8a3040'; ctx.lineWidth=headR*0.1; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(pcx,headCY+headR*0.2,headR*0.22,0.2,Math.PI-0.2); ctx.stroke();
+
+    // Tiara sparkles on crown
+    ctx.save();
+    ctx.shadowColor=gc; ctx.shadowBlur=14;
+    ctx.fillStyle=gc;
+    [[- headR*0.36,-headR*1.12,headR*0.08],
+     [0,          -headR*1.3, headR*0.11],
+     [ headR*0.36,-headR*1.12,headR*0.08]].forEach(function(s,i){
+        ctx.globalAlpha=0.55+Math.sin(t*2.0+i*1.2)*0.38;
+        ctx.beginPath(); ctx.arc(pcx+s[0],headCY+s[1],s[2],0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+    ctx.restore();
+
+    // Name label
     if(fairy.name){
         ctx.save();
+        ctx.shadowColor=gc; ctx.shadowBlur=12;
         var nameSz=Math.max(10,Math.round(HH*0.72));
         ctx.font='700 '+nameSz+'px Quicksand,sans-serif';
         ctx.textAlign='center'; ctx.textBaseline='bottom';
-        ctx.shadowColor=fairy.glowColor; ctx.shadowBlur=14;
         ctx.fillStyle='#f8e8ff';
-        ctx.fillText(fairy.name,pcx,py-sz*0.92);
+        ctx.fillText(fairy.name,pcx,feet-H-8);
         ctx.shadowBlur=0;
         ctx.restore();
     }
+
+    ctx.restore();
 }
 
 // ── Particles ──────────────────────────────────────────────────────────────────
@@ -1348,7 +1460,7 @@ function update(dt,t){
         }
     }
 
-    if(!drag.on||!drag.moved){ cam.x+=(pl.wx-cam.x)*.11; cam.y+=(pl.wy-cam.y)*.11; }
+    if(!drag.on){ cam.x+=(pl.wx-cam.x)*.11; cam.y+=(pl.wy-cam.y)*.11; }
 
     for(var i=parts.length-1;i>=0;i--){
         var p=parts[i];
