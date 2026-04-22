@@ -1344,6 +1344,7 @@ window.addEventListener('mousemove',function(e){
 // ── Drag-to-pan state ──────────────────────────────────────────────────────────
 var drag={on:false,px:0,py:0,camX:0,camY:0,moved:false};
 var pendingGardenSlot=-1;
+var camDragged=false; // true after user pans — holds view until player moves
 
 // Canvas pointer handling: build placement + drag-to-pan
 canvas.addEventListener('pointerdown',function(e){
@@ -1382,14 +1383,16 @@ canvas.addEventListener('pointerdown',function(e){
 canvas.addEventListener('pointermove',function(e){
     if(!drag.on) return;
     var dx=e.clientX-drag.px, dy=e.clientY-drag.py;
-    if(!drag.moved&&Math.sqrt(dx*dx+dy*dy)>5) drag.moved=true;
+    if(!drag.moved&&Math.sqrt(dx*dx+dy*dy)>4) drag.moved=true;
     if(drag.moved){ cam.x=drag.camX-dx; cam.y=drag.camY-dy; }
-},{passive:true});
+    e.preventDefault();
+},{passive:false});
 canvas.addEventListener('pointerup',function(){
     if(!drag.moved&&pendingGardenSlot>=0) handleWorldGardenClick(pendingGardenSlot);
+    if(drag.moved) camDragged=true;
     drag.on=false; drag.moved=false; pendingGardenSlot=-1;
 });
-canvas.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; });
+canvas.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; pendingGardenSlot=-1; });
 
 // Right-click to erase quickly
 canvas.addEventListener('contextmenu',function(e){
@@ -1756,6 +1759,7 @@ function update(dt,t){
     } else {
         var dir=inputDir();
         if(dir){
+            camDragged=false;
             var d=DC[dir], nc=pl.tc+d[0], nr=pl.tr+d[1];
             if(nc>=0&&nc<MC&&nr>=0&&nr<MR&&WALK[map[nr][nc]]){
                 pl.tc=nc; pl.tr=nr; pl.moving=true;
@@ -1764,7 +1768,7 @@ function update(dt,t){
         }
     }
 
-    if(!drag.on){ cam.x+=(pl.wx-cam.x)*.11; cam.y+=(pl.wy-cam.y)*.11; }
+    if(!drag.on&&!camDragged){ cam.x+=(pl.wx-cam.x)*.11; cam.y+=(pl.wy-cam.y)*.11; }
 
     for(var i=parts.length-1;i>=0;i--){
         var p=parts[i];
