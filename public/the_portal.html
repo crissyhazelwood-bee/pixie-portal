@@ -2775,6 +2775,260 @@ function drawCrystalCastle(bx,by,t){
     ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
 }
 
+function drawCherryBlossomTree(bx,by,t){
+    ctx.save(); var U=TW_px;
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.04,by+U*0.04,U*0.38,U*0.09,0,0,Math.PI*2); ctx.fill();
+    var tG=ctx.createLinearGradient(bx-U*0.06,0,bx+U*0.06,0);
+    tG.addColorStop(0,'#5a3010'); tG.addColorStop(0.5,'#7a4820'); tG.addColorStop(1,'#4a2808');
+    ctx.fillStyle=tG;
+    ctx.beginPath(); ctx.moveTo(bx-U*0.06,by); ctx.lineTo(bx+U*0.06,by); ctx.lineTo(bx+U*0.04,by-U*0.85); ctx.lineTo(bx-U*0.04,by-U*0.85); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='rgba(40,20,5,0.3)'; ctx.lineWidth=0.7;
+    ctx.beginPath(); ctx.moveTo(bx-U*0.01,by-U*0.15); ctx.lineTo(bx+U*0.02,by-U*0.45); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx+U*0.02,by-U*0.2); ctx.lineTo(bx-U*0.01,by-U*0.55); ctx.stroke();
+    ctx.strokeStyle='#5a3010'; ctx.lineWidth=U*0.025; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(bx,by-U*0.7); ctx.quadraticCurveTo(bx-U*0.18,by-U*0.82,bx-U*0.3,by-U*0.78); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx,by-U*0.65); ctx.quadraticCurveTo(bx+U*0.2,by-U*0.8,bx+U*0.32,by-U*0.74); ctx.stroke();
+    var BC=[[0,by-U*1.18,U*0.46],[-0.28,by-U*0.98,U*0.32],[0.3,by-U*0.92,U*0.3]];
+    BC.forEach(function(bc,bi){
+        var pulse=0.82+Math.sin(t*1.1+bi*1.2)*0.14;
+        var cg=ctx.createRadialGradient(bx+bc[0]*U,bc[1],U*0.04,bx+bc[0]*U,bc[1],bc[2]);
+        cg.addColorStop(0,'#ffccdd'); cg.addColorStop(0.5,'#ffaabb'); cg.addColorStop(1,'rgba(255,160,180,0)');
+        ctx.globalAlpha=pulse; ctx.fillStyle=cg;
+        ctx.beginPath(); ctx.arc(bx+bc[0]*U,bc[1],bc[2],0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    for(var pi=0;pi<18;pi++){
+        var pa=pi/18*Math.PI*2, pr=0.1+((pi*7)%11)*0.022;
+        var px=bx+Math.cos(pa)*U*pr, py=by-U*(0.9+0.22*Math.sin(pa*1.3));
+        ctx.globalAlpha=0.75; ctx.fillStyle=pi%3===0?'#ffffff':'#ffaacc';
+        ctx.shadowColor='#ff99bb'; ctx.shadowBlur=4;
+        ctx.beginPath(); ctx.arc(px,py,U*0.028,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+    for(var fp=0;fp<8;fp++){
+        var fpp=(t*0.25+fp*0.125)%1;
+        var fpx=bx+Math.sin(t*0.6+fp*2.1)*U*0.32+((fp*37)%21-10)*U*0.02;
+        var fpy=by-(1-fpp)*U*1.1;
+        ctx.globalAlpha=0.7*(1-fpp*0.6); ctx.fillStyle='#ffbbcc';
+        ctx.save(); ctx.translate(fpx,fpy); ctx.rotate(t*1.5+fp);
+        ctx.beginPath(); ctx.ellipse(0,0,U*0.022,U*0.014,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
+}
+
+function drawWeepingWillow(bx,by,t){
+    ctx.save(); var U=TW_px;
+    ctx.fillStyle='rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.04,by+U*0.04,U*0.5,U*0.1,0,0,Math.PI*2); ctx.fill();
+    var tG=ctx.createLinearGradient(bx-U*0.07,0,bx+U*0.07,0);
+    tG.addColorStop(0,'#3a2808'); tG.addColorStop(0.5,'#5c3e18'); tG.addColorStop(1,'#2e1e06');
+    ctx.fillStyle=tG;
+    ctx.beginPath(); ctx.moveTo(bx-U*0.07,by); ctx.lineTo(bx+U*0.07,by); ctx.lineTo(bx+U*0.05,by-U*1.1); ctx.lineTo(bx-U*0.05,by-U*1.1); ctx.closePath(); ctx.fill();
+    var SW=Math.sin(t*0.7)*0.06;
+    var branches=[
+        {ox:-0.22,oy:0.65,len:0.78,sx:-0.18+SW},{ox:-0.1,oy:0.5,len:0.88,sx:-0.08+SW},
+        {ox:0,oy:0.45,len:0.96,sx:0.04+SW},{ox:0.1,oy:0.5,len:0.84,sx:0.12+SW},
+        {ox:0.22,oy:0.65,len:0.72,sx:0.2+SW},{ox:-0.32,oy:0.72,len:0.62,sx:-0.28+SW},
+        {ox:0.32,oy:0.72,len:0.6,sx:0.28+SW},
+    ];
+    ctx.lineCap='round';
+    branches.forEach(function(br){
+        var startX=bx+br.ox*U, startY=by-br.oy*U;
+        var endX=bx+br.sx*U, endY=by+U*0.05;
+        var ctrlX=startX+br.sx*U*0.3, ctrlY=(startY+endY)*0.6;
+        ctx.strokeStyle='#5a7c18'; ctx.lineWidth=U*0.016;
+        ctx.beginPath(); ctx.moveTo(startX,startY); ctx.quadraticCurveTo(ctrlX,ctrlY,endX,endY); ctx.stroke();
+        ctx.strokeStyle='#7ab020'; ctx.lineWidth=U*0.01;
+        for(var li=0;li<5;li++){
+            var lt=0.2+li*0.17;
+            var lx=startX+(ctrlX-startX)*lt+(endX-ctrlX)*lt;
+            var ly=startY+(ctrlY-startY)*lt+(endY-ctrlY)*lt;
+            var la=Math.atan2(endY-startY,endX-startX)+Math.PI*0.3;
+            ctx.save(); ctx.translate(lx,ly); ctx.rotate(la+li*0.3);
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(U*0.04,0); ctx.stroke(); ctx.restore();
+        }
+    });
+    var cG=ctx.createRadialGradient(bx,by-U*1.12,U*0.04,bx,by-U*1.02,U*0.4);
+    cG.addColorStop(0,'#90c030'); cG.addColorStop(1,'rgba(80,110,20,0)');
+    ctx.globalAlpha=0.82; ctx.fillStyle=cG;
+    ctx.beginPath(); ctx.ellipse(bx,by-U*1.0,U*0.42,U*0.3,0,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1; ctx.restore();
+}
+
+function drawSunflowerField(bx,by,t){
+    ctx.save(); var U=TW_px;
+    ctx.fillStyle='rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.04,by+U*0.04,U*0.5,U*0.1,0,0,Math.PI*2); ctx.fill();
+    var gg=ctx.createLinearGradient(bx-U*0.5,0,bx+U*0.5,0);
+    gg.addColorStop(0,'#2a5010'); gg.addColorStop(0.5,'#3c6818'); gg.addColorStop(1,'#2a5010');
+    ctx.fillStyle=gg;
+    ctx.beginPath(); ctx.ellipse(bx,by-U*0.02,U*0.46,U*0.1,0,0,Math.PI*2); ctx.fill();
+    var SF=[{x:-0.22,h:0.88},{x:-0.06,h:1.08},{x:0.1,h:0.96},{x:0.26,h:0.82}];
+    SF.forEach(function(sf,si){
+        var fx=bx+sf.x*U, fbase=by-U*0.04, fh=sf.h*U;
+        var sway=Math.sin(t*0.8+si*1.2)*0.04;
+        ctx.strokeStyle='#3a6c10'; ctx.lineWidth=U*0.022; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(fx,fbase); ctx.quadraticCurveTo(fx+sway*U,fbase-fh*0.5,fx+sway*U*0.5,fbase-fh); ctx.stroke();
+        if(si%2===0){
+            ctx.fillStyle='#4a8018'; ctx.save(); ctx.translate(fx+sway*U*0.4,fbase-fh*0.5);
+            ctx.rotate(0.8+sway); ctx.beginPath(); ctx.ellipse(0,0,U*0.07,U*0.025,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+        }
+        var hcx=fx+sway*U*0.5, hcy=fbase-fh;
+        for(var pi=0;pi<12;pi++){
+            var pa=pi/12*Math.PI*2+t*0.12;
+            ctx.fillStyle=pi%3===0?'#ffcc00':'#ffaa00';
+            ctx.save(); ctx.translate(hcx,hcy); ctx.rotate(pa);
+            ctx.beginPath(); ctx.ellipse(0,-U*0.095,U*0.035,U*0.062,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+        }
+        ctx.fillStyle='#5a2e08';
+        ctx.beginPath(); ctx.arc(hcx,hcy,U*0.068,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#3a1a04';
+        for(var di=0;di<7;di++){
+            var da=di/7*Math.PI*2, dr=U*0.04;
+            ctx.beginPath(); ctx.arc(hcx+Math.cos(da)*dr,hcy+Math.sin(da)*dr,U*0.009,0,Math.PI*2); ctx.fill();
+        }
+        ctx.beginPath(); ctx.arc(hcx,hcy,U*0.01,0,Math.PI*2); ctx.fill();
+    });
+    for(var pd=0;pd<5;pd++){
+        var pdt=(t*0.35+pd*0.2)%1;
+        ctx.globalAlpha=0.55*(1-pdt); ctx.fillStyle='#ffffaa'; ctx.shadowColor='#ffff44'; ctx.shadowBlur=3;
+        ctx.beginPath(); ctx.arc(bx+Math.sin(t*0.6+pd*1.7)*U*0.35,by-U*(0.3+pdt*0.7),U*0.012,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
+}
+
+function drawMushroomGrove(bx,by,t){
+    ctx.save(); var U=TW_px;
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.04,by+U*0.04,U*0.48,U*0.1,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#1a2208';
+    ctx.beginPath(); ctx.ellipse(bx,by-U*0.02,U*0.44,U*0.1,0,0,Math.PI*2); ctx.fill();
+    var MUSH=[
+        {x:-0.2, h:0.62,capR:0.18,stemH:0.38,color:'#cc2222',spots:'#ffeeee'},
+        {x:0.18, h:0.52,capR:0.14,stemH:0.30,color:'#dd6600',spots:'#ffeedd'},
+        {x:-0.04,h:0.78,capR:0.21,stemH:0.48,color:'#8833aa',spots:'#eebbff'},
+        {x:0.32, h:0.42,capR:0.12,stemH:0.26,color:'#cc3366',spots:'#ffc0cc'},
+        {x:-0.32,h:0.45,capR:0.13,stemH:0.28,color:'#2255cc',spots:'#bbccff'},
+    ];
+    MUSH.forEach(function(m,mi){
+        var mx=bx+m.x*U, mBase=by-U*0.04;
+        var pulse=0.8+Math.sin(t*1.2+mi*1.1)*0.18;
+        ctx.fillStyle='#e8dcc8';
+        ctx.beginPath(); ctx.moveTo(mx-U*0.05,mBase); ctx.lineTo(mx+U*0.05,mBase); ctx.lineTo(mx+U*0.04,mBase-m.stemH*U); ctx.lineTo(mx-U*0.04,mBase-m.stemH*U); ctx.closePath(); ctx.fill();
+        ctx.shadowColor=m.color; ctx.shadowBlur=8+pulse*6;
+        ctx.fillStyle=m.color;
+        ctx.beginPath(); ctx.ellipse(mx,mBase-m.h*U,m.capR*U,m.capR*U*0.55,0,Math.PI,0); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.globalAlpha=0.75;
+        for(var sp=0;sp<3;sp++){
+            var sa=sp/3*Math.PI+0.3;
+            ctx.fillStyle=m.spots;
+            ctx.beginPath(); ctx.arc(mx+Math.cos(sa)*m.capR*U*0.48,mBase-m.h*U-Math.sin(sa)*m.capR*U*0.3,U*0.022,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1;
+    });
+    for(var sp2=0;sp2<10;sp2++){
+        var spp=(t*0.3+sp2*0.1)%1, sAlpha=spp<0.5?spp*2:(1-spp)*2;
+        ctx.globalAlpha=sAlpha*0.7; ctx.fillStyle='#ffeeaa'; ctx.shadowColor='#ffffaa'; ctx.shadowBlur=4;
+        ctx.beginPath(); ctx.arc(bx+Math.sin(t*0.5+sp2*2.09)*U*0.4,by-U*(0.15+spp*0.9),U*0.01,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
+}
+
+function drawFairyRing(bx,by,t){
+    ctx.save(); var U=TW_px;
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.04,by+U*0.04,U*0.52,U*0.11,0,0,Math.PI*2); ctx.fill();
+    var gG=ctx.createRadialGradient(bx,by-U*0.04,U*0.05,bx,by-U*0.04,U*0.42);
+    gG.addColorStop(0,'rgba(180,255,180,0.35)'); gG.addColorStop(0.6,'rgba(100,255,120,0.12)'); gG.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gG; ctx.beginPath(); ctx.ellipse(bx,by-U*0.04,U*0.44,U*0.11,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(20,40,10,0.5)';
+    ctx.beginPath(); ctx.ellipse(bx,by-U*0.03,U*0.38,U*0.085,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#1e2e0e';
+    ctx.beginPath(); ctx.ellipse(bx,by-U*0.03,U*0.26,U*0.055,0,0,Math.PI*2); ctx.fill();
+    for(var mi=0;mi<8;mi++){
+        var ma=mi/8*Math.PI*2;
+        var mx=bx+Math.cos(ma)*U*0.34, my=by-U*0.03+Math.sin(ma)*U*0.08;
+        var mh=U*(0.28+((mi*3)%5)*0.04);
+        var mcol=mi%2===0?'#cc4488':'#44aa66';
+        var pulse=0.8+Math.sin(t*1.5+mi*0.79)*0.2;
+        ctx.fillStyle='#ddd5b8';
+        ctx.beginPath(); ctx.moveTo(mx-U*0.035,my); ctx.lineTo(mx+U*0.035,my); ctx.lineTo(mx+U*0.028,my-mh*0.6); ctx.lineTo(mx-U*0.028,my-mh*0.6); ctx.closePath(); ctx.fill();
+        ctx.shadowColor=mcol; ctx.shadowBlur=6+pulse*4;
+        ctx.fillStyle=mcol;
+        ctx.beginPath(); ctx.ellipse(mx,my-mh,U*0.13,U*0.075,0,Math.PI,0); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.globalAlpha=0.7; ctx.fillStyle='#ffffff';
+        ctx.beginPath(); ctx.arc(mx-U*0.04,my-mh-U*0.018,U*0.018,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(mx+U*0.04,my-mh-U*0.018,U*0.015,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    }
+    var cgp=0.65+Math.sin(t*1.8)*0.3;
+    var cg=ctx.createRadialGradient(bx,by-U*0.1,0,bx,by-U*0.1,U*0.22);
+    cg.addColorStop(0,'rgba(180,255,180,'+cgp*0.7+')'); cg.addColorStop(0.5,'rgba(100,255,140,'+cgp*0.3+')'); cg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(bx,by-U*0.1,U*0.22,0,Math.PI*2); ctx.fill();
+    for(var fl=0;fl<6;fl++){
+        var flp=(t*0.5+fl*0.167)%1, flA=flp<0.5?flp*2:(1-flp)*2;
+        var fla=fl/6*Math.PI*2+t*0.4, flr=0.16+Math.sin(t*0.6+fl)*0.06;
+        ctx.globalAlpha=flA*0.9;
+        ctx.fillStyle=fl%2===0?'#aaffcc':'#eeffaa'; ctx.shadowColor=fl%2===0?'#44ff88':'#ffffaa'; ctx.shadowBlur=6;
+        ctx.beginPath(); ctx.arc(bx+Math.cos(fla)*U*flr,by-U*(0.2+Math.sin(fla)*0.05),U*0.014,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
+}
+
+function drawCrystalFlowers(bx,by,t){
+    ctx.save(); var U=TW_px;
+    ctx.fillStyle='rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.04,by+U*0.04,U*0.44,U*0.1,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ccccdd';
+    ctx.beginPath(); ctx.ellipse(bx,by-U*0.03,U*0.4,U*0.09,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#9090aa'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.ellipse(bx,by-U*0.03,U*0.38,U*0.085,0,0,Math.PI*2); ctx.stroke();
+    var CF=[
+        {x:-0.16,h:0.72,hue:'#88ccff',glow:'#aaddff',inner:'#ffffff'},
+        {x:0.16, h:0.64,hue:'#cc88ff',glow:'#ddaaff',inner:'#ffeeee'},
+        {x:0,    h:0.88,hue:'#88ffcc',glow:'#aaffdd',inner:'#eeffee'},
+        {x:-0.04,h:0.54,hue:'#ffcc88',glow:'#ffeebb',inner:'#fffff0'},
+    ];
+    CF.forEach(function(cf,ci){
+        var fx=bx+cf.x*U, fBase=by-U*0.05, fTop=fBase-cf.h*U;
+        var pulse=0.75+Math.sin(t*1.3+ci*1.1)*0.22;
+        ctx.strokeStyle=cf.hue; ctx.lineWidth=U*0.028; ctx.lineCap='round';
+        ctx.shadowColor=cf.glow; ctx.shadowBlur=6;
+        ctx.beginPath(); ctx.moveTo(fx,fBase); ctx.lineTo(fx,fTop); ctx.stroke();
+        ctx.shadowBlur=0;
+        for(var pi=0;pi<6;pi++){
+            var pa=pi/6*Math.PI*2+t*0.2+ci*0.5;
+            ctx.save(); ctx.translate(fx,fTop); ctx.rotate(pa);
+            var pG=ctx.createLinearGradient(0,-U*0.14,0,0);
+            pG.addColorStop(0,'rgba(255,255,255,0.7)'); pG.addColorStop(0.4,cf.hue+'cc'); pG.addColorStop(1,'rgba(255,255,255,0)');
+            ctx.globalAlpha=pulse*0.85; ctx.fillStyle=pG;
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-U*0.046,-U*0.07); ctx.lineTo(0,-U*0.14); ctx.lineTo(U*0.046,-U*0.07); ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+        ctx.globalAlpha=1;
+        ctx.shadowColor=cf.glow; ctx.shadowBlur=10+pulse*8;
+        ctx.fillStyle=cf.inner;
+        ctx.beginPath(); ctx.arc(fx,fTop,U*0.038,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+        var rp=(t*0.4+ci*0.25)%1;
+        ctx.globalAlpha=0.45*(1-Math.abs(rp-0.5)*2);
+        var fa=t*0.6+ci*1.57;
+        ctx.strokeStyle='hsl('+(Math.round(rp*360+ci*60)%360)+',100%,75%)'; ctx.lineWidth=0.8;
+        ctx.beginPath(); ctx.moveTo(fx,fTop); ctx.lineTo(fx+Math.cos(fa)*U*0.22,fTop+Math.sin(fa)*U*0.22); ctx.stroke();
+        ctx.globalAlpha=1;
+    });
+    for(var sp=0;sp<8;sp++){
+        var spp=(t*0.45+sp*0.125)%1, spA=spp<0.5?spp*2:(1-spp)*2;
+        ctx.globalAlpha=spA*0.75;
+        ctx.fillStyle='hsl('+(Math.round(sp*45+t*60)%360)+',100%,80%)'; ctx.shadowColor='#ffffff'; ctx.shadowBlur=5;
+        ctx.beginPath(); ctx.arc(bx+Math.cos(sp*2.0944)*U*0.3+Math.sin(t*0.4+sp)*U*0.06,by-U*(0.3+spp*0.5),U*0.012,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
+}
+
 function getPremiumDraw(obj){
     var l=obj.label||'', id=obj.id||'';
     if(l==='Fairy Fountain'||id==='fairy_fountain') return drawFairyFountain;
@@ -2795,6 +3049,12 @@ function getPremiumDraw(obj){
     if(id==='dragons_lair')                             return drawDragonsLair;
     if(id==='stargate_shrine')                          return drawStargateShrine;
     if(id==='crystal_castle')                           return drawCrystalCastle;
+    if(id==='cherry_blossom_tree')                      return drawCherryBlossomTree;
+    if(id==='weeping_willow')                           return drawWeepingWillow;
+    if(id==='sunflower_field')                          return drawSunflowerField;
+    if(id==='mushroom_grove')                           return drawMushroomGrove;
+    if(id==='fairy_ring')                               return drawFairyRing;
+    if(id==='crystal_flowers')                          return drawCrystalFlowers;
     return null;
 }
 
@@ -4282,6 +4542,12 @@ var SHOP_ITEMS = [
     { id:'dragons_lair',        emoji:'🐉', name:"Dragon's Lair",     cost:5000, desc:'Ancient dragon nesting grounds', type:'world', minLevel:10 },
     { id:'stargate_shrine',     emoji:'🌌', name:'Stargate Shrine',   cost:12000,desc:'A gateway to the cosmos',       type:'world', minLevel:15 },
     { id:'crystal_castle',      emoji:'🏰', name:'Crystal Castle',    cost:40000,desc:'The pinnacle of fairy power',   type:'world', minLevel:20 },
+    { id:'cherry_blossom_tree', emoji:'🌸', name:'Cherry Blossom Tree',cost:800,  desc:'Petals drift on every breeze',   type:'world' },
+    { id:'weeping_willow',      emoji:'🌿', name:'Weeping Willow',     cost:600,  desc:'Long drooping branches sway softly',type:'world' },
+    { id:'sunflower_field',     emoji:'🌻', name:'Sunflower Field',    cost:500,  desc:'Four bright sunflowers in a row', type:'world' },
+    { id:'mushroom_grove',      emoji:'🍄', name:'Mushroom Grove',     cost:700,  desc:'Colorful mushrooms with glowing spores',type:'world' },
+    { id:'fairy_ring',          emoji:'🔮', name:'Fairy Ring',         cost:900,  desc:'A magical circle of mushrooms',   type:'world' },
+    { id:'crystal_flowers',     emoji:'💎', name:'Crystal Flowers',    cost:1100, desc:'Geometric blooms that refract light',type:'world' },
 ];
 var shopTabActive='world';
 

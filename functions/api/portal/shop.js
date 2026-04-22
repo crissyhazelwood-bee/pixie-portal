@@ -61,6 +61,12 @@ const SHOP_ITEMS = {
     dragons_lair:        { name: "Dragon's Lair",     cost: 5000,  minLevel: 10 },
     stargate_shrine:     { name: "Stargate Shrine",   cost: 12000, minLevel: 15 },
     crystal_castle:      { name: "Crystal Castle",    cost: 40000, minLevel: 20 },
+    cherry_blossom_tree: { name: "Cherry Blossom Tree", cost: 800  },
+    weeping_willow:      { name: "Weeping Willow",      cost: 600  },
+    sunflower_field:     { name: "Sunflower Field",     cost: 500  },
+    mushroom_grove:      { name: "Mushroom Grove",      cost: 700  },
+    fairy_ring:          { name: "Fairy Ring",          cost: 900  },
+    crystal_flowers:     { name: "Crystal Flowers",     cost: 1100 },
 };
 
 async function getOrCreatePlayer(env, userId) {
