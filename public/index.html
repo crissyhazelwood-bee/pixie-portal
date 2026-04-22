@@ -923,6 +923,14 @@
         <section>
             <h2 class="section-title">Community Board</h2>
             <p class="section-subtitle">share something with the realm ✦</p>
+
+            <div style="max-width:520px;margin:0 auto 28px;">
+                <div class="section-search">
+                    <input type="text" id="friends-search-input" placeholder="Search for friends by name or username ✦" oninput="searchFriends(this.value)" autocomplete="off">
+                </div>
+                <div id="friends-search-results"></div>
+            </div>
+
             <div id="new-post-area" style="display:none;">
                 <div class="new-post-box">
                     <textarea class="new-post-textarea" id="new-post-text" placeholder="What's on your mind? ✦" maxlength="500"></textarea>
@@ -2006,6 +2014,20 @@
             const res = await fetch(API + '/api/social/follow?user_id=' + currentUser.id, { credentials: 'include' });
             // Just show a header and let search do the work
             list.innerHTML = '<div style="color:#9080b0;font-size:13px;margin-bottom:8px;">Search above to find and follow users ✦</div>';
+        }
+
+        let friendsSearchTimeout;
+        function searchFriends(q) {
+            clearTimeout(friendsSearchTimeout);
+            const el = document.getElementById('friends-search-results');
+            if (!q.trim()) { el.innerHTML = ''; return; }
+            friendsSearchTimeout = setTimeout(async () => {
+                const res = await fetch(API + '/api/social/users?search=' + encodeURIComponent(q));
+                const data = await res.json();
+                const users = data.users || [];
+                if (!users.length) { el.innerHTML = '<div style="color:#9080b0;font-size:13px;padding:8px 4px;">No users found</div>'; return; }
+                el.innerHTML = users.map(u => userCardHtml(u)).join('');
+            }, 300);
         }
 
         let searchTimeout;
