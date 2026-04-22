@@ -235,6 +235,35 @@
         @keyframes toastPop { from{opacity:0;transform:translateX(-50%) translateY(-10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
         #game-toast .t1 { color:#96ffdc; font-size:13px; font-weight:700; }
         #game-toast .t2 { color:#b496ff; font-size:10px; margin-top:2px; }
+
+        /* Size picker buttons */
+        .sz-btn {
+            padding:4px 9px; border-radius:11px; font-size:11px; font-weight:700;
+            cursor:pointer; border:1px solid rgba(180,150,255,0.2); color:#604870;
+            background:transparent; font-family:'Quicksand',sans-serif; transition:all 0.15s;
+        }
+        .sz-btn:hover { border-color:#b496ff; color:#b496ff; }
+        .sz-btn.active { border-color:#ff96c8; color:#ff96c8; background:rgba(255,150,200,0.12); }
+
+        /* Shop button */
+        .ui-btn-shop { color:#ffd700; border:1px solid rgba(255,215,0,0.3); }
+        .ui-btn-shop:hover { border-color:#ffd700; background:rgba(255,215,0,0.1); }
+
+        /* Shop modal */
+        .shop-items { display:flex; gap:10px; flex-wrap:wrap; }
+        .shop-item {
+            width:90px; border-radius:16px; padding:12px 8px; text-align:center;
+            border:1px solid rgba(255,215,0,0.18); background:rgba(20,16,8,0.7);
+            cursor:pointer; transition:all 0.18s;
+        }
+        .shop-item:hover { border-color:#ffd700; background:rgba(255,215,0,0.08); transform:scale(1.04); }
+        .shop-item.owned { border-color:rgba(150,255,220,0.35); background:rgba(10,30,20,0.7); cursor:default; }
+        .shop-item.owned:hover { transform:none; }
+        .shop-item .si-emoji { font-size:30px; margin-bottom:4px; }
+        .shop-item .si-name { font-size:10px; color:#d4a800; font-weight:700; line-height:1.2; margin-bottom:4px; }
+        .shop-item .si-cost { font-size:9px; color:#806040; }
+        .shop-item.owned .si-name { color:#96ffdc; }
+        .shop-item.owned .si-cost { color:#2a5040; }
     </style>
 </head>
 <body>
@@ -257,6 +286,7 @@
         <button class="ui-btn ui-btn-fairy" onclick="openCustomizer()">&#x2728; Fairy</button>
         <button id="garden-btn" class="ui-btn ui-btn-garden" onclick="toggleGarden()">&#x1F33F; Garden</button>
         <button id="build-btn" class="ui-btn ui-btn-build" onclick="toggleBuild()">&#x1F528; Build</button>
+        <button class="ui-btn ui-btn-shop" onclick="openShop()">&#x1F6D2; Shop</button>
     </div>
 </div>
 
@@ -337,7 +367,14 @@
         <button class="bp-tab active" onclick="setBuildTab('buildings',this)">&#x1F3E1; Buildings</button>
         <button class="bp-tab"        onclick="setBuildTab('gardens',this)">&#x1F338; Gardens</button>
         <button class="bp-tab"        onclick="setBuildTab('decor',this)">&#x1F3EE; Decor</button>
-        <button id="erase-btn" class="bp-erase" onclick="toggleErase()">&#x1F5D1; Erase</button>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:5px;">
+            <span style="color:#403050;font-size:10px;font-weight:700;letter-spacing:0.5px;">SIZE</span>
+            <button class="sz-btn" data-sz="S" onclick="setSize(this)">S</button>
+            <button class="sz-btn active" data-sz="M" onclick="setSize(this)">M</button>
+            <button class="sz-btn" data-sz="L" onclick="setSize(this)">L</button>
+            <button class="sz-btn" data-sz="XL" onclick="setSize(this)">XL</button>
+            <button id="erase-btn" class="bp-erase" onclick="toggleErase()" style="margin-left:4px;">&#x1F5D1; Erase</button>
+        </div>
     </div>
     <div class="palette" id="palette-grid"></div>
     <div class="bp-hint" id="build-hint">Select an item then click the world to place it &mdash; right-click to erase</div>
@@ -374,6 +411,18 @@
     </div>
 </div>
 
+<!-- ════════════ SHOP MODAL ════════════ -->
+<div id="shop-modal" class="modal-bg">
+    <div class="modal-card">
+        <h3>&#x1F6D2; Pixie Shop</h3>
+        <div id="shop-pts-row" style="color:#ffd700;font-size:12px;font-weight:700;margin-bottom:16px;"></div>
+        <div class="shop-items" id="shop-items-grid"></div>
+        <div class="modal-btns" style="margin-top:20px;">
+            <button class="btn-cancel" onclick="closeShop()">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- Game toast -->
 <div id="game-toast"><div class="t1" id="toast-t1"></div><div class="t2" id="toast-t2"></div></div>
 
@@ -401,7 +450,7 @@ var WALK=[1,1,0,1,1,1,1,1,0,0];
 
 // ── Canvas ─────────────────────────────────────────────────────────────────────
 var canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
-var SW,SH,TW_px,TH_px,HW,HH,OX,OY;
+var SW,SH,TW_px,TH_px,HW,HH,OX,OY,SIDE_H;
 var cam={x:0,y:0};
 
 function resize(){
@@ -409,6 +458,7 @@ function resize(){
     SW=canvas.width; SH=canvas.height;
     TW_px=Math.floor(Math.min(80,Math.max(48,Math.min(SW,SH)/10))/2)*2;
     TH_px=TW_px>>1; HW=TW_px>>1; HH=TH_px>>1;
+    SIDE_H=Math.max(4,Math.round(TH_px*0.5));
     OX=(SW>>1)-HW; OY=(SH>>1)-HH;
 }
 window.addEventListener('resize',resize); resize();
@@ -446,6 +496,20 @@ function buildMap(){
     for(r=14;r<pR;r++) if(m[r][43]===TG||m[r][43]===TK) m[r][43]=TD;
     for(c=pC+1;c<=43;c++) if(m[pR-3][c]===TG) m[pR-3][c]=TD;
 
+    // Garden plot — dedicated herb garden area
+    for(r=28;r<=32;r++) for(c=14;c<=18;c++){
+        if(m[r][c]===TG||m[r][c]===TK||m[r][c]===TF) m[r][c]=TD;
+    }
+    // Stone border around garden plot
+    for(r=27;r<=33;r++){
+        if(m[r][13]===TG||m[r][13]===TK) m[r][13]=TS;
+        if(m[r][19]===TG||m[r][19]===TK) m[r][19]=TS;
+    }
+    for(c=13;c<=19;c++){
+        if(m[27][c]===TG||m[27][c]===TK) m[27][c]=TS;
+        if(m[33][c]===TG||m[33][c]===TK) m[33][c]=TS;
+    }
+
     [[10,12],[15,47],[28,10],[33,42],[36,26],[8,28]].forEach(function(cl){
         for(var dr=-2;dr<=2;dr++) for(var dc=-2;dc<=2;dc++){
             var rr=cl[0]+dr,cc=cl[1]+dc;
@@ -480,6 +544,24 @@ function strokeDiamond(sx,sy,col,lw){
     ctx.strokeStyle=col||'rgba(0,0,0,0.22)'; ctx.lineWidth=lw||0.8;
     diamondPath(sx,sy); ctx.stroke();
 }
+function drawSides(sx,sy,leftFill,rightFill){
+    // Left face (left point → bottom point, extends down)
+    ctx.beginPath();
+    ctx.moveTo(sx,sy+HH);
+    ctx.lineTo(sx+HW,sy+TH_px);
+    ctx.lineTo(sx+HW,sy+TH_px+SIDE_H);
+    ctx.lineTo(sx,sy+HH+SIDE_H);
+    ctx.closePath();
+    ctx.fillStyle=leftFill; ctx.fill();
+    // Right face (bottom point → right point, extends down)
+    ctx.beginPath();
+    ctx.moveTo(sx+HW,sy+TH_px);
+    ctx.lineTo(sx+TW_px,sy+HH);
+    ctx.lineTo(sx+TW_px,sy+HH+SIDE_H);
+    ctx.lineTo(sx+HW,sy+TH_px+SIDE_H);
+    ctx.closePath();
+    ctx.fillStyle=rightFill; ctx.fill();
+}
 
 // ── ISO screen position ────────────────────────────────────────────────────────
 function tileScreenPos(col,row){
@@ -492,6 +574,7 @@ function tileScreenPos(col,row){
 // ── Tile drawing ───────────────────────────────────────────────────────────────
 function tileGrass(sx,sy){
     var cx=sx+HW,cy=sy+HH;
+    drawSides(sx,sy,'#2e6018','#1e4c0e');
     var g=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     g.addColorStop(0,'#78c85a'); g.addColorStop(0.5,'#5a9e47'); g.addColorStop(1,'#3e7830');
     fillDiamond(sx,sy,g);
@@ -504,6 +587,7 @@ function tileGrass(sx,sy){
 
 function tileDark(sx,sy){
     var cx=sx+HW,cy=sy+HH;
+    drawSides(sx,sy,'#163a0e','#0e2808');
     var g=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     g.addColorStop(0,'#4a8836'); g.addColorStop(1,'#2c561e');
     fillDiamond(sx,sy,g);
@@ -516,6 +600,7 @@ function tileDark(sx,sy){
 
 function tileDirt(sx,sy){
     var cx=sx+HW,cy=sy+HH;
+    drawSides(sx,sy,'#7a5028','#5a3818');
     var g=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     g.addColorStop(0,'#c09858'); g.addColorStop(1,'#8a6535');
     fillDiamond(sx,sy,g);
@@ -569,6 +654,7 @@ function tileFlowers(sx,sy,t){
 
 function tileStone(sx,sy){
     var cx=sx+HW,cy=sy+HH;
+    drawSides(sx,sy,'#5a5a72','#48486a');
     var g=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     g.addColorStop(0,'#9898ac'); g.addColorStop(1,'#6c6c7e');
     fillDiamond(sx,sy,g);
@@ -610,6 +696,7 @@ function tileFairyRing(sx,sy,t){
 
 function tileSand(sx,sy){
     var cx=sx+HW;
+    drawSides(sx,sy,'#8a6832','#6a5020');
     var g=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     g.addColorStop(0,'#e8cc88'); g.addColorStop(1,'#bfa060');
     fillDiamond(sx,sy,g);
@@ -623,6 +710,7 @@ function tileSand(sx,sy){
 
 function tileTree(sx,sy){
     var cx=sx+HW, cy=sy+HH;
+    drawSides(sx,sy,'#0e2808','#081a04');
     var gd=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     gd.addColorStop(0,'#1c4018'); gd.addColorStop(1,'#122c10');
     fillDiamond(sx,sy,gd);
@@ -875,16 +963,18 @@ function savePlaced(){
     try{ localStorage.setItem('portal_placed',JSON.stringify(placed)); }catch(e){}
 }
 
+var SIZE_SCALE={S:0.6,M:1.0,L:1.5,XL:2.2};
 function drawPlaced(tc,tr,sx,sy){
     var obj=placed[tr+','+tc];
     if(!obj) return;
     var cx=sx+HW, cy=sy+HH;
-    var sz=Math.round(HW*1.55);
+    var scale=SIZE_SCALE[obj.size||'M']||1.0;
+    var sz=Math.round(HW*1.55*scale);
     ctx.save();
     ctx.font=sz+'px serif';
     ctx.textAlign='center'; ctx.textBaseline='bottom';
     ctx.shadowColor='rgba(180,150,255,0.7)'; ctx.shadowBlur=16;
-    ctx.fillText(obj.emoji,cx,cy-Math.round(HH*0.2));
+    ctx.fillText(obj.emoji,cx,cy-Math.round(HH*0.2*scale));
     ctx.shadowBlur=0;
     ctx.restore();
 }
@@ -892,7 +982,7 @@ function drawPlaced(tc,tr,sx,sy){
 // ══════════════════════════════════════════════════════
 // ── BUILD MODE ─────────────────────────────────────────
 // ══════════════════════════════════════════════════════
-var buildMode=false, eraseMode=false, selectedItem=null, buildTab='buildings';
+var buildMode=false, eraseMode=false, selectedItem=null, buildTab='buildings', selectedSize='M';
 
 var PALETTE={
     buildings:[
@@ -925,6 +1015,12 @@ var PALETTE={
         {emoji:'🌈',label:'Rainbow'},  {emoji:'🧿',label:'Orb'},
     ]
 };
+
+function setSize(el){
+    selectedSize=el.getAttribute('data-sz');
+    document.querySelectorAll('.sz-btn').forEach(function(b){b.classList.remove('active');});
+    el.classList.add('active');
+}
 
 function toggleBuild(){
     buildMode=!buildMode;
@@ -1009,22 +1105,33 @@ window.addEventListener('mousemove',function(e){
     cur.style.top=e.clientY+'px';
 });
 
-// Canvas click: place or erase
+// Canvas pointer handling: build placement + drag-to-pan
 canvas.addEventListener('pointerdown',function(e){
-    if(!started||!buildMode) return;
-    if(!selectedItem&&!eraseMode) return;
-    var rect=canvas.getBoundingClientRect();
-    var pos=screenToTile(e.clientX-rect.left, e.clientY-rect.top);
-    if(pos.tc<0||pos.tc>=MC||pos.tr<0||pos.tr>=MR) return;
-    var key=pos.tr+','+pos.tc;
-    if(eraseMode){
-        delete placed[key];
-    } else {
-        placed[key]={emoji:selectedItem.emoji,label:selectedItem.label};
+    if(!started) return;
+    if(buildMode&&(selectedItem||eraseMode)){
+        var rect=canvas.getBoundingClientRect();
+        var pos=screenToTile(e.clientX-rect.left, e.clientY-rect.top);
+        if(pos.tc<0||pos.tc>=MC||pos.tr<0||pos.tr>=MR) return;
+        var key=pos.tr+','+pos.tc;
+        if(eraseMode){ delete placed[key]; }
+        else { placed[key]={emoji:selectedItem.emoji,label:selectedItem.label,size:selectedSize}; }
+        savePlaced();
+        e.stopPropagation();
+        return;
     }
-    savePlaced();
-    e.stopPropagation();
+    drag.on=true; drag.moved=false;
+    drag.px=e.clientX; drag.py=e.clientY;
+    drag.camX=cam.x; drag.camY=cam.y;
+    e.preventDefault();
 },{passive:false});
+canvas.addEventListener('pointermove',function(e){
+    if(!drag.on) return;
+    var dx=e.clientX-drag.px, dy=e.clientY-drag.py;
+    if(!drag.moved&&Math.sqrt(dx*dx+dy*dy)>5) drag.moved=true;
+    if(drag.moved){ cam.x=drag.camX-dx; cam.y=drag.camY-dy; }
+},{passive:true});
+canvas.addEventListener('pointerup',function(){ drag.on=false; drag.moved=false; });
+canvas.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; });
 
 // Right-click to erase quickly
 canvas.addEventListener('contextmenu',function(e){
@@ -1036,6 +1143,9 @@ canvas.addEventListener('contextmenu',function(e){
     delete placed[pos.tr+','+pos.tc];
     savePlaced();
 });
+
+// ── Drag-to-pan ────────────────────────────────────────────────────────────────
+var drag={on:false,px:0,py:0,camX:0,camY:0,moved:false};
 
 // ── Player ─────────────────────────────────────────────────────────────────────
 var pl={tc:27,tr:22,wx:0,wy:0,moving:false,dir:'r',flip:false};
@@ -1178,6 +1288,7 @@ function drawAmbientGlow(t){
 var ZONES=[
     {r1:4,c1:36,r2:16,c2:52,name:'\uD83C\uDF0A The Lake'},
     {r1:17,c1:23,r2:23,c2:31,name:'\u2728 The Fairy Ring'},
+    {r1:26,c1:12,r2:34,c2:21,name:'\uD83C\uDF3F The Herb Garden'},
     {r1:0,c1:0,r2:MR,c2:MC,name:'\uD83C\uDF3F The Meadow'}
 ];
 var curZone='';
@@ -1237,7 +1348,7 @@ function update(dt,t){
         }
     }
 
-    cam.x+=(pl.wx-cam.x)*.11; cam.y+=(pl.wy-cam.y)*.11;
+    if(!drag.on||!drag.moved){ cam.x+=(pl.wx-cam.x)*.11; cam.y+=(pl.wy-cam.y)*.11; }
 
     for(var i=parts.length-1;i>=0;i--){
         var p=parts[i];
@@ -1582,6 +1693,79 @@ async function removeHerb(slot) {
 document.getElementById('daily-modal').addEventListener('click', function(e){
     if (e.target === this) closeDailyModal();
 });
+
+// ── SHOP ───────────────────────────────────────────────────────────────────────
+var SHOP_ITEMS = [
+    { id:'fairy_fountain', emoji:'⛲', name:'Fairy Fountain',  cost:300,  desc:'Sparkling magic water' },
+    { id:'crystal_arch',   emoji:'🌈', name:'Crystal Arch',    cost:500,  desc:'Rainbow gateway' },
+    { id:'moon_shrine',    emoji:'🌙', name:'Moon Shrine',     cost:750,  desc:'Moonlit altar' },
+    { id:'star_tree',      emoji:'🌟', name:'Star Tree',       cost:1000, desc:'Celestial oak' },
+    { id:'magic_portal',   emoji:'🔮', name:'Magic Crystal',   cost:1500, desc:'Arcane focus' },
+    { id:'pixie_throne',   emoji:'👑', name:'Pixie Throne',    cost:2000, desc:'For the fairy queen' },
+    { id:'dragon_egg',     emoji:'🥚', name:'Dragon Egg',      cost:3000, desc:'Ancient relic' },
+];
+
+function openShop() {
+    if (!portalData) { showGameToast('Sign in to use the shop', '', 2000); return; }
+    renderShopItems();
+    document.getElementById('shop-modal').classList.add('open');
+}
+function closeShop() {
+    document.getElementById('shop-modal').classList.remove('open');
+}
+document.getElementById('shop-modal').addEventListener('click', function(e){
+    if (e.target === this) closeShop();
+});
+
+function renderShopItems() {
+    var pts = portalData ? portalData.points : 0;
+    document.getElementById('shop-pts-row').textContent = '\u2756 You have ' + pts + ' pts';
+    var owned = portalData && portalData.plot ? portalData.plot : [];
+    var grid = document.getElementById('shop-items-grid');
+    grid.innerHTML = '';
+    SHOP_ITEMS.forEach(function(item) {
+        var isOwned = owned.indexOf(item.id) >= 0;
+        var canAfford = pts >= item.cost;
+        var div = document.createElement('div');
+        div.className = 'shop-item' + (isOwned ? ' owned' : '');
+        div.innerHTML =
+            '<div class="si-emoji">' + item.emoji + '</div>' +
+            '<div class="si-name">' + item.name + '</div>' +
+            '<div class="si-cost">' + (isOwned ? '\u2713 Owned' : '\u2756 ' + item.cost + ' pts') + '</div>';
+        if (!isOwned) {
+            if (canAfford) {
+                div.onclick = function(){ buyShopItem(item); };
+            } else {
+                div.style.opacity = '0.45';
+                div.style.cursor = 'not-allowed';
+            }
+        }
+        grid.appendChild(div);
+    });
+}
+
+async function buyShopItem(item) {
+    if (!portalData || portalData.points < item.cost) return;
+    try {
+        var res = await fetch('/api/portal/shop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: item.id })
+        });
+        var data = await res.json();
+        if (data.success) {
+            portalData.points = data.points;
+            portalData.plot = data.plot;
+            updatePortalHUD();
+            renderShopItems();
+            showGameToast(item.emoji + ' ' + item.name + ' unlocked!', '\u2756 -' + item.cost + ' pts', 2500);
+        } else {
+            showGameToast(data.error || 'Purchase failed', '', 2000);
+        }
+    } catch(e) {
+        showGameToast('Shop unavailable', '', 2000);
+    }
+}
 </script>
 </body>
 </html>
