@@ -251,6 +251,36 @@
         /* Shop button */
         .ui-btn-shop { color:#ffd700; border:1px solid rgba(255,215,0,0.3); }
         .ui-btn-shop:hover { border-color:#ffd700; background:rgba(255,215,0,0.1); }
+        /* Neighbors button */
+        .ui-btn-neighbors { color:#96c8ff; border:1px solid rgba(150,200,255,0.3); }
+        .ui-btn-neighbors:hover { border-color:#96c8ff; background:rgba(150,200,255,0.1); }
+        /* Visit banner */
+        #visit-banner {
+            display:none; position:fixed; top:56px; left:0; right:0; z-index:50;
+            text-align:center; pointer-events:none;
+        }
+        #visit-banner-inner {
+            display:inline-flex; align-items:center; gap:10px;
+            background:rgba(6,4,22,0.94); border:1px solid rgba(150,200,255,0.38);
+            border-radius:20px; padding:8px 18px; pointer-events:auto;
+        }
+        #visit-banner-text { color:#96c8ff; font-size:13px; font-weight:700; }
+        #visit-home-btn {
+            font-family:'Quicksand',sans-serif; font-size:12px; font-weight:700;
+            padding:5px 12px; border-radius:14px; border:1px solid rgba(150,200,255,0.35);
+            background:transparent; color:#96c8ff; cursor:pointer;
+        }
+        #visit-home-btn:hover { border-color:#96c8ff; background:rgba(150,200,255,0.1); }
+        /* Neighbors list */
+        .neighbor-row {
+            display:flex; align-items:center; gap:10px; padding:10px 12px;
+            border-radius:12px; cursor:pointer; transition:background 0.15s;
+            border:1px solid rgba(150,200,255,0.1);
+        }
+        .neighbor-row:hover { background:rgba(150,200,255,0.08); border-color:rgba(150,200,255,0.3); }
+        .neighbor-avatar { font-size:26px; width:36px; text-align:center; }
+        .neighbor-name { color:#c0d8f0; font-size:13px; font-weight:700; }
+        .neighbor-pts { color:#6080a0; font-size:11px; margin-top:1px; }
 
         /* Shop modal */
         .shop-items { display:flex; gap:10px; flex-wrap:wrap; }
@@ -290,6 +320,15 @@
         <button id="garden-btn" class="ui-btn ui-btn-garden" onclick="toggleGarden()">&#x1F33F; Garden</button>
         <button id="build-btn" class="ui-btn ui-btn-build" onclick="toggleBuild()">&#x1F528; Build</button>
         <button class="ui-btn ui-btn-shop" onclick="openShop()">&#x1F6D2; Shop</button>
+        <button class="ui-btn ui-btn-neighbors" onclick="openNeighbors()">&#x1F3D8;&#xFE0F; Neighbors</button>
+    </div>
+</div>
+
+<!-- Visit banner -->
+<div id="visit-banner">
+    <div id="visit-banner-inner">
+        <span id="visit-banner-text"></span>
+        <button id="visit-home-btn" onclick="goHome()">Go Home &#x2728;</button>
     </div>
 </div>
 
@@ -433,6 +472,17 @@
         <div class="shop-items" id="shop-items-grid"></div>
         <div class="modal-btns" style="margin-top:20px;">
             <button class="btn-cancel" onclick="closeShop()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════ NEIGHBORS MODAL ════════════ -->
+<div id="neighbors-modal" class="modal-bg">
+    <div class="modal-card">
+        <h3>&#x1F3D8;&#xFE0F; Neighbors</h3>
+        <div id="neighbors-list" style="display:flex;flex-direction:column;gap:6px;min-height:60px;"></div>
+        <div class="modal-btns" style="margin-top:16px;">
+            <button class="btn-cancel" onclick="closeNeighbors()">Close</button>
         </div>
     </div>
 </div>
@@ -1221,6 +1271,8 @@ document.getElementById('cust-modal').addEventListener('click',function(e){
 // ── PLACED OBJECTS ─────────────────────────────────────
 // ══════════════════════════════════════════════════════
 var placed={};  // key: "tr,tc" -> {emoji, label}
+var visitMode=false, visitMyPlaced=null;
+var _savePlacedTimer=null;
 
 function loadPlaced(){
     try{
@@ -1229,7 +1281,17 @@ function loadPlaced(){
     }catch(e){}
 }
 function savePlaced(){
+    if(visitMode) return;
     try{ localStorage.setItem('portal_placed',JSON.stringify(placed)); }catch(e){}
+    clearTimeout(_savePlacedTimer);
+    _savePlacedTimer=setTimeout(function(){
+        if(!portalData) return;
+        fetch('/api/portal/placed',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({placed:placed})
+        }).catch(function(){});
+    },2500);
 }
 
 // ── Premium canvas draw functions ──────────────────────────────────────────────
@@ -2390,6 +2452,7 @@ function setSize(el){
 }
 
 function toggleBuild(){
+    if(visitMode){ showGameToast("Can\u2019t build in someone else\u2019s portal",'',2000); return; }
     buildMode=!buildMode;
     var btn=document.getElementById('build-btn');
     var panel=document.getElementById('build-panel');
@@ -3317,6 +3380,14 @@ async function loadPortalData() {
         portalData = await res.json();
         updatePortalHUD();
         if (portalData.dailyAvailable) await claimDaily();
+        // Bootstrap: sync current local placements to server
+        if (placed && Object.keys(placed).length > 0) {
+            fetch('/api/portal/placed', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ placed: placed })
+            }).catch(function(){});
+        }
     } catch(e) {}
 }
 
@@ -3389,6 +3460,7 @@ function showLevelUp(level) {
 }
 
 function toggleGarden() {
+    if(visitMode){ showGameToast("Can\u2019t garden in someone else\u2019s portal",'',2000); return; }
     gardenOpen = !gardenOpen;
     var btn = document.getElementById('garden-btn');
     var panel = document.getElementById('garden-panel');
@@ -3677,6 +3749,7 @@ var SHOP_ITEMS = [
 var shopTabActive='world';
 
 function openShop() {
+    if (visitMode) { showGameToast("Can\u2019t shop in someone else\u2019s portal",'',2000); return; }
     if (!portalData) { showGameToast('Sign in to use the shop', '', 2000); return; }
     shopTabActive = 'world';
     document.querySelectorAll('#shop-modal .bp-tab').forEach(function(b){ b.classList.remove('active'); });
@@ -4247,6 +4320,78 @@ function mgMailSort(mgC,mgCtx){
             // If dropped outside a box, letter resumes falling
         }
     };
+}
+
+// ══════════════════════════════════════════════════════
+// ── NEIGHBORS ─────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+
+async function openNeighbors() {
+    if (!portalData) { showGameToast('Sign in to visit neighbors', '', 2000); return; }
+    var modal = document.getElementById('neighbors-modal');
+    var list = document.getElementById('neighbors-list');
+    list.innerHTML = '<div style="color:#506080;font-size:13px;padding:8px 0;">Loading\u2026</div>';
+    modal.classList.add('open');
+    try {
+        var res = await fetch('/api/portal/neighbors');
+        if (!res.ok) throw new Error('failed');
+        var data = await res.json();
+        list.innerHTML = '';
+        if (!data.neighbors || data.neighbors.length === 0) {
+            list.innerHTML = '<div style="color:#506080;font-size:13px;padding:8px 0;">No neighbors yet \u2014 be the first to explore!</div>';
+            return;
+        }
+        data.neighbors.forEach(function(n) {
+            var row = document.createElement('div');
+            row.className = 'neighbor-row';
+            row.innerHTML =
+                '<div class="neighbor-avatar">' + (n.avatar || '\uD83E\uDDDA') + '</div>' +
+                '<div><div class="neighbor-name">' + (n.displayName || n.username || 'Fairy') + '</div>' +
+                '<div class="neighbor-pts">\u2756 ' + (n.points || 0) + ' pts</div></div>';
+            row.onclick = function() {
+                modal.classList.remove('open');
+                visitNeighbor(n.userId, n.displayName || n.username || 'Fairy');
+            };
+            list.appendChild(row);
+        });
+    } catch(e) {
+        list.innerHTML = '<div style="color:#804040;font-size:13px;padding:8px 0;">Couldn\u2019t load neighbors</div>';
+    }
+}
+
+function closeNeighbors() {
+    document.getElementById('neighbors-modal').classList.remove('open');
+}
+
+async function visitNeighbor(userId, displayName) {
+    try {
+        var res = await fetch('/api/portal/neighbors?userId=' + userId);
+        if (!res.ok) { showGameToast('Could not visit portal', '', 2000); return; }
+        var data = await res.json();
+        // Save own placements
+        visitMyPlaced = JSON.parse(JSON.stringify(placed));
+        // Swap to neighbor's placements
+        placed = data.placed || {};
+        visitMode = true;
+        // Close any open panels
+        if (buildMode) toggleBuild();
+        if (gardenOpen) toggleGarden();
+        // Show banner
+        document.getElementById('visit-banner-text').textContent = 'Visiting ' + displayName + '\u2019s Portal \u2728';
+        document.getElementById('visit-banner').style.display = 'block';
+        showGameToast('Visiting ' + displayName + '\u2019s portal', 'Look around! \u2728', 2500);
+    } catch(e) {
+        showGameToast('Could not visit portal', '', 2000);
+    }
+}
+
+function goHome() {
+    if (!visitMode) return;
+    placed = visitMyPlaced || {};
+    visitMyPlaced = null;
+    visitMode = false;
+    document.getElementById('visit-banner').style.display = 'none';
+    showGameToast('Welcome home! \u2728', '', 2000);
 }
 </script>
 </body>
