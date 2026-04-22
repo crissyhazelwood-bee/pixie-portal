@@ -68,7 +68,7 @@ export async function onRequestPost({ request, env }) {
         // Water gives 3 points (once per plant per hour)
         const lastWatered = plant.watered_at || 0;
         let pointsEarned = 0;
-        if (lastWatered < now - 3600) {
+        if (lastWatered < now - 120) {
             pointsEarned = 3;
             await env.DB.prepare("UPDATE portal_players SET points = points + 3 WHERE user_id = ?").bind(userId).run();
         }
