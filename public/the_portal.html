@@ -420,12 +420,24 @@
 <div id="shop-modal" class="modal-bg">
     <div class="modal-card">
         <h3>&#x1F6D2; Pixie Shop</h3>
-        <div id="shop-pts-row" style="color:#ffd700;font-size:12px;font-weight:700;margin-bottom:16px;"></div>
+        <div id="shop-pts-row" style="color:#ffd700;font-size:12px;font-weight:700;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;">
+            <button id="shop-tab-world" class="bp-tab active" onclick="setShopTab('world',this)" style="flex:1;">&#x1F3D8;&#xFE0F; World</button>
+            <button id="shop-tab-fairy" class="bp-tab" onclick="setShopTab('fairy',this)" style="flex:1;">&#x2728; Fairy</button>
+        </div>
         <div class="shop-items" id="shop-items-grid"></div>
         <div class="modal-btns" style="margin-top:20px;">
             <button class="btn-cancel" onclick="closeShop()">Close</button>
         </div>
     </div>
+</div>
+
+<!-- ════════════ MINI-GAME MODAL ════════════ -->
+<div id="mg-modal" style="display:none;position:fixed;inset:0;background:rgba(4,2,14,0.94);z-index:1200;flex-direction:column;align-items:center;justify-content:center;">
+    <div id="mg-title" style="color:#e8d0ff;font-family:'Quicksand',sans-serif;font-size:17px;font-weight:700;margin-bottom:8px;text-shadow:0 0 12px #a060ff;"></div>
+    <canvas id="mg-canvas" style="border-radius:14px;border:2px solid #6040a0;box-shadow:0 0 32px #6030b0;touch-action:none;"></canvas>
+    <div id="mg-footer" style="color:#b090d0;font-family:'Quicksand',sans-serif;font-size:12px;margin-top:8px;min-height:18px;"></div>
+    <button onclick="closeMiniGame()" style="position:absolute;top:14px;right:14px;background:#4a2870;color:#e0c8ff;border:1px solid #8060c0;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:13px;font-family:'Quicksand',sans-serif;">&#x2715; Close</button>
 </div>
 
 <!-- Game toast -->
@@ -2296,6 +2308,7 @@ function drawPlaced(tc,tr,sx,sy,t){
 // ── BUILD MODE ─────────────────────────────────────────
 // ══════════════════════════════════════════════════════
 var buildMode=false, eraseMode=false, selectedItem=null, buildTab='buildings', selectedSize='M';
+var mgActive=false;
 
 var PALETTE={
     buildings:[
@@ -2521,8 +2534,26 @@ canvas.addEventListener('pointermove',function(e){
     if(drag.moved){ cam.x=drag.camX-dx; cam.y=drag.camY-dy; }
     e.preventDefault();
 },{passive:false});
-canvas.addEventListener('pointerup',function(){
+canvas.addEventListener('pointerup',function(e){
     if(!drag.moved&&pendingGardenSlot>=0) handleWorldGardenClick(pendingGardenSlot);
+    if(!drag.moved&&!buildMode&&!mgActive){
+        var rect2=canvas.getBoundingClientRect();
+        var tapX=e.clientX-rect2.left, tapY=e.clientY-rect2.top;
+        var MINIGAME_IDS=['city_hall','salon','library','grocery_store','post_office'];
+        var bestKey2=null, bestDist2=TW_px*TW_px*2.5;
+        Object.keys(placed).forEach(function(k){
+            var kp=k.split(',');
+            var sp=tileScreenPos(parseInt(kp[1]),parseInt(kp[0]));
+            var cx2=sp.sx+HW, cy2=sp.sy+HH;
+            var d=(tapX-cx2)*(tapX-cx2)+(tapY-cy2)*(tapY-cy2);
+            if(d<bestDist2){bestDist2=d;bestKey2=k;}
+        });
+        if(bestKey2){
+            var obj2=placed[bestKey2];
+            var bid=obj2.id||'';
+            if(MINIGAME_IDS.indexOf(bid)>=0) openMiniGame(bid);
+        }
+    }
     if(drag.moved) camDragged=true;
     drag.on=false; drag.moved=false; pendingGardenSlot=-1;
 });
@@ -2686,6 +2717,123 @@ function drawPlayer(t){
     });
     ctx.globalAlpha=1; ctx.shadowBlur=0;
     ctx.restore();
+
+    // ── Fairy accessories ─────────────────────────────────
+    var fairyOwned = portalData && portalData.plot ? portalData.plot : [];
+
+    // Necklace — gem chain at neck
+    if(fairyOwned.indexOf('fairy_necklace')>=0){
+        ctx.save();
+        var neckY = shoulderY + H*0.01;
+        var gemColors = ['#88eeff','#ff88dd','#aaffaa','#ffdd44'];
+        for(var ni=0;ni<4;ni++){
+            var na = -0.55 + ni*0.37;
+            var nx = pcx + Math.sin(na)*H*0.085;
+            var ny = neckY + (1-Math.cos(na)*0.8)*H*0.04;
+            ctx.shadowColor=gemColors[ni%4]; ctx.shadowBlur=6;
+            ctx.fillStyle=gemColors[ni%4];
+            ctx.globalAlpha=0.88;
+            ctx.beginPath(); ctx.arc(nx,ny,H*0.022,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+        ctx.restore();
+    }
+
+    // Wand — held at right side, sparks at tip
+    if(fairyOwned.indexOf('fairy_wand')>=0){
+        ctx.save();
+        var wandTipX = pcx + H*0.30;
+        var wandTipY = shoulderY - H*0.12;
+        var wandBotX = pcx + H*0.22;
+        var wandBotY = shoulderY + H*0.30;
+        ctx.strokeStyle='#f8d8a0'; ctx.lineWidth=H*0.028; ctx.lineCap='round';
+        ctx.shadowColor='#ffd700'; ctx.shadowBlur=8;
+        ctx.beginPath(); ctx.moveTo(wandBotX,wandBotY); ctx.lineTo(wandTipX,wandTipY); ctx.stroke();
+        // Star tip
+        ctx.fillStyle='#ffd700'; ctx.shadowBlur=14;
+        ctx.globalAlpha=0.7+Math.sin(t*3.1)*0.3;
+        ctx.beginPath(); ctx.arc(wandTipX,wandTipY,H*0.048,0,Math.PI*2); ctx.fill();
+        // Sparkle lines
+        ctx.globalAlpha=0.55+Math.sin(t*2.8)*0.35;
+        ctx.strokeStyle='#fff'; ctx.lineWidth=H*0.012;
+        for(var wi=0;wi<4;wi++){
+            var wa=t*2.2+wi*Math.PI/2;
+            ctx.beginPath();
+            ctx.moveTo(wandTipX,wandTipY);
+            ctx.lineTo(wandTipX+Math.cos(wa)*H*0.07,wandTipY+Math.sin(wa)*H*0.07);
+            ctx.stroke();
+        }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+        ctx.restore();
+    }
+
+    // Crown — golden crown above head
+    if(fairyOwned.indexOf('fairy_crown')>=0){
+        ctx.save();
+        var crownY = headCY - headR*1.18;
+        ctx.shadowColor='#ffd700'; ctx.shadowBlur=10;
+        ctx.fillStyle='#ffd700';
+        // Base band
+        ctx.beginPath();
+        ctx.rect(pcx-headR*0.7,crownY,headR*1.4,H*0.038);
+        ctx.fill();
+        // Three points
+        [[0,1],[-.5,.6],[.5,.6]].forEach(function(pt,pi){
+            ctx.beginPath();
+            ctx.moveTo(pcx+pt[0]*headR*1.0,crownY);
+            ctx.lineTo(pcx+pt[0]*headR*0.65,crownY-H*(0.042+pt[1]*0.028));
+            ctx.lineTo(pcx+pt[0]*headR*1.3,crownY);
+            ctx.closePath(); ctx.fill();
+        });
+        // Gems
+        ctx.shadowBlur=8;
+        [['#ff4488',-.42],['#44aaff',0],['#ff4488',.42]].forEach(function(g){
+            ctx.fillStyle=g[0];
+            ctx.beginPath(); ctx.arc(pcx+g[1]*headR,crownY+H*0.022,H*0.019,0,Math.PI*2); ctx.fill();
+        });
+        ctx.shadowBlur=0;
+        ctx.restore();
+    }
+
+    // Rainbow wings — replaces normal wing shimmer with rainbow tint
+    if(fairyOwned.indexOf('fairy_wings_rainbow')>=0){
+        ctx.save();
+        ctx.globalCompositeOperation='screen';
+        ctx.globalAlpha=0.22+Math.sin(t*1.8)*0.08;
+        var wingY2=feet-H*0.60;
+        var grad=ctx.createLinearGradient(pcx-H*0.55,wingY2,pcx+H*0.55,wingY2);
+        grad.addColorStop(0,'#ff88cc');
+        grad.addColorStop(0.2,'#ffcc44');
+        grad.addColorStop(0.4,'#44ff88');
+        grad.addColorStop(0.6,'#44aaff');
+        grad.addColorStop(0.8,'#cc44ff');
+        grad.addColorStop(1,'#ff88cc');
+        ctx.fillStyle=grad;
+        ctx.beginPath();
+        ctx.ellipse(pcx,wingY2,H*0.5,H*0.22,0,0,Math.PI*2);
+        ctx.fill();
+        ctx.globalCompositeOperation='source-over';
+        ctx.globalAlpha=1;
+        ctx.restore();
+    }
+
+    // Aura — orbiting star particles
+    if(fairyOwned.indexOf('fairy_aura')>=0){
+        ctx.save();
+        var auraCY = feet - H*0.5;
+        for(var ai=0;ai<6;ai++){
+            var aph = t*1.1 + ai*Math.PI*2/6;
+            var aax = pcx + Math.cos(aph)*H*0.38;
+            var aay = auraCY + Math.sin(aph)*H*0.22;
+            var aal = 0.5+Math.sin(t*2.4+ai*0.9)*0.45;
+            ctx.globalAlpha = Math.max(0,aal);
+            ctx.shadowColor='#c8b0ff'; ctx.shadowBlur=10;
+            ctx.fillStyle='#e8d8ff';
+            ctx.beginPath(); ctx.arc(aax,aay,H*0.028,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+        ctx.restore();
+    }
 
     // Name label
     if(fairy.name){
@@ -2915,6 +3063,7 @@ document.addEventListener('keydown',function(e){
 document.addEventListener('keyup',function(e){keys[e.key]=false;});
 function dp(d,v){ keys['_'+d]=v; }
 function inputDir(){
+    if(mgActive) return null;
     if(keys['ArrowUp']   ||keys['w']||keys['W']||keys['_u']) return 'u';
     if(keys['ArrowDown'] ||keys['s']||keys['S']||keys['_d']) return 'd';
     if(keys['ArrowLeft'] ||keys['a']||keys['A']||keys['_l']) return 'l';
@@ -3464,24 +3613,33 @@ document.getElementById('daily-modal').addEventListener('click', function(e){
 
 // ── SHOP ───────────────────────────────────────────────────────────────────────
 var SHOP_ITEMS = [
-    { id:'fairy_fountain', emoji:'⛲', name:'Fairy Fountain',  cost:300,  desc:'Sparkling magic water' },
-    { id:'wishing_well',   emoji:'🪣', name:'Wishing Well',    cost:600,  desc:'A coin-lit well of wishes' },
-    { id:'crystal_arch',   emoji:'🌈', name:'Crystal Arch',    cost:500,  desc:'Rainbow gateway' },
-    { id:'moon_shrine',    emoji:'🌙', name:'Moon Shrine',     cost:750,  desc:'Moonlit altar' },
-    { id:'star_tree',      emoji:'🌟', name:'Star Tree',       cost:1000, desc:'Celestial oak' },
-    { id:'magic_portal',   emoji:'🔮', name:'Magic Crystal',   cost:1500, desc:'Arcane focus' },
-    { id:'pixie_throne',   emoji:'👑', name:'Pixie Throne',    cost:2000, desc:'For the fairy queen' },
-    { id:'crystal_spire',  emoji:'💠', name:'Crystal Spire',   cost:2500, desc:'Prismatic crystal tower' },
-    { id:'dragon_egg',     emoji:'🥚', name:'Dragon Egg',      cost:3000, desc:'Ancient relic' },
-    { id:'grocery_store',  emoji:'🛒', name:'Grocery Store',   cost:400,  desc:'Fresh produce daily' },
-    { id:'salon',          emoji:'💅', name:'Salon',           cost:600,  desc:'Glamour & sparkle' },
-    { id:'library',        emoji:'📚', name:'Library',         cost:1100, desc:'Ancient knowledge' },
-    { id:'post_office',    emoji:'📮', name:'Post Office',     cost:800,  desc:'Send fairy mail' },
-    { id:'city_hall',      emoji:'🏛️', name:'City Hall',       cost:3500, desc:'Heart of the village' },
+    { id:'fairy_fountain', emoji:'⛲', name:'Fairy Fountain',  cost:300,  desc:'Sparkling magic water',      type:'world' },
+    { id:'wishing_well',   emoji:'🪣', name:'Wishing Well',    cost:600,  desc:'A coin-lit well of wishes',  type:'world' },
+    { id:'crystal_arch',   emoji:'🌈', name:'Crystal Arch',    cost:500,  desc:'Rainbow gateway',            type:'world' },
+    { id:'moon_shrine',    emoji:'🌙', name:'Moon Shrine',     cost:750,  desc:'Moonlit altar',              type:'world' },
+    { id:'star_tree',      emoji:'🌟', name:'Star Tree',       cost:1000, desc:'Celestial oak',              type:'world' },
+    { id:'magic_portal',   emoji:'🔮', name:'Magic Crystal',   cost:1500, desc:'Arcane focus',               type:'world' },
+    { id:'pixie_throne',   emoji:'👑', name:'Pixie Throne',    cost:2000, desc:'For the fairy queen',        type:'world' },
+    { id:'crystal_spire',  emoji:'💠', name:'Crystal Spire',   cost:2500, desc:'Prismatic crystal tower',    type:'world' },
+    { id:'dragon_egg',     emoji:'🥚', name:'Dragon Egg',      cost:3000, desc:'Ancient relic',              type:'world' },
+    { id:'grocery_store',  emoji:'🛒', name:'Grocery Store',   cost:400,  desc:'Fresh produce daily',        type:'world' },
+    { id:'salon',          emoji:'💅', name:'Salon',           cost:600,  desc:'Glamour & sparkle',          type:'world' },
+    { id:'library',        emoji:'📚', name:'Library',         cost:1100, desc:'Ancient knowledge',          type:'world' },
+    { id:'post_office',    emoji:'📮', name:'Post Office',     cost:800,  desc:'Send fairy mail',            type:'world' },
+    { id:'city_hall',      emoji:'🏛️', name:'City Hall',       cost:3500, desc:'Heart of the village',       type:'world' },
+    { id:'fairy_necklace', emoji:'💎', name:'Crystal Necklace',cost:300,  desc:'Gem chain for your fairy',   type:'fairy' },
+    { id:'fairy_wand',     emoji:'🪄', name:'Magic Wand',      cost:400,  desc:'Sparkle with every step',    type:'fairy' },
+    { id:'fairy_crown',    emoji:'👑', name:'Fairy Crown',     cost:500,  desc:'A radiant golden crown',     type:'fairy' },
+    { id:'fairy_wings_rainbow', emoji:'🦋', name:'Rainbow Wings', cost:700, desc:'Iridescent wing upgrade', type:'fairy' },
+    { id:'fairy_aura',     emoji:'✨', name:'Star Aura',       cost:1000, desc:'Orbiting stars surround you',type:'fairy' },
 ];
+var shopTabActive='world';
 
 function openShop() {
     if (!portalData) { showGameToast('Sign in to use the shop', '', 2000); return; }
+    shopTabActive = 'world';
+    document.querySelectorAll('#shop-modal .bp-tab').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('shop-tab-world').classList.add('active');
     renderShopItems();
     document.getElementById('shop-modal').classList.add('open');
 }
@@ -3492,13 +3650,21 @@ document.getElementById('shop-modal').addEventListener('click', function(e){
     if (e.target === this) closeShop();
 });
 
+function setShopTab(tab, el) {
+    shopTabActive = tab;
+    document.querySelectorAll('#shop-modal .bp-tab').forEach(function(b){ b.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    renderShopItems();
+}
+
 function renderShopItems() {
     var pts = portalData ? portalData.points : 0;
     document.getElementById('shop-pts-row').textContent = '\u2756 You have ' + pts + ' pts';
     var owned = portalData && portalData.plot ? portalData.plot : [];
     var grid = document.getElementById('shop-items-grid');
     grid.innerHTML = '';
-    SHOP_ITEMS.forEach(function(item) {
+    var filtered = SHOP_ITEMS.filter(function(item){ return item.type === shopTabActive; });
+    filtered.forEach(function(item) {
         var isOwned = owned.indexOf(item.id) >= 0;
         var canAfford = pts >= item.cost;
         var div = document.createElement('div');
@@ -3540,6 +3706,462 @@ async function buyShopItem(item) {
     } catch(e) {
         showGameToast('Shop unavailable', '', 2000);
     }
+}
+
+// ══════════════════════════════════════════════════════
+// ── MINI-GAME SYSTEM ───────────────────────────────────
+// ══════════════════════════════════════════════════════
+
+var mgRaf=null, mgGame=null, mgLastT=0;
+
+var MG_INFO={
+    city_hall:    { title:'🏛️ Coin Rush',        footer:'Click coins before they vanish! 30 seconds.' },
+    salon:        { title:'💅 Color Match',       footer:'Click the orb that matches the target color!' },
+    library:      { title:'📚 Book Stack',        footer:'Click the right-colored book as it falls!' },
+    grocery_store:{ title:'🛒 Fresh Catch',       footer:'Catch produce with your basket! Avoid rotten!' },
+    post_office:  { title:'📮 Mail Sort',         footer:'Tap letters to matching mailboxes!' },
+};
+
+function openMiniGame(buildingId){
+    var info=MG_INFO[buildingId];
+    if(!info) return;
+    mgActive=true;
+    var modal=document.getElementById('mg-modal');
+    document.getElementById('mg-title').textContent=info.title;
+    document.getElementById('mg-footer').textContent=info.footer;
+    modal.style.display='flex';
+
+    var mgC=document.getElementById('mg-canvas');
+    var cw=Math.min(480,window.innerWidth-32);
+    var ch=Math.min(360,window.innerHeight-180);
+    mgC.width=cw; mgC.height=ch;
+    var mgCtx=mgC.getContext('2d');
+
+    var factories={city_hall:mgCoinRush,salon:mgColorMatch,library:mgBookStack,grocery_store:mgFreshCatch,post_office:mgMailSort};
+    mgGame=factories[buildingId](mgC,mgCtx);
+
+    mgC.onpointerdown=function(e){
+        var r=mgC.getBoundingClientRect();
+        if(mgGame&&mgGame.pointerdown) mgGame.pointerdown(e.clientX-r.left,e.clientY-r.top);
+    };
+    mgC.onpointermove=function(e){
+        var r=mgC.getBoundingClientRect();
+        if(mgGame&&mgGame.pointermove) mgGame.pointermove(e.clientX-r.left,e.clientY-r.top);
+    };
+    mgC.onpointerup=function(e){
+        var r=mgC.getBoundingClientRect();
+        if(mgGame&&mgGame.pointerup) mgGame.pointerup(e.clientX-r.left,e.clientY-r.top);
+    };
+
+    mgLastT=performance.now();
+    function mgLoop(ts){
+        var dt=Math.min((ts-mgLastT)/1000,0.05); mgLastT=ts;
+        if(mgGame){ mgGame.update(dt,ts/1000); mgGame.draw(); }
+        if(mgActive) mgRaf=requestAnimationFrame(mgLoop);
+    }
+    if(mgRaf) cancelAnimationFrame(mgRaf);
+    mgRaf=requestAnimationFrame(mgLoop);
+}
+
+function closeMiniGame(){
+    mgActive=false;
+    if(mgRaf){ cancelAnimationFrame(mgRaf); mgRaf=null; }
+    document.getElementById('mg-modal').style.display='none';
+    var mgC=document.getElementById('mg-canvas');
+    mgC.onpointerdown=mgC.onpointermove=mgC.onpointerup=null;
+    if(mgGame&&mgGame.score>0) awardMiniGamePoints(mgGame.score);
+    mgGame=null;
+}
+
+async function awardMiniGamePoints(score){
+    if(!portalData) return;
+    try{
+        var res=await fetch('/api/portal/garden',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'minigame',score:score})});
+        var data=await res.json();
+        if(data.success){
+            portalData.points=data.points;
+            updatePortalHUD();
+            showGameToast('🎮 +'+data.awarded+' pts earned!','from mini-game',2500);
+        }
+    }catch(ex){}
+}
+
+// ── Mini-game: Coin Rush (City Hall) ──────────────────
+function mgCoinRush(mgC,mgCtx){
+    var W=mgC.width, H=mgC.height;
+    var coins=[], score=0, timeLeft=30, done=false;
+    var lastSpawn=0;
+    function spawn(t){
+        if(coins.length<12&&t-lastSpawn>0.6){
+            lastSpawn=t;
+            coins.push({x:30+Math.random()*(W-60),y:30+Math.random()*(H-80),r:18+Math.random()*10,life:1,born:t,dur:2.5+Math.random()*2,gold:Math.random()<0.2});
+        }
+    }
+    return {
+        score:score,
+        update:function(dt,t){
+            if(done) return;
+            timeLeft-=dt;
+            if(timeLeft<=0){timeLeft=0;done=true;}
+            spawn(t);
+            for(var i=coins.length-1;i>=0;i--){
+                coins[i].life=(1-(t-coins[i].born)/coins[i].dur);
+                if(coins[i].life<=0) coins.splice(i,1);
+            }
+            this.score=score;
+        },
+        draw:function(){
+            mgCtx.fillStyle='#0a0520'; mgCtx.fillRect(0,0,W,H);
+            // Timer bar
+            var pct=timeLeft/30;
+            mgCtx.fillStyle='#1a0a3a'; mgCtx.fillRect(0,H-8,W,8);
+            mgCtx.fillStyle=pct>0.4?'#ffd700':'#ff4444';
+            mgCtx.fillRect(0,H-8,W*pct,8);
+            // Score
+            mgCtx.fillStyle='#ffd700'; mgCtx.font='bold 16px Quicksand,sans-serif';
+            mgCtx.textAlign='left'; mgCtx.fillText('\u2756 '+score,12,24);
+            mgCtx.fillStyle='#c090ff'; mgCtx.textAlign='right';
+            mgCtx.fillText(Math.ceil(timeLeft)+'s',W-12,24);
+            // Coins
+            for(var i=0;i<coins.length;i++){
+                var c=coins[i];
+                mgCtx.save();
+                mgCtx.globalAlpha=Math.max(0,c.life)*0.92;
+                mgCtx.shadowColor=c.gold?'#ffd700':'#c8a000'; mgCtx.shadowBlur=18;
+                var cg=mgCtx.createRadialGradient(c.x-c.r*0.3,c.y-c.r*0.3,c.r*0.1,c.x,c.y,c.r);
+                cg.addColorStop(0,c.gold?'#fff8a0':'#ffe060');
+                cg.addColorStop(1,c.gold?'#ffd700':'#c8a000');
+                mgCtx.fillStyle=cg;
+                mgCtx.beginPath(); mgCtx.arc(c.x,c.y,c.r,0,Math.PI*2); mgCtx.fill();
+                mgCtx.fillStyle='rgba(255,255,255,0.55)';
+                mgCtx.beginPath(); mgCtx.arc(c.x-c.r*0.28,c.y-c.r*0.28,c.r*0.38,0,Math.PI*2); mgCtx.fill();
+                if(c.gold){ mgCtx.fillStyle='#8a6000'; mgCtx.font='bold '+(c.r*0.8)+'px sans-serif'; mgCtx.textAlign='center'; mgCtx.textBaseline='middle'; mgCtx.fillText('★',c.x,c.y+1); }
+                mgCtx.restore();
+            }
+            if(done){
+                mgCtx.fillStyle='rgba(4,2,14,0.78)'; mgCtx.fillRect(0,0,W,H);
+                mgCtx.fillStyle='#ffd700'; mgCtx.font='bold 28px Quicksand,sans-serif'; mgCtx.textAlign='center';
+                mgCtx.fillText('✨ '+score+' coins!',W/2,H/2-14);
+                mgCtx.fillStyle='#c090ff'; mgCtx.font='14px Quicksand,sans-serif';
+                mgCtx.fillText('Close to collect your reward',W/2,H/2+18);
+            }
+        },
+        pointerdown:function(x,y){
+            if(done) return;
+            for(var i=coins.length-1;i>=0;i--){
+                var c=coins[i];
+                var d=(x-c.x)*(x-c.x)+(y-c.y)*(y-c.y);
+                if(d<(c.r+6)*(c.r+6)){
+                    score+=c.gold?3:1;
+                    this.score=score;
+                    coins.splice(i,1);
+                    break;
+                }
+            }
+        }
+    };
+}
+
+// ── Mini-game: Color Match (Salon) ────────────────────
+function mgColorMatch(mgC,mgCtx){
+    var W=mgC.width, H=mgC.height;
+    var CLRS=['#ff4488','#44aaff','#44dd88','#ffcc44','#cc44ff'];
+    var NAMES=['Pink','Blue','Green','Gold','Purple'];
+    var round=0, score=0, total=10, done=false;
+    var target=0, orbs=[], feedback='', feedbackA=0;
+    function nextRound(){
+        round++;
+        if(round>total){done=true;return;}
+        target=Math.floor(Math.random()*CLRS.length);
+        var pool=[];
+        pool.push(target);
+        while(pool.length<4){var r2=Math.floor(Math.random()*CLRS.length);if(pool.indexOf(r2)<0)pool.push(r2);}
+        pool.sort(function(){return Math.random()-.5;});
+        orbs=[];
+        var cols=pool.length, spacingX=W/(cols+1);
+        for(var i=0;i<pool.length;i++) orbs.push({ci:pool[i],x:spacingX*(i+1),y:H*0.65,r:28});
+        feedback=''; feedbackA=0;
+    }
+    nextRound();
+    return {
+        score:score,
+        update:function(dt){
+            if(feedbackA>0) feedbackA=Math.max(0,feedbackA-dt*2.5);
+            this.score=score;
+        },
+        draw:function(){
+            mgCtx.fillStyle='#0a0520'; mgCtx.fillRect(0,0,W,H);
+            mgCtx.fillStyle='#c090ff'; mgCtx.font='13px Quicksand,sans-serif'; mgCtx.textAlign='center';
+            mgCtx.fillText('Round '+Math.min(round,total)+' / '+total,W/2,20);
+            mgCtx.fillStyle='#ffd700'; mgCtx.font='bold 15px Quicksand,sans-serif';
+            mgCtx.fillText('\u2756 '+score,W/2,38);
+            if(!done){
+                mgCtx.fillStyle='#f0d8ff'; mgCtx.font='14px Quicksand,sans-serif';
+                mgCtx.fillText('Match this color:',W/2,H*0.24);
+                mgCtx.shadowColor=CLRS[target]; mgCtx.shadowBlur=22;
+                mgCtx.fillStyle=CLRS[target];
+                mgCtx.beginPath(); mgCtx.arc(W/2,H*0.38,34,0,Math.PI*2); mgCtx.fill();
+                mgCtx.shadowBlur=0;
+                mgCtx.fillStyle='rgba(255,255,255,0.65)';
+                mgCtx.beginPath(); mgCtx.arc(W/2-10,H*0.38-10,14,0,Math.PI*2); mgCtx.fill();
+                for(var i=0;i<orbs.length;i++){
+                    var o=orbs[i];
+                    mgCtx.save();
+                    mgCtx.shadowColor=CLRS[o.ci]; mgCtx.shadowBlur=14;
+                    mgCtx.fillStyle=CLRS[o.ci];
+                    mgCtx.beginPath(); mgCtx.arc(o.x,o.y,o.r,0,Math.PI*2); mgCtx.fill();
+                    mgCtx.fillStyle='rgba(255,255,255,0.5)';
+                    mgCtx.beginPath(); mgCtx.arc(o.x-o.r*0.28,o.y-o.r*0.28,o.r*0.36,0,Math.PI*2); mgCtx.fill();
+                    mgCtx.restore();
+                }
+                if(feedbackA>0){
+                    mgCtx.globalAlpha=feedbackA;
+                    mgCtx.fillStyle=feedback==='✓'?'#44ee88':'#ff4444';
+                    mgCtx.font='bold 28px Quicksand,sans-serif'; mgCtx.textAlign='center';
+                    mgCtx.fillText(feedback,W/2,H*0.82);
+                    mgCtx.globalAlpha=1;
+                }
+            } else {
+                mgCtx.fillStyle='rgba(4,2,14,0.78)'; mgCtx.fillRect(0,0,W,H);
+                mgCtx.fillStyle='#ff88cc'; mgCtx.font='bold 26px Quicksand,sans-serif'; mgCtx.textAlign='center';
+                mgCtx.fillText('✨ '+score+'/'+total+' correct!',W/2,H/2-14);
+                mgCtx.fillStyle='#c090ff'; mgCtx.font='14px Quicksand,sans-serif';
+                mgCtx.fillText('Close to collect your reward',W/2,H/2+18);
+            }
+        },
+        pointerdown:function(x,y){
+            if(done) return;
+            for(var i=0;i<orbs.length;i++){
+                var o=orbs[i];
+                if((x-o.x)*(x-o.x)+(y-o.y)*(y-o.y)<(o.r+8)*(o.r+8)){
+                    if(o.ci===target){score++;feedback='\u2713';}
+                    else{feedback='\u2718';}
+                    feedbackA=1;
+                    nextRound();
+                    break;
+                }
+            }
+        }
+    };
+}
+
+// ── Mini-game: Book Stack (Library) ───────────────────
+function mgBookStack(mgC,mgCtx){
+    var W=mgC.width, H=mgC.height;
+    var BCLRS=['#ff6688','#4488ff','#44cc88','#ffaa44','#cc44ff'];
+    var books=[], score=0, lives=3, done=false, lastSpawn=0;
+    var target=Math.floor(Math.random()*BCLRS.length);
+    function spawnBook(t){
+        if(books.length<5&&t-lastSpawn>1.0){
+            lastSpawn=t;
+            books.push({ci:Math.floor(Math.random()*BCLRS.length),x:30+Math.random()*(W-80),y:-30,vy:60+score*4,w:44,h:30,clicked:false});
+        }
+    }
+    return {
+        score:score,
+        update:function(dt,t){
+            if(done) return;
+            spawnBook(t);
+            for(var i=books.length-1;i>=0;i--){
+                books[i].y+=books[i].vy*dt;
+                if(books[i].y>H+40){ if(!books[i].clicked){ lives--; if(lives<=0){done=true;}} books.splice(i,1); }
+            }
+            this.score=score;
+        },
+        draw:function(){
+            mgCtx.fillStyle='#0a0520'; mgCtx.fillRect(0,0,W,H);
+            // Target
+            mgCtx.fillStyle='#f0d8ff'; mgCtx.font='13px Quicksand,sans-serif'; mgCtx.textAlign='center';
+            mgCtx.fillText('Catch the '+['Pink','Blue','Green','Orange','Purple'][target]+' books!',W/2,20);
+            mgCtx.fillStyle='#ffd700'; mgCtx.font='bold 14px Quicksand,sans-serif';
+            mgCtx.fillText('\u2756 '+score,W/2,38);
+            // Lives
+            mgCtx.fillStyle='#ff4488'; mgCtx.font='16px sans-serif'; mgCtx.textAlign='right';
+            mgCtx.fillText('❤️'.repeat(Math.max(0,lives)),W-12,38);
+            // Books
+            for(var i=0;i<books.length;i++){
+                var b=books[i];
+                mgCtx.save();
+                mgCtx.shadowColor=BCLRS[b.ci]; mgCtx.shadowBlur=10;
+                mgCtx.fillStyle=BCLRS[b.ci];
+                mgCtx.beginPath();
+                mgCtx.roundRect?mgCtx.roundRect(b.x,b.y,b.w,b.h,4):mgCtx.rect(b.x,b.y,b.w,b.h);
+                mgCtx.fill();
+                mgCtx.fillStyle='rgba(255,255,255,0.2)';
+                mgCtx.fillRect(b.x+3,b.y+3,6,b.h-6);
+                mgCtx.restore();
+            }
+            if(done){
+                mgCtx.fillStyle='rgba(4,2,14,0.78)'; mgCtx.fillRect(0,0,W,H);
+                mgCtx.fillStyle='#c090ff'; mgCtx.font='bold 26px Quicksand,sans-serif'; mgCtx.textAlign='center';
+                mgCtx.fillText('📚 '+score+' books caught!',W/2,H/2-14);
+                mgCtx.fillStyle='#c090ff'; mgCtx.font='14px Quicksand,sans-serif';
+                mgCtx.fillText('Close to collect your reward',W/2,H/2+18);
+            }
+        },
+        pointerdown:function(x,y){
+            if(done) return;
+            for(var i=books.length-1;i>=0;i--){
+                var b=books[i];
+                if(x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h){
+                    if(b.ci===target){ score++; this.score=score; }
+                    b.clicked=true;
+                    books.splice(i,1);
+                    break;
+                }
+            }
+        }
+    };
+}
+
+// ── Mini-game: Fresh Catch (Grocery Store) ────────────
+function mgFreshCatch(mgC,mgCtx){
+    var W=mgC.width, H=mgC.height;
+    var FRESH=['🍎','🍊','🍋','🍇','🥝'];
+    var ROTTEN=['🍂','🪲','💀'];
+    var items=[], basket={x:W/2,w:70,h:24}, score=0, lives=3, done=false, lastSpawn=0;
+    function spawnItem(t){
+        if(items.length<6&&t-lastSpawn>0.7){
+            lastSpawn=t;
+            var bad=Math.random()<0.28;
+            items.push({x:30+Math.random()*(W-60),y:-20,vy:80+score*3,emoji:bad?ROTTEN[Math.floor(Math.random()*ROTTEN.length)]:FRESH[Math.floor(Math.random()*FRESH.length)],bad:bad,sz:22});
+        }
+    }
+    return {
+        score:score,
+        update:function(dt,t){
+            if(done) return;
+            spawnItem(t);
+            var bLeft=basket.x-basket.w/2, bRight=basket.x+basket.w/2;
+            var bTop=H-50, bBot=H-26;
+            for(var i=items.length-1;i>=0;i--){
+                items[i].y+=items[i].vy*dt;
+                var it=items[i];
+                if(it.y>=bTop&&it.y<=bBot&&it.x>=bLeft&&it.x<=bRight){
+                    if(it.bad){lives--;if(lives<=0)done=true;}
+                    else{score++;this.score=score;}
+                    items.splice(i,1);
+                } else if(it.y>H+40){ items.splice(i,1); }
+            }
+        },
+        draw:function(){
+            mgCtx.fillStyle='#0a0520'; mgCtx.fillRect(0,0,W,H);
+            mgCtx.fillStyle='#ffd700'; mgCtx.font='bold 15px Quicksand,sans-serif'; mgCtx.textAlign='left';
+            mgCtx.fillText('\u2756 '+score,12,24);
+            mgCtx.textAlign='right'; mgCtx.fillStyle='#ff4488';
+            mgCtx.fillText('❤️'.repeat(Math.max(0,lives)),W-12,24);
+            // Items
+            mgCtx.font='22px sans-serif'; mgCtx.textAlign='center';
+            for(var i=0;i<items.length;i++) mgCtx.fillText(items[i].emoji,items[i].x,items[i].y);
+            // Basket
+            mgCtx.save();
+            mgCtx.shadowColor='#96ffdc'; mgCtx.shadowBlur=10;
+            mgCtx.strokeStyle='#96ffdc'; mgCtx.lineWidth=3;
+            mgCtx.beginPath();
+            mgCtx.moveTo(basket.x-basket.w/2,H-50); mgCtx.lineTo(basket.x-basket.w/2,H-26);
+            mgCtx.lineTo(basket.x+basket.w/2,H-26); mgCtx.lineTo(basket.x+basket.w/2,H-50);
+            mgCtx.stroke();
+            mgCtx.restore();
+            if(done){
+                mgCtx.fillStyle='rgba(4,2,14,0.78)'; mgCtx.fillRect(0,0,W,H);
+                mgCtx.fillStyle='#44dd88'; mgCtx.font='bold 26px Quicksand,sans-serif'; mgCtx.textAlign='center';
+                mgCtx.fillText('🛒 '+score+' caught!',W/2,H/2-14);
+                mgCtx.fillStyle='#c090ff'; mgCtx.font='14px Quicksand,sans-serif';
+                mgCtx.fillText('Close to collect your reward',W/2,H/2+18);
+            }
+        },
+        pointermove:function(x){ basket.x=Math.max(basket.w/2,Math.min(W-basket.w/2,x)); },
+        pointerdown:function(x){ basket.x=Math.max(basket.w/2,Math.min(W-basket.w/2,x)); }
+    };
+}
+
+// ── Mini-game: Mail Sort (Post Office) ────────────────
+function mgMailSort(mgC,mgCtx){
+    var W=mgC.width, H=mgC.height;
+    var CLRS=['#ff4488','#4488ff','#44cc88','#ffcc44'];
+    var CNAMES=['Pink','Blue','Green','Gold'];
+    var letters=[], score=0, lives=3, done=false, lastSpawn=0;
+    var BOX_W=52, BOX_H=40;
+    var boxes=CLRS.map(function(c,i){return{ci:i,x:(i+0.5)*(W/CLRS.length),y:H-BOX_H-10};});
+    function spawnLetter(t){
+        if(letters.length<5&&t-lastSpawn>0.9){
+            lastSpawn=t;
+            letters.push({ci:Math.floor(Math.random()*CLRS.length),x:30+Math.random()*(W-60),y:-28,vy:55+score*3,w:36,h:28});
+        }
+    }
+    return {
+        score:score,
+        update:function(dt,t){
+            if(done) return;
+            spawnLetter(t);
+            for(var i=letters.length-1;i>=0;i--){
+                letters[i].y+=letters[i].vy*dt;
+                if(letters[i].y>H+40){lives--;if(lives<=0)done=true;letters.splice(i,1);}
+            }
+            this.score=score;
+        },
+        draw:function(){
+            mgCtx.fillStyle='#0a0520'; mgCtx.fillRect(0,0,W,H);
+            mgCtx.fillStyle='#ffd700'; mgCtx.font='bold 14px Quicksand,sans-serif'; mgCtx.textAlign='left';
+            mgCtx.fillText('\u2756 '+score,12,22);
+            mgCtx.textAlign='right'; mgCtx.fillStyle='#ff4488';
+            mgCtx.fillText('❤️'.repeat(Math.max(0,lives)),W-12,22);
+            // Mailboxes
+            for(var i=0;i<boxes.length;i++){
+                var bx=boxes[i];
+                mgCtx.save();
+                mgCtx.shadowColor=CLRS[bx.ci]; mgCtx.shadowBlur=14;
+                mgCtx.fillStyle=CLRS[bx.ci];
+                var bLeft=bx.x-BOX_W/2;
+                mgCtx.beginPath();
+                if(mgCtx.roundRect) mgCtx.roundRect(bLeft,bx.y,BOX_W,BOX_H,6); else mgCtx.rect(bLeft,bx.y,BOX_W,BOX_H);
+                mgCtx.fill();
+                mgCtx.fillStyle='rgba(0,0,0,0.35)';
+                mgCtx.fillRect(bLeft+BOX_W*0.2,bx.y+BOX_H*0.3,BOX_W*0.6,BOX_H*0.25);
+                mgCtx.restore();
+            }
+            // Letters (envelopes)
+            for(var i=0;i<letters.length;i++){
+                var lt=letters[i];
+                mgCtx.save();
+                mgCtx.shadowColor=CLRS[lt.ci]; mgCtx.shadowBlur=10;
+                mgCtx.fillStyle='rgba(255,255,255,0.85)';
+                var lLeft=lt.x-lt.w/2;
+                mgCtx.fillRect(lLeft,lt.y,lt.w,lt.h);
+                mgCtx.strokeStyle=CLRS[lt.ci]; mgCtx.lineWidth=2;
+                mgCtx.strokeRect(lLeft,lt.y,lt.w,lt.h);
+                mgCtx.strokeStyle=CLRS[lt.ci]; mgCtx.lineWidth=1.5;
+                mgCtx.beginPath();
+                mgCtx.moveTo(lLeft,lt.y); mgCtx.lineTo(lt.x,lt.y+lt.h*0.55); mgCtx.lineTo(lLeft+lt.w,lt.y);
+                mgCtx.stroke();
+                mgCtx.restore();
+            }
+            if(done){
+                mgCtx.fillStyle='rgba(4,2,14,0.78)'; mgCtx.fillRect(0,0,W,H);
+                mgCtx.fillStyle='#ffcc44'; mgCtx.font='bold 26px Quicksand,sans-serif'; mgCtx.textAlign='center';
+                mgCtx.fillText('📮 '+score+' sorted!',W/2,H/2-14);
+                mgCtx.fillStyle='#c090ff'; mgCtx.font='14px Quicksand,sans-serif';
+                mgCtx.fillText('Close to collect your reward',W/2,H/2+18);
+            }
+        },
+        pointerdown:function(x,y){
+            if(done) return;
+            // Find which letter was tapped
+            var tapped=-1;
+            for(var i=letters.length-1;i>=0;i--){
+                var lt=letters[i];
+                if(x>=lt.x-lt.w/2&&x<=lt.x+lt.w/2&&y>=lt.y&&y<=lt.y+lt.h){tapped=i;break;}
+            }
+            if(tapped<0) return;
+            // Find which box was closest on x
+            var lt2=letters[tapped];
+            var bestBox=-1, bestDx=W;
+            for(var i=0;i<boxes.length;i++){var dx=Math.abs(x-boxes[i].x);if(dx<bestDx){bestDx=dx;bestBox=i;}}
+            if(bestBox>=0&&boxes[bestBox].ci===lt2.ci){score++;this.score=score;}
+            else{lives--;if(lives<=0)done=true;}
+            letters.splice(tapped,1);
+        }
+    };
 }
 </script>
 </body>

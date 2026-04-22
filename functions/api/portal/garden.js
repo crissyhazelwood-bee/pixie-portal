@@ -41,7 +41,7 @@ export async function onRequestPost({ request, env }) {
     const userId = await getSessionUserId(env, request);
     if (!userId) return resp({ error: "Unauthorized" }, 401);
 
-    const { action, slot, herb } = await request.json().catch(() => ({}));
+    const { action, slot, herb, score: rawScore } = await request.json().catch(() => ({}));
     const player = await getOrCreatePlayer(env, userId);
     const garden = JSON.parse(player.garden || '{}');
     const now = Math.floor(Date.now() / 1000);
@@ -101,6 +101,15 @@ export async function onRequestPost({ request, env }) {
         delete garden[slot];
         await env.DB.prepare("UPDATE portal_players SET garden = ? WHERE user_id = ?").bind(JSON.stringify(garden), userId).run();
         return resp({ success: true, garden });
+    }
+
+    if (action === 'minigame') {
+        const awarded = Math.max(0, Math.min(parseInt(rawScore, 10) || 0, 50));
+        if (awarded > 0) {
+            await env.DB.prepare("UPDATE portal_players SET points = points + ? WHERE user_id = ?").bind(awarded, userId).run();
+        }
+        const { results: r2 } = await env.DB.prepare("SELECT points FROM portal_players WHERE user_id = ?").bind(userId).all();
+        return resp({ success: true, awarded, points: r2[0].points });
     }
 
     return resp({ error: "Unknown action" }, 400);
