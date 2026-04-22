@@ -24,6 +24,27 @@ export async function onRequestGet({ request, env }) {
     return resp({ posts: results });
 }
 
+// DELETE /api/social/community — delete a post { post_id }
+export async function onRequestDelete({ request, env }) {
+    const userId = await getSessionUserId(env, request);
+    if (!userId) return resp({ error: "Unauthorized" }, 401);
+
+    const { post_id } = await request.json().catch(() => ({}));
+    if (!post_id) return resp({ error: "Missing post_id" }, 400);
+
+    const { results } = await env.DB.prepare(
+        "SELECT user_id FROM community_posts WHERE id = ?"
+    ).bind(parseInt(post_id)).all();
+    if (!results[0]) return resp({ error: "Post not found" }, 404);
+    if (results[0].user_id !== userId) return resp({ error: "Forbidden" }, 403);
+
+    await env.DB.prepare("DELETE FROM community_posts WHERE id = ?").bind(parseInt(post_id)).run();
+    await env.DB.prepare("DELETE FROM reactions WHERE target_type = 'community_post' AND target_id = ?").bind(parseInt(post_id)).run().catch(() => {});
+    await env.DB.prepare("DELETE FROM comments WHERE target_type = 'community_post' AND target_id = ?").bind(parseInt(post_id)).run().catch(() => {});
+
+    return resp({ success: true });
+}
+
 // POST /api/social/community — create a post { content }
 export async function onRequestPost({ request, env }) {
     const userId = await getSessionUserId(env, request);

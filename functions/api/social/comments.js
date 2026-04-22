@@ -13,7 +13,7 @@ export async function onRequestGet({ request, env }) {
     if (!targetType || !targetId) return resp({ error: "Missing params" }, 400);
 
     const { results } = await env.DB.prepare(`
-        SELECT c.id, c.content, c.created_at,
+        SELECT c.id, c.user_id, c.content, c.created_at,
                u.username, u.display_name, u.avatar_emoji
         FROM comments c
         JOIN users u ON u.id = c.user_id
@@ -22,6 +22,24 @@ export async function onRequestGet({ request, env }) {
     `).bind(targetType, parseInt(targetId)).all();
 
     return resp({ comments: results });
+}
+
+// DELETE /api/social/comments — delete a comment { comment_id }
+export async function onRequestDelete({ request, env }) {
+    const userId = await getSessionUserId(env, request);
+    if (!userId) return resp({ error: "Unauthorized" }, 401);
+
+    const { comment_id } = await request.json().catch(() => ({}));
+    if (!comment_id) return resp({ error: "Missing comment_id" }, 400);
+
+    const { results } = await env.DB.prepare(
+        "SELECT user_id FROM comments WHERE id = ?"
+    ).bind(parseInt(comment_id)).all();
+    if (!results[0]) return resp({ error: "Comment not found" }, 404);
+    if (results[0].user_id !== userId) return resp({ error: "Forbidden" }, 403);
+
+    await env.DB.prepare("DELETE FROM comments WHERE id = ?").bind(parseInt(comment_id)).run();
+    return resp({ success: true });
 }
 
 // POST /api/social/comments — add comment { target_type, target_id, content }

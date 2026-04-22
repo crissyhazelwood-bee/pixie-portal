@@ -399,7 +399,9 @@
 
         /* ========== SOCIAL ========== */
         .social-post { background: linear-gradient(135deg,rgba(40,20,60,0.6),rgba(20,10,35,0.8)); border:1px solid rgba(180,150,255,0.12); border-radius:16px; padding:20px; margin-bottom:16px; }
-        .social-post-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+        .social-post-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; position:relative; }
+        .delete-item-btn { background:none; border:none; color:#40284a; font-size:16px; cursor:pointer; line-height:1; padding:2px 6px; border-radius:6px; transition:color 0.2s,background 0.2s; position:absolute; top:0; right:0; }
+        .delete-item-btn:hover { color:#ff6090; background:rgba(255,96,144,0.1); }
         .social-avatar-circle { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#ff96c8,#b496ff); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; cursor:pointer; }
         .social-username { color:#ff96c8; font-weight:700; font-size:14px; cursor:pointer; }
         .social-username:hover { text-decoration:underline; }
@@ -1920,11 +1922,12 @@
             const res = await fetch(API + '/api/social/comments?target_type=' + type + '&target_id=' + id);
             const data = await res.json();
             const commentsHtml = (data.comments || []).map(c => `
-                <div class="comment-item">
+                <div class="comment-item" id="comment-${c.id}">
                     <div class="comment-avatar">${c.avatar_emoji || '✦'}</div>
-                    <div class="comment-body">
+                    <div class="comment-body" style="position:relative;flex:1;">
                         <div class="comment-author" onclick="viewPublicProfile('${escHtml(c.username)}')">${escHtml(c.display_name || c.username)}</div>
                         <div class="comment-text">${escHtml(c.content)}</div>
+                        ${currentUser && currentUser.id === c.user_id ? `<button class="delete-item-btn" style="top:0;right:0;" onclick="deleteComment(${c.id},'${type}',${id})" title="Delete comment">×</button>` : ''}
                     </div>
                 </div>`).join('');
             area.innerHTML = commentsHtml + `<div class="comment-form">
@@ -1991,6 +1994,7 @@
                         <div class="social-username" onclick="viewPublicProfile('${escHtml(p.username)}')">${escHtml(p.display_name || p.username)}</div>
                         <div class="social-time">${time}</div>
                     </div>
+                    ${currentUser && currentUser.id === p.user_id ? `<button class="delete-item-btn" onclick="deletePost(${p.id})" title="Delete post">×</button>` : ''}
                 </div>
                 <div class="social-content">${escHtml(p.content)}</div>
                 <div class="social-actions">
@@ -2019,6 +2023,31 @@
             const data = await res.json();
             if (data.error) { toast(data.error); return; }
             if (data.success) { ta.value = ''; await loadCommunityBoard(); toast('Posted ✦'); }
+        }
+
+        async function deletePost(postId) {
+            if (!confirm('Delete this post?')) return;
+            const res = await fetch(API + '/api/social/community', {
+                method: 'DELETE', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ post_id: postId }), credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.error) { toast(data.error); return; }
+            const el = document.getElementById('post-' + postId);
+            if (el) el.remove();
+            toast('Post deleted');
+        }
+
+        async function deleteComment(commentId, type, targetId) {
+            if (!confirm('Delete this comment?')) return;
+            const res = await fetch(API + '/api/social/comments', {
+                method: 'DELETE', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ comment_id: commentId }), credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.error) { toast(data.error); return; }
+            await loadComments(type, targetId);
+            toast('Comment deleted');
         }
 
         // ============================================
