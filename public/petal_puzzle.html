@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Petal Puzzle ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#060410; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
+        canvas { display:block; }
+
+        #start-screen {
+            position:fixed; inset:0; z-index:100;
+            display:flex; flex-direction:column; justify-content:center; align-items:center;
+            background:radial-gradient(ellipse at center, rgba(20,8,45,0.97) 0%, rgba(4,2,12,0.99) 100%);
+            cursor:pointer;
+        }
+        #start-screen h1 {
+            font-family:'Pacifico',cursive; font-size:50px;
+            background:linear-gradient(135deg,#ff96c8,#b496ff,#96ffdc);
+            -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+            text-shadow:none; margin-bottom:4px;
+        }
+        .petal-icon { font-size:82px; margin:12px 0; animation:spin 8s linear infinite; filter:drop-shadow(0 0 30px rgba(180,150,255,0.7)); }
+        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        .tap-text { color:#b496ff; font-size:20px; font-weight:600; margin-top:14px; animation:blink 2s ease-in-out infinite; letter-spacing:2px; }
+        @keyframes blink { 0%,100%{opacity:0.4} 50%{opacity:1} }
+        .hint { color:#504060; font-size:13px; margin-top:10px; text-align:center; line-height:1.8; }
+
+        #ui {
+            position:fixed; top:0; left:0; right:0; padding:10px 20px;
+            display:none; justify-content:space-between; align-items:center;
+            z-index:10; pointer-events:none;
+            background:linear-gradient(180deg,rgba(4,2,14,0.88) 0%,transparent 100%);
+        }
+        #ui > * { pointer-events:auto; }
+        .back-btn { color:#b496ff; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; text-decoration:none; }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+        #score-disp { color:#f0d0ff; font-size:18px; font-weight:700; }
+        #level-disp { color:#96ffdc; font-size:13px; font-weight:600; }
+
+        #game-over {
+            display:none; position:fixed; inset:0; z-index:100;
+            background:rgba(4,2,14,0.93); backdrop-filter:blur(8px);
+            flex-direction:column; justify-content:center; align-items:center;
+        }
+        #game-over.show { display:flex; }
+        #game-over h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:44px; text-shadow:0 0 30px rgba(255,150,200,0.5); margin-bottom:8px; }
+        #final-score { font-size:72px; font-weight:700; color:#ffd700; text-shadow:0 0 30px rgba(255,215,0,0.4); margin:10px 0; }
+        #final-detail { color:#b496ff; font-size:15px; margin-bottom:26px; text-align:center; line-height:2; }
+        .go-btn { padding:12px 32px; border-radius:25px; border:none; background:linear-gradient(135deg,#ff96c8,#b496ff); color:#0a0614; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin:5px; transition:transform 0.2s; }
+        .go-btn:hover { transform:scale(1.05); }
+        .go-ghost { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
+        .go-ghost:hover { border-color:#ff96c8; color:#ff96c8; }
+    </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="start-screen" onclick="startGame()">
+    <h1>Petal Puzzle</h1>
+    <div class="petal-icon">🌸</div>
+    <div class="tap-text">Tap to Play</div>
+    <div class="hint">
+        Tap a petal ring to drop your piece<br>
+        Fill a complete ring to clear it ✨<br>
+        Match all one color for a <span style="color:#ffd700;font-weight:700;">Rainbow Bonus!</span>
+    </div>
+</div>
+
+<div id="ui">
+    <a class="back-btn" href="/index.html">← Back</a>
+    <div id="score-disp">✦ 0</div>
+    <div id="level-disp">Level 1</div>
+</div>
+
+<div id="game-over">
+    <h1>🌸 Beautiful!</h1>
+    <div id="final-score">0</div>
+    <div id="final-detail"></div>
+    <button class="go-btn" onclick="restartGame()">Play Again 🌸</button>
+    <button class="go-btn go-ghost" onclick="window.location.href='/index.html'">← Home</button>
+</div>
+
+<script>
+var canvas = document.getElementById('c');
+var ctx = canvas.getContext('2d');
+var SW, SH, CX, CY, BASE_R;
+
+function resize(){
+    SW = canvas.width  = window.innerWidth;
+    SH = canvas.height = window.innerHeight;
+    CX = SW / 2;
+    CY = SH / 2 + 20;
+    BASE_R = Math.min(SW, SH) * 0.38;
+}
+resize();
+window.addEventListener('resize', function(){ resize(); });
+
+// ── Mandala config ────────────────────────────────────
+var NSEC  = 6;   // sectors
+var NRING = 3;   // rings (0 = innermost, 2 = outermost)
+var GAP   = 0.055; // gap between petals (radians)
+
+// Ring radii as fractions of BASE_R
+var RING_FRAC = [0.28, 0.54, 0.78, 1.0]; // inner edge of ring0, inner edge of ring1, ..., outer edge of ring2
+
+function ringInner(r){ return BASE_R * RING_FRAC[r]; }
+function ringOuter(r){ return BASE_R * RING_FRAC[r + 1]; }
+function secAngle(s)  { return s * (Math.PI * 2 / NSEC) - Math.PI / 2; }
+
+// ── Colors ────────────────────────────────────────────
+var PETAL_CLRS  = ['#ff6eb4', '#b86fff', '#5ab8ff', '#5de8a8', '#ffcc44'];
+var PETAL_GLOW  = ['#ff3090', '#8830ff', '#1090ff', '#20d080', '#ffa000'];
+var PETAL_DARK  = ['#8a1050', '#5a1098', '#0850a8', '#0a7048', '#a07000'];
+
+// ── Background stars ──────────────────────────────────
+var STARS = (function(){
+    var s=[], sd=7919;
+    function r(){ sd=(sd*16807)&0x7fffffff; return sd/0x7fffffff; }
+    for(var i=0;i<70;i++) s.push({x:r(),y:r(),sz:0.6+r()*1.8,sp:0.4+r()*1.4,ph:r()*Math.PI*2});
+    return s;
+})();
+
+function drawBackground(t){
+    var g = ctx.createRadialGradient(CX, CY, 0, CX, CY, Math.max(SW, SH));
+    g.addColorStop(0, '#0e0826');
+    g.addColorStop(1, '#040210');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, SW, SH);
+    for(var i = 0; i < STARS.length; i++){
+        var s = STARS[i];
+        var a = 0.2 + Math.sin(t * s.sp + s.ph) * 0.55;
+        ctx.globalAlpha = Math.max(0, a);
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(s.x * SW, s.y * SH, s.sz, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+}
+
+// ── Board ─────────────────────────────────────────────
+var board; // board[sec][ring] = colorIndex or -1
+var clearAnim = []; // {ring, timer, mono, pts}
+var dropAnim  = null; // {sec, ring, color, t, dur}
+var shakeAnim = 0;   // >0 means sector s shaking
+var shakeSec  = -1;
+
+function initBoard(){
+    board = [];
+    for(var s = 0; s < NSEC; s++){
+        board[s] = [];
+        for(var r = 0; r < NRING; r++) board[s][r] = -1;
+    }
+}
+
+// Returns the outermost empty ring for sector s, or -1 if full
+function nextRing(s){
+    for(var r = NRING - 1; r >= 0; r--){
+        if(board[s][r] === -1) return r;
+    }
+    return -1;
+}
+
+function sectorFull(s){ return nextRing(s) === -1; }
+
+function allFull(){
+    for(var s = 0; s < NSEC; s++) if(!sectorFull(s)) return false;
+    return true;
+}
+
+// ── Game state ────────────────────────────────────────
+var started = false, gameOver = false;
+var score = 0, level = 1, ringClears = 0, savedScore = false;
+var queue = []; // upcoming petal colors
+var QUEUE_SIZE = 4;
+var placing = false; // waiting for drop anim to finish
+
+function randomColor(){ return Math.floor(Math.random() * PETAL_CLRS.length); }
+
+function fillQueue(){
+    while(queue.length < QUEUE_SIZE) queue.push(randomColor());
+}
+
+function currentColor(){ return queue[0]; }
+
+function startGame(){
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('ui').style.display = 'flex';
+    initGame();
+    started = true;
+    lastTs = performance.now();
+    requestAnimationFrame(loop);
+}
+
+function initGame(){
+    score = 0; level = 1; ringClears = 0; savedScore = false; gameOver = false;
+    placing = false;
+    clearAnim.length = 0; dropAnim = null;
+    shakeAnim = 0; shakeSec = -1;
+    sparks.length = 0; popups.length = 0;
+    queue.length = 0;
+    initBoard();
+    fillQueue();
+    updateHUD();
+}
+
+function restartGame(){
+    document.getElementById('game-over').classList.remove('show');
+    initGame();
+}
+
+function updateHUD(){
+    document.getElementById('score-disp').textContent = '✦ ' + score;
+    document.getElementById('level-disp').textContent = 'Level ' + level;
+}
+
+// ── Place a petal ─────────────────────────────────────
+function placePetal(sec){
+    if(placing || gameOver) return;
+    if(sectorFull(sec)){ triggerShake(sec); return; }
+
+    var r = nextRing(sec);
+    var color = currentColor();
+    placing = true;
+
+    // Animate drop
+    dropAnim = { sec:sec, ring:r, color:color, elapsed:0, dur:0.28 };
+}
+
+function finalizeDrop(sec, ring, color){
+    board[sec][ring] = color;
+    queue.shift();
+    fillQueue();
+    checkRingClear(ring);
+    if(!gameOver) placing = false;
+}
+
+function checkRingClear(r){
+    for(var s = 0; s < NSEC; s++) if(board[s][r] === -1) return;
+
+    // All sectors in this ring are filled
+    var mono = true;
+    var c0 = board[0][r];
+    for(var s = 0; s < NSEC; s++) if(board[s][r] !== c0){ mono = false; break; }
+
+    var pts = (NRING - r) * 40;
+    if(mono) pts *= 3;
+    score += pts;
+    ringClears++;
+    if(ringClears % 5 === 0){ level++; }
+
+    // Burst sparks from ring
+    var midR = (ringInner(r) + ringOuter(r)) / 2;
+    for(var s = 0; s < NSEC; s++){
+        var midA = secAngle(s) + Math.PI / NSEC;
+        var sx2 = CX + Math.cos(midA) * midR;
+        var sy2 = CY + Math.sin(midA) * midR;
+        spawnSparks(sx2, sy2, mono ? '#ffd700' : PETAL_CLRS[board[s][r]], 8);
+    }
+
+    spawnPopup(CX, CY - BASE_R * 0.5,
+        mono ? '✨ Rainbow! +' + pts : '🌸 Clear! +' + pts,
+        mono ? '#ffd700' : '#ff96c8');
+
+    clearAnim.push({ ring:r, elapsed:0, dur:0.55, mono:mono });
+    setTimeout(function(){ doRingClear(r); }, 350);
+
+    updateHUD();
+
+    // Check all full after clear (unlikely, but possible)
+    if(allFull()) setTimeout(triggerGameOver, 500);
+}
+
+function doRingClear(r){
+    for(var s = 0; s < NSEC; s++) board[s][r] = -1;
+}
+
+function triggerShake(sec){
+    shakeSec = sec; shakeAnim = 0.35;
+}
+
+function triggerGameOver(){
+    gameOver = true;
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-detail').innerHTML =
+        '🌸 Rings cleared: ' + ringClears + '<br>' +
+        '🌟 Level reached: ' + level;
+    document.getElementById('game-over').classList.add('show');
+    if(!savedScore){
+        savedScore = true;
+        fetch('/api/scores', { method:'POST', headers:{ 'Content-Type':'application/json' },
+            body: JSON.stringify({ game:'petal_puzzle', score:score, details:{ level:level, clears:ringClears } })
+        }).catch(function(){});
+    }
+}
+
+// ── Sparks ────────────────────────────────────────────
+var sparks = [];
+function spawnSparks(x, y, color, count){
+    for(var i = 0; i < count; i++){
+        var a = Math.random() * Math.PI * 2, spd = 50 + Math.random() * 130;
+        sparks.push({ x:x, y:y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd - 40, life:1, ml:0.5+Math.random()*0.7, r:2+Math.random()*4, c:color });
+    }
+}
+function updateSparks(dt){
+    for(var i = sparks.length - 1; i >= 0; i--){
+        var s = sparks[i];
+        s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 100 * dt;
+        s.life -= dt / s.ml;
+        if(s.life <= 0) sparks.splice(i, 1);
+    }
+}
+function drawSparks(){
+    for(var i = 0; i < sparks.length; i++){
+        var s = sparks[i];
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, s.life) * 0.9;
+        ctx.shadowColor = s.c; ctx.shadowBlur = 8;
+        ctx.fillStyle = s.c;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r * s.life, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+}
+
+// ── Popups ────────────────────────────────────────────
+var popups = [];
+function spawnPopup(x, y, text, color){
+    popups.push({ x:x, y:y, text:text, color:color, life:1, ml:1.6 });
+}
+function updatePopups(dt){
+    for(var i = popups.length - 1; i >= 0; i--){
+        popups[i].y -= 28 * dt;
+        popups[i].life -= dt / popups[i].ml;
+        if(popups[i].life <= 0) popups.splice(i, 1);
+    }
+}
+function drawPopups(){
+    for(var i = 0; i < popups.length; i++){
+        var p = popups[i];
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.shadowColor = p.color; ctx.shadowBlur = 16;
+        ctx.fillStyle = p.color;
+        ctx.font = 'bold 20px Quicksand,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(p.text, p.x, p.y);
+        ctx.restore();
+    }
+}
+
+// ── Draw one mandala cell ─────────────────────────────
+function drawCell(s, r, colorIdx, alpha, glowing, t){
+    var innerR = ringInner(r);
+    var outerR = ringOuter(r);
+    var a0 = secAngle(s) + GAP;
+    var a1 = secAngle(s + 1) - GAP;
+
+    // Shake offset
+    var ox = 0, oy = 0;
+    if(shakeSec === s && shakeAnim > 0){
+        var sh = Math.sin(shakeAnim * 40) * 5 * (shakeAnim / 0.35);
+        ox = sh; oy = 0;
+    }
+
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.globalAlpha = alpha;
+
+    ctx.beginPath();
+    ctx.arc(CX, CY, outerR, a0, a1);
+    ctx.arc(CX, CY, innerR, a1, a0, true);
+    ctx.closePath();
+
+    if(colorIdx >= 0){
+        // Filled petal
+        var grad = ctx.createRadialGradient(CX, CY, innerR, CX, CY, outerR);
+        grad.addColorStop(0, PETAL_CLRS[colorIdx] + 'ee');
+        grad.addColorStop(1, PETAL_DARK[colorIdx] + 'cc');
+        ctx.fillStyle = grad;
+        if(glowing){ ctx.shadowColor = PETAL_GLOW[colorIdx]; ctx.shadowBlur = 20; }
+        ctx.fill();
+        // Sheen
+        ctx.globalAlpha = alpha * 0.25;
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.globalAlpha = alpha;
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = PETAL_GLOW[colorIdx] + '44';
+        ctx.lineWidth = 1.2; ctx.stroke();
+    } else {
+        // Empty slot
+        ctx.fillStyle = 'rgba(18,10,38,0.7)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(120,90,180,0.18)';
+        ctx.lineWidth = 1; ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+// ── Draw the full mandala ─────────────────────────────
+function drawMandala(t){
+    // Center glow
+    ctx.save();
+    var cg = ctx.createRadialGradient(CX, CY, 0, CX, CY, ringInner(0));
+    cg.addColorStop(0, 'rgba(180,130,255,0.22)');
+    cg.addColorStop(1, 'rgba(180,130,255,0)');
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(CX, CY, ringInner(0), 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // Draw cells
+    for(var r = NRING - 1; r >= 0; r--){
+        // Clearing animation for this ring?
+        var clearAlpha = 1;
+        var clearGlow  = false;
+        for(var ci = 0; ci < clearAnim.length; ci++){
+            if(clearAnim[ci].ring === r){
+                var cf = clearAnim[ci].elapsed / clearAnim[ci].dur;
+                clearAlpha = 1 - cf * 0.7;
+                clearGlow  = true;
+            }
+        }
+        for(var s = 0; s < NSEC; s++){
+            var col = board[s][r];
+            drawCell(s, r, col, clearAlpha, clearGlow || col >= 0, t);
+        }
+    }
+
+    // Drop animation
+    if(dropAnim){
+        var p = Math.min(1, dropAnim.elapsed / dropAnim.dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        var s2 = dropAnim.sec, r2 = dropAnim.ring;
+        // Interpolate from outside edge inward to the target ring
+        var startR = BASE_R * 1.15;
+        var targetR = (ringInner(r2) + ringOuter(r2)) / 2;
+        var curR = startR + (targetR - startR) * eased;
+        var midA = secAngle(s2) + Math.PI / NSEC;
+        var dx = Math.cos(midA) * curR;
+        var dy = Math.sin(midA) * curR;
+        ctx.save();
+        ctx.globalAlpha = 0.6 + eased * 0.4;
+        ctx.shadowColor = PETAL_GLOW[dropAnim.color]; ctx.shadowBlur = 20;
+        ctx.fillStyle = PETAL_CLRS[dropAnim.color];
+        ctx.beginPath(); ctx.arc(CX + dx, CY + dy, (ringOuter(r2) - ringInner(r2)) * 0.32, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    // Center circle
+    ctx.save();
+    ctx.shadowColor = '#b496ff'; ctx.shadowBlur = 18;
+    var cg2 = ctx.createRadialGradient(CX, CY, 0, CX, CY, ringInner(0) * 0.95);
+    cg2.addColorStop(0, '#2a1850');
+    cg2.addColorStop(1, '#1a1038');
+    ctx.fillStyle = cg2;
+    ctx.beginPath(); ctx.arc(CX, CY, ringInner(0) - 2, 0, Math.PI * 2); ctx.fill();
+    // Flower symbol
+    ctx.globalAlpha = 0.55 + Math.sin(t * 1.2) * 0.2;
+    ctx.font = (ringInner(0) * 1.1) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🌸', CX, CY + 2);
+    ctx.restore();
+}
+
+// ── Draw preview queue ────────────────────────────────
+function drawQueue(t){
+    var previewY = CY - BASE_R - 48;
+    var spacing  = 40;
+    var total    = Math.min(QUEUE_SIZE, queue.length);
+
+    for(var i = 0; i < total; i++){
+        var col = queue[i];
+        var x   = CX + (i - (total - 1) / 2) * spacing;
+        var r   = i === 0 ? 17 : 11;
+        var alpha = i === 0 ? 1 : 0.45 - i * 0.08;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, alpha);
+        if(i === 0){
+            ctx.shadowColor = PETAL_GLOW[col]; ctx.shadowBlur = 22;
+            // Pulsing ring around current
+            ctx.globalAlpha = 0.3 + Math.sin(t * 3.2) * 0.2;
+            ctx.strokeStyle = PETAL_CLRS[col]; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(x, previewY, r + 7, 0, Math.PI * 2); ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+        var g2 = ctx.createRadialGradient(x - r * 0.3, previewY - r * 0.3, r * 0.1, x, previewY, r);
+        g2.addColorStop(0, '#fff');
+        g2.addColorStop(0.4, PETAL_CLRS[col]);
+        g2.addColorStop(1, PETAL_DARK[col]);
+        ctx.fillStyle = g2;
+        ctx.beginPath(); ctx.arc(x, previewY, r, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    // Label
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = '#c090ff'; ctx.font = '11px Quicksand,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('NEXT', CX, previewY - 26);
+    ctx.restore();
+}
+
+// ── Draw hover highlight ──────────────────────────────
+var hoverSec = -1;
+function drawHover(){
+    if(hoverSec < 0 || placing || gameOver) return;
+    var r2 = nextRing(hoverSec);
+    if(r2 < 0) return;
+    var col = currentColor();
+    var a0 = secAngle(hoverSec) + GAP;
+    var a1 = secAngle(hoverSec + 1) - GAP;
+    ctx.save();
+    ctx.globalAlpha = 0.32;
+    ctx.shadowColor = PETAL_CLRS[col]; ctx.shadowBlur = 18;
+    ctx.fillStyle = PETAL_CLRS[col];
+    ctx.beginPath();
+    ctx.arc(CX, CY, ringOuter(r2), a0, a1);
+    ctx.arc(CX, CY, ringInner(r2), a1, a0, true);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+// ── Hit test: which sector was tapped? ───────────────
+function getSectorAt(px, py){
+    var dx = px - CX, dy = py - CY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    if(dist < ringInner(0) || dist > ringOuter(NRING - 1) * 1.12) return -1;
+    var angle = Math.atan2(dy, dx) + Math.PI / 2; // offset by π/2 (we start at top)
+    if(angle < 0) angle += Math.PI * 2;
+    var sec = Math.floor(angle / (Math.PI * 2 / NSEC));
+    return (sec % NSEC + NSEC) % NSEC;
+}
+
+// ── Main loop ─────────────────────────────────────────
+var lastTs = 0;
+function loop(ts){
+    var dt = Math.min((ts - lastTs) / 1000, 0.05); lastTs = ts;
+    if(!gameOver) update(dt, ts / 1000);
+    draw(ts / 1000);
+    requestAnimationFrame(loop);
+}
+
+function update(dt, t){
+    // Shake anim
+    if(shakeAnim > 0){ shakeAnim = Math.max(0, shakeAnim - dt); if(shakeAnim === 0) shakeSec = -1; }
+
+    // Clear anims
+    for(var i = clearAnim.length - 1; i >= 0; i--){
+        clearAnim[i].elapsed += dt;
+        if(clearAnim[i].elapsed >= clearAnim[i].dur) clearAnim.splice(i, 1);
+    }
+
+    // Drop anim
+    if(dropAnim){
+        dropAnim.elapsed += dt;
+        if(dropAnim.elapsed >= dropAnim.dur){
+            var d = dropAnim;
+            dropAnim = null;
+            finalizeDrop(d.sec, d.ring, d.color);
+        }
+    }
+
+    updateSparks(dt);
+    updatePopups(dt);
+}
+
+function draw(t){
+    drawBackground(t);
+    drawMandala(t);
+    drawHover();
+    drawQueue(t);
+    drawSparks();
+    drawPopups();
+}
+
+// ── Input ─────────────────────────────────────────────
+canvas.addEventListener('pointermove', function(e){
+    if(!started || gameOver || placing) return;
+    var r = canvas.getBoundingClientRect();
+    hoverSec = getSectorAt(e.clientX - r.left, e.clientY - r.top);
+});
+
+canvas.addEventListener('pointerdown', function(e){
+    if(!started || gameOver) return;
+    e.preventDefault();
+    var r = canvas.getBoundingClientRect();
+    var sec = getSectorAt(e.clientX - r.left, e.clientY - r.top);
+    if(sec >= 0) placePetal(sec);
+},{passive:false});
+
+canvas.addEventListener('pointerleave', function(){ hoverSec = -1; });
+</script>
+</body>
+</html>
