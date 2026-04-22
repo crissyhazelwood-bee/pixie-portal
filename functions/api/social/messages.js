@@ -1,4 +1,5 @@
 import { getSessionUserId } from "../../_utils/auth.js";
+import { isBlocked } from "../../_utils/filter.js";
 
 function resp(data, status = 200) {
     return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
@@ -63,6 +64,7 @@ export async function onRequestPost({ request, env }) {
     if (!recipient_id || !content?.trim()) return resp({ error: "Missing params" }, 400);
     if (content.trim().length > 1000) return resp({ error: "Message too long (max 1000 chars)" }, 400);
     if (recipient_id === userId) return resp({ error: "Cannot message yourself" }, 400);
+    if (isBlocked(content)) return resp({ error: "Message contains inappropriate content" }, 400);
 
     const result = await env.DB.prepare(
         "INSERT INTO messages (sender_id, recipient_id, content, created_at) VALUES (?, ?, ?, ?)"

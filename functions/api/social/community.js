@@ -1,4 +1,5 @@
 import { getSessionUserId } from "../../_utils/auth.js";
+import { isBlocked } from "../../_utils/filter.js";
 
 function resp(data, status = 200) {
     return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
@@ -31,6 +32,7 @@ export async function onRequestPost({ request, env }) {
     const { content } = await request.json().catch(() => ({}));
     if (!content?.trim()) return resp({ error: "Missing content" }, 400);
     if (content.trim().length > 500) return resp({ error: "Post too long (max 500 chars)" }, 400);
+    if (isBlocked(content)) return resp({ error: "Post contains inappropriate content" }, 400);
 
     const result = await env.DB.prepare(
         "INSERT INTO community_posts (user_id, content, created_at) VALUES (?, ?, ?)"

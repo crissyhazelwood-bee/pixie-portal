@@ -1882,6 +1882,7 @@
                 body: JSON.stringify({ target_type: type, target_id: id, content: input.value.trim() }), credentials: 'include'
             });
             const data = await res.json();
+            if (data.error) { toast(data.error); return; }
             if (data.success) {
                 input.value = '';
                 const area = document.getElementById('comments-' + type + '-' + id);
@@ -1956,6 +1957,7 @@
                 body: JSON.stringify({ content: ta.value.trim() }), credentials: 'include'
             });
             const data = await res.json();
+            if (data.error) { toast(data.error); return; }
             if (data.success) { ta.value = ''; await loadCommunityBoard(); toast('Posted ✦'); }
         }
 
@@ -2264,10 +2266,12 @@
             if (!currentUser || !dmOtherUserId) return;
             const input = document.getElementById('dm-new-message');
             if (!input.value.trim()) return;
-            await fetch(API + '/api/social/messages', {
+            const res = await fetch(API + '/api/social/messages', {
                 method: 'POST', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({ recipient_id: dmOtherUserId, content: input.value.trim() }), credentials: 'include'
             });
+            const data = await res.json();
+            if (data.error) { toast(data.error); return; }
             input.value = '';
             await loadDmThread();
         }
