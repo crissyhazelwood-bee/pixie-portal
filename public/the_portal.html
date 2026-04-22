@@ -2444,8 +2444,43 @@ var pendingGardenSlot=-1;
 var camDragged=false; // true after user pans — holds view until player moves
 
 // Canvas pointer handling: build placement + drag-to-pan
+// Double-tap/click to pick up and move a placed object
+var lastTapTime=0, lastTapX=0, lastTapY=0;
 canvas.addEventListener('pointerdown',function(e){
     if(!started) return;
+    var now=Date.now();
+    var rect0=canvas.getBoundingClientRect();
+    var csx0=e.clientX-rect0.left, csy0=e.clientY-rect0.top;
+    var dt=now-lastTapTime, dx0=csx0-lastTapX, dy0=csy0-lastTapY;
+    var isDouble=(dt<400&&Math.sqrt(dx0*dx0+dy0*dy0)<TW_px*1.2);
+    lastTapTime=now; lastTapX=csx0; lastTapY=csy0;
+    if(isDouble&&!eraseMode){
+        // Find nearest placed object to the double-tap
+        var bestKey=null, bestDist=TW_px*TW_px*2.5;
+        Object.keys(placed).forEach(function(k){
+            var kp=k.split(',');
+            var sp=tileScreenPos(parseInt(kp[1]),parseInt(kp[0]));
+            var cx2=sp.sx+HW, cy2=sp.sy+HH;
+            var d=(csx0-cx2)*(csx0-cx2)+(csy0-cy2)*(csy0-cy2);
+            if(d<bestDist){bestDist=d;bestKey=k;}
+        });
+        if(bestKey){
+            var pickedUp=placed[bestKey];
+            delete placed[bestKey];
+            savePlaced();
+            // Enter build mode with the picked-up item selected
+            if(!buildMode) toggleBuild();
+            eraseMode=false;
+            document.getElementById('erase-btn').classList.remove('active');
+            selectedItem={emoji:pickedUp.emoji,label:pickedUp.label,id:pickedUp.id||''};
+            selectedSize=pickedUp.size||'M';
+            // Highlight matching size button
+            document.querySelectorAll('.sz-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-sz')===selectedSize);});
+            var cursor=document.getElementById('build-cursor');
+            cursor.style.display='block'; cursor.textContent=pickedUp.emoji;
+            e.stopPropagation(); e.preventDefault(); return;
+        }
+    }
     if(buildMode&&(selectedItem||eraseMode)){
         var rect=canvas.getBoundingClientRect();
         var csx=e.clientX-rect.left, csy=e.clientY-rect.top;
