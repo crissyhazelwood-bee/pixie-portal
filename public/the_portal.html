@@ -204,20 +204,22 @@
         .herb-slot .slot-ready { color:#ffd700; font-size:8px; font-weight:700; }
         .herb-slot .slot-empty { font-size:11px; color:#2a4035; }
 
-        #plant-picker {
-            display:none; margin-top:10px; padding:10px 12px; border-radius:14px;
-            background:rgba(6,4,22,0.98); border:1px solid rgba(150,255,180,0.18);
-        }
-        #plant-picker.open { display:block; }
+        #herb-palette { margin-top:10px; }
+        #herb-palette-label { color:#4a7055; font-size:9px; font-weight:700; letter-spacing:0.8px; margin-bottom:6px; }
         .herb-options { display:flex; gap:7px; flex-wrap:wrap; }
         .herb-opt {
-            padding:5px 10px; border-radius:11px; cursor:pointer; font-size:11px;
+            padding:5px 10px; border-radius:11px; cursor:grab; font-size:11px;
             border:1px solid rgba(150,255,180,0.18); color:#70a880; background:rgba(10,20,15,0.7);
             transition:all 0.15s; display:flex; align-items:center; gap:4px;
-            font-family:'Quicksand',sans-serif;
+            font-family:'Quicksand',sans-serif; user-select:none; touch-action:none;
         }
         .herb-opt:hover { border-color:#96ffdc; color:#96ffdc; }
+        .herb-opt.selected { border-color:#96ffdc; color:#96ffdc; background:rgba(150,255,220,0.15); }
         .herb-opt.locked-herb { opacity:0.3; cursor:not-allowed; pointer-events:none; }
+        .herb-slot.drag-target { border-color:rgba(150,255,180,0.55); animation:slotPulse 1s ease-in-out infinite; }
+        .herb-slot.drag-over { border-color:#96ffdc; background:rgba(150,255,220,0.2); transform:scale(1.06); }
+        @keyframes slotPulse { 0%,100%{box-shadow:0 0 0 0 rgba(150,255,180,0.0)} 50%{box-shadow:0 0 8px 2px rgba(150,255,180,0.3)} }
+        #drag-ghost { position:fixed; pointer-events:none; z-index:9999; font-size:36px; transform:translate(-50%,-60%); filter:drop-shadow(0 0 8px rgba(150,255,180,0.8)); }
 
         #daily-modal .daily-center { text-align:center; padding:8px 0 12px; }
         .daily-big { font-size:56px; margin:8px 0; }
@@ -390,11 +392,11 @@
         <button onclick="toggleGarden()" style="margin-left:auto;background:transparent;border:none;color:#504060;cursor:pointer;font-size:14px;padding:2px 6px;">&#x2715;</button>
     </div>
     <div class="herb-slots" id="herb-slots"></div>
-    <div id="plant-picker">
-        <div style="color:#70a880;font-size:10px;font-weight:700;margin-bottom:8px;letter-spacing:0.8px;">CHOOSE AN HERB TO PLANT</div>
+    <div id="herb-palette">
+        <div id="herb-palette-label">HERBS &mdash; drag to a plot, or tap herb then tap plot</div>
         <div class="herb-options" id="herb-options"></div>
     </div>
-    <div class="bp-hint">Tap empty slot to plant &mdash; tap growing plant to water (+3 pts) &mdash; tap ready plant to harvest &mdash; right-click to remove</div>
+    <div class="bp-hint">Drag a herb onto an empty plot &bull; tap a growing plant to water (+3 pts) &bull; tap a ready plant to harvest &bull; right-click to remove</div>
 </div>
 
 <!-- ════════════ DAILY REWARD MODAL ════════════ -->
@@ -1819,6 +1821,7 @@ var gardenOpen = false;
 var pickerSlot = null;
 var _toastTimer = null;
 var _gardenRefreshTimer = null;
+var _dragHerb = null, _dragGhost = null, _selectedHerb = null;
 
 function getGLevel(pts) {
     return [...LEVELS_G].reverse().find(function(l){ return pts >= l.minPoints; }) || LEVELS_G[0];
@@ -1911,11 +1914,12 @@ function toggleGarden() {
         panel.classList.add('open');
         if (buildMode) toggleBuild();
         renderGardenSlots();
+        renderHerbPalette();
         _gardenRefreshTimer = setInterval(renderGardenSlots, 30000);
     } else {
         btn.classList.remove('active');
         panel.classList.remove('open');
-        closePlantPicker();
+        _selectedHerb = null;
         if (_gardenRefreshTimer) { clearInterval(_gardenRefreshTimer); _gardenRefreshTimer = null; }
     }
 }
@@ -1930,6 +1934,7 @@ function renderGardenSlots() {
     for (var i = 0; i < showSlots; i++) {
         var div = document.createElement('div');
         div.className = 'herb-slot';
+        div.setAttribute('data-slot', i);
         var locked = i >= ld.slots;
         if (locked) {
             div.classList.add('locked');
@@ -1964,36 +1969,92 @@ function renderGardenSlots() {
             })(i, isReady);
         } else {
             div.innerHTML = '<div class="slot-empty">+</div><div class="slot-name">Plant here</div>';
-            (function(si) { div.onclick = function(){ openPlantPicker(si); }; })(i);
+            (function(si) {
+                div.onclick = function() {
+                    if (_selectedHerb) {
+                        plantHerb(si, _selectedHerb);
+                        _selectedHerb = null;
+                        document.querySelectorAll('.herb-slot').forEach(function(s){ s.classList.remove('drag-target'); });
+                        renderHerbPalette();
+                    }
+                };
+            })(i);
         }
         container.appendChild(div);
     }
 }
 
-function openPlantPicker(slot) {
-    pickerSlot = slot;
+function renderHerbPalette() {
     var opts = document.getElementById('herb-options');
     opts.innerHTML = '';
+    if (!portalData) return;
     var ld = getGLevel(portalData.points);
     Object.keys(HERBS_G).forEach(function(key) {
         var h = HERBS_G[key];
         var locked = h.level > ld.level;
         var div = document.createElement('div');
-        div.className = 'herb-opt' + (locked ? ' locked-herb' : '');
+        div.className = 'herb-opt' + (locked ? ' locked-herb' : '') + (_selectedHerb === key ? ' selected' : '');
         div.innerHTML = h.emoji + ' ' + h.name +
             '<span style="color:#2a4030;font-size:9px;margin-left:3px;">(' + h.hours + 'h \u00b7 +' + h.points + 'pts' + (locked ? ' \u00b7 Lv.' + h.level : '') + ')</span>';
         if (!locked) {
-            (function(k){ div.onclick = function(){ plantHerb(pickerSlot, k); }; })(key);
+            (function(k, el) {
+                // Click to select/deselect
+                el.onclick = function() {
+                    _selectedHerb = _selectedHerb === k ? null : k;
+                    renderHerbPalette();
+                    document.querySelectorAll('.herb-slot:not(.has-plant):not(.locked)').forEach(function(s) {
+                        s.classList.toggle('drag-target', !!_selectedHerb);
+                    });
+                };
+                // Drag to plant
+                el.addEventListener('pointerdown', function(e) {
+                    if (e.button && e.button !== 0) return;
+                    e.preventDefault();
+                    _dragHerb = k;
+                    _selectedHerb = k;
+                    var ghost = document.createElement('div');
+                    ghost.id = 'drag-ghost';
+                    ghost.textContent = HERBS_G[k].emoji;
+                    ghost.style.left = e.clientX + 'px';
+                    ghost.style.top = e.clientY + 'px';
+                    document.body.appendChild(ghost);
+                    _dragGhost = ghost;
+                    document.querySelectorAll('.herb-slot:not(.has-plant):not(.locked)').forEach(function(s) {
+                        s.classList.add('drag-target');
+                    });
+                }, {passive: false});
+            })(key, div);
         }
         opts.appendChild(div);
     });
-    document.getElementById('plant-picker').classList.add('open');
 }
 
-function closePlantPicker() {
-    pickerSlot = null;
-    document.getElementById('plant-picker').classList.remove('open');
-}
+// Herb drag handlers
+window.addEventListener('pointermove', function(e) {
+    if (!_dragHerb || !_dragGhost) return;
+    _dragGhost.style.left = e.clientX + 'px';
+    _dragGhost.style.top = e.clientY + 'px';
+    document.querySelectorAll('.herb-slot').forEach(function(s) { s.classList.remove('drag-over'); });
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    while (el && !el.classList.contains('herb-slot')) el = el.parentElement;
+    if (el && el.classList.contains('drag-target')) el.classList.add('drag-over');
+}, {passive: true});
+
+window.addEventListener('pointerup', function(e) {
+    if (!_dragHerb) return;
+    if (_dragGhost) { _dragGhost.remove(); _dragGhost = null; }
+    var droppedHerb = _dragHerb;
+    _dragHerb = null;
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    while (el && !el.classList.contains('herb-slot')) el = el.parentElement;
+    if (el && el.classList.contains('drag-target')) {
+        var slot = parseInt(el.getAttribute('data-slot'));
+        if (!isNaN(slot)) plantHerb(slot, droppedHerb);
+        _selectedHerb = null;
+    }
+    document.querySelectorAll('.herb-slot').forEach(function(s) { s.classList.remove('drag-target', 'drag-over'); });
+    renderHerbPalette();
+});
 
 async function gardenPost(body) {
     try {
@@ -2010,8 +2071,10 @@ async function plantHerb(slot, herb) {
     var data = await gardenPost({ action:'plant', slot:slot, herb:herb });
     if (data && data.success) {
         portalData.garden = data.garden;
-        closePlantPicker();
+        _selectedHerb = null;
+        document.querySelectorAll('.herb-slot').forEach(function(s){ s.classList.remove('drag-target','drag-over'); });
         renderGardenSlots();
+        renderHerbPalette();
     } else if (data && data.error) {
         showGameToast(data.error, '', 2000);
     }
