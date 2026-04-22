@@ -779,7 +779,13 @@
                 <div class="journal-top-row">
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn btn-primary" onclick="openModal('new-entry')">✦ New Entry</button>
-                        <button class="btn btn-ghost btn-small" onclick="randomDream()" style="background:rgba(180,100,255,0.12);border-color:rgba(180,100,255,0.35);">🌙 Random Dream</button>
+                        <div style="display:flex;align-items:center;gap:4px;">
+                            <button class="btn btn-ghost btn-small" onclick="randomDream()" style="background:rgba(180,100,255,0.12);border-color:rgba(180,100,255,0.35);">🌙 Random Dream</button>
+                            <select id="random-dream-style" class="style-picker" style="height:30px;font-size:11px;padding:0 6px;border-radius:8px;">
+                                <option value="fantasy">✨ Free</option>
+                                <option value="grok">⚡ Grok HD — 2 credits</option>
+                            </select>
+                        </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div class="credits-pill" id="credits-display" style="display:none;">✦ <span id="credits-count">0</span> credits</div>
@@ -1390,6 +1396,7 @@
         async function randomDream() {
             if (!currentUser) { openModal('login'); return; }
             const dream = RANDOM_DREAMS[Math.floor(Math.random() * RANDOM_DREAMS.length)];
+            const style = document.getElementById('random-dream-style')?.value || 'fantasy';
 
             // Create the journal entry
             const createRes = await fetch(API + '/api/journal', {
@@ -1401,10 +1408,10 @@
 
             toast('Weaving your dream ✦');
 
-            // Auto-animate with fantasy style and matching visual prompt
+            // Auto-animate with selected style and matching visual prompt
             const animRes = await fetch(API + '/api/journal/' + created.id + '/animate', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-                body: JSON.stringify({ style: 'fantasy', prompt_override: dream.videoPrompt })
+                body: JSON.stringify({ style, prompt_override: dream.videoPrompt })
             });
             const animData = await animRes.json();
 
@@ -1412,8 +1419,11 @@
             await loadJournal();
             showPage('journal-page');
 
-            if (animRes.status === 429) {
-                toast("You've used your free animation today — buy credits to animate ✦");
+            if (animData.error === 'limit_reached') {
+                const msg = animData.need === 2
+                    ? `Grok HD needs 2 credits — you have ${animData.have ?? 0} ✦`
+                    : "You've used your free animation today — buy credits to animate ✦";
+                toast(msg);
             } else if (animData.status === 'processing') {
                 startDreamPolling(created.id);
             }
