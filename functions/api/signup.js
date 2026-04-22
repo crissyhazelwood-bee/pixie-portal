@@ -26,7 +26,7 @@ export async function onRequestPost({ request, env }) {
         ).run();
 
         const userId = res.meta.last_row_id;
-        const cookie = await createSessionCookie(env, userId);
+        const cookie = await createSessionCookie(env, userId, 0);
         return new Response(JSON.stringify({
             success: true,
             recoveryCode,

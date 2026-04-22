@@ -1,4 +1,10 @@
+// BUG-06 fix: session versioning + cookie expiry
+// Sessions now embed a version number. Incrementing session_version in the DB
+// invalidates all previously issued cookies (e.g. after password reset/recovery).
+// Backwards-compatible: old cookies without a version are treated as version 0.
+
 const COOKIE_NAME = "pixie_session";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 async function sign(env, value) {
   const enc = new TextEncoder();
@@ -33,12 +39,37 @@ export async function getSessionUserId(env, request) {
   if (!match) return null;
   const raw = decodeURIComponent(match[1]);
   const value = await verify(env, raw);
-  return value ? parseInt(value, 10) : null;
+  if (!value) return null;
+
+  // Parse userId and session version.
+  // New format: "userId:version" — old format: "userId" (backwards compat, treated as version 0)
+  const colonIdx = value.indexOf(":");
+  let userId, cookieVersion;
+  if (colonIdx === -1) {
+    userId = parseInt(value, 10);
+    cookieVersion = 0;
+  } else {
+    userId = parseInt(value.slice(0, colonIdx), 10);
+    cookieVersion = parseInt(value.slice(colonIdx + 1), 10);
+  }
+  if (!userId || isNaN(userId)) return null;
+
+  // Validate against the session_version stored in the DB
+  const { results } = await env.DB.prepare(
+    "SELECT session_version FROM users WHERE id = ?"
+  ).bind(userId).all();
+  if (!results[0]) return null;
+  if (cookieVersion < (results[0].session_version || 0)) return null;
+
+  return userId;
 }
 
-export async function createSessionCookie(env, userId) {
-  const signed = await sign(env, String(userId));
-  return `${COOKIE_NAME}=${encodeURIComponent(signed)}; Path=/; HttpOnly; SameSite=Lax; Secure`;
+// sessionVersion should be the current session_version value from the users table.
+// After a password reset/recovery, pass the newly incremented version so the
+// fresh cookie is valid while all old cookies are rejected.
+export async function createSessionCookie(env, userId, sessionVersion = 0) {
+  const signed = await sign(env, `${userId}:${sessionVersion}`);
+  return `${COOKIE_NAME}=${encodeURIComponent(signed)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${COOKIE_MAX_AGE}`;
 }
 
 export function clearSessionCookie() {

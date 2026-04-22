@@ -40,11 +40,12 @@ export async function onRequestPost({ request, env }) {
         const newRecoveryCode = generateRecoveryCode();
         const newRecoveryHash = await hashRecoveryCode(newRecoveryCode);
 
+        const newVersion = (user.session_version || 0) + 1;
         await env.DB.prepare(
-            "UPDATE users SET password_hash = ?, recovery_code_hash = ? WHERE id = ?"
-        ).bind(newHash, newRecoveryHash, user.id).run();
+            "UPDATE users SET password_hash = ?, recovery_code_hash = ?, session_version = ? WHERE id = ?"
+        ).bind(newHash, newRecoveryHash, newVersion, user.id).run();
 
-        const cookie = await createSessionCookie(env, user.id);
+        const cookie = await createSessionCookie(env, user.id, newVersion);
         return new Response(JSON.stringify({
             success: true,
             recoveryCode: newRecoveryCode,

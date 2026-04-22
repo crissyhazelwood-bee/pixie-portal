@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env }) {
         });
     }
 
-    const cookie = await createSessionCookie(env, user.id);
+    const cookie = await createSessionCookie(env, user.id, user.session_version || 0);
     return new Response(JSON.stringify({
         success: true,
         user: { id: user.id, username: user.username, display_name: user.display_name, bio: user.bio, avatar_emoji: user.avatar_emoji }

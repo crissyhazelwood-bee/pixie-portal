@@ -1,3 +1,5 @@
+// BUG-02 fix: constant-time comparison + timestamp freshness check
+// BUG-03 fix: use crypto.subtle.verify instead of string equality
 async function verifyStripeSignature(rawBody, sigHeader, secret) {
     const parts = sigHeader.split(",");
     const tPart = parts.find(p => p.startsWith("t="));
@@ -6,18 +8,24 @@ async function verifyStripeSignature(rawBody, sigHeader, secret) {
 
     const timestamp = tPart.slice(2);
     const signature = v1Part.slice(3);
+
+    // BUG-02: reject replayed webhooks older than 5 minutes
+    if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+
     const payload = `${timestamp}.${rawBody}`;
 
+    // BUG-03: import key with "verify" permission for constant-time comparison
     const key = await crypto.subtle.importKey(
         "raw",
         new TextEncoder().encode(secret),
         { name: "HMAC", hash: "SHA-256" },
         false,
-        ["sign"]
+        ["verify"]
     );
-    const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
-    const computed = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
-    return computed === signature;
+
+    // Decode Stripe's hex signature to bytes, then use constant-time verify
+    const sigBytes = new Uint8Array(signature.match(/.{2}/g).map(b => parseInt(b, 16)));
+    return await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(payload));
 }
 
 export async function onRequestPost({ request, env }) {
@@ -34,6 +42,15 @@ export async function onRequestPost({ request, env }) {
         const userId = parseInt(session.client_reference_id, 10);
         const product = session.metadata?.product;
         const credits = parseInt(session.metadata?.credits, 10);
+
+        // BUG-01: idempotency check — Stripe retries on failure; only process each event once
+        const idempotencyResult = await env.DB.prepare(
+            "INSERT OR IGNORE INTO processed_webhook_events (event_id, processed_at) VALUES (?, ?)"
+        ).bind(event.id, Date.now() / 1000).run();
+
+        if (idempotencyResult.meta.rows_written === 0) {
+            return new Response("OK"); // Already processed
+        }
 
         if (userId && credits) {
             await env.DB.prepare(

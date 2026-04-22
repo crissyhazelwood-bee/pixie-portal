@@ -22,6 +22,9 @@ export async function onRequestPost({ request, env }) {
 
         const user = results[0];
 
+        // BUG-08 fix: HTML-escape display_name before inserting into email template
+        const safeName = (user.display_name || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
         // Generate a 6-digit code
         const arr = crypto.getRandomValues(new Uint32Array(1));
         const code = String(arr[0] % 900000 + 100000);
@@ -43,7 +46,7 @@ export async function onRequestPost({ request, env }) {
             <div style="font-family:'Helvetica Neue',sans-serif;max-width:520px;margin:0 auto;background:#0d0820;padding:40px;border-radius:16px;">
                 <h1 style="font-size:28px;color:#ff96c8;margin-bottom:6px;">Pixie Portal ✦</h1>
                 <p style="color:#b496ff;font-size:16px;margin-bottom:28px;">Password Reset</p>
-                <p style="color:#d0b8f0;font-size:15px;">Hey ${user.display_name},</p>
+                <p style="color:#d0b8f0;font-size:15px;">Hey ${safeName},</p>
                 <p style="color:#d0b8f0;font-size:15px;">Someone requested a password reset for your Pixie Portal account. Enter this code on the site:</p>
                 <div style="text-align:center;margin:32px 0;">
                     <div style="display:inline-block;background:linear-gradient(135deg,rgba(255,150,200,0.15),rgba(180,150,255,0.15));border:2px solid #b496ff;border-radius:16px;padding:20px 40px;">

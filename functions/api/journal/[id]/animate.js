@@ -19,32 +19,40 @@ export async function onRequestPost({ params, request, env }) {
 
     const isGrok = style === "grok";
     const creditCost = isGrok ? 2 : 1;
+    let creditPreDeducted = false;
 
-    let useCredit = false;
-
+    // BUG-05 fix: atomic enforcement — no more check-then-act races
     if (!EXEMPT_USER_IDS.includes(userId)) {
-        if (isGrok) {
-            // Grok always costs 2 credits — no daily free
-            const { results: userRes } = await env.DB.prepare(
-                "SELECT animation_credits FROM users WHERE id = ?"
-            ).bind(userId).all();
-            const credits = userRes[0]?.animation_credits ?? 0;
-            if (credits < 2) return resp({ error: "limit_reached", need: 2, have: credits }, 429);
-            useCredit = true;
-        } else {
-            const since = Date.now() / 1000 - 86400;
-            const { results: dailyCheck } = await env.DB.prepare(
-                "SELECT 1 FROM journal_entries WHERE user_id = ? AND video_started_at > ? LIMIT 1"
-            ).bind(userId, since).all();
+        const now = Date.now() / 1000;
+        const since = now - 86400;
 
-            if (dailyCheck.length > 0) {
-                // Daily free already used — check purchased credits
+        if (isGrok) {
+            // Grok always costs 2 credits: atomically deduct upfront
+            const { meta } = await env.DB.prepare(
+                "UPDATE users SET animation_credits = animation_credits - ? WHERE id = ? AND animation_credits >= ?"
+            ).bind(creditCost, userId, creditCost).run();
+            if (meta.rows_written === 0) {
                 const { results: userRes } = await env.DB.prepare(
                     "SELECT animation_credits FROM users WHERE id = ?"
                 ).bind(userId).all();
-                const credits = userRes[0]?.animation_credits ?? 0;
-                if (credits <= 0) return resp({ error: "limit_reached" }, 429);
-                useCredit = true;
+                return resp({ error: "limit_reached", need: 2, have: userRes[0]?.animation_credits ?? 0 }, 429);
+            }
+            creditPreDeducted = true;
+        } else {
+            // Try to atomically claim the daily free slot
+            const { meta: freeMeta } = await env.DB.prepare(
+                "UPDATE users SET last_free_animation_at = ? WHERE id = ? AND (last_free_animation_at IS NULL OR last_free_animation_at <= ?)"
+            ).bind(now, userId, since).run();
+
+            if (freeMeta.rows_written === 0) {
+                // Daily free already used — atomically deduct 1 credit
+                const { meta: creditMeta } = await env.DB.prepare(
+                    "UPDATE users SET animation_credits = animation_credits - ? WHERE id = ? AND animation_credits >= ?"
+                ).bind(creditCost, userId, creditCost).run();
+                if (creditMeta.rows_written === 0) {
+                    return resp({ error: "limit_reached" }, 429);
+                }
+                creditPreDeducted = true;
             }
         }
     }
@@ -52,7 +60,16 @@ export async function onRequestPost({ params, request, env }) {
     const { results } = await env.DB.prepare(
         "SELECT id, title, content FROM journal_entries WHERE id = ? AND user_id = ?"
     ).bind(params.id, userId).all();
-    if (!results[0]) return resp({ error: "Not found" }, 404);
+
+    if (!results[0]) {
+        // Refund pre-deducted credits on not-found
+        if (creditPreDeducted) {
+            await env.DB.prepare(
+                "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
+            ).bind(creditCost, userId).run();
+        }
+        return resp({ error: "Not found" }, 404);
+    }
 
     const entry = results[0];
     const prefix = STYLE_PREFIXES[style] || "";
@@ -92,18 +109,20 @@ export async function onRequestPost({ params, request, env }) {
     }
 
     const prediction = await replicateRes.json();
-    if (!prediction.id) return resp({ error: "Failed to start generation" }, 500);
+    if (!prediction.id) {
+        // Replicate failed — refund pre-deducted credits (not the daily slot)
+        if (creditPreDeducted) {
+            await env.DB.prepare(
+                "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
+            ).bind(creditCost, userId).run();
+        }
+        return resp({ error: "Failed to start generation" }, 500);
+    }
 
     const now = Date.now() / 1000;
     await env.DB.prepare(
         "UPDATE journal_entries SET video_prediction_id = ?, video_status = 'processing', video_started_at = ? WHERE id = ? AND user_id = ?"
     ).bind(prediction.id, now, params.id, userId).run();
-
-    if (useCredit) {
-        await env.DB.prepare(
-            "UPDATE users SET animation_credits = animation_credits - ? WHERE id = ?"
-        ).bind(creditCost, userId).run();
-    }
 
     return resp({ status: "processing", prediction_id: prediction.id });
 }

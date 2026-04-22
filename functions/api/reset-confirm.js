@@ -15,9 +15,11 @@ export async function onRequestPost({ request, env }) {
             });
         }
 
+        const now = Date.now() / 1000;
+
         // Look up user by email
         const { results: userRes } = await env.DB.prepare(
-            "SELECT id FROM users WHERE email = ?"
+            "SELECT id, username, display_name, bio, avatar_emoji, session_version FROM users WHERE email = ?"
         ).bind(email.toLowerCase()).all();
 
         if (!userRes[0]) {
@@ -26,35 +28,59 @@ export async function onRequestPost({ request, env }) {
             });
         }
 
-        const userId = userRes[0].id;
-        const codeHash = await hashRecoveryCode(code);
-        const now = Date.now() / 1000;
+        const user = userRes[0];
 
-        const { results } = await env.DB.prepare(
-            "SELECT t.id as token_id, u.* FROM password_reset_tokens t JOIN users u ON t.user_id = u.id WHERE t.user_id = ? AND t.token_hash = ? AND t.used = 0 AND t.expires_at > ?"
-        ).bind(userId, codeHash, now).all();
+        // BUG-07 fix: find the token without hash match first, so we can rate-limit all guesses
+        const { results: tokenRes } = await env.DB.prepare(
+            "SELECT id, token_hash, attempts FROM password_reset_tokens WHERE user_id = ? AND used = 0 AND expires_at > ? ORDER BY id DESC LIMIT 1"
+        ).bind(user.id, now).all();
 
-        if (!results[0]) {
+        if (!tokenRes[0]) {
             return new Response(JSON.stringify({ error: "Code is invalid or has expired" }), {
                 status: 401, headers: { "Content-Type": "application/json" }
             });
         }
 
-        const { token_id, ...user } = results[0];
+        const token = tokenRes[0];
 
-        // Mark token as used
-        await env.DB.prepare("UPDATE password_reset_tokens SET used = 1 WHERE id = ?").bind(token_id).run();
+        // Increment attempt count before checking code (counts wrong guesses against the limit)
+        await env.DB.prepare(
+            "UPDATE password_reset_tokens SET attempts = attempts + 1 WHERE id = ?"
+        ).bind(token.id).run();
 
-        // Update password and issue new recovery code
+        // BUG-07: lock out after 10 wrong attempts — invalidate token to force a fresh request
+        if (token.attempts >= 10) {
+            await env.DB.prepare(
+                "UPDATE password_reset_tokens SET used = 1 WHERE id = ?"
+            ).bind(token.id).run();
+            return new Response(JSON.stringify({ error: "Too many attempts. Please request a new reset code." }), {
+                status: 429, headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Verify the submitted code against the stored hash
+        const codeHash = await hashRecoveryCode(code);
+        if (codeHash !== token.token_hash) {
+            return new Response(JSON.stringify({ error: "Code is invalid or has expired" }), {
+                status: 401, headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // Code is valid — update password, rotate recovery code, bump session version
         const newHash = await hashPassword(new_password);
         const newRecoveryCode = generateRecoveryCode();
         const newRecoveryHash = await hashRecoveryCode(newRecoveryCode);
+        const newVersion = (user.session_version || 0) + 1;
 
+        // BUG-10 fix: update password BEFORE marking token used.
+        // If the DB write below fails, the token stays valid and the user can retry.
         await env.DB.prepare(
-            "UPDATE users SET password_hash = ?, recovery_code_hash = ? WHERE id = ?"
-        ).bind(newHash, newRecoveryHash, user.id).run();
+            "UPDATE users SET password_hash = ?, recovery_code_hash = ?, session_version = ? WHERE id = ?"
+        ).bind(newHash, newRecoveryHash, newVersion, user.id).run();
 
-        const cookie = await createSessionCookie(env, user.id);
+        await env.DB.prepare("UPDATE password_reset_tokens SET used = 1 WHERE id = ?").bind(token.id).run();
+
+        const cookie = await createSessionCookie(env, user.id, newVersion);
         return new Response(JSON.stringify({
             success: true,
             recoveryCode: newRecoveryCode,
