@@ -10,6 +10,11 @@ const SHOP_ITEMS = {
     pixie_throne:   { name: "Pixie Throne",    cost: 2000 },
     crystal_spire:  { name: "Crystal Spire",   cost: 2500 },
     dragon_egg:     { name: "Dragon Egg",      cost: 3000 },
+    grocery_store:  { name: "Grocery Store",   cost: 400  },
+    salon:          { name: "Salon",           cost: 600  },
+    library:        { name: "Library",         cost: 1100 },
+    post_office:    { name: "Post Office",     cost: 800  },
+    city_hall:      { name: "City Hall",       cost: 3500 },
 };
 
 async function getOrCreatePlayer(env, userId) {
