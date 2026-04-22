@@ -2,11 +2,13 @@ import { getSessionUserId } from "../../_utils/auth.js";
 
 const SHOP_ITEMS = {
     fairy_fountain: { name: "Fairy Fountain",  cost: 300  },
+    wishing_well:   { name: "Wishing Well",    cost: 600  },
     crystal_arch:   { name: "Crystal Arch",    cost: 500  },
     moon_shrine:    { name: "Moon Shrine",     cost: 750  },
     star_tree:      { name: "Star Tree",       cost: 1000 },
     magic_portal:   { name: "Magic Crystal",   cost: 1500 },
     pixie_throne:   { name: "Pixie Throne",    cost: 2000 },
+    crystal_spire:  { name: "Crystal Spire",   cost: 2500 },
     dragon_egg:     { name: "Dragon Egg",      cost: 3000 },
 };
 
