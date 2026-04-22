@@ -3964,7 +3964,7 @@ function mgBookStack(mgC,mgCtx){
             spawnBook(t);
             for(var i=books.length-1;i>=0;i--){
                 books[i].y+=books[i].vy*dt;
-                if(books[i].y>H+40){ if(!books[i].clicked){ lives--; if(lives<=0){done=true;}} books.splice(i,1); }
+                if(books[i].y>H+40){ if(!books[i].clicked&&books[i].ci===target){ lives--; if(lives<=0){done=true;}} books.splice(i,1); }
             }
             this.score=score;
         },
