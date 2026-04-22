@@ -66,6 +66,12 @@ export async function onRequestPost({ request, env }) {
     if (recipient_id === userId) return resp({ error: "Cannot message yourself" }, 400);
     if (isBlocked(content)) return resp({ error: "Message contains inappropriate content" }, 400);
 
+    // Check blocks in either direction
+    const { results: blockCheck } = await env.DB.prepare(
+        "SELECT 1 FROM blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)"
+    ).bind(userId, recipient_id, recipient_id, userId).all();
+    if (blockCheck.length > 0) return resp({ error: "Unable to send message" }, 403);
+
     const now = Math.floor(Date.now() / 1000);
     const result = await env.DB.prepare(
         "INSERT INTO messages (sender_id, recipient_id, content, created_at) VALUES (?, ?, ?, ?)"

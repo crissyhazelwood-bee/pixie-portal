@@ -52,6 +52,23 @@ export async function onRequestPost({ request, env }) {
     if (content.trim().length > 500) return resp({ error: "Comment too long (max 500 chars)" }, 400);
     if (isBlocked(content)) return resp({ error: "Comment contains inappropriate content" }, 400);
 
+    // Check if content owner has blocked the commenter
+    try {
+        let ownerRes;
+        if (target_type === 'journal') {
+            ownerRes = await env.DB.prepare("SELECT user_id FROM journal_entries WHERE id = ?").bind(parseInt(target_id)).all();
+        } else if (target_type === 'community_post') {
+            ownerRes = await env.DB.prepare("SELECT user_id FROM community_posts WHERE id = ?").bind(parseInt(target_id)).all();
+        }
+        const ownerId = ownerRes?.results[0]?.user_id;
+        if (ownerId && ownerId !== userId) {
+            const { results: blockCheck } = await env.DB.prepare(
+                "SELECT 1 FROM blocks WHERE blocker_id = ? AND blocked_id = ?"
+            ).bind(ownerId, userId).all();
+            if (blockCheck.length > 0) return resp({ error: "Unable to comment" }, 403);
+        }
+    } catch (_) {}
+
     const now = Math.floor(Date.now() / 1000);
     const result = await env.DB.prepare(
         "INSERT INTO comments (user_id, target_type, target_id, content, created_at) VALUES (?, ?, ?, ?, ?)"

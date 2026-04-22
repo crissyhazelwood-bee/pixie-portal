@@ -1027,6 +1027,7 @@
                         <span class="pub-profile-stat"><span id="pub-following">0</span> following</span>
                         <button class="follow-btn" id="pub-follow-btn" onclick="toggleFollow()" style="display:none;"></button>
                         <button class="btn btn-ghost btn-small" id="pub-dm-btn" onclick="openDmWith()" style="display:none;">✉ Message</button>
+                        <button class="btn btn-ghost btn-small" id="pub-block-btn" onclick="toggleBlock()" style="display:none;color:#906070;"></button>
                     </div>
                 </div>
             </div>
@@ -2191,6 +2192,7 @@
             document.getElementById('pub-bio').textContent = '';
             document.getElementById('pub-follow-btn').style.display = 'none';
             document.getElementById('pub-dm-btn').style.display = 'none';
+            document.getElementById('pub-block-btn').style.display = 'none';
             document.getElementById('pub-journal-entries').innerHTML = '';
             document.getElementById('pub-scores-list').innerHTML = '';
             document.getElementById('pub-portal-info').innerHTML = '';
@@ -2221,6 +2223,15 @@
                 document.getElementById('pub-dm-btn').dataset.name = u.display_name || u.username;
                 document.getElementById('pub-dm-btn').dataset.uname = u.username;
                 document.getElementById('pub-dm-btn').dataset.avatar = u.avatar_emoji || '✦';
+
+                // Block button
+                const blockBtn = document.getElementById('pub-block-btn');
+                blockBtn.dataset.userId = u.id;
+                blockBtn.style.display = 'inline-block';
+                const blockRes = await fetch(API + '/api/social/block?user_id=' + u.id, { credentials: 'include' });
+                const blockData = await blockRes.json();
+                blockBtn.textContent = blockData.is_blocking ? '🚫 Blocked' : 'Block';
+                blockBtn.dataset.blocking = blockData.is_blocking ? '1' : '0';
             }
 
             // Public journal
@@ -2289,6 +2300,38 @@
             document.getElementById('messages-login-prompt').style.display = 'none';
 
             await openDmThread(userId, name, uname, avatar);
+        }
+
+        async function toggleBlock() {
+            if (!currentUser) { openModal('login'); return; }
+            const btn = document.getElementById('pub-block-btn');
+            const targetId = parseInt(btn.dataset.userId);
+            const isBlocking = btn.dataset.blocking === '1';
+
+            if (!isBlocking) {
+                if (!confirm('Block this user? They won\'t be able to DM you or comment on your posts.')) return;
+            }
+
+            const res = await fetch(API + '/api/social/block', {
+                method: isBlocking ? 'DELETE' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: targetId }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.error) { toast(data.error); return; }
+
+            btn.textContent = data.is_blocking ? '🚫 Blocked' : 'Block';
+            btn.dataset.blocking = data.is_blocking ? '1' : '0';
+
+            if (data.is_blocking) {
+                // Hide follow button and DM button since we just blocked them
+                document.getElementById('pub-follow-btn').style.display = 'none';
+                document.getElementById('pub-dm-btn').style.display = 'none';
+                toast('User blocked');
+            } else {
+                toast('User unblocked');
+            }
         }
 
         function switchPubTab(tab) {
