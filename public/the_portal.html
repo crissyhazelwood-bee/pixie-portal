@@ -4079,87 +4079,131 @@ function mgFreshCatch(mgC,mgCtx){
 function mgMailSort(mgC,mgCtx){
     var W=mgC.width, H=mgC.height;
     var CLRS=['#ff4488','#4488ff','#44cc88','#ffcc44'];
-    var CNAMES=['Pink','Blue','Green','Gold'];
     var letters=[], score=0, lives=3, done=false, lastSpawn=0;
-    var BOX_W=52, BOX_H=40;
+    var BOX_W=60, BOX_H=44;
     var boxes=CLRS.map(function(c,i){return{ci:i,x:(i+0.5)*(W/CLRS.length),y:H-BOX_H-10};});
+    var dragged=null; // {letter, ox, oy}
+
+    function drawLetter(lt, held){
+        var lLeft=lt.x-lt.w/2;
+        mgCtx.save();
+        mgCtx.shadowColor=CLRS[lt.ci]; mgCtx.shadowBlur=held?18:10;
+        if(held){ mgCtx.translate(lt.x,lt.y+lt.h/2); mgCtx.scale(1.15,1.15); mgCtx.translate(-lt.x,-(lt.y+lt.h/2)); }
+        mgCtx.fillStyle='rgba(255,255,255,0.92)';
+        var lL=lt.x-lt.w/2;
+        mgCtx.fillRect(lL,lt.y,lt.w,lt.h);
+        mgCtx.strokeStyle=CLRS[lt.ci]; mgCtx.lineWidth=held?3:2;
+        mgCtx.strokeRect(lL,lt.y,lt.w,lt.h);
+        // Envelope flap V
+        mgCtx.strokeStyle=CLRS[lt.ci]; mgCtx.lineWidth=1.5;
+        mgCtx.beginPath();
+        mgCtx.moveTo(lL,lt.y); mgCtx.lineTo(lt.x,lt.y+lt.h*0.55); mgCtx.lineTo(lL+lt.w,lt.y);
+        mgCtx.stroke();
+        mgCtx.restore();
+    }
+
     function spawnLetter(t){
         if(letters.length<5&&t-lastSpawn>0.9){
             lastSpawn=t;
-            letters.push({ci:Math.floor(Math.random()*CLRS.length),x:30+Math.random()*(W-60),y:-28,vy:55+score*3,w:36,h:28});
+            letters.push({ci:Math.floor(Math.random()*CLRS.length),x:30+Math.random()*(W-60),y:-28,vy:55+score*3,w:40,h:30,held:false});
         }
     }
+
+    function hoverBox(x,y){
+        for(var i=0;i<boxes.length;i++){
+            var bx=boxes[i];
+            if(x>=bx.x-BOX_W/2&&x<=bx.x+BOX_W/2&&y>=bx.y&&y<=bx.y+BOX_H) return i;
+        }
+        return -1;
+    }
+
+    var hoverIdx=-1;
     return {
         score:score,
         update:function(dt,t){
             if(done) return;
             spawnLetter(t);
             for(var i=letters.length-1;i>=0;i--){
-                letters[i].y+=letters[i].vy*dt;
-                if(letters[i].y>H+40){lives--;if(lives<=0)done=true;letters.splice(i,1);}
+                if(!letters[i].held){
+                    letters[i].y+=letters[i].vy*dt;
+                    if(letters[i].y>H+40){lives--;if(lives<=0)done=true;letters.splice(i,1);}
+                }
             }
             this.score=score;
         },
         draw:function(){
             mgCtx.fillStyle='#0a0520'; mgCtx.fillRect(0,0,W,H);
+            mgCtx.fillStyle='#f0d8ff'; mgCtx.font='13px Quicksand,sans-serif'; mgCtx.textAlign='center';
+            mgCtx.fillText('Drag each letter to the matching mailbox',W/2,18);
             mgCtx.fillStyle='#ffd700'; mgCtx.font='bold 14px Quicksand,sans-serif'; mgCtx.textAlign='left';
-            mgCtx.fillText('\u2756 '+score,12,22);
+            mgCtx.fillText('\u2756 '+score,12,36);
             mgCtx.textAlign='right'; mgCtx.fillStyle='#ff4488';
-            mgCtx.fillText('❤️'.repeat(Math.max(0,lives)),W-12,22);
+            mgCtx.fillText('\u2764\uFE0F'.repeat?'\u2764\uFE0F'.repeat(Math.max(0,lives)):lives+'hp',W-12,36);
             // Mailboxes
             for(var i=0;i<boxes.length;i++){
                 var bx=boxes[i];
+                var isHover=(i===hoverIdx&&dragged!==null);
                 mgCtx.save();
-                mgCtx.shadowColor=CLRS[bx.ci]; mgCtx.shadowBlur=14;
+                mgCtx.shadowColor=CLRS[bx.ci]; mgCtx.shadowBlur=isHover?28:14;
+                mgCtx.globalAlpha=isHover?1:0.85;
                 mgCtx.fillStyle=CLRS[bx.ci];
-                var bLeft=bx.x-BOX_W/2;
+                var bL=bx.x-BOX_W/2;
                 mgCtx.beginPath();
-                if(mgCtx.roundRect) mgCtx.roundRect(bLeft,bx.y,BOX_W,BOX_H,6); else mgCtx.rect(bLeft,bx.y,BOX_W,BOX_H);
+                if(mgCtx.roundRect) mgCtx.roundRect(bL,bx.y,BOX_W,BOX_H,6); else mgCtx.rect(bL,bx.y,BOX_W,BOX_H);
                 mgCtx.fill();
-                mgCtx.fillStyle='rgba(0,0,0,0.35)';
-                mgCtx.fillRect(bLeft+BOX_W*0.2,bx.y+BOX_H*0.3,BOX_W*0.6,BOX_H*0.25);
+                // Slot
+                mgCtx.fillStyle='rgba(0,0,0,0.4)';
+                mgCtx.fillRect(bL+BOX_W*0.18,bx.y+BOX_H*0.28,BOX_W*0.64,BOX_H*0.22);
+                if(isHover){
+                    mgCtx.strokeStyle='#ffffff'; mgCtx.lineWidth=2; mgCtx.globalAlpha=0.6;
+                    mgCtx.beginPath();
+                    if(mgCtx.roundRect) mgCtx.roundRect(bL,bx.y,BOX_W,BOX_H,6); else mgCtx.rect(bL,bx.y,BOX_W,BOX_H);
+                    mgCtx.stroke();
+                }
                 mgCtx.restore();
             }
-            // Letters (envelopes)
-            for(var i=0;i<letters.length;i++){
-                var lt=letters[i];
-                mgCtx.save();
-                mgCtx.shadowColor=CLRS[lt.ci]; mgCtx.shadowBlur=10;
-                mgCtx.fillStyle='rgba(255,255,255,0.85)';
-                var lLeft=lt.x-lt.w/2;
-                mgCtx.fillRect(lLeft,lt.y,lt.w,lt.h);
-                mgCtx.strokeStyle=CLRS[lt.ci]; mgCtx.lineWidth=2;
-                mgCtx.strokeRect(lLeft,lt.y,lt.w,lt.h);
-                mgCtx.strokeStyle=CLRS[lt.ci]; mgCtx.lineWidth=1.5;
-                mgCtx.beginPath();
-                mgCtx.moveTo(lLeft,lt.y); mgCtx.lineTo(lt.x,lt.y+lt.h*0.55); mgCtx.lineTo(lLeft+lt.w,lt.y);
-                mgCtx.stroke();
-                mgCtx.restore();
-            }
+            // Non-dragged letters first
+            for(var i=0;i<letters.length;i++){ if(!letters[i].held) drawLetter(letters[i],false); }
+            // Dragged letter on top
+            if(dragged) drawLetter(dragged.letter,true);
             if(done){
                 mgCtx.fillStyle='rgba(4,2,14,0.78)'; mgCtx.fillRect(0,0,W,H);
                 mgCtx.fillStyle='#ffcc44'; mgCtx.font='bold 26px Quicksand,sans-serif'; mgCtx.textAlign='center';
-                mgCtx.fillText('📮 '+score+' sorted!',W/2,H/2-14);
+                mgCtx.fillText('\uD83D\uDCEE '+score+' sorted!',W/2,H/2-14);
                 mgCtx.fillStyle='#c090ff'; mgCtx.font='14px Quicksand,sans-serif';
                 mgCtx.fillText('Close to collect your reward',W/2,H/2+18);
             }
         },
         pointerdown:function(x,y){
-            if(done) return;
-            // Find which letter was tapped
-            var tapped=-1;
+            if(done||dragged) return;
             for(var i=letters.length-1;i>=0;i--){
                 var lt=letters[i];
-                if(x>=lt.x-lt.w/2&&x<=lt.x+lt.w/2&&y>=lt.y&&y<=lt.y+lt.h){tapped=i;break;}
+                if(x>=lt.x-lt.w/2-6&&x<=lt.x+lt.w/2+6&&y>=lt.y-6&&y<=lt.y+lt.h+6){
+                    lt.held=true;
+                    dragged={letter:lt,ox:x-lt.x,oy:y-lt.y};
+                    break;
+                }
             }
-            if(tapped<0) return;
-            // Find which box was closest on x
-            var lt2=letters[tapped];
-            var bestBox=-1, bestDx=W;
-            for(var i=0;i<boxes.length;i++){var dx=Math.abs(x-boxes[i].x);if(dx<bestDx){bestDx=dx;bestBox=i;}}
-            if(bestBox>=0&&boxes[bestBox].ci===lt2.ci){score++;this.score=score;}
-            else{lives--;if(lives<=0)done=true;}
-            letters.splice(tapped,1);
+        },
+        pointermove:function(x,y){
+            if(!dragged) return;
+            dragged.letter.x=x-dragged.ox;
+            dragged.letter.y=y-dragged.oy;
+            hoverIdx=hoverBox(x,y);
+        },
+        pointerup:function(x,y){
+            if(!dragged) return;
+            var lt=dragged.letter;
+            lt.held=false;
+            dragged=null; hoverIdx=-1;
+            var bi=hoverBox(x,y);
+            if(bi>=0){
+                if(boxes[bi].ci===lt.ci){ score++; this.score=score; }
+                else{ lives--; if(lives<=0) done=true; }
+                var idx=letters.indexOf(lt);
+                if(idx>=0) letters.splice(idx,1);
+            }
+            // If dropped outside a box, letter resumes falling
         }
     };
 }
