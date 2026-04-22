@@ -2191,9 +2191,22 @@
             if (follEl) follEl.textContent = parseInt(follEl.textContent) + (data.following ? 1 : -1);
         }
 
-        function openDmWith() {
+        async function openDmWith() {
+            if (!currentUser) { openModal('login'); return; }
             const btn = document.getElementById('pub-dm-btn');
-            openDmThread(parseInt(btn.dataset.userId), btn.dataset.name, btn.dataset.uname, btn.dataset.avatar);
+            const userId = parseInt(btn.dataset.userId);
+            const name = btn.dataset.name;
+            const uname = btn.dataset.uname;
+            const avatar = btn.dataset.avatar;
+
+            // Navigate to messages page without triggering loadMessages (which resets the thread view)
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-messages').classList.add('active');
+            window.scrollTo(0, 0);
+            document.getElementById('messages-content').style.display = 'block';
+            document.getElementById('messages-login-prompt').style.display = 'none';
+
+            await openDmThread(userId, name, uname, avatar);
         }
 
         function switchPubTab(tab) {
