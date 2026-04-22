@@ -1776,10 +1776,24 @@ function update(dt,t){
     updateFireflies(dt,t);
 }
 
+// ── Day/Night ──────────────────────────────────────────────────────────────────
+var STARS=function(){var s=[],sd=7919;function r(){sd=(sd*16807)&0x7fffffff;return sd/0x7fffffff;}for(var i=0;i<70;i++)s.push({x:r(),y:r()*0.6,sz:0.8+r()*1.5});return s;}();
+
+function getDayPhase(){
+    var now=new Date(), h=now.getHours()+now.getMinutes()/60;
+    function c(v){return Math.max(0,Math.min(1,v));}
+    var nf=h<5.5?1:h<8?c(1-(h-5.5)/2.5):h<18?0:h<20.5?c((h-18)/2.5):1;
+    var df=(h>=5&&h<8.5)?c(Math.sin((h-5)/3.5*Math.PI)):0;
+    var sf=(h>=17&&h<21)?c(Math.sin((h-17)/4*Math.PI)):0;
+    return {n:nf,d:df,s:sf};
+}
+
 // ── Draw ───────────────────────────────────────────────────────────────────────
 function draw(t){
+    var ph=getDayPhase(); var dayF=1-ph.n;
     var bgG=ctx.createLinearGradient(0,0,0,SH);
-    bgG.addColorStop(0,'#090522'); bgG.addColorStop(1,'#040210');
+    bgG.addColorStop(0,'rgb(9,'+Math.round(5+dayF*20)+','+Math.round(34+dayF*46)+')');
+    bgG.addColorStop(1,'rgb(4,'+Math.round(2+dayF*13)+','+Math.round(16+dayF*29)+')');
     ctx.fillStyle=bgG; ctx.fillRect(0,0,SW,SH);
     if(!started) return;
 
@@ -1834,6 +1848,22 @@ function draw(t){
     var vg=ctx.createRadialGradient(SW/2,SH/2,SH*.2,SW/2,SH/2,SH*.88);
     vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(1,0,7,.65)');
     ctx.fillStyle=vg; ctx.fillRect(0,0,SW,SH);
+
+    if(dayF>0){ ctx.globalAlpha=dayF*0.07; ctx.fillStyle='rgb(255,230,180)'; ctx.fillRect(0,0,SW,SH); }
+    if(ph.d>0){ ctx.globalAlpha=ph.d*0.16; ctx.fillStyle='rgb(255,120,60)'; ctx.fillRect(0,0,SW,SH); }
+    if(ph.s>0){ ctx.globalAlpha=ph.s*0.20; ctx.fillStyle='rgb(255,90,20)'; ctx.fillRect(0,0,SW,SH); }
+    if(ph.n>0){
+        ctx.fillStyle='#fff';
+        for(var si=0;si<STARS.length;si++){
+            var st=STARS[si];
+            ctx.globalAlpha=ph.n*Math.max(0.5,Math.min(1,0.7+0.3*Math.sin(t*2.5+si*0.7)));
+            ctx.beginPath(); ctx.arc(st.x*SW,st.y*SH,st.sz,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=ph.n;
+        ctx.font='40px serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+        ctx.fillText('\uD83C\uDF19',SW*0.85,SH*0.05);
+    }
+    ctx.globalAlpha=1; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
 }
 
 // ── Main loop ──────────────────────────────────────────────────────────────────
