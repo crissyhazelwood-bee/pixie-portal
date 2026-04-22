@@ -55,7 +55,7 @@ export async function onRequestPost({ params, request, env }) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                input: { prompt, num_frames: 81, resolution: "720p", aspect_ratio: "16:9" }
+                input: { prompt, num_frames: 81, resolution: "480p", aspect_ratio: "16:9", go_fast: true }
             })
         }
     );
