@@ -357,6 +357,11 @@
             </div>
         </div>
 
+        <div class="form-section" id="accessories-section" style="display:none;">
+            <label class="form-label">ACCESSORIES</label>
+            <div id="accessories-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
+        </div>
+
         <div class="modal-btns">
             <button class="btn-save" onclick="saveFairyAndClose()">Save &#x2728;</button>
             <button class="btn-cancel" onclick="closeCustomizer()">Cancel</button>
@@ -991,7 +996,7 @@ function drawMushroomHouse(t){
 // ══════════════════════════════════════════════════════
 // ── FAIRY CUSTOMIZATION ────────────────────────────────
 // ══════════════════════════════════════════════════════
-var fairy={gender:'',skin:'',glowColor:'#ff96c8',wingStyle:'butterfly',name:''};
+var fairy={gender:'',skin:'',glowColor:'#ff96c8',wingStyle:'butterfly',name:'',accessories:[]};
 
 // Skin tone emoji modifier → actual colors (skin, hair)
 var SKIN_MAP={
@@ -1124,6 +1129,14 @@ function drawSparkleWings(cx,cy,t){
 }
 
 // ── Customizer UI handlers ─────────────────────────────────────────────────────
+var FAIRY_ACC_DEFS=[
+    {id:'fairy_necklace',     emoji:'💎', name:'Crystal Necklace'},
+    {id:'fairy_wand',         emoji:'🪄', name:'Magic Wand'},
+    {id:'fairy_crown',        emoji:'👑', name:'Fairy Crown'},
+    {id:'fairy_wings_rainbow',emoji:'🦋', name:'Rainbow Wings'},
+    {id:'fairy_aura',         emoji:'✨', name:'Star Aura'},
+];
+
 function openCustomizer(){
     document.getElementById('fairy-name-input').value=fairy.name||'';
     // sync gender
@@ -1142,7 +1155,35 @@ function openCustomizer(){
     document.querySelectorAll('#glow-row .sw').forEach(function(el){
         el.classList.toggle('on',el.getAttribute('data-glow')===fairy.glowColor);
     });
+    // accessories — show only owned items
+    var owned=portalData&&portalData.plot?portalData.plot:[];
+    var ownedAcc=FAIRY_ACC_DEFS.filter(function(a){return owned.indexOf(a.id)>=0;});
+    var sec=document.getElementById('accessories-section');
+    var row=document.getElementById('accessories-row');
+    row.innerHTML='';
+    if(ownedAcc.length>0){
+        sec.style.display='';
+        ownedAcc.forEach(function(a){
+            var on=(fairy.accessories||[]).indexOf(a.id)>=0;
+            var btn=document.createElement('button');
+            btn.className='wing-opt'+(on?' on':'');
+            btn.setAttribute('data-acc',a.id);
+            btn.innerHTML=a.emoji+' '+a.name;
+            btn.onclick=function(){ toggleAccessory(a.id,btn); };
+            row.appendChild(btn);
+        });
+    } else {
+        sec.style.display='';
+        row.innerHTML='<div style="color:#504060;font-size:11px;padding:4px 0;">Visit the Shop \u2728 Fairy tab to unlock accessories</div>';
+    }
     document.getElementById('cust-modal').classList.add('open');
+}
+
+function toggleAccessory(id, btn){
+    if(!fairy.accessories) fairy.accessories=[];
+    var idx=fairy.accessories.indexOf(id);
+    if(idx>=0){ fairy.accessories.splice(idx,1); btn.classList.remove('on'); }
+    else{ fairy.accessories.push(id); btn.classList.add('on'); }
 }
 function closeCustomizer(){
     document.getElementById('cust-modal').classList.remove('open');
@@ -2719,7 +2760,7 @@ function drawPlayer(t){
     ctx.restore();
 
     // ── Fairy accessories ─────────────────────────────────
-    var fairyOwned = portalData && portalData.plot ? portalData.plot : [];
+    var fairyOwned = fairy.accessories || [];
 
     // Necklace — gem chain at neck
     if(fairyOwned.indexOf('fairy_necklace')>=0){
