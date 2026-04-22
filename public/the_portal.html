@@ -496,18 +496,19 @@ function buildMap(){
     for(r=14;r<pR;r++) if(m[r][43]===TG||m[r][43]===TK) m[r][43]=TD;
     for(c=pC+1;c<=43;c++) if(m[pR-3][c]===TG) m[pR-3][c]=TD;
 
-    // Garden plot — dedicated herb garden area
-    for(r=28;r<=32;r++) for(c=14;c<=18;c++){
-        if(m[r][c]===TG||m[r][c]===TK||m[r][c]===TF) m[r][c]=TD;
+    // Fairy Cottage — mushroom house footprint (impassable)
+    for(r=23;r<=25;r++) for(c=22;c<=24;c++) m[r][c]=TR;
+
+    // Herb garden in front of the cottage
+    for(r=26;r<=29;r++) for(c=22;c<=25;c++) m[r][c]=TD;
+    // Stone border sides of garden
+    for(r=26;r<=29;r++){
+        if(m[r][21]===TG||m[r][21]===TK) m[r][21]=TS;
+        if(m[r][26]===TG||m[r][26]===TK||m[r][26]===TF) m[r][26]=TS;
     }
-    // Stone border around garden plot
-    for(r=27;r<=33;r++){
-        if(m[r][13]===TG||m[r][13]===TK) m[r][13]=TS;
-        if(m[r][19]===TG||m[r][19]===TK) m[r][19]=TS;
-    }
-    for(c=13;c<=19;c++){
-        if(m[27][c]===TG||m[27][c]===TK) m[27][c]=TS;
-        if(m[33][c]===TG||m[33][c]===TK) m[33][c]=TS;
+    // Stone border bottom of garden
+    for(c=21;c<=26;c++){
+        if(m[30][c]===TG||m[30][c]===TK||m[30][c]===TF) m[30][c]=TS;
     }
 
     [[10,12],[15,47],[28,10],[33,42],[36,26],[8,28]].forEach(function(cl){
@@ -763,6 +764,211 @@ function drawTile(type,sx,sy,t){
         case TR: tileTree(sx,sy); break;
         case TO: tileRock(sx,sy); break;
     }
+}
+
+// ── Mushroom Cottage ───────────────────────────────────────────────────────────
+function drawMushroomHouse(t){
+    // Anchor at col 23, row 24 (upper-back of the stem)
+    var tp=tileScreenPos(23,24);
+    var bx=tp.sx+HW;   // visual center x
+    var by=tp.sy+HH;   // visual base y (tile center)
+    var U=TW_px;       // size unit = one full tile width
+
+    // Proportions
+    var sW=U*0.48;     // stem half-width
+    var sH=U*1.08;     // stem height
+    var stemTopY=by-sH;
+    var capBaseY=stemTopY+U*0.16;
+    var capTopY=capBaseY-U*0.96;
+    var cW=U*1.58;     // cap half-width at widest
+
+    ctx.save();
+
+    // ── Stem ────────────────────────────────────────────
+    var sG=ctx.createLinearGradient(bx-sW,0,bx+sW,0);
+    sG.addColorStop(0,'#ceb4ee');
+    sG.addColorStop(0.28,'#f2e4ff');
+    sG.addColorStop(0.72,'#e0ccf6');
+    sG.addColorStop(1,'#b498d8');
+    ctx.fillStyle=sG;
+    ctx.beginPath();
+    ctx.moveTo(bx-sW,by+U*0.05);
+    ctx.lineTo(bx-sW*0.65,stemTopY);
+    ctx.lineTo(bx+sW*0.65,stemTopY);
+    ctx.lineTo(bx+sW,by+U*0.05);
+    ctx.closePath();
+    ctx.fill();
+    // Shadow side
+    ctx.fillStyle='rgba(70,0,120,0.13)';
+    ctx.beginPath();
+    ctx.moveTo(bx+sW*0.14,by+U*0.05);
+    ctx.lineTo(bx+sW*0.65,stemTopY);
+    ctx.lineTo(bx+sW,by+U*0.05);
+    ctx.closePath();
+    ctx.fill();
+    // Stem base shadow on ground
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.beginPath();
+    ctx.ellipse(bx+sW*0.2,by+U*0.07,sW*0.88,U*0.1,0,0,Math.PI*2);
+    ctx.fill();
+
+    // ── Arched door ─────────────────────────────────────
+    var dW=sW*0.52, dH=sH*0.56;
+    ctx.fillStyle='#5a1a7e';
+    ctx.beginPath();
+    ctx.moveTo(bx-dW,by+U*0.05);
+    ctx.lineTo(bx-dW,by-dH+dW);
+    ctx.arc(bx,by-dH+dW,dW,Math.PI,0);
+    ctx.lineTo(bx+dW,by+U*0.05);
+    ctx.closePath();
+    ctx.fill();
+    // Door glow frame
+    ctx.strokeStyle='#c060f0'; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    ctx.moveTo(bx-dW,by+U*0.05);
+    ctx.lineTo(bx-dW,by-dH+dW);
+    ctx.arc(bx,by-dH+dW,dW,Math.PI,0);
+    ctx.lineTo(bx+dW,by+U*0.05);
+    ctx.stroke();
+    // Door interior sheen
+    ctx.globalAlpha=0.25+Math.sin(t*1.9)*0.1;
+    ctx.fillStyle='#c880ff';
+    ctx.beginPath();
+    ctx.moveTo(bx-dW+2.5,by+U*0.05);
+    ctx.lineTo(bx-dW+2.5,by-dH+dW+2.5);
+    ctx.arc(bx,by-dH+dW+2.5,dW-2.5,Math.PI,0);
+    ctx.lineTo(bx+dW-2.5,by+U*0.05);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha=1;
+    // Door knob
+    ctx.fillStyle='#ffd700';
+    ctx.shadowColor='#ffd700'; ctx.shadowBlur=7;
+    ctx.beginPath(); ctx.arc(bx+dW*0.4,by-dH*0.28,3.2,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+
+    // ── Round windows ────────────────────────────────────
+    var wR=sW*0.22, winY=by-sH*0.71;
+    [bx-sW*0.62, bx+sW*0.62].forEach(function(wx){
+        ctx.fillStyle='#a8e8ff';
+        ctx.shadowColor='#88ccff'; ctx.shadowBlur=8;
+        ctx.beginPath(); ctx.arc(wx,winY,wR,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.strokeStyle='#c8a8ee'; ctx.lineWidth=1.8;
+        ctx.beginPath(); ctx.arc(wx,winY,wR,0,Math.PI*2); ctx.stroke();
+        // Window cross panes
+        ctx.strokeStyle='#c8a8ee'; ctx.lineWidth=0.9;
+        ctx.beginPath();
+        ctx.moveTo(wx-wR,winY); ctx.lineTo(wx+wR,winY);
+        ctx.moveTo(wx,winY-wR); ctx.lineTo(wx,winY+wR);
+        ctx.stroke();
+        // Candlelight flicker
+        ctx.globalAlpha=0.22+Math.sin(t*2.4+wx*0.05)*0.18;
+        ctx.fillStyle='#ffffc0';
+        ctx.beginPath(); ctx.arc(wx,winY,wR*0.52,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    });
+
+    // ── Mushroom cap ─────────────────────────────────────
+    ctx.save();
+    ctx.shadowColor='#ff44cc';
+    ctx.shadowBlur=26+Math.sin(t*1.6)*8;
+
+    // Main cap
+    var capG=ctx.createRadialGradient(bx-cW*0.2,capTopY+U*0.28,0,bx,capBaseY,cW*1.32);
+    capG.addColorStop(0,'#ff99dd');
+    capG.addColorStop(0.2,'#ff55bb');
+    capG.addColorStop(0.5,'#dd22cc');
+    capG.addColorStop(0.8,'#9900bb');
+    capG.addColorStop(1,'#660088');
+    ctx.fillStyle=capG;
+    ctx.beginPath();
+    ctx.moveTo(bx-cW*0.1,capBaseY+U*0.04);
+    ctx.bezierCurveTo(bx-cW*1.18,capBaseY+U*0.06,bx-cW*0.9,capTopY+U*0.08,bx,capTopY);
+    ctx.bezierCurveTo(bx+cW*0.9,capTopY+U*0.08,bx+cW*1.18,capBaseY+U*0.06,bx+cW*0.1,capBaseY+U*0.04);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur=0;
+
+    // Cap underside / rim
+    var rimG=ctx.createLinearGradient(bx-cW,capBaseY,bx+cW,capBaseY);
+    rimG.addColorStop(0,'#550077'); rimG.addColorStop(0.5,'#aa44cc'); rimG.addColorStop(1,'#550077');
+    ctx.fillStyle=rimG;
+    ctx.beginPath();
+    ctx.moveTo(bx-cW*0.1,capBaseY+U*0.04);
+    ctx.bezierCurveTo(bx-cW*0.55,capBaseY+U*0.06,bx-cW*1.1,capBaseY+U*0.12,bx-cW,capBaseY+U*0.09);
+    ctx.bezierCurveTo(bx-cW*0.78,capBaseY+U*0.2,bx-cW*0.36,capBaseY+U*0.16,bx,capBaseY+U*0.14);
+    ctx.bezierCurveTo(bx+cW*0.36,capBaseY+U*0.16,bx+cW*0.78,capBaseY+U*0.2,bx+cW,capBaseY+U*0.09);
+    ctx.bezierCurveTo(bx+cW*1.1,capBaseY+U*0.12,bx+cW*0.55,capBaseY+U*0.06,bx+cW*0.1,capBaseY+U*0.04);
+    ctx.closePath();
+    ctx.fill();
+
+    // Wavy frill
+    var fCnt=14;
+    ctx.fillStyle='#dd33bb';
+    ctx.beginPath();
+    ctx.moveTo(bx-cW,capBaseY+U*0.09);
+    for(var fi=0;fi<=fCnt;fi++){
+        var fx2=bx-cW+(cW*2)*fi/fCnt;
+        var fw=Math.sin(fi*Math.PI*1.4+t*2.8)*U*0.05+U*0.13;
+        ctx.lineTo(fx2,capBaseY+fw);
+    }
+    ctx.lineTo(bx+cW,capBaseY+U*0.09);
+    ctx.closePath();
+    ctx.fill();
+
+    // Highlight sheen on cap
+    ctx.globalAlpha=0.16+Math.sin(t*2.4)*0.06;
+    var shG=ctx.createLinearGradient(bx-cW*0.5,capTopY,bx+cW*0.1,capTopY+U*0.52);
+    shG.addColorStop(0,'#ffffff'); shG.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=shG;
+    ctx.beginPath(); ctx.ellipse(bx-cW*0.2,capTopY+U*0.32,cW*0.54,U*0.3,-0.26,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+
+    // White polka dots
+    var dots=[
+        {x:-cW*0.34,y:capTopY+U*0.32,r:U*0.116},
+        {x: cW*0.27,y:capTopY+U*0.28,r:U*0.094},
+        {x:-cW*0.08,y:capTopY+U*0.52,r:U*0.088},
+        {x: cW*0.54,y:capTopY+U*0.50,r:U*0.086},
+        {x:-cW*0.58,y:capTopY+U*0.53,r:U*0.077},
+        {x: cW*0.09,y:capTopY+U*0.70,r:U*0.074},
+        {x:-cW*0.36,y:capTopY+U*0.73,r:U*0.064},
+    ];
+    ctx.fillStyle='rgba(255,255,255,0.93)';
+    dots.forEach(function(d){ ctx.beginPath(); ctx.arc(bx+d.x,d.y,d.r,0,Math.PI*2); ctx.fill(); });
+    ctx.fillStyle='rgba(255,255,255,0.42)';
+    dots.forEach(function(d){ ctx.beginPath(); ctx.arc(bx+d.x-d.r*0.3,d.y-d.r*0.3,d.r*0.42,0,Math.PI*2); ctx.fill(); });
+
+    // Crown sparkle
+    var cPulse=0.48+Math.sin(t*3.1)*0.42;
+    ctx.globalAlpha=cPulse;
+    ctx.shadowColor='#ffbbff'; ctx.shadowBlur=24;
+    ctx.fillStyle='#fff0ff';
+    ctx.beginPath(); ctx.arc(bx,capTopY-U*0.06,U*0.086,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=cPulse*0.45;
+    ctx.beginPath(); ctx.arc(bx,capTopY-U*0.06,U*0.18,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.restore();
+
+    // ── Chimney ──────────────────────────────────────────
+    var chiX=bx+sW*0.28, chiBase=stemTopY-U*0.04;
+    ctx.fillStyle='#d4a8f0';
+    ctx.fillRect(chiX-U*0.055,chiBase-U*0.22,U*0.11,U*0.22);
+    ctx.fillStyle='#b880e8';
+    ctx.fillRect(chiX-U*0.09,chiBase-U*0.22,U*0.18,U*0.036);
+    // Smoke puffs
+    for(var si=0;si<3;si++){
+        var spx2=chiX+Math.sin(t*1.7+si*2.0)*U*0.07;
+        var spy2=chiBase-U*0.3-si*U*0.13;
+        ctx.globalAlpha=Math.max(0,(0.38-si*0.1)*(0.5+Math.sin(t+si*1.4)*0.32));
+        ctx.fillStyle='#f0d8ff';
+        ctx.shadowColor='#cc88ff'; ctx.shadowBlur=5;
+        ctx.beginPath(); ctx.arc(spx2,spy2,U*(0.065+si*0.026),0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+
+    ctx.restore();
 }
 
 // ══════════════════════════════════════════════════════
@@ -1400,7 +1606,7 @@ function drawAmbientGlow(t){
 var ZONES=[
     {r1:4,c1:36,r2:16,c2:52,name:'\uD83C\uDF0A The Lake'},
     {r1:17,c1:23,r2:23,c2:31,name:'\u2728 The Fairy Ring'},
-    {r1:26,c1:12,r2:34,c2:21,name:'\uD83C\uDF3F The Herb Garden'},
+    {r1:22,c1:20,r2:31,c2:27,name:'\uD83C\uDF44 Fairy Cottage & Garden'},
     {r1:0,c1:0,r2:MR,c2:MC,name:'\uD83C\uDF3F The Meadow'}
 ];
 var curZone='';
@@ -1496,6 +1702,7 @@ function draw(t){
             drawTile(map[dr][dc],sp.sx,sp.sy,t);
             drawPlaced(dc,dr,sp.sx,sp.sy);
         }
+        if(depth===49) drawMushroomHouse(t);
         if(!plDrawn&&depth>=plDepth){ drawPlayer(t); plDrawn=true; }
     }
     if(!plDrawn) drawPlayer(t);
