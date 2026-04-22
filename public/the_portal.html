@@ -163,6 +163,78 @@
             font-size:28px; transform:translate(-50%,-100%); opacity:0.75;
             filter:drop-shadow(0 0 8px rgba(255,150,200,0.8));
         }
+
+        /* Garden UI */
+        .ui-btn-garden { color:#96ffdc; border:1px solid rgba(150,255,220,0.3); }
+        .ui-btn-garden:hover { border-color:#96ffdc; background:rgba(150,255,220,0.1); }
+        .ui-btn-garden.active { background:#96ffdc; color:#060410; border-color:#96ffdc; }
+
+        .stat-pill {
+            padding:3px 9px; border-radius:12px; font-size:10px; font-weight:700;
+            border:1px solid; letter-spacing:0.3px;
+        }
+        .stat-pts { color:#ffd700; border-color:rgba(255,215,0,0.3); }
+        .stat-lvl { color:#96ffdc; border-color:rgba(150,255,220,0.3); }
+
+        #garden-panel {
+            position:fixed; bottom:0; left:0; right:0; z-index:30;
+            background:rgba(6,4,22,0.97); border-top:1px solid rgba(150,255,180,0.18);
+            padding:12px 16px 26px; transform:translateY(100%);
+            transition:transform 0.32s cubic-bezier(.4,0,.2,1);
+        }
+        #garden-panel.open { transform:translateY(0); }
+
+        .herb-slots { display:flex; gap:10px; flex-wrap:wrap; }
+        .herb-slot {
+            width:70px; height:86px; border-radius:14px;
+            border:1px solid rgba(150,255,180,0.18); background:rgba(10,20,15,0.7);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            cursor:pointer; transition:all 0.18s; gap:3px;
+        }
+        .herb-slot:hover { border-color:#96ffdc; background:rgba(150,255,220,0.08); }
+        .herb-slot.has-plant { border-color:rgba(150,255,180,0.32); }
+        .herb-slot.locked { opacity:0.28; cursor:not-allowed; pointer-events:none; }
+        .herb-slot .slot-emoji { font-size:22px; }
+        .herb-slot .slot-name { font-size:8px; color:#70a880; text-align:center; line-height:1.2; }
+        .herb-slot .slot-bar {
+            width:44px; height:3px; border-radius:2px;
+            background:rgba(150,255,180,0.12); overflow:hidden;
+        }
+        .herb-slot .slot-bar-fill { height:100%; border-radius:2px; background:#96ffdc; }
+        .herb-slot .slot-ready { color:#ffd700; font-size:8px; font-weight:700; }
+        .herb-slot .slot-empty { font-size:11px; color:#2a4035; }
+
+        #plant-picker {
+            display:none; margin-top:10px; padding:10px 12px; border-radius:14px;
+            background:rgba(6,4,22,0.98); border:1px solid rgba(150,255,180,0.18);
+        }
+        #plant-picker.open { display:block; }
+        .herb-options { display:flex; gap:7px; flex-wrap:wrap; }
+        .herb-opt {
+            padding:5px 10px; border-radius:11px; cursor:pointer; font-size:11px;
+            border:1px solid rgba(150,255,180,0.18); color:#70a880; background:rgba(10,20,15,0.7);
+            transition:all 0.15s; display:flex; align-items:center; gap:4px;
+            font-family:'Quicksand',sans-serif;
+        }
+        .herb-opt:hover { border-color:#96ffdc; color:#96ffdc; }
+        .herb-opt.locked-herb { opacity:0.3; cursor:not-allowed; pointer-events:none; }
+
+        #daily-modal .daily-center { text-align:center; padding:8px 0 12px; }
+        .daily-big { font-size:56px; margin:8px 0; }
+        .daily-pts { font-size:30px; font-weight:700; color:#ffd700; margin:6px 0; }
+        .daily-streak { color:#b496ff; font-size:13px; }
+        .daily-bonus { color:#96ffdc; font-size:12px; margin-top:4px; }
+
+        #game-toast {
+            display:none; position:fixed; top:68px; left:50%; transform:translateX(-50%);
+            z-index:300; background:linear-gradient(135deg,#1a1030,#0d0820);
+            border:1px solid rgba(150,255,180,0.38); border-radius:18px;
+            padding:10px 22px; text-align:center; white-space:nowrap; pointer-events:none;
+        }
+        #game-toast.show { display:block; animation:toastPop 0.3s ease; }
+        @keyframes toastPop { from{opacity:0;transform:translateX(-50%) translateY(-10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+        #game-toast .t1 { color:#96ffdc; font-size:13px; font-weight:700; }
+        #game-toast .t2 { color:#b496ff; font-size:10px; margin-top:2px; }
     </style>
 </head>
 <body>
@@ -177,9 +249,13 @@
 
 <div id="ui">
     <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
-    <div id="zone-name">The Meadow</div>
+    <div style="text-align:center;">
+        <div id="zone-name">The Meadow</div>
+        <div id="portal-stats" style="display:none;gap:5px;justify-content:center;margin-top:3px;"></div>
+    </div>
     <div class="ui-btn-row">
         <button class="ui-btn ui-btn-fairy" onclick="openCustomizer()">&#x2728; Fairy</button>
+        <button id="garden-btn" class="ui-btn ui-btn-garden" onclick="toggleGarden()">&#x1F33F; Garden</button>
         <button id="build-btn" class="ui-btn ui-btn-build" onclick="toggleBuild()">&#x1F528; Build</button>
     </div>
 </div>
@@ -266,6 +342,40 @@
     <div class="palette" id="palette-grid"></div>
     <div class="bp-hint" id="build-hint">Select an item then click the world to place it &mdash; right-click to erase</div>
 </div>
+
+<!-- ════════════ GARDEN PANEL ════════════ -->
+<div id="garden-panel">
+    <div class="bp-header">
+        <span style="color:#96ffdc;font-size:13px;font-weight:700;">&#x1F33F; Herbal Garden</span>
+        <span id="garden-pts-hint" style="color:#504060;font-size:11px;margin-left:8px;"></span>
+        <button onclick="toggleGarden()" style="margin-left:auto;background:transparent;border:none;color:#504060;cursor:pointer;font-size:14px;padding:2px 6px;">&#x2715;</button>
+    </div>
+    <div class="herb-slots" id="herb-slots"></div>
+    <div id="plant-picker">
+        <div style="color:#70a880;font-size:10px;font-weight:700;margin-bottom:8px;letter-spacing:0.8px;">CHOOSE AN HERB TO PLANT</div>
+        <div class="herb-options" id="herb-options"></div>
+    </div>
+    <div class="bp-hint">Tap empty slot to plant &mdash; tap growing plant to water (+3 pts) &mdash; tap ready plant to harvest &mdash; right-click to remove</div>
+</div>
+
+<!-- ════════════ DAILY REWARD MODAL ════════════ -->
+<div id="daily-modal" class="modal-bg">
+    <div class="modal-card">
+        <h3>&#x1F31F; Daily Visit</h3>
+        <div class="daily-center">
+            <div class="daily-big">&#x2728;</div>
+            <div class="daily-pts" id="daily-pts-display">+20</div>
+            <div class="daily-streak" id="daily-streak-display">&#x1F525; Day 1 streak</div>
+            <div class="daily-bonus" id="daily-bonus-display" style="display:none;"></div>
+        </div>
+        <div class="modal-btns">
+            <button class="btn-save" onclick="closeDailyModal()">Collect &#x2728;</button>
+        </div>
+    </div>
+</div>
+
+<!-- Game toast -->
+<div id="game-toast"><div class="t1" id="toast-t1"></div><div class="t2" id="toast-t2"></div></div>
 
 <!-- Bug report -->
 <div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;">
@@ -823,6 +933,7 @@ function toggleBuild(){
     if(buildMode){
         btn.classList.add('active');
         panel.classList.add('open');
+        if(gardenOpen) toggleGarden();
         renderPalette();
     } else {
         btn.classList.remove('active');
@@ -1203,9 +1314,274 @@ function enterPortal(){
     loadPlaced();
     checkZone();
     started=true;
+    loadPortalData();
 }
 
 requestAnimationFrame(loop);
+
+// ══════════════════════════════════════════════════════
+// ── PORTAL GAME (points, garden, daily) ────────────────
+// ══════════════════════════════════════════════════════
+var HERBS_G = {
+    mint:       { name:"Mint",          emoji:"🌿", hours:2,  points:10, level:1 },
+    clover:     { name:"Clover",        emoji:"🍀", hours:2,  points:8,  level:1 },
+    rosemary:   { name:"Rosemary",      emoji:"🌱", hours:3,  points:12, level:1 },
+    lavender:   { name:"Lavender",      emoji:"💜", hours:6,  points:18, level:2 },
+    chamomile:  { name:"Chamomile",     emoji:"🌼", hours:5,  points:15, level:2 },
+    moonflower: { name:"Moonflower",    emoji:"🌙", hours:10, points:28, level:4 },
+    stardust:   { name:"Stardust Fern", emoji:"✨", hours:8,  points:25, level:5 },
+    moonshroom: { name:"Moonshroom",    emoji:"🍄", hours:14, points:35, level:6 },
+};
+var LEVELS_G = [
+    { level:1, minPoints:0,    slots:3,  title:"Seedling" },
+    { level:2, minPoints:100,  slots:4,  title:"Sprout"   },
+    { level:3, minPoints:300,  slots:5,  title:"Bloom"    },
+    { level:4, minPoints:600,  slots:6,  title:"Grove"    },
+    { level:5, minPoints:1000, slots:6,  title:"Enchanted"},
+    { level:6, minPoints:1500, slots:8,  title:"Arcane"   },
+    { level:7, minPoints:2500, slots:8,  title:"Mystic"   },
+    { level:8, minPoints:4000, slots:10, title:"Legendary"},
+];
+
+var portalData = null;
+var gardenOpen = false;
+var pickerSlot = null;
+var _toastTimer = null;
+
+function getGLevel(pts) {
+    return [...LEVELS_G].reverse().find(function(l){ return pts >= l.minPoints; }) || LEVELS_G[0];
+}
+
+async function loadPortalData() {
+    try {
+        var res = await fetch('/api/portal/me');
+        if (!res.ok) return;
+        portalData = await res.json();
+        updatePortalHUD();
+        if (portalData.dailyAvailable) await claimDaily();
+    } catch(e) {}
+}
+
+async function claimDaily() {
+    try {
+        var res = await fetch('/api/portal/daily', { method:'POST' });
+        if (!res.ok) return;
+        var data = await res.json();
+        if (!data.success) return;
+        var prevLevel = portalData ? getGLevel(portalData.points).level : 1;
+        portalData.points = data.totalPoints;
+        portalData.streak = data.streak;
+        portalData.dailyAvailable = false;
+        updatePortalHUD();
+        showDailyModal(data);
+        var newLevel = getGLevel(data.totalPoints).level;
+        if (newLevel > prevLevel) setTimeout(function(){ showLevelUp(newLevel); }, 2000);
+    } catch(e) {}
+}
+
+function showDailyModal(data) {
+    document.getElementById('daily-pts-display').textContent = '+' + data.pointsEarned;
+    document.getElementById('daily-streak-display').textContent = '\uD83D\uDD25 Day ' + data.streak + ' streak';
+    var bonusEl = document.getElementById('daily-bonus-display');
+    if (data.bonus > 0) {
+        bonusEl.textContent = '\u2728 Streak bonus! +' + data.bonus + ' extra pts';
+        bonusEl.style.display = 'block';
+    } else {
+        bonusEl.style.display = 'none';
+    }
+    document.getElementById('daily-modal').classList.add('open');
+}
+
+function closeDailyModal() {
+    document.getElementById('daily-modal').classList.remove('open');
+}
+
+function updatePortalHUD() {
+    if (!portalData) return;
+    var ld = getGLevel(portalData.points);
+    var el = document.getElementById('portal-stats');
+    el.innerHTML = '<span class="stat-pill stat-pts">\u2756 ' + portalData.points + ' pts</span>' +
+                   '<span class="stat-pill stat-lvl">Lv.' + ld.level + ' ' + ld.title + '</span>';
+    el.style.display = 'flex';
+    var hint = document.getElementById('garden-pts-hint');
+    if (hint) {
+        var next = LEVELS_G.find(function(l){ return l.minPoints > portalData.points; });
+        hint.textContent = next ? (next.minPoints - portalData.points) + ' pts to Lv.' + next.level : 'Max level!';
+    }
+}
+
+function showGameToast(line1, line2, ms) {
+    document.getElementById('toast-t1').textContent = line1;
+    document.getElementById('toast-t2').textContent = line2 || '';
+    var el = document.getElementById('game-toast');
+    el.classList.remove('show');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, ms || 2200);
+}
+
+function showLevelUp(level) {
+    var ld = LEVELS_G.find(function(l){ return l.level === level; });
+    showGameToast(
+        '\uD83C\uDF3F Level ' + level + ' \u2014 ' + (ld ? ld.title : ''),
+        ld ? ld.slots + ' garden slots unlocked' : '',
+        3500
+    );
+}
+
+function toggleGarden() {
+    gardenOpen = !gardenOpen;
+    var btn = document.getElementById('garden-btn');
+    var panel = document.getElementById('garden-panel');
+    if (gardenOpen) {
+        btn.classList.add('active');
+        panel.classList.add('open');
+        if (buildMode) toggleBuild();
+        renderGardenSlots();
+    } else {
+        btn.classList.remove('active');
+        panel.classList.remove('open');
+        closePlantPicker();
+    }
+}
+
+function renderGardenSlots() {
+    if (!portalData) { return; }
+    var container = document.getElementById('herb-slots');
+    container.innerHTML = '';
+    var ld = getGLevel(portalData.points);
+    var showSlots = Math.min(LEVELS_G[LEVELS_G.length-1].slots, ld.slots + 2);
+
+    for (var i = 0; i < showSlots; i++) {
+        var div = document.createElement('div');
+        div.className = 'herb-slot';
+        var locked = i >= ld.slots;
+        if (locked) {
+            div.classList.add('locked');
+            div.innerHTML = '<div class="slot-emoji">\uD83D\uDD12</div><div class="slot-name">Slot ' + (i+1) + '</div>';
+            container.appendChild(div);
+            continue;
+        }
+        var plant = portalData.garden ? portalData.garden[String(i)] : null;
+        if (plant) {
+            div.classList.add('has-plant');
+            var herb = HERBS_G[plant.herb];
+            if (!herb) { container.appendChild(div); continue; }
+            var isReady = plant.stage === 2;
+            var progPct = Math.round((plant.progress || 0) * 100);
+            var displayEmoji = plant.stage === 0 ? '\uD83C\uDF31' : herb.emoji;
+            div.innerHTML =
+                '<div class="slot-emoji" style="opacity:' + (plant.stage === 0 ? '0.55' : '1') + '">' + displayEmoji + '</div>' +
+                '<div class="slot-name">' + herb.name + '</div>' +
+                '<div class="slot-bar"><div class="slot-bar-fill" style="width:' + progPct + '%"></div></div>' +
+                (isReady ? '<div class="slot-ready">Harvest!</div>' : '<div style="font-size:8px;color:#3a5040;">' + progPct + '%</div>');
+            (function(si, ready) {
+                div.onclick = function(){ ready ? harvestHerb(si) : waterHerb(si); };
+                div.oncontextmenu = function(e){ e.preventDefault(); removeHerb(si); };
+            })(i, isReady);
+        } else {
+            div.innerHTML = '<div class="slot-empty">+</div><div class="slot-name">Plant here</div>';
+            (function(si) { div.onclick = function(){ openPlantPicker(si); }; })(i);
+        }
+        container.appendChild(div);
+    }
+}
+
+function openPlantPicker(slot) {
+    pickerSlot = slot;
+    var opts = document.getElementById('herb-options');
+    opts.innerHTML = '';
+    var ld = getGLevel(portalData.points);
+    Object.keys(HERBS_G).forEach(function(key) {
+        var h = HERBS_G[key];
+        var locked = h.level > ld.level;
+        var div = document.createElement('div');
+        div.className = 'herb-opt' + (locked ? ' locked-herb' : '');
+        div.innerHTML = h.emoji + ' ' + h.name +
+            '<span style="color:#2a4030;font-size:9px;margin-left:3px;">(' + h.hours + 'h \u00b7 +' + h.points + 'pts' + (locked ? ' \u00b7 Lv.' + h.level : '') + ')</span>';
+        if (!locked) {
+            (function(k){ div.onclick = function(){ plantHerb(pickerSlot, k); }; })(key);
+        }
+        opts.appendChild(div);
+    });
+    document.getElementById('plant-picker').classList.add('open');
+}
+
+function closePlantPicker() {
+    pickerSlot = null;
+    document.getElementById('plant-picker').classList.remove('open');
+}
+
+async function gardenPost(body) {
+    try {
+        var res = await fetch('/api/portal/garden', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        return await res.json();
+    } catch(e) { return null; }
+}
+
+async function plantHerb(slot, herb) {
+    var data = await gardenPost({ action:'plant', slot:slot, herb:herb });
+    if (data && data.success) {
+        portalData.garden = data.garden;
+        closePlantPicker();
+        renderGardenSlots();
+    } else if (data && data.error) {
+        showGameToast(data.error, '', 2000);
+    }
+}
+
+async function waterHerb(slot) {
+    var prevPts = portalData.points;
+    var data = await gardenPost({ action:'water', slot:slot });
+    if (!data) return;
+    if (data.success) {
+        portalData.garden = data.garden;
+        if (data.pointsEarned > 0) {
+            portalData.points += data.pointsEarned;
+            var prevLv = getGLevel(prevPts).level;
+            updatePortalHUD();
+            var newLv = getGLevel(portalData.points).level;
+            if (newLv > prevLv) showLevelUp(newLv); else showGameToast('+' + data.pointsEarned + ' pts \uD83D\uDCA7');
+        } else {
+            showGameToast('Already watered recently', '', 1800);
+        }
+        renderGardenSlots();
+    }
+}
+
+async function harvestHerb(slot) {
+    var prevPts = portalData.points;
+    var data = await gardenPost({ action:'harvest', slot:slot });
+    if (!data) return;
+    if (data.success) {
+        portalData.garden = data.garden;
+        portalData.points += data.pointsEarned;
+        var prevLv = getGLevel(prevPts).level;
+        updatePortalHUD();
+        var newLv = getGLevel(portalData.points).level;
+        if (newLv > prevLv) showLevelUp(newLv); else showGameToast('+' + data.pointsEarned + ' pts \u2728');
+        renderGardenSlots();
+    } else if (data && data.error) {
+        showGameToast(data.error, '', 2000);
+    }
+}
+
+async function removeHerb(slot) {
+    var data = await gardenPost({ action:'remove', slot:slot });
+    if (data && data.success) {
+        portalData.garden = data.garden;
+        renderGardenSlots();
+    }
+}
+
+document.getElementById('daily-modal').addEventListener('click', function(e){
+    if (e.target === this) closeDailyModal();
+});
 </script>
 </body>
 </html>
