@@ -1,5 +1,32 @@
 import { getSessionUserId } from "../../_utils/auth.js";
 
+const LEVELS = [
+    { level: 1,  minPoints: 0     },
+    { level: 2,  minPoints: 100   },
+    { level: 3,  minPoints: 300   },
+    { level: 4,  minPoints: 600   },
+    { level: 5,  minPoints: 1000  },
+    { level: 6,  minPoints: 1500  },
+    { level: 7,  minPoints: 2500  },
+    { level: 8,  minPoints: 4000  },
+    { level: 9,  minPoints: 5500  },
+    { level: 10, minPoints: 7500  },
+    { level: 11, minPoints: 10000 },
+    { level: 12, minPoints: 13500 },
+    { level: 13, minPoints: 18000 },
+    { level: 14, minPoints: 23500 },
+    { level: 15, minPoints: 30000 },
+    { level: 16, minPoints: 39000 },
+    { level: 17, minPoints: 50000 },
+    { level: 18, minPoints: 63000 },
+    { level: 19, minPoints: 79000 },
+    { level: 20, minPoints: 98000 },
+];
+
+function getLevel(points) {
+    return [...LEVELS].reverse().find(l => points >= l.minPoints) || LEVELS[0];
+}
+
 const SHOP_ITEMS = {
     fairy_fountain:      { name: "Fairy Fountain",    cost: 300  },
     wishing_well:        { name: "Wishing Well",      cost: 600  },
@@ -29,7 +56,11 @@ const SHOP_ITEMS = {
     hair_long:           { name: "Long Waves",        cost: 400  },
     hair_braid:          { name: "Rainbow Braid",     cost: 450  },
     hair_pixie:          { name: "Pixie Cut",         cost: 350  },
-    hair_updo:           { name: "Crystal Updo",      cost: 550  },
+    hair_updo:           { name: "Crystal Updo",      cost: 550   },
+    moonbloom_garden:    { name: "Moonbloom Garden",  cost: 1200,  minLevel: 5  },
+    dragons_lair:        { name: "Dragon's Lair",     cost: 5000,  minLevel: 10 },
+    stargate_shrine:     { name: "Stargate Shrine",   cost: 12000, minLevel: 15 },
+    crystal_castle:      { name: "Crystal Castle",    cost: 40000, minLevel: 20 },
 };
 
 async function getOrCreatePlayer(env, userId) {
@@ -57,6 +88,7 @@ export async function onRequestPost({ request, env }) {
     const plot = JSON.parse(player.plot || '[]');
 
     if (plot.includes(item_id)) return resp({ error: "Already owned" }, 400);
+    if (item.minLevel && getLevel(player.points).level < item.minLevel) return resp({ error: "Level too low" }, 403);
     if (player.points < item.cost) return resp({ error: "Not enough points" }, 400);
 
     plot.push(item_id);

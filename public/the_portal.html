@@ -297,6 +297,9 @@
         .shop-item .si-cost { font-size:9px; color:#806040; }
         .shop-item.owned .si-name { color:#96ffdc; }
         .shop-item.owned .si-cost { color:#2a5040; }
+        .shop-item.lvl-locked { opacity:0.55; cursor:not-allowed; }
+        .shop-item.lvl-locked:hover { transform:none; border-color:rgba(180,150,255,0.18); background:rgba(20,16,8,0.7); }
+        .shop-item.lvl-locked .si-cost { color:#6050a0; }
     </style>
 </head>
 <body>
@@ -3542,14 +3545,26 @@ var HERBS_G = {
     moonshroom: { name:"Moonshroom",    emoji:"🍄", hours:14, points:35, level:6 },
 };
 var LEVELS_G = [
-    { level:1, minPoints:0,    slots:3,  title:"Seedling" },
-    { level:2, minPoints:100,  slots:4,  title:"Sprout"   },
-    { level:3, minPoints:300,  slots:5,  title:"Bloom"    },
-    { level:4, minPoints:600,  slots:6,  title:"Grove"    },
-    { level:5, minPoints:1000, slots:6,  title:"Enchanted"},
-    { level:6, minPoints:1500, slots:8,  title:"Arcane"   },
-    { level:7, minPoints:2500, slots:8,  title:"Mystic"   },
-    { level:8, minPoints:4000, slots:10, title:"Legendary"},
+    { level:1,  minPoints:0,     slots:3,  title:"Seedling"    },
+    { level:2,  minPoints:100,   slots:4,  title:"Sprout"      },
+    { level:3,  minPoints:300,   slots:5,  title:"Bloom"       },
+    { level:4,  minPoints:600,   slots:6,  title:"Grove"       },
+    { level:5,  minPoints:1000,  slots:6,  title:"Enchanted"   },
+    { level:6,  minPoints:1500,  slots:8,  title:"Arcane"      },
+    { level:7,  minPoints:2500,  slots:8,  title:"Mystic"      },
+    { level:8,  minPoints:4000,  slots:10, title:"Legendary"   },
+    { level:9,  minPoints:5500,  slots:10, title:"Ethereal"    },
+    { level:10, minPoints:7500,  slots:12, title:"Transcendent"},
+    { level:11, minPoints:10000, slots:12, title:"Ancient"     },
+    { level:12, minPoints:13500, slots:12, title:"Radiant"     },
+    { level:13, minPoints:18000, slots:12, title:"Celestial"   },
+    { level:14, minPoints:23500, slots:14, title:"Astral"      },
+    { level:15, minPoints:30000, slots:14, title:"Mythical"    },
+    { level:16, minPoints:39000, slots:14, title:"Primordial"  },
+    { level:17, minPoints:50000, slots:16, title:"Cosmic"      },
+    { level:18, minPoints:63000, slots:16, title:"Divine"      },
+    { level:19, minPoints:79000, slots:16, title:"Infinite"    },
+    { level:20, minPoints:98000, slots:16, title:"Eternal"     },
 ];
 
 var portalData = null;
@@ -3945,6 +3960,10 @@ var SHOP_ITEMS = [
     { id:'hair_braid',          emoji:'🌈', name:'Rainbow Braid',     cost:450,  desc:'Colorful side braid',            type:'fairy' },
     { id:'hair_pixie',          emoji:'✂️', name:'Pixie Cut',         cost:350,  desc:'Short spiky fairy cut',          type:'fairy' },
     { id:'hair_updo',           emoji:'💎', name:'Crystal Updo',      cost:550,  desc:'Elegant updo with gem pin',      type:'fairy' },
+    { id:'moonbloom_garden',    emoji:'🌺', name:'Moonbloom Garden',  cost:1200, desc:'Blooms only by moonlight',       type:'world', minLevel:5  },
+    { id:'dragons_lair',        emoji:'🐉', name:"Dragon's Lair",     cost:5000, desc:'Ancient dragon nesting grounds', type:'world', minLevel:10 },
+    { id:'stargate_shrine',     emoji:'🌌', name:'Stargate Shrine',   cost:12000,desc:'A gateway to the cosmos',       type:'world', minLevel:15 },
+    { id:'crystal_castle',      emoji:'🏰', name:'Crystal Castle',    cost:40000,desc:'The pinnacle of fairy power',   type:'world', minLevel:20 },
 ];
 var shopTabActive='world';
 
@@ -3973,21 +3992,27 @@ function setShopTab(tab, el) {
 
 function renderShopItems() {
     var pts = portalData ? portalData.points : 0;
-    document.getElementById('shop-pts-row').textContent = '\u2756 You have ' + pts + ' pts';
+    var playerLevel = getGLevel(pts).level;
+    document.getElementById('shop-pts-row').textContent = '\u2756 You have ' + pts + ' pts \u00b7 Lv.' + playerLevel;
     var owned = portalData && portalData.plot ? portalData.plot : [];
     var grid = document.getElementById('shop-items-grid');
     grid.innerHTML = '';
     var filtered = SHOP_ITEMS.filter(function(item){ return item.type === shopTabActive; });
     filtered.forEach(function(item) {
         var isOwned = owned.indexOf(item.id) >= 0;
+        var isLvlLocked = item.minLevel && playerLevel < item.minLevel;
         var canAfford = pts >= item.cost;
         var div = document.createElement('div');
-        div.className = 'shop-item' + (isOwned ? ' owned' : '');
+        div.className = 'shop-item' + (isOwned ? ' owned' : isLvlLocked ? ' lvl-locked' : '');
+        var costLabel;
+        if (isOwned)       costLabel = '\u2713 Owned';
+        else if (isLvlLocked) costLabel = '\uD83D\uDD12 Reach Lv.' + item.minLevel;
+        else               costLabel = '\u2756 ' + item.cost + ' pts';
         div.innerHTML =
             '<div class="si-emoji">' + item.emoji + '</div>' +
             '<div class="si-name">' + item.name + '</div>' +
-            '<div class="si-cost">' + (isOwned ? '\u2713 Owned' : '\u2756 ' + item.cost + ' pts') + '</div>';
-        if (!isOwned) {
+            '<div class="si-cost">' + costLabel + '</div>';
+        if (!isOwned && !isLvlLocked) {
             if (canAfford) {
                 div.onclick = function(){ buyShopItem(item); };
             } else {

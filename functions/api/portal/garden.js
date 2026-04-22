@@ -12,14 +12,26 @@ const HERBS = {
 };
 
 const LEVELS = [
-    { level: 1, minPoints: 0,    slots: 3 },
-    { level: 2, minPoints: 100,  slots: 4 },
-    { level: 3, minPoints: 300,  slots: 5 },
-    { level: 4, minPoints: 600,  slots: 6 },
-    { level: 5, minPoints: 1000, slots: 6 },
-    { level: 6, minPoints: 1500, slots: 8 },
-    { level: 7, minPoints: 2500, slots: 8 },
-    { level: 8, minPoints: 4000, slots: 10 },
+    { level: 1,  minPoints: 0,     slots: 3  },
+    { level: 2,  minPoints: 100,   slots: 4  },
+    { level: 3,  minPoints: 300,   slots: 5  },
+    { level: 4,  minPoints: 600,   slots: 6  },
+    { level: 5,  minPoints: 1000,  slots: 6  },
+    { level: 6,  minPoints: 1500,  slots: 8  },
+    { level: 7,  minPoints: 2500,  slots: 8  },
+    { level: 8,  minPoints: 4000,  slots: 10 },
+    { level: 9,  minPoints: 5500,  slots: 10 },
+    { level: 10, minPoints: 7500,  slots: 12 },
+    { level: 11, minPoints: 10000, slots: 12 },
+    { level: 12, minPoints: 13500, slots: 12 },
+    { level: 13, minPoints: 18000, slots: 12 },
+    { level: 14, minPoints: 23500, slots: 14 },
+    { level: 15, minPoints: 30000, slots: 14 },
+    { level: 16, minPoints: 39000, slots: 14 },
+    { level: 17, minPoints: 50000, slots: 16 },
+    { level: 18, minPoints: 63000, slots: 16 },
+    { level: 19, minPoints: 79000, slots: 16 },
+    { level: 20, minPoints: 98000, slots: 16 },
 ];
 
 function getLevel(points) {
