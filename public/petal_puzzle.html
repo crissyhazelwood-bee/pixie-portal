@@ -231,48 +231,49 @@ function finalizeDrop(sec, ring, color){
     board[sec][ring] = color;
     queue.shift();
     fillQueue();
-    checkRingClear(ring);
+    checkSectorClear(sec);
     if(!gameOver) placing = false;
 }
 
-function checkRingClear(r){
-    for(var s = 0; s < NSEC; s++) if(board[s][r] === -1) return;
+function checkSectorClear(s){
+    // Check if all rings of this sector are filled
+    for(var r = 0; r < NRING; r++) if(board[s][r] === -1) return;
 
-    // All sectors in this ring are filled
+    // All rings in this sector are filled — check monochrome
     var mono = true;
-    var c0 = board[0][r];
-    for(var s = 0; s < NSEC; s++) if(board[s][r] !== c0){ mono = false; break; }
+    var c0 = board[s][0];
+    for(var r = 0; r < NRING; r++) if(board[s][r] !== c0){ mono = false; break; }
 
-    var pts = (NRING - r) * 40;
-    if(mono) pts *= 3;
+    var pts = mono ? 100 : 30;
     score += pts;
     ringClears++;
     if(ringClears % 5 === 0){ level++; }
 
-    // Burst sparks from ring
-    var midR = (ringInner(r) + ringOuter(r)) / 2;
-    for(var s = 0; s < NSEC; s++){
-        var midA = secAngle(s) + Math.PI / NSEC;
+    // Burst sparks from each ring of this sector
+    var midA = secAngle(s) + Math.PI / NSEC;
+    for(var r = 0; r < NRING; r++){
+        var midR = (ringInner(r) + ringOuter(r)) / 2;
         var sx2 = CX + Math.cos(midA) * midR;
         var sy2 = CY + Math.sin(midA) * midR;
-        spawnSparks(sx2, sy2, mono ? '#ffd700' : PETAL_CLRS[board[s][r]], 8);
+        spawnSparks(sx2, sy2, mono ? '#ffd700' : PETAL_CLRS[board[s][r]], 10);
     }
 
-    spawnPopup(CX, CY - BASE_R * 0.5,
-        mono ? '✨ Rainbow! +' + pts : '🌸 Clear! +' + pts,
-        mono ? '#ffd700' : '#ff96c8');
+    spawnPopup(
+        CX + Math.cos(midA) * BASE_R * 0.65,
+        CY + Math.sin(midA) * BASE_R * 0.65,
+        mono ? '✨ Rainbow! +' + pts : '🌸 +' + pts,
+        mono ? '#ffd700' : '#ff96c8'
+    );
 
-    clearAnim.push({ ring:r, elapsed:0, dur:0.55, mono:mono });
-    setTimeout(function(){ doRingClear(r); }, 350);
+    var capturedS = s;
+    clearAnim.push({ sec:capturedS, elapsed:0, dur:0.55, mono:mono });
+    setTimeout(function(){ doSectorClear(capturedS); }, 350);
 
     updateHUD();
-
-    // Check all full after clear (unlikely, but possible)
-    if(allFull()) setTimeout(triggerGameOver, 500);
 }
 
-function doRingClear(r){
-    for(var s = 0; s < NSEC; s++) board[s][r] = -1;
+function doSectorClear(s){
+    for(var r = 0; r < NRING; r++) board[s][r] = -1;
 }
 
 function triggerShake(sec){
@@ -283,7 +284,7 @@ function triggerGameOver(){
     gameOver = true;
     document.getElementById('final-score').textContent = score;
     document.getElementById('final-detail').innerHTML =
-        '🌸 Rings cleared: ' + ringClears + '<br>' +
+        '🌸 Petals cleared: ' + ringClears + '<br>' +
         '🌟 Level reached: ' + level;
     document.getElementById('game-over').classList.add('show');
     if(!savedScore){
@@ -410,17 +411,17 @@ function drawMandala(t){
 
     // Draw cells
     for(var r = NRING - 1; r >= 0; r--){
-        // Clearing animation for this ring?
-        var clearAlpha = 1;
-        var clearGlow  = false;
-        for(var ci = 0; ci < clearAnim.length; ci++){
-            if(clearAnim[ci].ring === r){
-                var cf = clearAnim[ci].elapsed / clearAnim[ci].dur;
-                clearAlpha = 1 - cf * 0.7;
-                clearGlow  = true;
-            }
-        }
         for(var s = 0; s < NSEC; s++){
+            // Clearing animation for this sector?
+            var clearAlpha = 1;
+            var clearGlow  = false;
+            for(var ci = 0; ci < clearAnim.length; ci++){
+                if(clearAnim[ci].sec === s){
+                    var cf = clearAnim[ci].elapsed / clearAnim[ci].dur;
+                    clearAlpha = 1 - cf * 0.7;
+                    clearGlow  = true;
+                }
+            }
             var col = board[s][r];
             drawCell(s, r, col, clearAlpha, clearGlow || col >= 0, t);
         }
