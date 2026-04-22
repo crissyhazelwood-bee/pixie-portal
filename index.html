@@ -1482,7 +1482,7 @@
         function entryVideoSection(e) {
             if (e.video_status === 'done' && e.video_url) {
                 const u = safeVideoUrl(e.video_url);
-                return u ? `<div class="entry-video-wrap"><video src="${u}" controls loop class="dream-video"></video></div>` : '';
+                return u ? `<div class="entry-video-wrap"><video src="${u}" controls loop autoplay muted playsinline class="dream-video"></video></div>` : '';
             }
             if (e.video_status === 'processing') {
                 return `<div id="animate-area-${e.id}" class="video-loading"><span class="video-spin">✦</span> Generating your dream video...</div>`;
@@ -1543,7 +1543,7 @@
                 if (data.status === 'done') {
                     clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id];
                     const u = safeVideoUrl(data.video_url);
-                    if (u) area.outerHTML = `<div class="entry-video-wrap"><video src="${u}" controls loop autoplay class="dream-video"></video></div>`;
+                    if (u) area.outerHTML = `<div class="entry-video-wrap"><video src="${u}" controls loop autoplay muted playsinline class="dream-video"></video></div>`;
                 } else if (data.status === 'failed') {
                     clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id];
                     area.innerHTML = '<div class="video-failed">Generation failed ✦</div>' + animateButtonHtml(id);
