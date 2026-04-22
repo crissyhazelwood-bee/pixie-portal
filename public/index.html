@@ -1490,6 +1490,7 @@
                     <option value="cartoon">🌈 Cartoon</option>
                     <option value="surreal">🌀 Surreal</option>
                     <option value="fantasy">🧚 Fantasy</option>
+                    <option value="grok">⚡ Grok HD — 2 credits</option>
                 </select>
                 <button class="btn btn-primary btn-small" onclick="animateDream(${id})">Animate Dream ✦</button>
             </div>`;
@@ -1513,7 +1514,10 @@
                 area.innerHTML = '<div class="video-loading"><span class="video-spin">✦</span> Generating your dream video...</div>';
                 startDreamPolling(id);
             } else if (data.error === 'limit_reached') {
-                area.innerHTML = '<div class="video-failed" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">You\'ve used your free animation today ✦ <button class="btn btn-primary btn-small" onclick="openModal(\'shop\')">Buy More ✦</button></div>';
+                const msg = data.need === 2
+                    ? `Grok HD needs 2 credits — you have ${data.have ?? 0} ✦`
+                    : "You've used your free animation today ✦";
+                area.innerHTML = `<div class="video-failed" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">${msg} <button class="btn btn-primary btn-small" onclick="openModal('shop')">Buy Credits ✦</button></div>`;
             } else {
                 area.innerHTML = '<div class="video-failed">Could not start generation ✦</div>' + animateButtonHtml(id);
             }

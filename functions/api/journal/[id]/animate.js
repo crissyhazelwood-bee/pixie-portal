@@ -17,22 +17,35 @@ export async function onRequestPost({ params, request, env }) {
 
     const { style = "auto", prompt_override = null } = await request.json().catch(() => ({}));
 
+    const isGrok = style === "grok";
+    const creditCost = isGrok ? 2 : 1;
+
     let useCredit = false;
 
     if (!EXEMPT_USER_IDS.includes(userId)) {
-        const since = Date.now() / 1000 - 86400;
-        const { results: dailyCheck } = await env.DB.prepare(
-            "SELECT 1 FROM journal_entries WHERE user_id = ? AND video_started_at > ? LIMIT 1"
-        ).bind(userId, since).all();
-
-        if (dailyCheck.length > 0) {
-            // Daily free already used — check purchased credits
+        if (isGrok) {
+            // Grok always costs 2 credits — no daily free
             const { results: userRes } = await env.DB.prepare(
                 "SELECT animation_credits FROM users WHERE id = ?"
             ).bind(userId).all();
             const credits = userRes[0]?.animation_credits ?? 0;
-            if (credits <= 0) return resp({ error: "limit_reached" }, 429);
+            if (credits < 2) return resp({ error: "limit_reached", need: 2, have: credits }, 429);
             useCredit = true;
+        } else {
+            const since = Date.now() / 1000 - 86400;
+            const { results: dailyCheck } = await env.DB.prepare(
+                "SELECT 1 FROM journal_entries WHERE user_id = ? AND video_started_at > ? LIMIT 1"
+            ).bind(userId, since).all();
+
+            if (dailyCheck.length > 0) {
+                // Daily free already used — check purchased credits
+                const { results: userRes } = await env.DB.prepare(
+                    "SELECT animation_credits FROM users WHERE id = ?"
+                ).bind(userId).all();
+                const credits = userRes[0]?.animation_credits ?? 0;
+                if (credits <= 0) return resp({ error: "limit_reached" }, 429);
+                useCredit = true;
+            }
         }
     }
 
@@ -46,19 +59,37 @@ export async function onRequestPost({ params, request, env }) {
     const text = prompt_override || [entry.title, entry.content].filter(Boolean).join(". ").slice(0, 350);
     const prompt = `${prefix}Cinematic animated sequence: ${text}. Dreamy glowing atmosphere, ethereal magical visuals, smooth motion.`;
 
-    const replicateRes = await fetch(
-        "https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions",
-        {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${env.REPLICATE_API_KEY}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                input: { prompt, num_frames: 81, resolution: "480p", aspect_ratio: "16:9", go_fast: true }
-            })
-        }
-    );
+    let replicateRes;
+
+    if (isGrok) {
+        replicateRes = await fetch(
+            "https://api.replicate.com/v1/models/xai/grok-imagine-video/predictions",
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${env.REPLICATE_API_KEY}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    input: { prompt, duration: 5, resolution: "720p", aspect_ratio: "16:9" }
+                })
+            }
+        );
+    } else {
+        replicateRes = await fetch(
+            "https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions",
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${env.REPLICATE_API_KEY}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    input: { prompt, num_frames: 81, resolution: "480p", aspect_ratio: "16:9", go_fast: true }
+                })
+            }
+        );
+    }
 
     const prediction = await replicateRes.json();
     if (!prediction.id) return resp({ error: "Failed to start generation" }, 500);
@@ -70,8 +101,8 @@ export async function onRequestPost({ params, request, env }) {
 
     if (useCredit) {
         await env.DB.prepare(
-            "UPDATE users SET animation_credits = animation_credits - 1 WHERE id = ?"
-        ).bind(userId).run();
+            "UPDATE users SET animation_credits = animation_credits - ? WHERE id = ?"
+        ).bind(creditCost, userId).run();
     }
 
     return resp({ status: "processing", prediction_id: prediction.id });
@@ -99,7 +130,7 @@ export async function onRequestGet({ params, request, env }) {
     const prediction = await pollRes.json();
 
     if (prediction.status === "succeeded") {
-        const videoUrl = prediction.output;
+        const videoUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
         await env.DB.prepare(
             "UPDATE journal_entries SET video_url = ?, video_status = 'done' WHERE id = ? AND user_id = ?"
         ).bind(videoUrl, params.id, userId).run();
