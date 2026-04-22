@@ -20,6 +20,16 @@ const SHOP_ITEMS = {
     fairy_crown:         { name: "Fairy Crown",       cost: 500  },
     fairy_wings_rainbow: { name: "Rainbow Wings",     cost: 700  },
     fairy_aura:          { name: "Star Aura",         cost: 1000 },
+    outfit_starlight:    { name: "Starlight Gown",    cost: 500  },
+    outfit_rose:         { name: "Rose Petal Dress",  cost: 600  },
+    outfit_moonbeam:     { name: "Moonbeam Robe",     cost: 700  },
+    outfit_nature:       { name: "Nature Sprite",     cost: 800  },
+    outfit_ember:        { name: "Ember Dress",       cost: 900  },
+    hair_buns:           { name: "Star Buns",         cost: 300  },
+    hair_long:           { name: "Long Waves",        cost: 400  },
+    hair_braid:          { name: "Rainbow Braid",     cost: 450  },
+    hair_pixie:          { name: "Pixie Cut",         cost: 350  },
+    hair_updo:           { name: "Crystal Updo",      cost: 550  },
 };
 
 async function getOrCreatePlayer(env, userId) {

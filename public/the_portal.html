@@ -401,6 +401,16 @@
             <div id="accessories-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
         </div>
 
+        <div class="form-section" id="outfit-section">
+            <label class="form-label">OUTFIT</label>
+            <div id="outfit-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
+        </div>
+
+        <div class="form-section" id="hairstyle-section">
+            <label class="form-label">HAIRSTYLE</label>
+            <div id="hairstyle-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;"></div>
+        </div>
+
         <div class="modal-btns">
             <button class="btn-save" onclick="saveFairyAndClose()">Save &#x2728;</button>
             <button class="btn-cancel" onclick="closeCustomizer()">Cancel</button>
@@ -1046,7 +1056,7 @@ function drawMushroomHouse(t){
 // ══════════════════════════════════════════════════════
 // ── FAIRY CUSTOMIZATION ────────────────────────────────
 // ══════════════════════════════════════════════════════
-var fairy={gender:'',skin:'',glowColor:'#ff96c8',wingStyle:'butterfly',name:'',accessories:[]};
+var fairy={gender:'',skin:'',glowColor:'#ff96c8',wingStyle:'butterfly',name:'',accessories:[],outfit:'',hairstyle:''};
 
 // Skin tone emoji modifier → actual colors (skin, hair)
 var SKIN_MAP={
@@ -1186,6 +1196,20 @@ var FAIRY_ACC_DEFS=[
     {id:'fairy_wings_rainbow',emoji:'🦋', name:'Rainbow Wings'},
     {id:'fairy_aura',         emoji:'✨', name:'Star Aura'},
 ];
+var FAIRY_OUTFIT_DEFS=[
+    {id:'outfit_starlight', emoji:'🌟', name:'Starlight Gown'},
+    {id:'outfit_rose',      emoji:'🌸', name:'Rose Petal Dress'},
+    {id:'outfit_moonbeam',  emoji:'🌙', name:'Moonbeam Robe'},
+    {id:'outfit_nature',    emoji:'🌿', name:'Nature Sprite'},
+    {id:'outfit_ember',     emoji:'🔥', name:'Ember Dress'},
+];
+var FAIRY_HAIR_DEFS=[
+    {id:'hair_buns',   emoji:'⭐', name:'Star Buns'},
+    {id:'hair_long',   emoji:'💫', name:'Long Waves'},
+    {id:'hair_braid',  emoji:'🌈', name:'Rainbow Braid'},
+    {id:'hair_pixie',  emoji:'✂️', name:'Pixie Cut'},
+    {id:'hair_updo',   emoji:'💎', name:'Crystal Updo'},
+];
 
 function openCustomizer(){
     document.getElementById('fairy-name-input').value=fairy.name||'';
@@ -1226,6 +1250,70 @@ function openCustomizer(){
         sec.style.display='';
         row.innerHTML='<div style="color:#504060;font-size:11px;padding:4px 0;">Visit the Shop \u2728 Fairy tab to unlock accessories</div>';
     }
+
+    // outfits
+    var ownedOutfits=FAIRY_OUTFIT_DEFS.filter(function(o){return owned.indexOf(o.id)>=0;});
+    var outfitRow=document.getElementById('outfit-row');
+    outfitRow.innerHTML='';
+    if(ownedOutfits.length>0){
+        // "None" reset option
+        var noneBtn=document.createElement('button');
+        noneBtn.className='wing-opt'+((!fairy.outfit||fairy.outfit==='')?' on':'');
+        noneBtn.textContent='\u2728 Default';
+        noneBtn.onclick=function(){
+            fairy.outfit='';
+            document.querySelectorAll('#outfit-row .wing-opt').forEach(function(b){b.classList.remove('on');});
+            noneBtn.classList.add('on');
+        };
+        outfitRow.appendChild(noneBtn);
+        ownedOutfits.forEach(function(o){
+            var on=fairy.outfit===o.id;
+            var btn=document.createElement('button');
+            btn.className='wing-opt'+(on?' on':'');
+            btn.innerHTML=o.emoji+' '+o.name;
+            btn.onclick=function(){
+                var wasOn=fairy.outfit===o.id;
+                document.querySelectorAll('#outfit-row .wing-opt').forEach(function(b){b.classList.remove('on');});
+                if(wasOn){ fairy.outfit=''; noneBtn.classList.add('on'); }
+                else{ fairy.outfit=o.id; btn.classList.add('on'); }
+            };
+            outfitRow.appendChild(btn);
+        });
+    } else {
+        outfitRow.innerHTML='<div style="color:#504060;font-size:11px;padding:4px 0;">Visit the Shop \u2728 Fairy tab to unlock outfits</div>';
+    }
+
+    // hairstyles
+    var ownedHair=FAIRY_HAIR_DEFS.filter(function(h){return owned.indexOf(h.id)>=0;});
+    var hairRow=document.getElementById('hairstyle-row');
+    hairRow.innerHTML='';
+    if(ownedHair.length>0){
+        var noneHairBtn=document.createElement('button');
+        noneHairBtn.className='wing-opt'+((!fairy.hairstyle||fairy.hairstyle==='')?' on':'');
+        noneHairBtn.textContent='\u2728 Default';
+        noneHairBtn.onclick=function(){
+            fairy.hairstyle='';
+            document.querySelectorAll('#hairstyle-row .wing-opt').forEach(function(b){b.classList.remove('on');});
+            noneHairBtn.classList.add('on');
+        };
+        hairRow.appendChild(noneHairBtn);
+        ownedHair.forEach(function(h){
+            var on=fairy.hairstyle===h.id;
+            var btn=document.createElement('button');
+            btn.className='wing-opt'+(on?' on':'');
+            btn.innerHTML=h.emoji+' '+h.name;
+            btn.onclick=function(){
+                var wasOn=fairy.hairstyle===h.id;
+                document.querySelectorAll('#hairstyle-row .wing-opt').forEach(function(b){b.classList.remove('on');});
+                if(wasOn){ fairy.hairstyle=''; noneHairBtn.classList.add('on'); }
+                else{ fairy.hairstyle=h.id; btn.classList.add('on'); }
+            };
+            hairRow.appendChild(btn);
+        });
+    } else {
+        hairRow.innerHTML='<div style="color:#504060;font-size:11px;padding:4px 0;">Visit the Shop \u2728 Fairy tab to unlock hairstyles</div>';
+    }
+
     document.getElementById('cust-modal').classList.add('open');
 }
 
@@ -2721,23 +2809,63 @@ function drawPlayer(t){
 
     // ── Dress/skirt ───────────────────────────────────────
     ctx.save();
-    ctx.shadowColor=gc; ctx.shadowBlur=16;
-    ctx.beginPath();
-    ctx.moveTo(pcx-H*0.07,shoulderY+H*0.07);
-    ctx.bezierCurveTo(pcx-H*0.22,waistY,pcx-H*0.32,feet-H*0.1,pcx-H*0.24,feet-H*0.01);
-    ctx.quadraticCurveTo(pcx,feet+H*0.05,pcx+H*0.24,feet-H*0.01);
-    ctx.bezierCurveTo(pcx+H*0.32,feet-H*0.1,pcx+H*0.22,waistY,pcx+H*0.07,shoulderY+H*0.07);
-    ctx.closePath();
-    ctx.fillStyle=gc+'cc'; ctx.fill();
-    // Shimmer
-    ctx.globalAlpha=0.3+Math.sin(t*2.8)*0.1;
-    ctx.strokeStyle='rgba(255,255,255,0.8)';
-    ctx.lineWidth=H*0.02; ctx.lineCap='round';
-    ctx.beginPath();
-    ctx.moveTo(pcx-H*0.03,shoulderY+H*0.1);
-    ctx.quadraticCurveTo(pcx-H*0.13,waistY+H*0.04,pcx-H*0.09,feet-H*0.08);
-    ctx.stroke();
-    ctx.globalAlpha=1; ctx.shadowBlur=0;
+    var _dp=function(){
+        ctx.beginPath();
+        ctx.moveTo(pcx-H*0.07,shoulderY+H*0.07);
+        ctx.bezierCurveTo(pcx-H*0.22,waistY,pcx-H*0.32,feet-H*0.1,pcx-H*0.24,feet-H*0.01);
+        ctx.quadraticCurveTo(pcx,feet+H*0.05,pcx+H*0.24,feet-H*0.01);
+        ctx.bezierCurveTo(pcx+H*0.32,feet-H*0.1,pcx+H*0.22,waistY,pcx+H*0.07,shoulderY+H*0.07);
+        ctx.closePath();
+    };
+    var _shimmer=function(sc){ ctx.globalAlpha=0.3+Math.sin(t*2.8)*0.1; ctx.strokeStyle=sc||'rgba(255,255,255,0.8)'; ctx.lineWidth=H*0.02; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(pcx-H*0.03,shoulderY+H*0.1); ctx.quadraticCurveTo(pcx-H*0.13,waistY+H*0.04,pcx-H*0.09,feet-H*0.08); ctx.stroke(); ctx.globalAlpha=1; };
+    var ot=fairy.outfit||'';
+    if(ot==='outfit_starlight'){
+        var _sG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _sG.addColorStop(0,'#e0d8ff'); _sG.addColorStop(1,'#f8f4ff');
+        ctx.shadowColor='#d0c8ff'; ctx.shadowBlur=18; ctx.fillStyle=_sG; _dp(); ctx.fill();
+        _shimmer('rgba(255,255,255,0.9)');
+        for(var _i=0;_i<5;_i++){ ctx.globalAlpha=0.5+Math.sin(t*2+_i)*0.45; ctx.shadowColor='#c0b0ff'; ctx.shadowBlur=6; ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.arc(pcx+(Math.sin(t*0.8+_i*1.26)*0.14-0.02)*H,shoulderY+H*(0.17+_i*0.055),H*0.015,0,Math.PI*2); ctx.fill(); }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_rose'){
+        var _rG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _rG.addColorStop(0,'#ff88aa'); _rG.addColorStop(1,'#ffbbcc');
+        ctx.shadowColor='#ff88aa'; ctx.shadowBlur=16; ctx.fillStyle=_rG; _dp(); ctx.fill();
+        _shimmer();
+        ctx.globalAlpha=0.82; ctx.shadowBlur=5;
+        var _pc=['#ff3377','#ff6699','#ff88aa','#ffaacc','#ff2266'];
+        for(var _p=0;_p<5;_p++){ var _pa=(_p/5-0.5)*1.2; ctx.fillStyle=_pc[_p]; ctx.beginPath(); ctx.ellipse(pcx+Math.sin(_pa)*H*0.26,feet-H*0.05,H*0.065,H*0.044,_pa,0,Math.PI*2); ctx.fill(); }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_moonbeam'){
+        var _mG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _mG.addColorStop(0,'#2a1a4a'); _mG.addColorStop(0.5,'#3c2468'); _mG.addColorStop(1,'#1a0e2e');
+        ctx.shadowColor='#8060d0'; ctx.shadowBlur=18; ctx.fillStyle=_mG; _dp(); ctx.fill();
+        _shimmer('rgba(180,150,255,0.7)');
+        ctx.globalAlpha=0.78; ctx.shadowColor='#c8a0ff'; ctx.shadowBlur=10; ctx.fillStyle='#c8a0ff';
+        ctx.beginPath(); ctx.arc(pcx,shoulderY+H*0.2,H*0.055,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=_mG; ctx.beginPath(); ctx.arc(pcx+H*0.032,shoulderY+H*0.19,H*0.04,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#b090e8';
+        for(var _m=0;_m<4;_m++){ ctx.globalAlpha=0.4+Math.sin(t*1.5+_m)*0.45; ctx.beginPath(); ctx.arc(pcx+(_m%2===0?-1:1)*H*(0.09+_m*0.03),shoulderY+H*(0.3+Math.floor(_m/2)*0.12),H*0.013,0,Math.PI*2); ctx.fill(); }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_nature'){
+        var _nG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _nG.addColorStop(0,'#3a9448'); _nG.addColorStop(0.6,'#56c860'); _nG.addColorStop(1,'#2a7038');
+        ctx.shadowColor='#56c860'; ctx.shadowBlur=14; ctx.fillStyle=_nG; _dp(); ctx.fill();
+        _shimmer('rgba(200,255,200,0.8)');
+        ctx.globalAlpha=0.88; ctx.shadowBlur=5;
+        for(var _l=0;_l<6;_l++){ var _la=(_l/6-0.5)*1.4; ctx.fillStyle=_l%2===0?'#2a8040':'#4ab850'; ctx.beginPath(); ctx.ellipse(pcx+Math.sin(_la)*H*0.25,feet-H*0.04,H*0.052,H*0.04,_la,0,Math.PI*2); ctx.fill(); }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_ember'){
+        var _eG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _eG.addColorStop(0,'#cc3300'); _eG.addColorStop(0.5,'#ff6622'); _eG.addColorStop(1,'#ff9940');
+        ctx.shadowColor='#ff4400'; ctx.shadowBlur=20; ctx.fillStyle=_eG; _dp(); ctx.fill();
+        _shimmer('rgba(255,200,100,0.7)');
+        ctx.shadowColor='#ffaa00'; ctx.shadowBlur=12;
+        for(var _f=0;_f<5;_f++){ var _fa=(_f/5-0.4)*1.3; var _fh=H*(0.055+Math.sin(t*3.5+_f*1.1)*0.025); ctx.globalAlpha=0.78; ctx.fillStyle=_f%2===0?'#ffcc00':'#ff6600'; ctx.beginPath(); ctx.moveTo(pcx+Math.sin(_fa)*H*0.22-H*0.04,feet); ctx.quadraticCurveTo(pcx+Math.sin(_fa)*H*0.22,feet-_fh,pcx+Math.sin(_fa)*H*0.22+H*0.04,feet); ctx.closePath(); ctx.fill(); }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else {
+        ctx.shadowColor=gc; ctx.shadowBlur=16; _dp(); ctx.fillStyle=gc+'cc'; ctx.fill();
+        _shimmer();
+    }
     ctx.restore();
 
     // ── Torso ─────────────────────────────────────────────
@@ -2761,19 +2889,81 @@ function drawPlayer(t){
     ctx.restore();
 
     // ── Hair (behind head sphere) ─────────────────────────
+    var _hs=fairy.hairstyle||'';
     ctx.fillStyle=hairC;
-    ctx.beginPath();
-    ctx.arc(pcx,headCY,headR*1.06,Math.PI,0);
-    ctx.bezierCurveTo(pcx+headR*1.35,headCY+headR*0.55,pcx+headR*1.1,headCY+headR*1.9,pcx+headR*0.44,shoulderY);
-    ctx.lineTo(pcx-headR*0.44,shoulderY);
-    ctx.bezierCurveTo(pcx-headR*1.1,headCY+headR*1.9,pcx-headR*1.35,headCY+headR*0.55,pcx,headCY-headR*0.06);
-    ctx.closePath();
-    ctx.fill();
-    // Hair highlight
-    ctx.globalAlpha=0.22;
-    ctx.fillStyle='rgba(255,220,160,1)';
-    ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
-    ctx.globalAlpha=1;
+    if(_hs==='hair_buns'){
+        // Short base + two buns
+        ctx.beginPath(); ctx.arc(pcx,headCY,headR*1.0,Math.PI*0.85,Math.PI*0.15); ctx.quadraticCurveTo(pcx+headR*0.5,shoulderY+H*0.02,pcx+headR*0.28,shoulderY+H*0.01); ctx.lineTo(pcx-headR*0.28,shoulderY+H*0.01); ctx.quadraticCurveTo(pcx-headR*0.5,shoulderY+H*0.02,pcx-headR,headCY+headR*0.5); ctx.closePath(); ctx.fill();
+        ctx.shadowColor=hairC; ctx.shadowBlur=5;
+        ctx.beginPath(); ctx.arc(pcx-headR*0.54,headCY-headR*0.9,headR*0.5,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(pcx+headR*0.54,headCY-headR*0.9,headR*0.5,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
+        ctx.beginPath(); ctx.arc(pcx-headR*0.65,headCY-headR*1.05,headR*0.22,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(pcx+headR*0.43,headCY-headR*1.05,headR*0.22,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    } else if(_hs==='hair_long'){
+        // Long flowing waves past waist
+        ctx.beginPath(); ctx.arc(pcx,headCY,headR*1.06,Math.PI,0);
+        ctx.bezierCurveTo(pcx+headR*1.45,headCY+headR*0.6,pcx+headR*1.3,waistY-H*0.05,pcx+headR*0.95,waistY+H*0.07+Math.sin(t*1.2)*H*0.01);
+        ctx.quadraticCurveTo(pcx,waistY+H*0.12,pcx-headR*0.95,waistY+H*0.07+Math.sin(t*1.3)*H*0.01);
+        ctx.bezierCurveTo(pcx-headR*1.3,waistY-H*0.05,pcx-headR*1.45,headCY+headR*0.6,pcx,headCY-headR*0.06);
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    } else if(_hs==='hair_braid'){
+        // Base hair + rainbow side braid
+        ctx.beginPath(); ctx.arc(pcx,headCY,headR*1.06,Math.PI,0);
+        ctx.bezierCurveTo(pcx+headR*1.2,headCY+headR*0.5,pcx+headR*0.8,headCY+headR*1.4,pcx+headR*0.32,shoulderY+H*0.01);
+        ctx.lineTo(pcx-headR*0.32,shoulderY+H*0.01);
+        ctx.bezierCurveTo(pcx-headR*0.8,headCY+headR*1.4,pcx-headR*1.2,headCY+headR*0.5,pcx,headCY-headR*0.06);
+        ctx.closePath(); ctx.fill();
+        var _bclrs=['#ff88aa','#b496ff','#96ffdc','#ffd700','#ff88cc'];
+        for(var _bi=0;_bi<7;_bi++){ var _by=shoulderY+_bi*H*0.068; ctx.globalAlpha=0.85; ctx.fillStyle=_bi%2===0?hairC:_bclrs[_bi%5]; ctx.beginPath(); ctx.ellipse(pcx+headR*1.0-_bi*H*0.01,_by,H*0.042,H*0.035,0.4,0,Math.PI*2); ctx.fill(); }
+        ctx.globalAlpha=1;
+        ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    } else if(_hs==='hair_pixie'){
+        // Short spiky pixie cut
+        ctx.beginPath(); ctx.arc(pcx,headCY,headR*1.0,Math.PI*0.9,Math.PI*0.12);
+        ctx.quadraticCurveTo(pcx+headR*0.75,shoulderY+H*0.03,pcx+headR*0.28,shoulderY+H*0.02);
+        ctx.lineTo(pcx-headR*0.28,shoulderY+H*0.02);
+        ctx.quadraticCurveTo(pcx-headR*0.75,shoulderY+H*0.03,pcx-headR,headCY+headR*0.5); ctx.closePath(); ctx.fill();
+        // Spiky tips
+        for(var _qi=0;_qi<5;_qi++){ var _qa=Math.PI+(_qi/4)*Math.PI*0.9+0.05; var _qm=(_qa+(_qi<4?(Math.PI*0.9/8):0)); ctx.beginPath(); ctx.moveTo(pcx+Math.cos(_qa)*headR,headCY+Math.sin(_qa)*headR); ctx.lineTo(pcx+Math.cos(_qa-Math.PI*0.09)*headR*1.32,headCY+Math.sin(_qa-Math.PI*0.09)*headR*1.32); ctx.lineTo(pcx+Math.cos(_qa)*headR,headCY+Math.sin(_qa)*headR); ctx.closePath(); ctx.fill(); }
+        ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    } else if(_hs==='hair_updo'){
+        // Hair swept into updo bun
+        ctx.beginPath(); ctx.arc(pcx,headCY,headR*1.06,Math.PI*0.72,-Math.PI*0.08);
+        ctx.quadraticCurveTo(pcx+headR*0.6,headCY+headR*0.85,pcx+headR*0.28,shoulderY+H*0.02);
+        ctx.lineTo(pcx-headR*0.28,shoulderY+H*0.02);
+        ctx.quadraticCurveTo(pcx-headR*0.6,headCY+headR*0.85,pcx,headCY-headR*0.06); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(pcx,headCY-headR*1.0,headR*0.58,headR*0.42,0,0,Math.PI*2); ctx.fill();
+        // Crystal pin
+        ctx.shadowColor='#88ddff'; ctx.shadowBlur=10; ctx.globalAlpha=0.9; ctx.fillStyle='#88ddff';
+        ctx.beginPath(); ctx.ellipse(pcx+headR*0.22,headCY-headR*1.16,H*0.014,H*0.032,-0.3,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#ffffff'; ctx.globalAlpha=0.75;
+        ctx.beginPath(); ctx.arc(pcx+headR*0.22,headCY-headR*1.33,H*0.02,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    } else {
+        // Default hair
+        ctx.beginPath();
+        ctx.arc(pcx,headCY,headR*1.06,Math.PI,0);
+        ctx.bezierCurveTo(pcx+headR*1.35,headCY+headR*0.55,pcx+headR*1.1,headCY+headR*1.9,pcx+headR*0.44,shoulderY);
+        ctx.lineTo(pcx-headR*0.44,shoulderY);
+        ctx.bezierCurveTo(pcx-headR*1.1,headCY+headR*1.9,pcx-headR*1.35,headCY+headR*0.55,pcx,headCY-headR*0.06);
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    }
 
     // ── Head sphere ───────────────────────────────────────
     ctx.save();
@@ -3744,7 +3934,17 @@ var SHOP_ITEMS = [
     { id:'fairy_wand',     emoji:'🪄', name:'Magic Wand',      cost:400,  desc:'Sparkle with every step',    type:'fairy' },
     { id:'fairy_crown',    emoji:'👑', name:'Fairy Crown',     cost:500,  desc:'A radiant golden crown',     type:'fairy' },
     { id:'fairy_wings_rainbow', emoji:'🦋', name:'Rainbow Wings', cost:700, desc:'Iridescent wing upgrade', type:'fairy' },
-    { id:'fairy_aura',     emoji:'✨', name:'Star Aura',       cost:1000, desc:'Orbiting stars surround you',type:'fairy' },
+    { id:'fairy_aura',          emoji:'✨', name:'Star Aura',         cost:1000, desc:'Orbiting stars surround you',    type:'fairy' },
+    { id:'outfit_starlight',    emoji:'🌟', name:'Starlight Gown',    cost:500,  desc:'Shimmering silver-white gown',   type:'fairy' },
+    { id:'outfit_rose',         emoji:'🌸', name:'Rose Petal Dress',  cost:600,  desc:'Layered pink petal skirt',       type:'fairy' },
+    { id:'outfit_moonbeam',     emoji:'🌙', name:'Moonbeam Robe',     cost:700,  desc:'Deep indigo robe with crescent', type:'fairy' },
+    { id:'outfit_nature',       emoji:'🌿', name:'Nature Sprite',     cost:800,  desc:'Green dress with leaf hem',      type:'fairy' },
+    { id:'outfit_ember',        emoji:'🔥', name:'Ember Dress',       cost:900,  desc:'Fiery orange gown with flames',  type:'fairy' },
+    { id:'hair_buns',           emoji:'⭐', name:'Star Buns',         cost:300,  desc:'Cute double buns',               type:'fairy' },
+    { id:'hair_long',           emoji:'💫', name:'Long Waves',        cost:400,  desc:'Flowing waves past the waist',   type:'fairy' },
+    { id:'hair_braid',          emoji:'🌈', name:'Rainbow Braid',     cost:450,  desc:'Colorful side braid',            type:'fairy' },
+    { id:'hair_pixie',          emoji:'✂️', name:'Pixie Cut',         cost:350,  desc:'Short spiky fairy cut',          type:'fairy' },
+    { id:'hair_updo',           emoji:'💎', name:'Crystal Updo',      cost:550,  desc:'Elegant updo with gem pin',      type:'fairy' },
 ];
 var shopTabActive='world';
 
