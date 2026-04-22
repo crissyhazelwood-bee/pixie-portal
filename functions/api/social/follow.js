@@ -40,9 +40,15 @@ export async function onRequestPost({ request, env }) {
     if (!user_id) return resp({ error: "Missing user_id" }, 400);
     if (user_id === userId) return resp({ error: "Cannot follow yourself" }, 400);
 
+    const now = Math.floor(Date.now() / 1000);
     await env.DB.prepare(
         "INSERT OR IGNORE INTO follows (follower_id, following_id, created_at) VALUES (?, ?, ?)"
-    ).bind(userId, user_id, Math.floor(Date.now() / 1000)).run();
+    ).bind(userId, user_id, now).run();
+
+    // Notify the followed user
+    await env.DB.prepare(
+        "INSERT INTO notifications (user_id, actor_id, type, created_at) VALUES (?, ?, 'follow', ?)"
+    ).bind(user_id, userId, now).run().catch(() => {});
 
     return resp({ success: true, following: true });
 }

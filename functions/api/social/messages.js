@@ -66,9 +66,15 @@ export async function onRequestPost({ request, env }) {
     if (recipient_id === userId) return resp({ error: "Cannot message yourself" }, 400);
     if (isBlocked(content)) return resp({ error: "Message contains inappropriate content" }, 400);
 
+    const now = Math.floor(Date.now() / 1000);
     const result = await env.DB.prepare(
         "INSERT INTO messages (sender_id, recipient_id, content, created_at) VALUES (?, ?, ?, ?)"
-    ).bind(userId, recipient_id, content.trim(), Math.floor(Date.now() / 1000)).run();
+    ).bind(userId, recipient_id, content.trim(), now).run();
+
+    // Notify the recipient
+    await env.DB.prepare(
+        "INSERT INTO notifications (user_id, actor_id, type, created_at) VALUES (?, ?, 'message', ?)"
+    ).bind(recipient_id, userId, now).run().catch(() => {});
 
     return resp({ success: true, id: result.meta.last_row_id });
 }

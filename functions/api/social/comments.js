@@ -34,9 +34,26 @@ export async function onRequestPost({ request, env }) {
     if (content.trim().length > 500) return resp({ error: "Comment too long (max 500 chars)" }, 400);
     if (isBlocked(content)) return resp({ error: "Comment contains inappropriate content" }, 400);
 
+    const now = Math.floor(Date.now() / 1000);
     const result = await env.DB.prepare(
         "INSERT INTO comments (user_id, target_type, target_id, content, created_at) VALUES (?, ?, ?, ?, ?)"
-    ).bind(userId, target_type, parseInt(target_id), content.trim(), Math.floor(Date.now() / 1000)).run();
+    ).bind(userId, target_type, parseInt(target_id), content.trim(), now).run();
+
+    // Notify the content owner (if not self)
+    try {
+        let ownerRes;
+        if (target_type === 'journal') {
+            ownerRes = await env.DB.prepare("SELECT user_id FROM journal_entries WHERE id = ?").bind(parseInt(target_id)).all();
+        } else if (target_type === 'community_post') {
+            ownerRes = await env.DB.prepare("SELECT user_id FROM community_posts WHERE id = ?").bind(parseInt(target_id)).all();
+        }
+        const ownerId = ownerRes?.results[0]?.user_id;
+        if (ownerId && ownerId !== userId) {
+            await env.DB.prepare(
+                "INSERT INTO notifications (user_id, actor_id, type, target_type, target_id, created_at) VALUES (?, ?, 'comment', ?, ?, ?)"
+            ).bind(ownerId, userId, target_type, parseInt(target_id), now).run();
+        }
+    } catch (_) {}
 
     const { results: user } = await env.DB.prepare(
         "SELECT username, display_name, avatar_emoji FROM users WHERE id = ?"

@@ -46,9 +46,27 @@ export async function onRequestPost({ request, env }) {
         ).bind(userId, target_type, parseInt(target_id)).run();
         return resp({ success: true, reacted: false });
     } else {
+        const now = Math.floor(Date.now() / 1000);
         await env.DB.prepare(
             "INSERT INTO reactions (user_id, target_type, target_id, reaction, created_at) VALUES (?, ?, ?, ?, ?)"
-        ).bind(userId, target_type, parseInt(target_id), reaction, Math.floor(Date.now() / 1000)).run();
+        ).bind(userId, target_type, parseInt(target_id), reaction, now).run();
+
+        // Notify the content owner (if not self)
+        try {
+            let ownerRes;
+            if (target_type === 'journal') {
+                ownerRes = await env.DB.prepare("SELECT user_id FROM journal_entries WHERE id = ?").bind(parseInt(target_id)).all();
+            } else if (target_type === 'community_post') {
+                ownerRes = await env.DB.prepare("SELECT user_id FROM community_posts WHERE id = ?").bind(parseInt(target_id)).all();
+            }
+            const ownerId = ownerRes?.results[0]?.user_id;
+            if (ownerId && ownerId !== userId) {
+                await env.DB.prepare(
+                    "INSERT INTO notifications (user_id, actor_id, type, target_type, target_id, created_at) VALUES (?, ?, 'reaction', ?, ?, ?)"
+                ).bind(ownerId, userId, target_type, parseInt(target_id), now).run();
+            }
+        } catch (_) {}
+
         return resp({ success: true, reacted: true });
     }
 }

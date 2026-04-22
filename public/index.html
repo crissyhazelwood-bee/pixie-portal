@@ -462,6 +462,22 @@
         .section-search input { flex:1; background:rgba(20,12,35,0.8); border:1px solid rgba(180,150,255,0.15); border-radius:24px; padding:10px 16px; color:#f0d0ff; font-family:'Quicksand',sans-serif; font-size:14px; outline:none; }
         .section-search input:focus { border-color:#ff96c8; }
         .msg-notif { display:none; width:8px; height:8px; border-radius:50%; background:#ff96c8; margin-left:4px; vertical-align:middle; }
+        .notif-bell { position:relative; cursor:pointer; user-select:none; }
+        .notif-badge { position:absolute; top:-6px; right:-10px; background:#ff96c8; color:#1a0a2e; font-size:10px; font-weight:700; border-radius:8px; padding:1px 5px; min-width:16px; text-align:center; display:none; }
+        .notif-panel { position:fixed; top:58px; right:16px; width:310px; background:rgba(20,8,38,0.98); border:1px solid rgba(180,150,255,0.2); border-radius:16px; box-shadow:0 8px 40px rgba(0,0,0,0.6); z-index:9999; max-height:420px; overflow-y:auto; display:none; }
+        .notif-panel-header { padding:14px 16px 10px; border-bottom:1px solid rgba(180,150,255,0.1); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:rgba(20,8,38,0.99); border-radius:16px 16px 0 0; }
+        .notif-panel-title { color:#b496ff; font-weight:700; font-size:13px; letter-spacing:1px; }
+        .notif-mark-read { background:none; border:none; color:#604080; font-size:11px; cursor:pointer; transition:color 0.2s; }
+        .notif-mark-read:hover { color:#b496ff; }
+        .notif-item { padding:12px 16px; border-bottom:1px solid rgba(180,150,255,0.06); display:flex; gap:10px; align-items:flex-start; cursor:pointer; transition:background 0.2s; }
+        .notif-item:hover { background:rgba(180,150,255,0.07); }
+        .notif-item.unread { background:rgba(180,150,255,0.05); border-left:2px solid #b496ff; }
+        .notif-item-avatar { font-size:22px; flex-shrink:0; line-height:1; }
+        .notif-item-body { flex:1; }
+        .notif-item-text { font-size:13px; color:#e0d0ff; line-height:1.4; }
+        .notif-item-text strong { color:#ff96c8; }
+        .notif-item-time { color:#504060; font-size:11px; margin-top:3px; }
+        .notif-empty { padding:28px; text-align:center; color:#504060; font-size:13px; }
 
         @media (max-width: 768px) {
             .hero-title { font-size: 42px; }
@@ -503,6 +519,7 @@
             <a onclick="showPage('journal-page')">Journal</a>
             <a onclick="showPage('social')">Community</a>
             <a onclick="showPage('messages')" id="nav-messages-link">Messages<span class="msg-notif" id="msg-notif"></span></a>
+            <a class="notif-bell" onclick="toggleNotifPanel()" id="nav-notif-bell">🔔<span class="notif-badge" id="notif-badge"></span></a>
             <div id="nav-auth">
                 <button class="btn btn-ghost btn-small" onclick="openModal('login')">Log In</button>
                 <button class="btn btn-primary btn-small" onclick="openModal('signup')">Sign Up</button>
@@ -515,6 +532,15 @@
         </div>
         <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()">☰</button>
     </nav>
+
+    <!-- Notification Panel -->
+    <div id="notif-panel" class="notif-panel">
+        <div class="notif-panel-header">
+            <span class="notif-panel-title">Notifications</span>
+            <button class="notif-mark-read" onclick="markAllNotifsRead()">Mark all read</button>
+        </div>
+        <div id="notif-list"></div>
+    </div>
 
     <!-- Book Opening Overlay -->
     <div id="book-overlay" style="display:none;">
@@ -1503,6 +1529,9 @@
             document.getElementById('hero-btn').onclick = () => showPage('profile');
             document.getElementById('journal-logged-out').style.display = 'none';
             document.getElementById('journal-logged-in').style.display = 'block';
+            loadNotifications();
+            if (window._notifInterval) clearInterval(window._notifInterval);
+            window._notifInterval = setInterval(loadNotifications, 30000);
         }
 
         function onLogout() {
@@ -1512,6 +1541,12 @@
             document.getElementById('hero-btn').onclick = () => openModal('signup');
             document.getElementById('journal-logged-out').style.display = 'block';
             document.getElementById('journal-logged-in').style.display = 'none';
+            if (window._notifInterval) clearInterval(window._notifInterval);
+            const badge = document.getElementById('notif-badge');
+            if (badge) badge.style.display = 'none';
+            notifPanelOpen = false;
+            const panel = document.getElementById('notif-panel');
+            if (panel) panel.style.display = 'none';
         }
 
         // ============================================
@@ -2329,6 +2364,82 @@
             await loadDmThread();
         }
 
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        let notifPanelOpen = false;
+
+        async function loadNotifications() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch(API + '/api/notifications', { credentials: 'include' });
+                const data = await res.json();
+                const badge = document.getElementById('notif-badge');
+                if (badge) {
+                    if (data.unread > 0) {
+                        badge.textContent = data.unread > 9 ? '9+' : data.unread;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+                if (notifPanelOpen) renderNotifList(data.notifications || []);
+            } catch(_) {}
+        }
+
+        function renderNotifList(notifs) {
+            const list = document.getElementById('notif-list');
+            if (!list) return;
+            if (!notifs.length) {
+                list.innerHTML = '<div class="notif-empty">No notifications yet ✨</div>';
+                return;
+            }
+            list.innerHTML = notifs.map(n => {
+                const diff = Math.floor(Date.now() / 1000) - n.created_at;
+                const time = diff < 60 ? 'just now' : diff < 3600 ? Math.floor(diff/60) + 'm ago' : diff < 86400 ? Math.floor(diff/3600) + 'h ago' : Math.floor(diff/86400) + 'd ago';
+                const name = `<strong>${escHtml(n.display_name || n.username)}</strong>`;
+                let text = '';
+                if (n.type === 'follow') text = `${name} started following you`;
+                else if (n.type === 'comment') text = `${name} commented on your ${n.target_type === 'journal' ? 'journal entry' : 'post'}`;
+                else if (n.type === 'reaction') text = `${name} reacted to your ${n.target_type === 'journal' ? 'journal entry' : 'post'} 💖`;
+                else if (n.type === 'message') text = `${name} sent you a message`;
+                return `<div class="notif-item${!n.read_at ? ' unread' : ''}" onclick="handleNotifClick('${n.type}')">
+                    <div class="notif-item-avatar">${n.avatar_emoji || '✦'}</div>
+                    <div class="notif-item-body">
+                        <div class="notif-item-text">${text}</div>
+                        <div class="notif-item-time">${time}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function handleNotifClick(type) {
+            toggleNotifPanel();
+            if (type === 'message') showPage('messages');
+            else if (type === 'follow') showPage('profile');
+        }
+
+        function toggleNotifPanel() {
+            if (!currentUser) { openModal('login'); return; }
+            notifPanelOpen = !notifPanelOpen;
+            const panel = document.getElementById('notif-panel');
+            if (panel) panel.style.display = notifPanelOpen ? 'block' : 'none';
+            if (notifPanelOpen) {
+                loadNotifications();
+                markAllNotifsRead();
+            }
+        }
+
+        async function markAllNotifsRead() {
+            if (!currentUser) return;
+            await fetch(API + '/api/notifications', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ all: true }), credentials: 'include'
+            }).catch(() => {});
+            const badge = document.getElementById('notif-badge');
+            if (badge) badge.style.display = 'none';
+        }
+
         function showBookAnimation() {
             if (sessionStorage.getItem('book-opened')) return;
             sessionStorage.setItem('book-opened', '1');
@@ -2519,6 +2630,17 @@
             });
         }
         observeReveals();
+
+        // Close notification panel when clicking outside
+        document.addEventListener('click', e => {
+            if (!notifPanelOpen) return;
+            const panel = document.getElementById('notif-panel');
+            const bell = document.getElementById('nav-notif-bell');
+            if (panel && !panel.contains(e.target) && bell && !bell.contains(e.target)) {
+                notifPanelOpen = false;
+                panel.style.display = 'none';
+            }
+        });
 
         // Enter key submits forms
         document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
