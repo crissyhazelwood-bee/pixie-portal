@@ -1274,6 +1274,28 @@
         </div>
     </div>
 
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="modal-report">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>Report</h2>
+            <p class="sub">why are you reporting this? ✦</p>
+            <div class="form-group">
+                <label>Reason</label>
+                <select id="report-reason" style="width:100%;padding:10px 14px;background:rgba(30,15,50,0.8);border:1px solid rgba(180,150,255,0.2);border-radius:10px;color:#e0d0ff;font-size:14px;">
+                    <option value="">Select a reason...</option>
+                    <option>Spam</option>
+                    <option>Harassment</option>
+                    <option>Inappropriate content</option>
+                    <option>Hate speech</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-error" id="report-error"></div>
+            <button class="btn btn-primary" onclick="submitReport()" style="width:100%;margin-top:10px;">Submit Report</button>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
@@ -1928,7 +1950,10 @@
                     <div class="comment-body" style="position:relative;flex:1;">
                         <div class="comment-author" onclick="viewPublicProfile('${escHtml(c.username)}')">${escHtml(c.display_name || c.username)}</div>
                         <div class="comment-text">${escHtml(c.content)}</div>
-                        ${currentUser && currentUser.id === c.user_id ? `<button class="delete-item-btn" style="top:0;right:0;" onclick="deleteComment(${c.id},'${type}',${id})" title="Delete comment">×</button>` : ''}
+                        <div style="display:flex;gap:8px;margin-top:4px;">
+                            ${currentUser && currentUser.id !== c.user_id ? `<button style="background:none;border:none;color:#503858;font-size:11px;cursor:pointer;padding:0;" onclick="openReport('comment',${c.id})">⚑ Report</button>` : ''}
+                            ${currentUser && currentUser.id === c.user_id ? `<button class="delete-item-btn" style="position:static;font-size:13px;padding:0 4px;" onclick="deleteComment(${c.id},'${type}',${id})" title="Delete comment">×</button>` : ''}
+                        </div>
                     </div>
                 </div>`).join('');
             area.innerHTML = commentsHtml + `<div class="comment-form">
@@ -1953,6 +1978,37 @@
                 area.dataset.loaded = '';
                 await loadComments(type, id);
             }
+        }
+
+        // ============================================
+        // REPORTS
+        // ============================================
+        let _reportTarget = null;
+
+        function openReport(type, id) {
+            if (!currentUser) { openModal('login'); return; }
+            _reportTarget = { type, id };
+            document.getElementById('report-reason').value = '';
+            document.getElementById('report-error').textContent = '';
+            openModal('report');
+        }
+
+        async function submitReport() {
+            if (!_reportTarget) return;
+            const reason = document.getElementById('report-reason').value;
+            const errEl = document.getElementById('report-error');
+            if (!reason) { errEl.textContent = 'Please select a reason.'; return; }
+
+            const res = await fetch(API + '/api/social/report', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target_type: _reportTarget.type, target_id: _reportTarget.id, reason }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.error) { errEl.textContent = data.error === 'Already reported' ? 'You\'ve already reported this.' : data.error; return; }
+            closeModals();
+            _reportTarget = null;
+            toast('Report submitted — thank you ✦');
         }
 
         // ============================================
@@ -2001,6 +2057,7 @@
                 <div class="social-actions">
                     <button class="reaction-btn" id="react-post-${p.id}" onclick="toggleReaction('post',${p.id})">♡ <span id="react-count-post-${p.id}">${p.reaction_count || 0}</span></button>
                     <button class="comment-toggle-btn" onclick="toggleComments('post',${p.id})">💬 ${p.comment_count || 0} comments</button>
+                    ${currentUser && currentUser.id !== p.user_id ? `<button class="comment-toggle-btn" style="color:#604060;" onclick="openReport('community_post',${p.id})">⚑ Report</button>` : ''}
                 </div>
                 <div class="comments-area" id="comments-post-${p.id}"></div>`;
                 container.appendChild(div);
