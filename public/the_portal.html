@@ -8,7 +8,7 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#060410; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
-        canvas { display:block; }
+        canvas { display:block; touch-action:none; }
 
         #start-screen {
             position:fixed; inset:0; z-index:100;
@@ -367,6 +367,7 @@
         <button class="bp-tab active" onclick="setBuildTab('buildings',this)">&#x1F3E1; Buildings</button>
         <button class="bp-tab"        onclick="setBuildTab('gardens',this)">&#x1F338; Gardens</button>
         <button class="bp-tab"        onclick="setBuildTab('decor',this)">&#x1F3EE; Decor</button>
+        <button class="bp-tab"        onclick="setBuildTab('premium',this)">&#x2B50; Owned</button>
         <div style="margin-left:auto;display:flex;align-items:center;gap:5px;">
             <span style="color:#403050;font-size:10px;font-weight:700;letter-spacing:0.5px;">SIZE</span>
             <button class="sz-btn" data-sz="S" onclick="setSize(this)">S</button>
@@ -374,6 +375,7 @@
             <button class="sz-btn" data-sz="L" onclick="setSize(this)">L</button>
             <button class="sz-btn" data-sz="XL" onclick="setSize(this)">XL</button>
             <button id="erase-btn" class="bp-erase" onclick="toggleErase()" style="margin-left:4px;">&#x1F5D1; Erase</button>
+            <button class="bp-erase" onclick="clearAllPlaced()" style="margin-left:2px;">&#x1F9F9; Clear All</button>
         </div>
     </div>
     <div class="palette" id="palette-grid"></div>
@@ -1276,9 +1278,24 @@ function toggleErase(){
 
 function renderPalette(){
     var grid=document.getElementById('palette-grid');
-    var items=PALETTE[buildTab]||[];
     grid.innerHTML='';
-    items.forEach(function(item){
+
+    var itemList;
+    if(buildTab==='premium'){
+        var ownedIds=portalData&&portalData.plot?portalData.plot:[];
+        if(ownedIds.length===0){
+            grid.innerHTML='<div style="color:#504060;font-size:12px;padding:16px 0;text-align:center;width:100%;">Visit the Shop to unlock premium items &#x2728;</div>';
+            return;
+        }
+        itemList=ownedIds.map(function(id){
+            var s=SHOP_ITEMS.find(function(x){return x.id===id;});
+            return s?{emoji:s.emoji,label:s.name}:null;
+        }).filter(Boolean);
+    } else {
+        itemList=PALETTE[buildTab]||[];
+    }
+
+    itemList.forEach(function(item){
         var div=document.createElement('div');
         div.className='pi'+(selectedItem&&selectedItem.emoji===item.emoji?' active':'');
         div.innerHTML=item.emoji+'<span>'+item.label+'</span>';
@@ -1297,6 +1314,11 @@ function renderPalette(){
         };
         grid.appendChild(div);
     });
+}
+
+function clearAllPlaced(){
+    if(!confirm('Clear all placed items from the world?')) return;
+    placed={}; savePlaced();
 }
 
 // Convert screen coords → iso tile coords
@@ -1324,38 +1346,56 @@ canvas.addEventListener('pointerdown',function(e){
     if(!started) return;
     if(buildMode&&(selectedItem||eraseMode)){
         var rect=canvas.getBoundingClientRect();
-        var pos=screenToTile(e.clientX-rect.left, e.clientY-rect.top);
-        if(pos.tc<0||pos.tc>=MC||pos.tr<0||pos.tr>=MR) return;
-        var key=pos.tr+','+pos.tc;
-        if(eraseMode){ delete placed[key]; }
-        else { placed[key]={emoji:selectedItem.emoji,label:selectedItem.label,size:selectedSize}; }
+        var csx=e.clientX-rect.left, csy=e.clientY-rect.top;
+        if(eraseMode){
+            var bestKey=null, bestDist=TW_px*TW_px*2;
+            Object.keys(placed).forEach(function(k){
+                var kp=k.split(',');
+                var sp=tileScreenPos(parseInt(kp[1]),parseInt(kp[0]));
+                var cx2=sp.sx+HW, cy2=sp.sy+HH;
+                var d=(csx-cx2)*(csx-cx2)+(csy-cy2)*(csy-cy2);
+                if(d<bestDist){bestDist=d;bestKey=k;}
+            });
+            if(bestKey) delete placed[bestKey];
+        } else {
+            var pos=screenToTile(csx,csy);
+            if(pos.tc<0||pos.tc>=MC||pos.tr<0||pos.tr>=MR) return;
+            placed[pos.tr+','+pos.tc]={emoji:selectedItem.emoji,label:selectedItem.label,size:selectedSize};
+        }
         savePlaced();
         e.stopPropagation();
         return;
     }
+    canvas.setPointerCapture(e.pointerId);
     drag.on=true; drag.moved=false;
     drag.px=e.clientX; drag.py=e.clientY;
     drag.camX=cam.x; drag.camY=cam.y;
     e.preventDefault();
 },{passive:false});
-window.addEventListener('pointermove',function(e){
+canvas.addEventListener('pointermove',function(e){
     if(!drag.on) return;
     var dx=e.clientX-drag.px, dy=e.clientY-drag.py;
     if(!drag.moved&&Math.sqrt(dx*dx+dy*dy)>5) drag.moved=true;
     if(drag.moved){ cam.x=drag.camX-dx; cam.y=drag.camY-dy; }
 },{passive:true});
-window.addEventListener('pointerup',function(){ drag.on=false; drag.moved=false; });
-window.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; });
+canvas.addEventListener('pointerup',function(){ drag.on=false; drag.moved=false; });
+canvas.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; });
 
 // Right-click to erase quickly
 canvas.addEventListener('contextmenu',function(e){
     if(!started||!buildMode) return;
     e.preventDefault();
     var rect=canvas.getBoundingClientRect();
-    var pos=screenToTile(e.clientX-rect.left, e.clientY-rect.top);
-    if(pos.tc<0||pos.tc>=MC||pos.tr<0||pos.tr>=MR) return;
-    delete placed[pos.tr+','+pos.tc];
-    savePlaced();
+    var csx=e.clientX-rect.left, csy=e.clientY-rect.top;
+    var bestKey=null, bestDist=TW_px*TW_px*2;
+    Object.keys(placed).forEach(function(k){
+        var kp=k.split(',');
+        var sp=tileScreenPos(parseInt(kp[1]),parseInt(kp[0]));
+        var cx2=sp.sx+HW, cy2=sp.sy+HH;
+        var d=(csx-cx2)*(csx-cx2)+(csy-cy2)*(csy-cy2);
+        if(d<bestDist){bestDist=d;bestKey=k;}
+    });
+    if(bestKey){ delete placed[bestKey]; savePlaced(); }
 });
 
 // ── Player ─────────────────────────────────────────────────────────────────────
