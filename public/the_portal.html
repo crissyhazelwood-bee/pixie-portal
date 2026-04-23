@@ -1205,33 +1205,35 @@ function tileSand(sx,sy){
     strokeDiamond(sx,sy,'rgba(160,130,65,0.10)');
 }
 
-function tileTree(sx,sy){
+function tileTree(sx,sy,v){
     var cx=sx+HW, cy=sy+HH;
     drawSides(sx,sy,'#0e2808','#081a04');
     var gd=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     gd.addColorStop(0,'#1c4018'); gd.addColorStop(1,'#122c10');
     fillDiamond(sx,sy,gd);
-    // Ground shadow — canopy casts toward lower-right (top-left light)
+    // Size variation: small / normal / tall / giant based on tile hash
+    var sc=[0.76,0.76,1.0,1.0,1.0,1.24,1.24,1.42][(v||0)%8];
+    // Ground shadow scales with tree size
     ctx.fillStyle='rgba(0,0,0,.32)';
-    ctx.beginPath(); ctx.ellipse(cx+HH*.24,cy+HH*.38,HW*.76,HH*.30,0,0,Math.PI*2); ctx.fill();
-    var tkW=Math.max(4,Math.round(TW_px*.1));
-    var tkH=Math.round(TH_px*1.5);
+    ctx.beginPath(); ctx.ellipse(cx+HH*.24,cy+HH*.38,HW*.76*sc,HH*.30*sc,0,0,Math.PI*2); ctx.fill();
+    var tkW=Math.max(3,Math.round(TW_px*.1*sc));
+    var tkH=Math.round(TH_px*1.5*sc);
     var tkg=ctx.createLinearGradient(cx-tkW,0,cx+tkW,0);
     tkg.addColorStop(0,'#3a1e0c'); tkg.addColorStop(0.45,'#6e4020'); tkg.addColorStop(1,'#3a1e0c');
     ctx.fillStyle=tkg;
     ctx.fillRect(cx-Math.round(tkW/2),cy-tkH,tkW,tkH);
     var top=cy-tkH;
     ctx.fillStyle='#1a3e16';
-    ctx.beginPath(); ctx.arc(cx,top,TW_px*.44,0,Math.PI*2); ctx.fill();
-    var cg=ctx.createRadialGradient(cx-HW*.15,top-TH_px*.12,0,cx,top,TW_px*.42);
+    ctx.beginPath(); ctx.arc(cx,top,TW_px*.44*sc,0,Math.PI*2); ctx.fill();
+    var cg=ctx.createRadialGradient(cx-HW*.15*sc,top-TH_px*.12*sc,0,cx,top,TW_px*.42*sc);
     cg.addColorStop(0,'#62cc50'); cg.addColorStop(0.5,'#3c8c28'); cg.addColorStop(1,'#1c5012');
     ctx.fillStyle=cg;
-    ctx.beginPath(); ctx.arc(cx,top,TW_px*.42,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,top,TW_px*.42*sc,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#48a438';
-    ctx.beginPath(); ctx.arc(cx-HW*.35,top+TH_px*.05,TW_px*.26,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+HW*.3,top+TH_px*.08,TW_px*.22,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx-HW*.35*sc,top+TH_px*.05*sc,TW_px*.26*sc,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+HW*.3*sc,top+TH_px*.08*sc,TW_px*.22*sc,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#74dc58';
-    ctx.beginPath(); ctx.arc(cx,top-TH_px*.32,TW_px*.16,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,top-TH_px*.32*sc,TW_px*.16*sc,0,Math.PI*2); ctx.fill();
 }
 
 function tileRock(sx,sy,v){
@@ -1260,7 +1262,7 @@ function drawTile(type,sx,sy,t,col,row){
         case TS: tileStone(sx,sy); break;
         case TY: tileFairyRing(sx,sy,t); break;
         case TN: tileSand(sx,sy); break;
-        case TR: tileTree(sx,sy); break;
+        case TR: tileTree(sx,sy,v); break;
         case TO: tileRock(sx,sy,v); break;
     }
     // Soft gradient fade on grass bordering paths
