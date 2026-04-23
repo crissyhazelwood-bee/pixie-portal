@@ -1536,6 +1536,36 @@ function drawButterflyWings(cx,cy,t){
     ctx.bezierCurveTo(cx+HW*0.2,cy+HH*0.4,cx+HW*0.05,cy+HH*0.25,cx,cy+HH*0.1);
     ctx.fillStyle=gc+'1a'; ctx.fill();
     ctx.strokeStyle=gc+'66'; ctx.lineWidth=1; ctx.stroke();
+
+    // Wing veins — animated shimmer lines + traveling glint dots
+    ctx.save();
+    ctx.shadowColor=gc; ctx.shadowBlur=7; ctx.lineCap='round';
+    ctx.strokeStyle=gc+'bb';
+    // Upper veins (2 per side)
+    ctx.lineWidth=0.9; ctx.globalAlpha=0.26+Math.sin(t*2.2)*0.09;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.bezierCurveTo(cx-HW*.26,cy-HH*.36,cx-HW*(0.66+flap*.3),cy-HH*.7,cx-HW*(0.6+flap*.34),cy-HH*.34); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.bezierCurveTo(cx-HW*.1,cy-HH*.5,cx-HW*(0.98+flap*.38),cy-HH*.86,cx-HW*(0.7+flap*.38),cy+HH*.04); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.bezierCurveTo(cx+HW*.26,cy-HH*.36,cx+HW*(0.66+flap*.3),cy-HH*.7,cx+HW*(0.6+flap*.34),cy-HH*.34); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.bezierCurveTo(cx+HW*.1,cy-HH*.5,cx+HW*(0.98+flap*.38),cy-HH*.86,cx+HW*(0.7+flap*.38),cy+HH*.04); ctx.stroke();
+    // Lower veins
+    ctx.lineWidth=0.6; ctx.globalAlpha=0.16+Math.sin(t*2.2)*0.07;
+    ctx.beginPath(); ctx.moveTo(cx,cy+HH*.1); ctx.bezierCurveTo(cx-HW*.07,cy+HH*.35,cx-HW*(0.56+flap*.18),cy+HH*.6,cx-HW*(0.28+flap*.1),cy+HH*.48); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy+HH*.1); ctx.bezierCurveTo(cx+HW*.07,cy+HH*.35,cx+HW*(0.56+flap*.18),cy+HH*.6,cx+HW*(0.28+flap*.1),cy+HH*.48); ctx.stroke();
+    // Glint dots traveling from root toward wing tip
+    ctx.fillStyle='#ffffff'; ctx.lineWidth=1;
+    for(var wvi=0;wvi<3;wvi++){
+        var wvp=(t*.52+wvi*.333)%1;
+        var wvA=Math.sin(wvp*Math.PI);
+        if(wvA<0.06) continue;
+        ctx.globalAlpha=wvA*0.72; ctx.shadowBlur=9;
+        var wvt=0.12+wvp*.8;
+        var wvlx=cx-HW*(wvt*(0.62+flap*.34)), wvly=cy-HH*(wvt*.68);
+        ctx.beginPath(); ctx.arc(wvlx,wvly,1.5,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(2*cx-wvlx,wvly,1.5,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
+    ctx.restore();
+
     ctx.shadowBlur=0;
 }
 
@@ -3796,11 +3826,26 @@ function drawPlayer(t){
     var skinC=sm.s, hairC=sm.h;
     var headR=Math.round(H*0.155);
 
+    // Ambient body aura — soft breathing halo behind everything
+    ctx.save();
+    ctx.globalAlpha=0.10+Math.sin(t*1.6)*0.05;
+    ctx.shadowColor=gc; ctx.shadowBlur=36+Math.sin(t*1.6)*9;
+    ctx.fillStyle=gc;
+    ctx.beginPath(); ctx.ellipse(pcx,pcy-H*0.28,H*0.19,H*0.23,0,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0; ctx.globalAlpha=1;
+    ctx.restore();
+
     // Ground shadow
     ctx.fillStyle='rgba(0,0,0,.22)';
     ctx.beginPath(); ctx.ellipse(pcx,pcy+HH*.2,HW*.3,HH*.2,0,0,Math.PI*2); ctx.fill();
 
-    if(Math.random()<0.38) spawnDust(pcx,feet-H*0.1);
+    // Trail when moving, sparse idle dust
+    if(pl.moving){
+        if(Math.random()<0.62) spawnTrail(pcx,feet-H*0.08);
+        if(Math.random()<0.18) spawnDust(pcx,feet-H*0.12);
+    } else {
+        if(Math.random()<0.10) spawnDust(pcx,feet-H*0.12);
+    }
 
     // Wings — attached at shoulder/upper-back
     drawWings(pcx,feet-H*0.60,t);
@@ -4236,6 +4281,17 @@ function spawnBurst(x,y){
     }
 }
 
+function spawnTrail(x,y){
+    // Low-gravity sparkle that floats upward then fades
+    var a=-Math.PI/2+(Math.random()-.5)*1.0;
+    var spd=10+Math.random()*18;
+    parts.push({x:x+(Math.random()-.5)*7,y:y,
+        vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,
+        life:1,ml:.3+Math.random()*.4,r:.7+Math.random()*1.4,
+        c:DUST_CLR[Math.floor(Math.random()*DUST_CLR.length)],
+        grav:5,bl:12});
+}
+
 // ── Fireflies ──────────────────────────────────────────────────────────────────
 var fireflies=[];
 var FFY_MAX=28;
@@ -4476,7 +4532,7 @@ function update(dt,t){
 
     for(var i=parts.length-1;i>=0;i--){
         var p=parts[i];
-        p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=58*dt;
+        p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=(p.grav!==undefined?p.grav:58)*dt;
         p.life-=dt/p.ml;
         if(p.life<=0) parts.splice(i,1);
     }
@@ -4562,7 +4618,7 @@ function draw(t){
     for(var i=0;i<parts.length;i++){
         var pt=parts[i];
         ctx.globalAlpha=pt.life*.88;
-        ctx.fillStyle=pt.c; ctx.shadowColor=pt.c; ctx.shadowBlur=6;
+        ctx.fillStyle=pt.c; ctx.shadowColor=pt.c; ctx.shadowBlur=pt.bl||6;
         ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2); ctx.fill();
     }
     ctx.globalAlpha=1; ctx.shadowBlur=0;
