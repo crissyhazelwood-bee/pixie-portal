@@ -1783,6 +1783,8 @@ var FAIRY_ACC_DEFS=[
     {id:'fairy_crown',        emoji:'👑', name:'Fairy Crown'},
     {id:'fairy_wings_rainbow',emoji:'🦋', name:'Rainbow Wings'},
     {id:'fairy_aura',         emoji:'✨', name:'Star Aura'},
+    {id:'fairy_wings_prismatic',emoji:'🔷',name:'Prismatic Wings'},
+    {id:'fairy_halo',         emoji:'🌟', name:'Celestial Halo'},
 ];
 var FAIRY_OUTFIT_DEFS=[
     {id:'outfit_starlight', emoji:'🌟', name:'Starlight Gown'},
@@ -1790,6 +1792,9 @@ var FAIRY_OUTFIT_DEFS=[
     {id:'outfit_moonbeam',  emoji:'🌙', name:'Moonbeam Robe'},
     {id:'outfit_nature',    emoji:'🌿', name:'Nature Sprite'},
     {id:'outfit_ember',     emoji:'🔥', name:'Ember Dress'},
+    {id:'outfit_aurora',    emoji:'🌊', name:'Aurora Gown'},
+    {id:'outfit_void',      emoji:'🌌', name:'Void Dress'},
+    {id:'outfit_queen',     emoji:'💫', name:"Queen's Regalia"},
 ];
 var FAIRY_HAIR_DEFS=[
     {id:'hair_buns',   emoji:'⭐', name:'Star Buns'},
@@ -1797,6 +1802,7 @@ var FAIRY_HAIR_DEFS=[
     {id:'hair_braid',  emoji:'🌈', name:'Rainbow Braid'},
     {id:'hair_pixie',  emoji:'✂️', name:'Pixie Cut'},
     {id:'hair_updo',   emoji:'💎', name:'Crystal Updo'},
+    {id:'hair_ocean',  emoji:'💧', name:'Ocean Waves'},
 ];
 
 function openCustomizer(){
@@ -4112,6 +4118,47 @@ function drawPlayer(t){
         ctx.shadowColor='#ffaa00'; ctx.shadowBlur=12;
         for(var _f=0;_f<5;_f++){ var _fa=(_f/5-0.4)*1.3; var _fh=H*(0.055+Math.sin(t*3.5+_f*1.1)*0.025); ctx.globalAlpha=0.78; ctx.fillStyle=_f%2===0?'#ffcc00':'#ff6600'; ctx.beginPath(); ctx.moveTo(pcx+Math.sin(_fa)*H*0.22-H*0.04,feet); ctx.quadraticCurveTo(pcx+Math.sin(_fa)*H*0.22,feet-_fh,pcx+Math.sin(_fa)*H*0.22+H*0.04,feet); ctx.closePath(); ctx.fill(); }
         ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_aurora'){
+        var _aG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _aG.addColorStop(0,'#00a8c8'); _aG.addColorStop(0.5,'#00d8d0'); _aG.addColorStop(1,'#006890');
+        ctx.shadowColor='#00e8d8'; ctx.shadowBlur=20; ctx.fillStyle=_aG; _dp(); ctx.fill();
+        _shimmer('rgba(160,255,240,0.7)');
+        for(var _av=0;_av<3;_av++){
+            ctx.globalAlpha=0.18+Math.sin(t*1.4+_av*1.8)*0.14;
+            ctx.fillStyle=['#ff88dd','#88ffcc','#88ccff'][_av];
+            var _ay=shoulderY+H*(0.24+_av*0.22);
+            ctx.beginPath(); ctx.moveTo(pcx-H*0.35,_ay);
+            for(var _ax=0;_ax<=12;_ax++){ ctx.lineTo(pcx-H*0.35+_ax*H*0.058,_ay+Math.sin(_ax*1.2+t*2+_av*1.4)*H*0.022); }
+            ctx.lineTo(pcx+H*0.35,_ay+H*0.04); ctx.lineTo(pcx-H*0.35,_ay+H*0.04); ctx.closePath(); ctx.fill();
+        }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_void'){
+        var _vG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _vG.addColorStop(0,'#080018'); _vG.addColorStop(0.5,'#100030'); _vG.addColorStop(1,'#030008');
+        ctx.shadowColor='#6020c0'; ctx.shadowBlur=22; ctx.fillStyle=_vG; _dp(); ctx.fill();
+        _shimmer('rgba(120,60,255,0.5)');
+        for(var _vs=0;_vs<10;_vs++){
+            var _vsx=pcx+Math.sin(_vs*2.4+t*0.2)*H*0.26, _vsy=shoulderY+H*(0.08+(_vs%5)*0.16);
+            ctx.globalAlpha=0.5+Math.sin(t*2.8+_vs*0.9)*0.44;
+            ctx.shadowColor='#8844ff'; ctx.shadowBlur=6;
+            ctx.fillStyle=_vs%3===0?'#ffaaff':_vs%3===1?'#aaccff':'#c8a0ff';
+            ctx.beginPath(); ctx.arc(_vsx,_vsy,H*0.013,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_queen'){
+        var _qG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _qG.addColorStop(0,'#8a4a00'); _qG.addColorStop(0.3,'#ffd700'); _qG.addColorStop(0.7,'#c89020'); _qG.addColorStop(1,'#7a3800');
+        ctx.shadowColor='#ffd700'; ctx.shadowBlur=28; ctx.fillStyle=_qG; _dp(); ctx.fill();
+        _shimmer('rgba(255,255,190,0.9)');
+        ctx.globalAlpha=0.72; ctx.fillStyle='#5010a0'; ctx.shadowColor='#8030e0'; ctx.shadowBlur=12;
+        ctx.beginPath(); ctx.ellipse(pcx,shoulderY+H*0.32,H*0.17,H*0.044,0.4,0,Math.PI*2); ctx.fill();
+        var _QGEMS=['#ff88cc','#88ccff','#aaff88','#ffee88'];
+        for(var _qg=0;_qg<4;_qg++){
+            ctx.globalAlpha=0.9+Math.sin(t*2.5+_qg)*0.09;
+            ctx.fillStyle=_QGEMS[_qg]; ctx.shadowColor=_QGEMS[_qg]; ctx.shadowBlur=9;
+            ctx.beginPath(); ctx.arc(pcx+(_qg-1.5)*H*0.12,feet-H*0.06,H*0.024,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1; ctx.shadowBlur=0;
     } else {
         ctx.shadowColor=gc; ctx.shadowBlur=16; _dp(); ctx.fillStyle=gc+'cc'; ctx.fill();
         _shimmer();
@@ -4270,6 +4317,20 @@ function drawPlayer(t){
         ctx.shadowBlur=0; ctx.globalAlpha=1;
         ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
         ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1;
+    } else if(_hs==='hair_ocean'){
+        var _oSway=Math.sin(t*0.85)*H*0.028, _oBot=feet+H*0.22;
+        var _oG=ctx.createLinearGradient(pcx,headCY-headR,pcx,_oBot);
+        _oG.addColorStop(0,'#0098c0'); _oG.addColorStop(0.55,'#00c0d0'); _oG.addColorStop(1,'#005070');
+        ctx.fillStyle=_oG; ctx.shadowColor='#00d8e8'; ctx.shadowBlur=10;
+        ctx.beginPath();
+        ctx.arc(pcx,headCY,headR*1.07,Math.PI,0);
+        ctx.bezierCurveTo(pcx+headR*1.35,headCY+headR*0.5,pcx+headR*1.2+_oSway,waistY,pcx+headR*1.0+_oSway,_oBot);
+        ctx.quadraticCurveTo(pcx+_oSway*0.4,_oBot+H*0.04,pcx-headR*1.0-_oSway,_oBot);
+        ctx.bezierCurveTo(pcx-headR*1.2-_oSway,waistY,pcx-headR*1.35,headCY+headR*0.5,pcx,headCY-headR*0.06);
+        ctx.closePath(); ctx.fill(); ctx.shadowBlur=0;
+        ctx.globalAlpha=0.22+Math.sin(t*1.8)*0.1; ctx.fillStyle='#88f4ff';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.22,headCY-headR*0.46,headR*0.46,headR*0.22,-0.35,0,Math.PI*2); ctx.fill();
         ctx.globalAlpha=1;
     } else {
         // Default hair
@@ -4446,6 +4507,51 @@ function drawPlayer(t){
         }
         ctx.globalAlpha=1; ctx.shadowBlur=0;
         ctx.restore();
+    }
+
+    // Prismatic wings — cycling rainbow shimmer with sparkle dots (Lv40)
+    if(fairyOwned.indexOf('fairy_wings_prismatic')>=0){
+        ctx.save();
+        ctx.globalCompositeOperation='screen';
+        var _prWy=feet-H*0.60;
+        var _prH=(t*0.12)%1;
+        var _prG=ctx.createLinearGradient(pcx-H*0.56,_prWy,pcx+H*0.56,_prWy);
+        _prG.addColorStop(0,'#ff88dd'); _prG.addColorStop(0.2,'#ffee44'); _prG.addColorStop(0.4,'#44ffcc');
+        _prG.addColorStop(0.6,'#44aaff'); _prG.addColorStop(0.8,'#cc44ff'); _prG.addColorStop(1,'#ff88dd');
+        ctx.globalAlpha=0.32+Math.sin(t*1.8)*0.1;
+        ctx.fillStyle=_prG;
+        ctx.beginPath(); ctx.ellipse(pcx,_prWy,H*0.52,H*0.24,0,0,Math.PI*2); ctx.fill();
+        ctx.globalCompositeOperation='source-over';
+        for(var _pk=0;_pk<6;_pk++){
+            var _pa2=t*1.9+_pk*Math.PI/3;
+            ctx.globalAlpha=Math.max(0,Math.sin(t*4.5+_pk)*0.65);
+            ctx.shadowColor='#ffffff'; ctx.shadowBlur=8;
+            ctx.fillStyle='#ffffff';
+            ctx.beginPath(); ctx.arc(pcx+Math.cos(_pa2)*H*0.44,_prWy+Math.sin(_pa2)*H*0.2,H*0.016,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
+    }
+
+    // Celestial halo — floating ring above head (Lv50)
+    if(fairyOwned.indexOf('fairy_halo')>=0){
+        ctx.save();
+        var _haloY=headCY-headR*1.55;
+        var _haloRx=headR*0.82, _haloRy=headR*0.26;
+        ctx.shadowColor='#ffd700'; ctx.shadowBlur=18+Math.sin(t*2.2)*7;
+        ctx.strokeStyle='rgba(255,215,80,0.75)'; ctx.lineWidth=H*0.022;
+        ctx.beginPath(); ctx.ellipse(pcx,_haloY,_haloRx,_haloRy,0,0,Math.PI*2); ctx.stroke();
+        // Secondary inner glow ring
+        ctx.globalAlpha=0.38; ctx.strokeStyle='rgba(255,245,180,0.9)'; ctx.lineWidth=H*0.01;
+        ctx.beginPath(); ctx.ellipse(pcx,_haloY,_haloRx*0.72,_haloRy*0.72,0,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=1;
+        // Rotating light bead
+        var _hSpin=t*1.3;
+        var _hx=pcx+Math.cos(_hSpin)*_haloRx, _hy=_haloY+Math.sin(_hSpin)*_haloRy;
+        ctx.globalAlpha=0.88+Math.sin(t*3.5)*0.1;
+        ctx.shadowColor='#fffaaa'; ctx.shadowBlur=16;
+        ctx.fillStyle='#fffce8';
+        ctx.beginPath(); ctx.arc(_hx,_hy,H*0.034,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0; ctx.globalAlpha=1; ctx.restore();
     }
 
     ctx.restore();
@@ -5687,6 +5793,21 @@ var SHOP_ITEMS = [
     { id:'mushroom_grove',      emoji:'🍄', name:'Mushroom Grove',     cost:700,  desc:'Colorful mushrooms with glowing spores',type:'world' },
     { id:'fairy_ring',          emoji:'🔮', name:'Fairy Ring',         cost:900,  desc:'A magical circle of mushrooms',   type:'world' },
     { id:'crystal_flowers',     emoji:'💎', name:'Crystal Flowers',    cost:1100, desc:'Geometric blooms that refract light',type:'world' },
+    // ── Level 30 unlocks ──────────────────────────────────────────────────────────
+    { id:'aurora_tower',   emoji:'🌌', name:'Aurora Tower',       cost:20000, desc:'Channels the northern lights',        type:'world', minLevel:30 },
+    { id:'phoenix_perch',  emoji:'🦅', name:'Phoenix Perch',      cost:25000, desc:'Glowing roost of the reborn',         type:'world', minLevel:30 },
+    { id:'outfit_aurora',  emoji:'🌊', name:'Aurora Gown',        cost:2500,  desc:'Shimmering teal-blue aurora dress',   type:'fairy',  minLevel:30 },
+    { id:'hair_ocean',     emoji:'💧', name:'Ocean Waves',        cost:2000,  desc:'Long flowing teal waves',             type:'fairy',  minLevel:30 },
+    // ── Level 40 unlocks ──────────────────────────────────────────────────────────
+    { id:'time_obelisk',          emoji:'⏳', name:'Time Obelisk',       cost:50000, desc:'Ancient timekeeper of the fairy realm', type:'world', minLevel:40 },
+    { id:'shadow_sanctum',        emoji:'🌑', name:'Shadow Sanctum',     cost:65000, desc:'A sanctum between dimensions',          type:'world', minLevel:40 },
+    { id:'outfit_void',           emoji:'🌌', name:'Void Dress',         cost:4000,  desc:'Deep void gown with galaxy clusters',   type:'fairy',  minLevel:40 },
+    { id:'fairy_wings_prismatic', emoji:'🔷', name:'Prismatic Wings',    cost:3500,  desc:'Wings that split light into all colors', type:'fairy',  minLevel:40 },
+    // ── Level 50 unlocks ──────────────────────────────────────────────────────────
+    { id:'celestial_throne', emoji:'♾️', name:'Celestial Throne',   cost:100000, desc:'Throne of the Pixel Fairy Queen',       type:'world', minLevel:50 },
+    { id:'world_tree',       emoji:'🌲', name:'World Tree',          cost:80000,  desc:'The ancient tree anchoring all realms', type:'world', minLevel:50 },
+    { id:'outfit_queen',     emoji:'💫', name:"Queen's Regalia",     cost:6000,   desc:'Full royal ensemble of the Fairy Queen',type:'fairy',  minLevel:50 },
+    { id:'fairy_halo',       emoji:'🌟', name:'Celestial Halo',      cost:5000,   desc:'A divine halo of light above the head', type:'fairy',  minLevel:50 },
 ];
 var shopTabActive='world';
 
