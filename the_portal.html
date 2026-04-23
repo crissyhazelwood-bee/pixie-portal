@@ -1096,6 +1096,9 @@ function tileTree(sx,sy){
     gd.addColorStop(0,'#1c4018'); gd.addColorStop(1,'#122c10');
     fillDiamond(sx,sy,gd);
     strokeDiamond(sx,sy,'rgba(12,28,10,0.5)');
+    // Ground shadow — canopy casts bottom-right
+    ctx.fillStyle='rgba(0,0,0,.24)';
+    ctx.beginPath(); ctx.ellipse(cx+HH*.18,cy+HH*.3,HW*.44,HH*.2,0,0,Math.PI*2); ctx.fill();
     var tkW=Math.max(4,Math.round(TW_px*.1));
     var tkH=Math.round(TH_px*1.5);
     var tkg=ctx.createLinearGradient(cx-tkW,0,cx+tkW,0);
@@ -1164,6 +1167,10 @@ function drawMushroomHouse(t){
 
     ctx.save();
 
+    // ── Full house footprint shadow ──────────────────────
+    ctx.fillStyle='rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.08,by+U*0.06,U*0.9,U*0.18,0,0,Math.PI*2); ctx.fill();
+
     // ── Stem ────────────────────────────────────────────
     var sG=ctx.createLinearGradient(bx-sW,0,bx+sW,0);
     sG.addColorStop(0,'#ceb4ee');
@@ -1186,11 +1193,9 @@ function drawMushroomHouse(t){
     ctx.lineTo(bx+sW,by+U*0.05);
     ctx.closePath();
     ctx.fill();
-    // Stem base shadow on ground
-    ctx.fillStyle='rgba(0,0,0,0.18)';
-    ctx.beginPath();
-    ctx.ellipse(bx+sW*0.2,by+U*0.07,sW*0.88,U*0.1,0,0,Math.PI*2);
-    ctx.fill();
+    // Stem base shading (contact darkening at base — separate from footprint shadow above)
+    ctx.fillStyle='rgba(0,0,0,0.12)';
+    ctx.beginPath(); ctx.ellipse(bx+sW*0.2,by+U*0.05,sW*0.72,U*0.07,0,0,Math.PI*2); ctx.fill();
 
     // ── Arched door ─────────────────────────────────────
     var dW=sW*0.52, dH=sH*0.56;
@@ -1945,6 +1950,9 @@ function drawWishingWell(bx,by,t){
 
 function drawCrystalSpire(bx,by,t){
     ctx.save(); var U=TW_px;
+    // Ground shadow
+    ctx.fillStyle='rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(bx+U*0.06,by+U*0.04,U*0.26,U*0.08,0,0,Math.PI*2); ctx.fill();
     ctx.globalAlpha=0.13+Math.sin(t*1.2)*0.05;
     var gR=ctx.createRadialGradient(bx,by,0,bx,by,U*0.72);
     gR.addColorStop(0,'#a060ff'); gR.addColorStop(1,'rgba(160,96,255,0)');
@@ -3362,6 +3370,9 @@ function drawPlaced(tc,tr,sx,sy,t){
     if(fn){ fn(cx,cy,t); return; }
     var scale=SIZE_SCALE[obj.size||'M']||1.0;
     var sz=Math.round(HW*1.55*scale);
+    // Ground shadow
+    ctx.fillStyle='rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(cx+HW*0.08,cy+HH*0.06,HW*0.36*scale,HH*0.12*scale,0,0,Math.PI*2); ctx.fill();
     ctx.save();
     ctx.font=sz+'px serif';
     ctx.textAlign='center'; ctx.textBaseline='bottom';
