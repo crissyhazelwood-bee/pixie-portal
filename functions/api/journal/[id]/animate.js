@@ -74,7 +74,26 @@ export async function onRequestPost({ params, request, env }) {
     const entry = results[0];
     const prefix = STYLE_PREFIXES[style] || "";
     const text = prompt_override || [entry.title, entry.content].filter(Boolean).join(". ").slice(0, 350);
-    const prompt = `${prefix}Cinematic animated sequence: ${text}. Dreamy glowing atmosphere, ethereal magical visuals, smooth motion.`;
+
+    // Build appearance description from saved user appearance
+    const { results: userRows } = await env.DB.prepare(
+        "SELECT appearance FROM users WHERE id = ?"
+    ).bind(userId).all();
+    let appearanceLine = "";
+    try {
+        const ap = userRows[0]?.appearance ? JSON.parse(userRows[0].appearance) : null;
+        if (ap) {
+            const parts = [];
+            if (ap.hair_color || ap.hair_style) parts.push(`${[ap.hair_color, ap.hair_style].filter(Boolean).join(" ")} hair`);
+            if (ap.eye_color) parts.push(`${ap.eye_color} eyes`);
+            if (ap.skin_tone) parts.push(`${ap.skin_tone} skin`);
+            if (ap.height) parts.push(`${ap.height} tall`);
+            if (ap.build) parts.push(`${ap.build} build`);
+            if (parts.length > 0) appearanceLine = ` The main character is a person with ${parts.join(", ")}.`;
+        }
+    } catch(e) {}
+
+    const prompt = `${prefix}Cinematic animated sequence: ${text}.${appearanceLine} Dreamy glowing atmosphere, ethereal magical visuals, smooth motion.`;
 
     let replicateRes;
 
