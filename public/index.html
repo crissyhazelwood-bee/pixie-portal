@@ -484,6 +484,20 @@
         .notif-item-text strong { color:#ff96c8; }
         .notif-item-time { color:#504060; font-size:11px; margin-top:3px; }
         .notif-empty { padding:28px; text-align:center; color:#504060; font-size:13px; }
+        .report-card { background:rgba(40,20,60,0.6); border:1px solid rgba(180,150,255,0.12); border-radius:14px; padding:18px 20px; margin-bottom:14px; }
+        .report-card.resolved { opacity:0.45; }
+        .report-meta { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+        .report-type-badge { background:rgba(180,150,255,0.15); color:#b496ff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:8px; text-transform:uppercase; letter-spacing:1px; }
+        .report-reason-badge { background:rgba(255,150,200,0.12); color:#ff96c8; font-size:11px; padding:2px 8px; border-radius:8px; }
+        .report-content { background:rgba(0,0,0,0.3); border-radius:10px; padding:12px 14px; margin:10px 0; color:#c8b8e0; font-size:13px; line-height:1.5; border-left:3px solid rgba(180,150,255,0.2); }
+        .report-author { font-size:12px; color:#604080; margin-bottom:8px; }
+        .report-reporter { font-size:12px; color:#503858; }
+        .report-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+        .btn-danger { background:rgba(255,80,100,0.15); border:1px solid rgba(255,80,100,0.3); color:#ff6080; border-radius:20px; padding:5px 14px; font-size:12px; cursor:pointer; transition:all 0.2s; }
+        .btn-danger:hover { background:rgba(255,80,100,0.25); }
+        .btn-ban { background:rgba(255,120,40,0.12); border:1px solid rgba(255,120,40,0.25); color:#ff8040; border-radius:20px; padding:5px 14px; font-size:12px; cursor:pointer; transition:all 0.2s; }
+        .btn-ban:hover { background:rgba(255,120,40,0.22); }
+        .report-resolved-tag { font-size:12px; color:#504060; margin-top:10px; }
 
         @media (max-width: 768px) {
             .hero-title { font-size: 42px; }
@@ -526,6 +540,7 @@
             <a onclick="showPage('social')">Community</a>
             <a onclick="showPage('messages')" id="nav-messages-link">Messages<span class="msg-notif" id="msg-notif"></span></a>
             <a class="notif-bell" onclick="toggleNotifPanel()" id="nav-notif-bell">🔔<span class="notif-badge" id="notif-badge"></span></a>
+            <a onclick="showPage('admin')" id="nav-admin-link" style="display:none;color:#ff96c8;">⚑ Mod</a>
             <div id="nav-auth">
                 <button class="btn btn-ghost btn-small" onclick="openModal('login')">Log In</button>
                 <button class="btn btn-primary btn-small" onclick="openModal('signup')">Sign Up</button>
@@ -1046,6 +1061,19 @@
         </section>
     </div>
 
+    <!-- Admin / Moderation Page -->
+    <div class="page" id="page-admin">
+        <section>
+            <h2 style="font-family:'Pacifico',cursive;color:#ff96c8;margin-bottom:6px;">Moderation</h2>
+            <p style="color:#706080;font-size:13px;margin-bottom:24px;">Reported content from your community</p>
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <button class="btn btn-ghost btn-small" onclick="loadAdminReports('open')" id="mod-tab-open" style="color:#ff96c8;">Open</button>
+                <button class="btn btn-ghost btn-small" onclick="loadAdminReports('resolved')" id="mod-tab-resolved">Resolved</button>
+            </div>
+            <div id="admin-reports-container"><div class="empty"><span class="empty-icon">✦</span><div class="empty-text">Loading...</div></div></div>
+        </section>
+    </div>
+
     <!-- ============ MODALS ============ -->
 
     <!-- Login -->
@@ -1378,6 +1406,7 @@
             if (id === 'games') loadLeaderboard();
             if (id === 'social') loadCommunityBoard();
             if (id === 'messages') loadMessages();
+            if (id === 'admin') loadAdminReports('open');
         }
 
         function toggleMobileNav() {
@@ -1558,9 +1587,72 @@
             document.getElementById('hero-btn').onclick = () => showPage('profile');
             document.getElementById('journal-logged-out').style.display = 'none';
             document.getElementById('journal-logged-in').style.display = 'block';
+            document.getElementById('nav-admin-link').style.display = currentUser.is_admin ? 'inline' : 'none';
             loadNotifications();
             if (window._notifInterval) clearInterval(window._notifInterval);
             window._notifInterval = setInterval(loadNotifications, 30000);
+        }
+
+        // ============================================
+        // ADMIN / MODERATION
+        // ============================================
+        let _modFilter = 'open';
+
+        async function loadAdminReports(filter) {
+            _modFilter = filter || _modFilter;
+            document.getElementById('mod-tab-open').style.color = _modFilter === 'open' ? '#ff96c8' : '';
+            document.getElementById('mod-tab-resolved').style.color = _modFilter === 'resolved' ? '#ff96c8' : '';
+            const container = document.getElementById('admin-reports-container');
+            if (!container) return;
+            container.innerHTML = '<div class="empty"><span class="empty-icon">✦</span><div class="empty-text">Loading...</div></div>';
+            const res = await fetch(API + '/api/admin/reports', { credentials: 'include' });
+            const data = await res.json();
+            if (data.error) { container.innerHTML = `<div class="empty"><div class="empty-text">${escHtml(data.error)}</div></div>`; return; }
+            const all = data.reports || [];
+            const reports = _modFilter === 'open' ? all.filter(r => !r.resolved_at) : all.filter(r => r.resolved_at);
+            if (!reports.length) {
+                container.innerHTML = `<div class="empty"><span class="empty-icon">✨</span><div class="empty-text">${_modFilter === 'open' ? 'No open reports' : 'No resolved reports'}</div></div>`;
+                return;
+            }
+            container.innerHTML = reports.map(r => {
+                const date = new Date(r.created_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const typeLabel = r.target_type === 'community_post' ? 'Post' : r.target_type === 'comment' ? 'Comment' : 'Journal';
+                const contentHtml = r.content
+                    ? `<div class="report-content">${escHtml(r.content.slice(0, 300))}${r.content.length > 300 ? '…' : ''}</div>`
+                    : `<div class="report-content" style="color:#503858;font-style:italic;">[Content already removed]</div>`;
+                const actionsHtml = r.resolved_at
+                    ? `<div class="report-resolved-tag">✓ ${r.resolved_action} · ${new Date(r.resolved_at * 1000).toLocaleDateString()}</div>`
+                    : `<div class="report-actions">
+                        <button class="btn-danger" onclick="modAction(${r.id},'delete_content')">Delete Content</button>
+                        ${r.author_id ? `<button class="btn-ban" onclick="modAction(${r.id},'ban_user')">Ban User</button>` : ''}
+                        <button class="comment-toggle-btn" onclick="modAction(${r.id},'dismiss')">Dismiss</button>
+                       </div>`;
+                return `<div class="report-card${r.resolved_at ? ' resolved' : ''}" id="report-card-${r.id}">
+                    <div class="report-meta">
+                        <span class="report-type-badge">${typeLabel}</span>
+                        <span class="report-reason-badge">${escHtml(r.reason)}</span>
+                        <span style="color:#504060;font-size:11px;">${date}</span>
+                    </div>
+                    <div class="report-author">by <strong style="color:#b496ff;">${escHtml(r.author || 'unknown')}</strong></div>
+                    ${contentHtml}
+                    <div class="report-reporter">Reported by ${escHtml(r.reporter_avatar || '✦')} <strong>${escHtml(r.reporter_name || r.reporter_username)}</strong></div>
+                    ${actionsHtml}
+                </div>`;
+            }).join('');
+        }
+
+        async function modAction(reportId, action) {
+            if (action === 'delete_content' && !confirm('Delete this content? This cannot be undone.')) return;
+            if (action === 'ban_user' && !confirm('Ban this user? They will lose access to the site.')) return;
+            const res = await fetch(API + '/api/admin/reports', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report_id: reportId, action }), credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.error) { toast(data.error); return; }
+            const label = action === 'delete_content' ? 'Content deleted' : action === 'ban_user' ? 'User banned' : 'Report dismissed';
+            toast(label + ' ✦');
+            await loadAdminReports();
         }
 
         function onLogout() {
