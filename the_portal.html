@@ -1216,25 +1216,68 @@ function tileStone(sx,sy){
 function tileFairyRing(sx,sy,t){
     tileStone(sx,sy);
     var cx=sx+HW, cy=sy+HH;
-    var pulse=0.5+Math.sin(t*2.2)*0.3;
+    var pulse=0.5+Math.sin(t*2.2)*0.5;
+    var spin=t*0.65;
+
+    // Rising light pillar — tall column above the portal (no clip)
     ctx.save();
-    ctx.shadowColor='#b496ff'; ctx.shadowBlur=22;
-    ctx.strokeStyle='rgba(200,160,255,'+(0.5+pulse*.3)+')';
-    ctx.lineWidth=3;
-    ctx.beginPath(); ctx.ellipse(cx,cy,HW*.72,HH*.72,0,0,Math.PI*2); ctx.stroke();
+    var colH=HH*4.5;
+    var colG=ctx.createLinearGradient(cx,cy-colH,cx,cy);
+    colG.addColorStop(0,'rgba(180,80,255,0)');
+    colG.addColorStop(0.6,'rgba(190,100,255,'+(pulse*.07)+')');
+    colG.addColorStop(1,'rgba(220,150,255,'+(pulse*.22)+')');
+    ctx.fillStyle=colG;
+    ctx.fillRect(cx-HW*.07,cy-colH,HW*.14,colH);
     ctx.restore();
-    ctx.fillStyle='rgba(180,140,255,'+(pulse*.14)+')';
-    ctx.beginPath(); ctx.ellipse(cx,cy,HW*.72,HH*.72,0,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='rgba(255,200,255,'+(0.28+pulse*.18)+')'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.ellipse(cx,cy,HW*.46,HH*.46,0,0,Math.PI*2); ctx.stroke();
-    for(var i=0;i<9;i++){
-        var a=(i/9)*Math.PI*2+t*.55;
-        var blink=0.35+Math.sin(t*3+i*1.3)*.4;
-        ctx.fillStyle='rgba(255,240,200,'+blink+')';
-        ctx.beginPath(); ctx.arc(cx+Math.cos(a)*HW*.72,cy+Math.sin(a)*HH*.72,1.5+blink*1.2,0,Math.PI*2); ctx.fill();
+
+    // Dark void + vortex swirls — clipped to diamond
+    ctx.save();
+    diamondPath(sx,sy); ctx.clip();
+    var vg=ctx.createRadialGradient(cx,cy,0,cx,cy,HW*.66);
+    vg.addColorStop(0,'rgba(12,0,30,0.82)');
+    vg.addColorStop(0.5,'rgba(35,0,75,0.48)');
+    vg.addColorStop(1,'rgba(90,40,160,0)');
+    ctx.fillStyle=vg; ctx.fillRect(sx,sy,TW_px,TH_px);
+    // Spinning arc spokes inside void
+    for(var vi=0;vi<6;vi++){
+        var va=spin+vi*Math.PI/3;
+        var vAlpha=0.12+Math.sin(t*1.6+vi*1.05)*.07;
+        ctx.strokeStyle='rgba(190,110,255,'+vAlpha+')'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.ellipse(cx,cy,HW*.36+Math.sin(t*2+vi)*.04*HW,HH*.36+Math.sin(t*2+vi)*.04*HH,va,0,Math.PI*.6); ctx.stroke();
     }
-    ctx.fillStyle='rgba(255,220,255,'+(0.6+Math.sin(t*2.5)*.3)+')';
-    ctx.beginPath(); ctx.arc(cx,cy,2.8,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Concentric glow rings
+    ctx.save();
+    ctx.shadowColor='#c070ff'; ctx.shadowBlur=32+pulse*14;
+    ctx.strokeStyle='rgba(210,140,255,'+(0.58+pulse*.34)+')'; ctx.lineWidth=2.8;
+    ctx.beginPath(); ctx.ellipse(cx,cy,HW*.7,HH*.7,0,0,Math.PI*2); ctx.stroke();
+    ctx.shadowBlur=14;
+    ctx.strokeStyle='rgba(255,190,255,'+(0.32+pulse*.22)+')'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.ellipse(cx,cy,HW*.5,HH*.5,0,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='rgba(160,80,255,'+(0.22+pulse*.16)+')'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(cx,cy,HW*.32,HH*.32,0,0,Math.PI*2); ctx.stroke();
+    ctx.shadowBlur=0; ctx.restore();
+
+    // Orbiting rune sparks — alternating size and color
+    for(var i=0;i<9;i++){
+        var a=i/9*Math.PI*2+spin*.82;
+        var blink=0.42+Math.sin(t*3.4+i*1.4)*.45;
+        var rr=i%3===0?3.2:1.8;
+        var rc=i%3===0?'rgba(255,200,120,':'rgba(240,180,255,';
+        ctx.fillStyle=rc+blink+')';
+        ctx.shadowColor='#ffccff'; ctx.shadowBlur=10;
+        ctx.beginPath(); ctx.arc(cx+Math.cos(a)*HW*.7,cy+Math.sin(a)*HH*.7,rr+blink,0,Math.PI*2); ctx.fill();
+    }
+    ctx.shadowBlur=0;
+
+    // Center portal glow
+    var cg=ctx.createRadialGradient(cx,cy,0,cx,cy,HW*.26);
+    cg.addColorStop(0,'rgba(255,230,255,'+(0.55+pulse*.42)+')');
+    cg.addColorStop(0.45,'rgba(190,80,255,'+(0.28+pulse*.2)+')');
+    cg.addColorStop(1,'rgba(120,30,200,0)');
+    ctx.fillStyle=cg;
+    ctx.beginPath(); ctx.ellipse(cx,cy,HW*.26,HH*.26,0,0,Math.PI*2); ctx.fill();
 }
 
 function tileSand(sx,sy){
@@ -4303,7 +4346,9 @@ function drawPlayer(t){
         ctx.restore();
     }
 
-    // Name label
+    ctx.restore();
+
+    // Name label — outside the flip transform so it always reads correctly
     if(fairy.name){
         ctx.save();
         ctx.shadowColor=gc; ctx.shadowBlur=12;
@@ -4315,8 +4360,6 @@ function drawPlayer(t){
         ctx.shadowBlur=0;
         ctx.restore();
     }
-
-    ctx.restore();
 }
 
 // ── Particles ──────────────────────────────────────────────────────────────────
