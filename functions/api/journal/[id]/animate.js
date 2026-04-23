@@ -9,7 +9,7 @@ const STYLE_PREFIXES = {
     fantasy: "magical fantasy illustration style, ethereal glowing light, enchanted atmosphere, ",
 };
 
-const EXEMPT_USER_IDS = [1]; // Crissy (thatbee) — unlimited
+const EXEMPT_USER_IDS = [1, 8]; // Crissy (thatbee), Rhet (rhetfurreal) — unlimited
 
 export async function onRequestPost({ params, request, env }) {
     const userId = await getSessionUserId(env, request);
