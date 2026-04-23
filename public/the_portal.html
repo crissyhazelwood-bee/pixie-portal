@@ -653,9 +653,8 @@
         <div class="form-section">
             <label class="form-label">FAIRY TYPE</label>
             <div class="swatch-row" id="gender-row">
-                <div class="sw-emoji on" data-gender="" onclick="selectGender(this)">&#x1F9DA;</div>
-                <div class="sw-emoji" data-gender="&#x200D;&#x2640;&#xFE0F;" onclick="selectGender(this)">&#x1F9DA;&#x200D;&#x2640;&#xFE0F;</div>
-                <div class="sw-emoji" data-gender="&#x200D;&#x2642;&#xFE0F;" onclick="selectGender(this)">&#x1F9DA;&#x200D;&#x2642;&#xFE0F;</div>
+                <div class="wing-opt on" data-gender="girl" onclick="selectGender(this)">&#x2640; Girl</div>
+                <div class="wing-opt" data-gender="boy" onclick="selectGender(this)">&#x2642; Boy</div>
             </div>
         </div>
 
@@ -1787,14 +1786,16 @@ var FAIRY_ACC_DEFS=[
     {id:'fairy_halo',         emoji:'🌟', name:'Celestial Halo'},
 ];
 var FAIRY_OUTFIT_DEFS=[
-    {id:'outfit_starlight', emoji:'🌟', name:'Starlight Gown'},
-    {id:'outfit_rose',      emoji:'🌸', name:'Rose Petal Dress'},
+    {id:'outfit_starlight', emoji:'🌟', name:'Starlight Gown',   girlOnly:true},
+    {id:'outfit_rose',      emoji:'🌸', name:'Rose Petal Dress',  girlOnly:true},
     {id:'outfit_moonbeam',  emoji:'🌙', name:'Moonbeam Robe'},
     {id:'outfit_nature',    emoji:'🌿', name:'Nature Sprite'},
     {id:'outfit_ember',     emoji:'🔥', name:'Ember Dress'},
-    {id:'outfit_aurora',    emoji:'🌊', name:'Aurora Gown'},
+    {id:'outfit_aurora',    emoji:'🌊', name:'Aurora Gown',       girlOnly:true},
     {id:'outfit_void',      emoji:'🌌', name:'Void Dress'},
-    {id:'outfit_queen',     emoji:'💫', name:"Queen's Regalia"},
+    {id:'outfit_queen',     emoji:'💫', name:"Queen's Regalia",   girlOnly:true},
+    {id:'outfit_knight',    emoji:'⚔️', name:"Knight's Armor",    boyOnly:true},
+    {id:'outfit_ranger',    emoji:'🏹', name:'Forest Ranger',      boyOnly:true},
 ];
 var FAIRY_HAIR_DEFS=[
     {id:'hair_buns',   emoji:'⭐', name:'Star Buns'},
@@ -1807,10 +1808,15 @@ var FAIRY_HAIR_DEFS=[
 
 function openCustomizer(){
     document.getElementById('fairy-name-input').value=fairy.name||'';
-    // sync gender
-    document.querySelectorAll('#gender-row .sw-emoji').forEach(function(el){
-        el.classList.toggle('on',(el.getAttribute('data-gender')||'')===(fairy.gender||''));
+    // sync gender (backward-compat: old values were '' or unicode ZWJ sequences)
+    var _gSync=fairy.gender||'';
+    if(_gSync==='\u200D\u2642\uFE0F'||_gSync.indexOf('\u2642')>=0) _gSync='boy';
+    else if(_gSync==='\u200D\u2640\uFE0F'||_gSync.indexOf('\u2640')>=0) _gSync='girl';
+    else if(!_gSync) _gSync='girl';
+    document.querySelectorAll('#gender-row .wing-opt').forEach(function(el){
+        el.classList.toggle('on',(el.getAttribute('data-gender')||'')===_gSync);
     });
+    fairy.gender=_gSync;
     // sync skin
     document.querySelectorAll('#skin-row .sw').forEach(function(el){
         el.classList.toggle('on',(el.getAttribute('data-skin')||'')===(fairy.skin||''));
@@ -1845,8 +1851,14 @@ function openCustomizer(){
         row.innerHTML='<div style="color:#504060;font-size:11px;padding:4px 0;">Visit the Shop \u2728 Fairy tab to unlock accessories</div>';
     }
 
-    // outfits
-    var ownedOutfits=FAIRY_OUTFIT_DEFS.filter(function(o){return owned.indexOf(o.id)>=0;});
+    // outfits — filter by gender
+    var isBoy=_gSync==='boy';
+    var ownedOutfits=FAIRY_OUTFIT_DEFS.filter(function(o){
+        if(owned.indexOf(o.id)<0) return false;
+        if(o.boyOnly&&!isBoy) return false;
+        if(o.girlOnly&&isBoy) return false;
+        return true;
+    });
     var outfitRow=document.getElementById('outfit-row');
     outfitRow.innerHTML='';
     if(ownedOutfits.length>0){
@@ -1926,9 +1938,46 @@ function saveFairyAndClose(){
     closeCustomizer();
 }
 function selectGender(el){
-    document.querySelectorAll('#gender-row .sw-emoji').forEach(function(e){e.classList.remove('on');});
+    document.querySelectorAll('#gender-row .wing-opt').forEach(function(e){e.classList.remove('on');});
     el.classList.add('on');
-    fairy.gender=el.getAttribute('data-gender')||'';
+    fairy.gender=el.getAttribute('data-gender')||'girl';
+    // Re-render outfit list to show/hide gender-specific items
+    var owned=portalData&&portalData.plot?portalData.plot:[];
+    var isBoy=fairy.gender==='boy';
+    var ownedOutfits=FAIRY_OUTFIT_DEFS.filter(function(o){
+        if(!owned.includes(o.id)) return false;
+        if(o.boyOnly && !isBoy) return false;
+        if(o.girlOnly && isBoy) return false;
+        return true;
+    });
+    var outfitRow=document.getElementById('outfit-row');
+    outfitRow.innerHTML='';
+    if(ownedOutfits.length>0){
+        var noneBtn2=document.createElement('button');
+        noneBtn2.className='wing-opt'+((!fairy.outfit||fairy.outfit==='')?' on':'');
+        noneBtn2.textContent='\u2728 Default';
+        noneBtn2.onclick=function(){
+            fairy.outfit='';
+            document.querySelectorAll('#outfit-row .wing-opt').forEach(function(b){b.classList.remove('on');});
+            noneBtn2.classList.add('on');
+        };
+        outfitRow.appendChild(noneBtn2);
+        ownedOutfits.forEach(function(o){
+            var on=fairy.outfit===o.id;
+            var btn=document.createElement('button');
+            btn.className='wing-opt'+(on?' on':'');
+            btn.innerHTML=o.emoji+' '+o.name;
+            btn.onclick=function(){
+                var wasOn=fairy.outfit===o.id;
+                document.querySelectorAll('#outfit-row .wing-opt').forEach(function(b){b.classList.remove('on');});
+                if(wasOn){ fairy.outfit=''; noneBtn2.classList.add('on'); }
+                else{ fairy.outfit=o.id; btn.classList.add('on'); }
+            };
+            outfitRow.appendChild(btn);
+        });
+    } else {
+        outfitRow.innerHTML='<div style="color:#504060;font-size:11px;padding:4px 0;">Visit the Shop \u2728 Fairy tab to unlock outfits</div>';
+    }
     saveFairy();
 }
 function selectSkin(el){
@@ -4328,9 +4377,71 @@ function drawPlayer(t){
             ctx.beginPath(); ctx.arc(pcx+(_qg-1.5)*H*0.12,feet-H*0.06,H*0.024,0,Math.PI*2); ctx.fill();
         }
         ctx.globalAlpha=1; ctx.shadowBlur=0;
+    } else if(ot==='outfit_knight'){
+        // Knight's Armor — silver breastplate + dark pants
+        ctx.shadowColor='#c8d8e8'; ctx.shadowBlur=16;
+        // Breastplate
+        var _kG=ctx.createLinearGradient(pcx-H*0.14,shoulderY,pcx+H*0.14,shoulderY+H*0.5);
+        _kG.addColorStop(0,'#d0dce8'); _kG.addColorStop(0.4,'#a8b8cc'); _kG.addColorStop(1,'#788898');
+        ctx.fillStyle=_kG;
+        ctx.beginPath();
+        ctx.moveTo(pcx-H*0.08,shoulderY+H*0.06);
+        ctx.bezierCurveTo(pcx-H*0.17,waistY,pcx-H*0.17,waistY+H*0.1,pcx-H*0.15,waistY+H*0.18);
+        ctx.lineTo(pcx+H*0.15,waistY+H*0.18);
+        ctx.bezierCurveTo(pcx+H*0.17,waistY+H*0.1,pcx+H*0.17,waistY,pcx+H*0.08,shoulderY+H*0.06);
+        ctx.closePath(); ctx.fill();
+        // Center ridge
+        ctx.strokeStyle='#e8f0f8'; ctx.lineWidth=H*0.015; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(pcx,shoulderY+H*0.08); ctx.lineTo(pcx,waistY+H*0.16); ctx.stroke();
+        // Pauldrons (shoulder guards)
+        ctx.fillStyle='#b0c0d0'; ctx.shadowBlur=8;
+        ctx.beginPath(); ctx.ellipse(pcx-H*0.13,shoulderY+H*0.04,H*0.07,H*0.035,0.3,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(pcx+H*0.13,shoulderY+H*0.04,H*0.07,H*0.035,-0.3,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+        // Belt
+        ctx.fillStyle='#443322'; ctx.beginPath(); ctx.rect(pcx-H*0.16,waistY+H*0.14,H*0.32,H*0.05); ctx.fill();
+        ctx.fillStyle='#ccaa44'; ctx.beginPath(); ctx.rect(pcx-H*0.03,waistY+H*0.13,H*0.06,H*0.07); ctx.fill();
+        // Dark pants/legs
+        ctx.fillStyle='#2a3040';
+        ctx.beginPath(); ctx.moveTo(pcx-H*0.15,waistY+H*0.19); ctx.lineTo(pcx-H*0.03,waistY+H*0.19); ctx.lineTo(pcx-H*0.04,feet); ctx.lineTo(pcx-H*0.17,feet); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(pcx+H*0.03,waistY+H*0.19); ctx.lineTo(pcx+H*0.15,waistY+H*0.19); ctx.lineTo(pcx+H*0.17,feet); ctx.lineTo(pcx+H*0.04,feet); ctx.closePath(); ctx.fill();
+    } else if(ot==='outfit_ranger'){
+        // Forest Ranger — green tunic + brown pants + cape
+        ctx.shadowColor='#60a040'; ctx.shadowBlur=14;
+        // Cape (behind, drawn first)
+        ctx.globalAlpha=0.82;
+        var _rgC=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
+        _rgC.addColorStop(0,'#7a4820'); _rgC.addColorStop(1,'#5a3010');
+        ctx.fillStyle=_rgC;
+        ctx.beginPath();
+        ctx.moveTo(pcx+H*0.06,shoulderY+H*0.06);
+        ctx.bezierCurveTo(pcx+H*0.28,shoulderY+H*0.14,pcx+H*0.26,waistY+H*0.1,pcx+H*0.18,feet-H*0.04);
+        ctx.lineTo(pcx+H*0.04,feet-H*0.04);
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha=1;
+        // Green tunic
+        var _rtG=ctx.createLinearGradient(pcx,shoulderY,pcx,waistY+H*0.2);
+        _rtG.addColorStop(0,'#5a9a38'); _rtG.addColorStop(1,'#3a7020');
+        ctx.fillStyle=_rtG;
+        ctx.beginPath();
+        ctx.moveTo(pcx-H*0.08,shoulderY+H*0.06);
+        ctx.bezierCurveTo(pcx-H*0.18,waistY,pcx-H*0.17,waistY+H*0.1,pcx-H*0.15,waistY+H*0.2);
+        ctx.lineTo(pcx+H*0.15,waistY+H*0.2);
+        ctx.bezierCurveTo(pcx+H*0.17,waistY+H*0.1,pcx+H*0.18,waistY,pcx+H*0.08,shoulderY+H*0.06);
+        ctx.closePath(); ctx.fill(); _shimmer('rgba(160,255,160,0.5)');
+        ctx.shadowBlur=0;
+        // Leaf-pattern hem details
+        ctx.globalAlpha=0.55; ctx.fillStyle='#2a5818';
+        for(var _ri=0;_ri<4;_ri++){ ctx.beginPath(); ctx.ellipse(pcx+(_ri-1.5)*H*0.08,waistY+H*0.17,H*0.04,H*0.022,(_ri-1.5)*0.4,0,Math.PI*2); ctx.fill(); }
+        ctx.globalAlpha=1;
+        // Brown pants
+        ctx.fillStyle='#6a4020';
+        ctx.beginPath(); ctx.moveTo(pcx-H*0.15,waistY+H*0.2); ctx.lineTo(pcx-H*0.03,waistY+H*0.2); ctx.lineTo(pcx-H*0.04,feet); ctx.lineTo(pcx-H*0.17,feet); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(pcx+H*0.03,waistY+H*0.2); ctx.lineTo(pcx+H*0.15,waistY+H*0.2); ctx.lineTo(pcx+H*0.17,feet); ctx.lineTo(pcx+H*0.04,feet); ctx.closePath(); ctx.fill();
     } else {
         ctx.shadowColor=gc; ctx.shadowBlur=16;
-        if(gnd==='\u200D\u2642\uFE0F'){
+        var _isBoy=gnd==='boy'||gnd.indexOf('\u2642')>=0;
+        if(_isBoy){
             // Male — vest/tunic + separate legs
             ctx.fillStyle=gc+'dd';
             ctx.beginPath();
@@ -4345,7 +4456,7 @@ function drawPlayer(t){
             ctx.fillStyle=gc+'66';
             ctx.beginPath(); ctx.moveTo(pcx-H*0.15,waistY+H*0.18); ctx.lineTo(pcx-H*0.03,waistY+H*0.18); ctx.lineTo(pcx-H*0.05,feet-H*0.01); ctx.lineTo(pcx-H*0.17,feet-H*0.01); ctx.closePath(); ctx.fill();
             ctx.beginPath(); ctx.moveTo(pcx+H*0.03,waistY+H*0.18); ctx.lineTo(pcx+H*0.15,waistY+H*0.18); ctx.lineTo(pcx+H*0.17,feet-H*0.01); ctx.lineTo(pcx+H*0.05,feet-H*0.01); ctx.closePath(); ctx.fill();
-        } else if(gnd==='\u200D\u2640\uFE0F'){
+        } else if(!_isBoy){
             // Female — wide bell-shaped skirt, noticeably flared
             ctx.beginPath();
             ctx.moveTo(pcx-H*0.07,shoulderY+H*0.07);
@@ -4534,7 +4645,7 @@ function drawPlayer(t){
         ctx.beginPath(); ctx.ellipse(pcx-headR*0.22,headCY-headR*0.46,headR*0.46,headR*0.22,-0.35,0,Math.PI*2); ctx.fill();
         ctx.globalAlpha=1;
     } else {
-        if(gnd==='\u200D\u2642\uFE0F'){
+        if(gnd==='boy'||gnd.indexOf('\u2642')>=0){
             // Male default — short cropped hair
             ctx.beginPath();
             ctx.arc(pcx,headCY,headR*1.04,Math.PI,0);
@@ -6506,6 +6617,8 @@ var SHOP_ITEMS = [
     { id:'outfit_moonbeam',     emoji:'🌙', name:'Moonbeam Robe',     cost:700,  desc:'Deep indigo robe with crescent', type:'fairy' },
     { id:'outfit_nature',       emoji:'🌿', name:'Nature Sprite',     cost:800,  desc:'Green dress with leaf hem',      type:'fairy' },
     { id:'outfit_ember',        emoji:'🔥', name:'Ember Dress',       cost:900,  desc:'Fiery orange gown with flames',  type:'fairy' },
+    { id:'outfit_knight',       emoji:'⚔️', name:"Knight's Armor",    cost:700,  desc:'Silver breastplate with pauldrons', type:'fairy' },
+    { id:'outfit_ranger',       emoji:'🏹', name:'Forest Ranger',      cost:800,  desc:'Green tunic with brown cape',    type:'fairy' },
     { id:'hair_buns',           emoji:'⭐', name:'Star Buns',         cost:300,  desc:'Cute double buns',               type:'fairy' },
     { id:'hair_long',           emoji:'💫', name:'Long Waves',        cost:400,  desc:'Flowing waves past the waist',   type:'fairy' },
     { id:'hair_braid',          emoji:'🌈', name:'Rainbow Braid',     cost:450,  desc:'Colorful side braid',            type:'fairy' },

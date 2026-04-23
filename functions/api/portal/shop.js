@@ -82,6 +82,8 @@ const SHOP_ITEMS = {
     outfit_moonbeam:     { name: "Moonbeam Robe",     cost: 700  },
     outfit_nature:       { name: "Nature Sprite",     cost: 800  },
     outfit_ember:        { name: "Ember Dress",       cost: 900  },
+    outfit_knight:       { name: "Knight's Armor",    cost: 700  },
+    outfit_ranger:       { name: "Forest Ranger",     cost: 800  },
     hair_buns:           { name: "Star Buns",         cost: 300  },
     hair_long:           { name: "Long Waves",        cost: 400  },
     hair_braid:          { name: "Rainbow Braid",     cost: 450  },
