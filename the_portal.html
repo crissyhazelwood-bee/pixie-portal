@@ -4242,6 +4242,7 @@ function drawPlayer(t){
     };
     var _shimmer=function(sc){ ctx.globalAlpha=0.3+Math.sin(t*2.8)*0.1; ctx.strokeStyle=sc||'rgba(255,255,255,0.8)'; ctx.lineWidth=H*0.02; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(pcx-H*0.03,shoulderY+H*0.1); ctx.quadraticCurveTo(pcx-H*0.13,waistY+H*0.04,pcx-H*0.09,feet-H*0.08); ctx.stroke(); ctx.globalAlpha=1; };
     var ot=fairy.outfit||'';
+    var gnd=fairy.gender||'';
     if(ot==='outfit_starlight'){
         var _sG=ctx.createLinearGradient(pcx,shoulderY,pcx,feet);
         _sG.addColorStop(0,'#e0d8ff'); _sG.addColorStop(1,'#f8f4ff');
@@ -4327,8 +4328,33 @@ function drawPlayer(t){
         }
         ctx.globalAlpha=1; ctx.shadowBlur=0;
     } else {
-        ctx.shadowColor=gc; ctx.shadowBlur=16; _dp(); ctx.fillStyle=gc+'cc'; ctx.fill();
-        _shimmer();
+        ctx.shadowColor=gc; ctx.shadowBlur=16;
+        if(gnd==='\u200D\u2642\uFE0F'){
+            // Male — vest/tunic + separate legs
+            ctx.fillStyle=gc+'dd';
+            ctx.beginPath();
+            ctx.moveTo(pcx-H*0.07,shoulderY+H*0.07);
+            ctx.bezierCurveTo(pcx-H*0.16,waistY+H*0.04,pcx-H*0.18,waistY+H*0.1,pcx-H*0.16,waistY+H*0.18);
+            ctx.lineTo(pcx+H*0.16,waistY+H*0.18);
+            ctx.bezierCurveTo(pcx+H*0.18,waistY+H*0.1,pcx+H*0.16,waistY+H*0.04,pcx+H*0.07,shoulderY+H*0.07);
+            ctx.closePath(); ctx.fill();
+            _shimmer();
+            ctx.shadowBlur=0;
+            // Pants/legs
+            ctx.fillStyle=gc+'66';
+            ctx.beginPath(); ctx.moveTo(pcx-H*0.15,waistY+H*0.18); ctx.lineTo(pcx-H*0.03,waistY+H*0.18); ctx.lineTo(pcx-H*0.05,feet-H*0.01); ctx.lineTo(pcx-H*0.17,feet-H*0.01); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(pcx+H*0.03,waistY+H*0.18); ctx.lineTo(pcx+H*0.15,waistY+H*0.18); ctx.lineTo(pcx+H*0.17,feet-H*0.01); ctx.lineTo(pcx+H*0.05,feet-H*0.01); ctx.closePath(); ctx.fill();
+        } else if(gnd==='\u200D\u2640\uFE0F'){
+            // Female — full dress with flared hem detail
+            _dp(); ctx.fillStyle=gc+'cc'; ctx.fill(); _shimmer();
+            ctx.globalAlpha=0.35;
+            ctx.fillStyle=gc;
+            ctx.beginPath(); ctx.ellipse(pcx,feet-H*0.04,H*0.28,H*0.06,0,0,Math.PI*2); ctx.fill();
+            ctx.globalAlpha=1;
+        } else {
+            _dp(); ctx.fillStyle=gc+'cc'; ctx.fill(); _shimmer();
+        }
+        ctx.shadowBlur=0;
     }
     ctx.restore();
 
@@ -4500,16 +4526,32 @@ function drawPlayer(t){
         ctx.beginPath(); ctx.ellipse(pcx-headR*0.22,headCY-headR*0.46,headR*0.46,headR*0.22,-0.35,0,Math.PI*2); ctx.fill();
         ctx.globalAlpha=1;
     } else {
-        // Default hair
-        ctx.beginPath();
-        ctx.arc(pcx,headCY,headR*1.06,Math.PI,0);
-        ctx.bezierCurveTo(pcx+headR*1.35,headCY+headR*0.55,pcx+headR*1.1,headCY+headR*1.9,pcx+headR*0.44,shoulderY);
-        ctx.lineTo(pcx-headR*0.44,shoulderY);
-        ctx.bezierCurveTo(pcx-headR*1.1,headCY+headR*1.9,pcx-headR*1.35,headCY+headR*0.55,pcx,headCY-headR*0.06);
-        ctx.closePath(); ctx.fill();
-        ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
-        ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
-        ctx.globalAlpha=1;
+        if(gnd==='\u200D\u2642\uFE0F'){
+            // Male default — short cropped hair
+            ctx.beginPath();
+            ctx.arc(pcx,headCY,headR*1.04,Math.PI,0);
+            ctx.lineTo(pcx+headR*0.9,headCY+headR*0.35);
+            ctx.quadraticCurveTo(pcx+headR*0.7,headCY+headR*0.55,pcx+headR*0.1,headCY+headR*0.6);
+            ctx.lineTo(pcx-headR*0.1,headCY+headR*0.6);
+            ctx.quadraticCurveTo(pcx-headR*0.7,headCY+headR*0.55,pcx-headR*0.9,headCY+headR*0.35);
+            ctx.closePath(); ctx.fill();
+            // Sideburns
+            ctx.beginPath(); ctx.ellipse(pcx-headR*0.92,headCY+headR*0.42,headR*0.13,headR*0.26,0,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(pcx+headR*0.92,headCY+headR*0.42,headR*0.13,headR*0.26,0,0,Math.PI*2); ctx.fill();
+            // Small quiff
+            ctx.beginPath(); ctx.ellipse(pcx-headR*0.1,headCY-headR*1.05,headR*0.35,headR*0.16,-0.3,0,Math.PI*2); ctx.fill();
+        } else {
+            // Default long hair (female / neutral)
+            ctx.beginPath();
+            ctx.arc(pcx,headCY,headR*1.06,Math.PI,0);
+            ctx.bezierCurveTo(pcx+headR*1.35,headCY+headR*0.55,pcx+headR*1.1,headCY+headR*1.9,pcx+headR*0.44,shoulderY);
+            ctx.lineTo(pcx-headR*0.44,shoulderY);
+            ctx.bezierCurveTo(pcx-headR*1.1,headCY+headR*1.9,pcx-headR*1.35,headCY+headR*0.55,pcx,headCY-headR*0.06);
+            ctx.closePath(); ctx.fill();
+            ctx.globalAlpha=0.22; ctx.fillStyle='rgba(255,220,160,1)';
+            ctx.beginPath(); ctx.ellipse(pcx-headR*0.26,headCY-headR*0.52,headR*0.52,headR*0.26,-0.4,0,Math.PI*2); ctx.fill();
+            ctx.globalAlpha=1;
+        }
     }
 
     // ── Head sphere ───────────────────────────────────────
