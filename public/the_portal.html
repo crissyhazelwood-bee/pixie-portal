@@ -898,7 +898,7 @@ function buildMap(){
         }
     });
 
-    for(i=0;i<65;i++){
+    for(i=0;i<35;i++){
         var fr=Math.floor(rng()*(MR-10))+5,fc=Math.floor(rng()*(MC-10))+5;
         if(m[fr][fc]===TG) m[fr][fc]=TF;
     }
@@ -908,12 +908,12 @@ function buildMap(){
     }
 
     // ── Scene density: clustered flower patches ─────────────────────────────────
-    for(i=0;i<12;i++){
+    for(i=0;i<8;i++){
         var fpR=Math.floor(rng()*(MR-14))+7,fpC=Math.floor(rng()*(MC-14))+7;
         var fpS=2+Math.floor(rng()*2);
         for(r=fpR-fpS;r<=fpR+fpS;r++) for(c=fpC-fpS;c<=fpC+fpS;c++){
             var d2=(r-fpR)*(r-fpR)+(c-fpC)*(c-fpC);
-            if(d2<=fpS*fpS*1.3&&rng()<0.62&&r>5&&r<MR-5&&c>5&&c<MC-5&&m[r][c]===TG) m[r][c]=TF;
+            if(d2<=fpS*fpS*1.3&&rng()<0.38&&r>5&&r<MR-5&&c>5&&c<MC-5&&m[r][c]===TG) m[r][c]=TF;
         }
     }
 
@@ -1040,8 +1040,6 @@ function tileGrass(sx,sy,v){
         ctx.fillStyle='rgba(118,112,128,0.45)';
         ctx.beginPath(); ctx.ellipse(Math.round(cx+HW*.32),Math.round(cy+HH*.28),4,2.5,0.3,0,Math.PI*2); ctx.fill();
     }
-    // Barely-there outline — just enough depth, not enough to grid the map
-    strokeDiamond(sx,sy,'rgba(30,58,20,0.08)');
 }
 
 // Soft gradient fade on grass tiles that border stone/dirt paths
@@ -1090,7 +1088,6 @@ function tileDark(sx,sy){
     [[-HW*.3,-HH*.4,2,4],[HW*.25,-HH*.1,2,5],[HW*.4,HH*.35,2,4],[-HW*.45,HH*.4,1,3]].forEach(function(b){
         ctx.fillRect(Math.round(cx+b[0]),Math.round(cy+b[1]),b[2],b[3]);
     });
-    strokeDiamond(sx,sy,'rgba(25,55,18,0.12)');
 }
 
 function tileDirt(sx,sy){
@@ -1103,7 +1100,7 @@ function tileDirt(sx,sy){
     [[-HW*.3,-HH*.2,4,2],[HW*.2,-HH*.4,3,2],[HW*.35,HH*.3,5,2],[-HW*.15,HH*.4,3,2],[-HW*.5,HH*.1,3,2]].forEach(function(p){
         ctx.fillRect(Math.round(cx+p[0]),Math.round(cy+p[1]),p[2],p[3]);
     });
-    strokeDiamond(sx,sy,'rgba(100,70,30,0.35)');
+    strokeDiamond(sx,sy,'rgba(100,70,30,0.10)');
 }
 
 function tileWater(sx,sy,t){
@@ -1121,12 +1118,17 @@ function tileWater(sx,sy,t){
         ctx.fillStyle='rgba(255,255,255,'+(glint*.4)+')';
         ctx.beginPath(); ctx.arc(cx+HW*.25,cy-HH*.2,1.5,0,Math.PI*2); ctx.fill();
     }
-    strokeDiamond(sx,sy,'rgba(100,160,240,0.35)');
+    strokeDiamond(sx,sy,'rgba(100,160,240,0.14)');
 }
 
 function tileFlowers(sx,sy,t,v){
     tileGrass(sx,sy,v);
     var cx=sx+HW,cy=sy+HH;
+    // Ground shadows under each flower — cast toward lower-right (top-left light source)
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    [[-HW*.32,-HH*.2],[HW*.18,HH*.32],[HW*.4,HH*.05],[-HW*.12,HH*.48],[-HW*.42,HH*.22]].forEach(function(fp){
+        ctx.beginPath(); ctx.ellipse(cx+fp[0]+HW*.10,cy+fp[1]+HH*.16,HH*.15,HH*.06,0,0,Math.PI*2); ctx.fill();
+    });
     var bob=Math.sin(t*0.85+sx*.12)*1.5;
     var flowers=[
         [-HW*.32,-HH*.4,'#ff96c8','#fff8a0',.12],
@@ -1162,7 +1164,7 @@ function tileStone(sx,sy){
     ctx.beginPath();
     ctx.moveTo(sx+HW,sy); ctx.lineTo(cx,sy+HH*.5); ctx.lineTo(sx,sy+HH); ctx.closePath();
     ctx.fill();
-    strokeDiamond(sx,sy,'rgba(50,50,65,0.45)');
+    strokeDiamond(sx,sy,'rgba(50,50,65,0.18)');
 }
 
 function tileFairyRing(sx,sy,t){
@@ -1200,7 +1202,7 @@ function tileSand(sx,sy){
         var ry=sy+TH_px*(0.22+i*0.23), hw2=HW*(0.9-i*.15);
         ctx.beginPath(); ctx.moveTo(cx-hw2,ry); ctx.lineTo(cx+hw2,ry); ctx.stroke();
     }
-    strokeDiamond(sx,sy,'rgba(160,130,65,0.3)');
+    strokeDiamond(sx,sy,'rgba(160,130,65,0.10)');
 }
 
 function tileTree(sx,sy){
@@ -1209,10 +1211,9 @@ function tileTree(sx,sy){
     var gd=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
     gd.addColorStop(0,'#1c4018'); gd.addColorStop(1,'#122c10');
     fillDiamond(sx,sy,gd);
-    strokeDiamond(sx,sy,'rgba(12,28,10,0.5)');
-    // Ground shadow — canopy casts bottom-right
-    ctx.fillStyle='rgba(0,0,0,.24)';
-    ctx.beginPath(); ctx.ellipse(cx+HH*.18,cy+HH*.3,HW*.44,HH*.2,0,0,Math.PI*2); ctx.fill();
+    // Ground shadow — canopy casts toward lower-right (top-left light)
+    ctx.fillStyle='rgba(0,0,0,.32)';
+    ctx.beginPath(); ctx.ellipse(cx+HH*.24,cy+HH*.38,HW*.76,HH*.30,0,0,Math.PI*2); ctx.fill();
     var tkW=Math.max(4,Math.round(TW_px*.1));
     var tkH=Math.round(TH_px*1.5);
     var tkg=ctx.createLinearGradient(cx-tkW,0,cx+tkW,0);
@@ -1287,7 +1288,7 @@ function drawMushroomHouse(t){
     ctx.save();
 
     // ── Full house footprint shadow ──────────────────────
-    ctx.fillStyle='rgba(0,0,0,0.22)';
+    ctx.fillStyle='rgba(0,0,0,0.28)';
     ctx.beginPath(); ctx.ellipse(bx+U*0.08,by+U*0.06,U*0.9,U*0.18,0,0,Math.PI*2); ctx.fill();
 
     // ── Stem ────────────────────────────────────────────
@@ -3836,8 +3837,8 @@ function drawPlayer(t){
     ctx.restore();
 
     // Ground shadow
-    ctx.fillStyle='rgba(0,0,0,.22)';
-    ctx.beginPath(); ctx.ellipse(pcx,pcy+HH*.2,HW*.3,HH*.2,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.30)';
+    ctx.beginPath(); ctx.ellipse(pcx+HW*.06,pcy+HH*.22,HW*.40,HH*.26,0,0,Math.PI*2); ctx.fill();
 
     // Trail when moving, sparse idle dust
     if(pl.moving){
