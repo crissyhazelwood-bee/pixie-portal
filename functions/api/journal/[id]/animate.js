@@ -84,13 +84,14 @@ export async function onRequestPost({ params, request, env }) {
         const ap = userRows[0]?.appearance ? JSON.parse(userRows[0].appearance) : null;
         if (ap) {
             const parts = [];
-            if (ap.hair_color || ap.hair_style) parts.push(`${[ap.hair_color, ap.hair_style].filter(Boolean).join(" ")} hair`);
-            if (ap.eye_color) parts.push(`${ap.eye_color} eyes`);
-            if (ap.skin_tone) parts.push(`${ap.skin_tone} skin`);
-            if (ap.height) parts.push(`${ap.height} tall`);
-            if (ap.build) parts.push(`${ap.build} build`);
+            if (ap.hair_color) parts.push(`hair color: ${ap.hair_color}`);
+            if (ap.hair_style) parts.push(`hairstyle: ${ap.hair_style}`);
+            if (ap.eye_color) parts.push(`eye color: ${ap.eye_color}`);
+            if (ap.skin_tone) parts.push(`skin: ${ap.skin_tone}`);
+            if (ap.height) parts.push(`height: ${ap.height}`);
+            if (ap.build) parts.push(`build: ${ap.build}`);
             const who = ap.gender ? `a ${ap.gender}` : "a person";
-            if (parts.length > 0) appearanceLine = ` The main character is ${who} with ${parts.join(", ")}.`;
+            if (parts.length > 0) appearanceLine = ` The main character is ${who} — ${parts.join(", ")}.`;
             else if (ap.gender) appearanceLine = ` The main character is a ${ap.gender}.`;
         }
     } catch(e) {}
