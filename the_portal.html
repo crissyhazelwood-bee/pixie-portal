@@ -737,6 +737,18 @@
     <div class="bp-hint" id="build-hint">Select an item then click the world to place it &mdash; right-click to erase</div>
 </div>
 
+<!-- ════════════ RESIZE MENU ════════════ -->
+<div id="resize-menu" style="display:none;position:fixed;z-index:250;background:rgba(6,4,22,0.97);border:1px solid rgba(180,150,255,0.32);border-radius:12px;padding:10px 12px;flex-direction:column;align-items:center;gap:8px;box-shadow:0 0 24px rgba(150,80,255,0.3);">
+    <div style="color:#b090d0;font-size:10px;font-weight:700;letter-spacing:1.2px;">RESIZE</div>
+    <div style="display:flex;gap:5px;">
+        <button class="sz-btn" data-sz="S" onclick="setPlacedSize('S')">S</button>
+        <button class="sz-btn" data-sz="M" onclick="setPlacedSize('M')">M</button>
+        <button class="sz-btn" data-sz="L" onclick="setPlacedSize('L')">L</button>
+        <button class="sz-btn" data-sz="XL" onclick="setPlacedSize('XL')">XL</button>
+    </div>
+    <button onclick="closeResizeMenu()" style="background:transparent;border:none;color:#504060;cursor:pointer;font-size:11px;font-family:'Quicksand',sans-serif;padding:0;">✕ Cancel</button>
+</div>
+
 <!-- ════════════ GARDEN PANEL ════════════ -->
 <div id="garden-panel">
     <div class="bp-header">
@@ -1370,7 +1382,7 @@ function drawMushroomHouse(t){
     var tp=tileScreenPos(23,24);
     var bx=tp.sx+HW;   // visual center x
     var by=tp.sy+HH;   // visual base y (tile center)
-    var U=TW_px;       // size unit = one full tile width
+    var U=TW_px*1.16;  // size unit — 16% bigger than a tile
 
     // Proportions
     var sW=U*0.48;     // stem half-width
@@ -1381,6 +1393,14 @@ function drawMushroomHouse(t){
     var cW=U*1.58;     // cap half-width at widest
 
     ctx.save();
+
+    // ── Magical ground aura ──────────────────────────────
+    var auraG=ctx.createRadialGradient(bx,by+U*0.05,0,bx,by+U*0.05,U*1.05);
+    auraG.addColorStop(0,'rgba(180,60,255,0.13)');
+    auraG.addColorStop(0.5,'rgba(140,40,200,0.06)');
+    auraG.addColorStop(1,'rgba(100,20,160,0)');
+    ctx.fillStyle=auraG;
+    ctx.beginPath(); ctx.ellipse(bx,by+U*0.05,U*1.05,U*0.32,0,0,Math.PI*2); ctx.fill();
 
     // ── Full house footprint shadow ──────────────────────
     ctx.fillStyle='rgba(0,0,0,0.28)';
@@ -1472,7 +1492,7 @@ function drawMushroomHouse(t){
     // ── Mushroom cap ─────────────────────────────────────
     ctx.save();
     ctx.shadowColor='#ff44cc';
-    ctx.shadowBlur=26+Math.sin(t*1.6)*8;
+    ctx.shadowBlur=36+Math.sin(t*1.6)*12;
 
     // Main cap
     var capG=ctx.createRadialGradient(bx-cW*0.2,capTopY+U*0.28,0,bx,capBaseY,cW*1.32);
@@ -1549,6 +1569,26 @@ function drawMushroomHouse(t){
     ctx.globalAlpha=cPulse*0.45;
     ctx.beginPath(); ctx.arc(bx,capTopY-U*0.06,U*0.18,0,Math.PI*2); ctx.fill();
     ctx.globalAlpha=1;
+
+    // Orbiting sparkle glints around the cap
+    var orbs=[
+        {r:cW*0.68,sp:0.78,yo:capTopY+U*0.40,c:'#ffddff'},
+        {r:cW*0.90,sp:-1.12,yo:capTopY+U*0.54,c:'#ffe8aa'},
+        {r:cW*0.52,sp:1.48,yo:capTopY+U*0.30,c:'#ccaaff'},
+        {r:cW*0.76,sp:-0.64,yo:capTopY+U*0.62,c:'#ff88ee'},
+    ];
+    orbs.forEach(function(o,i){
+        var ox=bx+Math.cos(t*o.sp+i*1.57)*o.r;
+        var oy=o.yo+Math.sin(t*o.sp+i*1.57)*U*0.055;
+        var op=Math.max(0,0.45+Math.sin(t*3.4+i*2.2)*0.48);
+        ctx.globalAlpha=op;
+        ctx.shadowColor=o.c; ctx.shadowBlur=14;
+        ctx.fillStyle=o.c;
+        ctx.beginPath(); ctx.arc(ox,oy,U*0.042,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=op*0.28;
+        ctx.beginPath(); ctx.arc(ox,oy,U*0.09,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
     ctx.restore();
 
     // ── Chimney ──────────────────────────────────────────
@@ -3758,6 +3798,31 @@ function clearAllPlaced(){
     placed={}; savePlaced();
 }
 
+// ── Placed-item resize menu ─────────────────────────────
+var _resizeKey=null;
+function openResizeMenu(key,x,y){
+    _resizeKey=key;
+    var m=document.getElementById('resize-menu');
+    m.style.display='flex';
+    var cur=(placed[key]&&placed[key].size)||'M';
+    m.querySelectorAll('.sz-btn').forEach(function(b){
+        b.classList.toggle('active',b.getAttribute('data-sz')===cur);
+    });
+    // Keep menu on screen
+    m.style.left=Math.min(x-60,window.innerWidth-150)+'px';
+    m.style.top=Math.max(8,y-110)+'px';
+}
+function closeResizeMenu(){
+    document.getElementById('resize-menu').style.display='none';
+    _resizeKey=null;
+}
+function setPlacedSize(sz){
+    if(!_resizeKey||!placed[_resizeKey]) return;
+    placed[_resizeKey].size=sz;
+    savePlaced();
+    closeResizeMenu();
+}
+
 // Convert screen coords → iso tile coords
 function screenToTile(sx,sy){
     var u=sx-OX+cam.x;
@@ -3785,6 +3850,7 @@ var camDragged=false; // true after user pans — holds view until player moves
 var lastTapTime=0, lastTapX=0, lastTapY=0;
 canvas.addEventListener('pointerdown',function(e){
     if(!started) return;
+    if(_resizeKey) closeResizeMenu();
     var now=Date.now();
     var rect0=canvas.getBoundingClientRect();
     var csx0=e.clientX-rect0.left, csy0=e.clientY-rect0.top;
@@ -3883,13 +3949,13 @@ canvas.addEventListener('pointerup',function(e){
 });
 canvas.addEventListener('pointercancel',function(){ drag.on=false; drag.moved=false; pendingGardenSlot=-1; });
 
-// Right-click to erase quickly
+// Right-click: erase in build mode, resize menu otherwise
 canvas.addEventListener('contextmenu',function(e){
-    if(!started||!buildMode) return;
+    if(!started) return;
     e.preventDefault();
     var rect=canvas.getBoundingClientRect();
     var csx=e.clientX-rect.left, csy=e.clientY-rect.top;
-    var bestKey=null, bestDist=TW_px*TW_px*2;
+    var bestKey=null, bestDist=TW_px*TW_px*2.5;
     Object.keys(placed).forEach(function(k){
         var kp=k.split(',');
         var sp=tileScreenPos(parseInt(kp[1]),parseInt(kp[0]));
@@ -3897,7 +3963,11 @@ canvas.addEventListener('contextmenu',function(e){
         var d=(csx-cx2)*(csx-cx2)+(csy-cy2)*(csy-cy2);
         if(d<bestDist){bestDist=d;bestKey=k;}
     });
-    if(bestKey){ delete placed[bestKey]; savePlaced(); }
+    if(buildMode){
+        if(bestKey){ delete placed[bestKey]; savePlaced(); }
+    } else {
+        if(bestKey) openResizeMenu(bestKey,e.clientX,e.clientY);
+    }
 });
 
 // ── Player ─────────────────────────────────────────────────────────────────────
