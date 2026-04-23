@@ -1128,6 +1128,16 @@ function tileWater(sx,sy,t,col,row){
         ctx.beginPath(); ctx.arc(cx+HW*.22,cy-HH*.18,1.5+glint*.5,0,Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(cx-HW*.14,cy+HH*.1,1.0,0,Math.PI*2); ctx.fill();
     }
+    // Moon shimmer at night — slow pale-blue stripe drifting across water
+    var nh=new Date().getHours(); var nf=(nh<5.5||nh>=20.5)?1:(nh<8?Math.max(0,(8-nh)/2.5):(nh>=18?Math.max(0,(nh-18)/2.5):0));
+    if(nf>0.2){
+        var msh=cx+Math.sin(t*0.28+sx*.008)*HW*.5;
+        var mg=ctx.createLinearGradient(msh-HW*.45,cy-HH*.3,msh+HW*.45,cy+HH*.3);
+        mg.addColorStop(0,'rgba(200,220,255,0)');
+        mg.addColorStop(0.5,'rgba(200,220,255,'+(nf*.14)+')');
+        mg.addColorStop(1,'rgba(200,220,255,0)');
+        ctx.fillStyle=mg; ctx.fillRect(sx,sy,TW_px,TH_px);
+    }
     ctx.restore();
     // Lily pad — 1 in 6 water tiles, deterministic by position
     if(((col||0)*3+(row||0)*5)%6===0){
@@ -3882,10 +3892,11 @@ function drawPlayer(t){
     ctx.fillStyle='rgba(0,0,0,.30)';
     ctx.beginPath(); ctx.ellipse(pcx+HW*.06,pcy+HH*.22,HW*.40,HH*.26,0,0,Math.PI*2); ctx.fill();
 
-    // Trail when moving, sparse idle dust
+    // Trail when moving, sparse idle dust, terrain footsteps
     if(pl.moving){
         if(Math.random()<0.62) spawnTrail(pcx,feet-H*0.08);
         if(Math.random()<0.18) spawnDust(pcx,feet-H*0.12);
+        if(Math.random()<0.38) spawnFootstep(pcx,feet);
     } else {
         if(Math.random()<0.10) spawnDust(pcx,feet-H*0.12);
     }
@@ -4333,6 +4344,26 @@ function spawnTrail(x,y){
         life:1,ml:.3+Math.random()*.4,r:.7+Math.random()*1.4,
         c:DUST_CLR[Math.floor(Math.random()*DUST_CLR.length)],
         grav:5,bl:12});
+}
+
+function spawnFootstep(pcx,feet){
+    if(!map||!map[pl.tr]) return;
+    var tile=map[pl.tr][pl.tc];
+    var x=pcx+(Math.random()-.5)*10, y=feet+HH*.08;
+    var a=Math.PI+(Math.random()-.5)*.7, sp=5+Math.random()*9;
+    var vx=Math.cos(a)*sp, vy=Math.sin(a)*sp-3;
+    if(tile===TS)
+        parts.push({x:x,y:y,vx:vx,vy:vy,life:1,ml:.24+Math.random()*.14,r:1.1+Math.random()*1.3,c:'rgba(148,144,168,0.72)',grav:58,bl:0});
+    else if(tile===TN)
+        parts.push({x:x,y:y,vx:vx,vy:vy,life:1,ml:.24+Math.random()*.14,r:1.1+Math.random()*1.3,c:'rgba(204,172,102,0.72)',grav:58,bl:0});
+    else if(tile===TD)
+        parts.push({x:x,y:y,vx:vx,vy:vy,life:1,ml:.24+Math.random()*.14,r:1.1+Math.random()*1.3,c:'rgba(138,98,52,0.68)',grav:58,bl:0});
+    else if(tile===TG||tile===TK)
+        parts.push({x:x,y:y,vx:(Math.random()-.5)*8,vy:-4-Math.random()*6,life:1,ml:.32+Math.random()*.18,r:1.0+Math.random()*1.1,c:tile===TK?'rgba(44,98,24,0.62)':'rgba(70,158,44,0.62)',grav:48,bl:0});
+    else if(tile===TF){
+        var pc=['rgba(255,150,200,0.72)','rgba(180,140,255,0.72)','rgba(255,210,90,0.72)'];
+        parts.push({x:x,y:y,vx:(Math.random()-.5)*12,vy:-5-Math.random()*7,life:1,ml:.36+Math.random()*.18,r:1.1+Math.random()*1.2,c:pc[Math.floor(Math.random()*pc.length)],grav:42,bl:0});
+    }
 }
 
 // ── Fireflies ──────────────────────────────────────────────────────────────────
