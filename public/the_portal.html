@@ -5455,7 +5455,7 @@ var PLANT_DRAW = {};
 }(PLANT_DRAW));
 
 function drawPlantCanvas(key,cx,plantY,t,stage){
-    var R=Math.round(TW_px*0.32);
+    var R=Math.round(HW*1.3);
     var sc=stage===0?0.48:stage===1?0.74:1.0;
     ctx.save();
     ctx.translate(cx,plantY); ctx.scale(sc,sc);
