@@ -901,6 +901,7 @@
                 <div class="journal-top-row">
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn btn-primary" onclick="openModal('new-entry')">✦ New Entry</button>
+                        <button class="btn btn-ghost btn-small" onclick="openModal('appearance')" style="background:rgba(255,150,200,0.08);border-color:rgba(255,150,200,0.25);">👤 My Appearance</button>
                         <div style="display:flex;align-items:center;gap:4px;">
                             <button class="btn btn-ghost btn-small" onclick="randomDream()" style="background:rgba(180,100,255,0.12);border-color:rgba(180,100,255,0.35);">🌙 Random Dream</button>
                             <select id="random-dream-style" class="style-picker" style="height:30px;font-size:11px;padding:0 6px;border-radius:8px;">
@@ -1303,6 +1304,40 @@
                 <textarea id="edit-bio" placeholder="tell us about yourself"></textarea>
             </div>
             <button class="btn btn-primary" onclick="saveProfile()" style="width:100%;">Save ✦</button>
+        </div>
+    </div>
+
+    <!-- My Appearance -->
+    <div class="modal-overlay" id="modal-appearance">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>My Appearance</h2>
+            <p class="sub">so your journal always knows how you look ✦</p>
+            <div class="form-group">
+                <label>Hair Color</label>
+                <input type="text" id="appearance-hair-color" placeholder="e.g. auburn, dark brown" maxlength="80">
+            </div>
+            <div class="form-group">
+                <label>Hair Length / Style</label>
+                <input type="text" id="appearance-hair-style" placeholder="e.g. long wavy, short curly" maxlength="80">
+            </div>
+            <div class="form-group">
+                <label>Eye Color</label>
+                <input type="text" id="appearance-eye-color" placeholder="e.g. hazel, blue-green" maxlength="80">
+            </div>
+            <div class="form-group">
+                <label>Skin Tone</label>
+                <input type="text" id="appearance-skin-tone" placeholder="e.g. light, medium, deep" maxlength="80">
+            </div>
+            <div class="form-group">
+                <label>Height</label>
+                <input type="text" id="appearance-height" placeholder='e.g. 5&apos;4"' maxlength="40">
+            </div>
+            <div class="form-group">
+                <label>Build</label>
+                <input type="text" id="appearance-build" placeholder="e.g. petite, athletic, curvy" maxlength="80">
+            </div>
+            <button class="btn btn-primary" onclick="saveAppearance()" style="width:100%;">Save ✦</button>
         </div>
     </div>
 
@@ -2824,6 +2859,30 @@
             loadJournal();
         }
 
+        async function saveAppearance() {
+            const ap = {
+                hair_color: document.getElementById('appearance-hair-color').value.trim(),
+                hair_style: document.getElementById('appearance-hair-style').value.trim(),
+                eye_color: document.getElementById('appearance-eye-color').value.trim(),
+                skin_tone: document.getElementById('appearance-skin-tone').value.trim(),
+                height: document.getElementById('appearance-height').value.trim(),
+                build: document.getElementById('appearance-build').value.trim(),
+            };
+            await fetch(API + '/api/profile', {
+                method: 'PUT', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    display_name: currentUser.display_name,
+                    bio: currentUser.bio,
+                    avatar_emoji: currentUser.avatar_emoji,
+                    appearance: ap
+                }),
+                credentials: 'include'
+            });
+            currentUser.appearance = ap;
+            closeModals();
+            toast('Appearance saved ✦');
+        }
+
         async function saveProfile() {
             const data = {
                 display_name: document.getElementById('edit-name').value,
@@ -2869,6 +2928,15 @@
                 document.getElementById('edit-avatar').value = currentUser.avatar_emoji || '✦';
             }
             if (id === 'shop') updateFairyShopCard();
+            if (id === 'appearance' && currentUser) {
+                const ap = currentUser.appearance || {};
+                document.getElementById('appearance-hair-color').value = ap.hair_color || '';
+                document.getElementById('appearance-hair-style').value = ap.hair_style || '';
+                document.getElementById('appearance-eye-color').value = ap.eye_color || '';
+                document.getElementById('appearance-skin-tone').value = ap.skin_tone || '';
+                document.getElementById('appearance-height').value = ap.height || '';
+                document.getElementById('appearance-build').value = ap.build || '';
+            }
         }
         function closeModals() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
