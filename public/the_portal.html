@@ -1103,22 +1103,57 @@ function tileDirt(sx,sy){
     strokeDiamond(sx,sy,'rgba(100,70,30,0.10)');
 }
 
-function tileWater(sx,sy,t){
+function tileWater(sx,sy,t,col,row){
     var cx=sx+HW,cy=sy+HH;
+    // Base — slightly deeper blue
     var g=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
-    g.addColorStop(0,'#5aaae0'); g.addColorStop(0.5,'#3d80c8'); g.addColorStop(1,'#1e58a0');
+    g.addColorStop(0,'#4898d8'); g.addColorStop(0.5,'#2d6ab8'); g.addColorStop(1,'#1a4a90');
     fillDiamond(sx,sy,g);
-    var w1=Math.sin(t*1.3+sx*.02)*HH*.35, w2=Math.sin(t*.85+sx*.016+1.8)*HH*.3;
-    ctx.fillStyle='rgba(130,200,255,0.28)';
-    ctx.fillRect(Math.round(cx-HW*.4),Math.round(cy-HH*.22+w1),Math.round(HW*.8),Math.round(HH*.2));
-    ctx.fillStyle='rgba(130,200,255,0.18)';
-    ctx.fillRect(Math.round(cx-HW*.25),Math.round(cy+HH*.08+w2),Math.round(HW*.6),Math.round(HH*.16));
+    // Clipped ripple bands — gradient stripes constrained to diamond
+    ctx.save();
+    diamondPath(sx,sy); ctx.clip();
+    var ph=t*1.1+sx*.018+sy*.012;
+    [[HH*.12, 1.3, 0.22],[HH*.36, 0.85, 0.16],[-HH*.06, 1.55, 0.11]].forEach(function(w){
+        var wy=cy+w[0]*Math.sin(ph*w[1])-w[0]*0.4;
+        var wg=ctx.createLinearGradient(sx,wy-w[2]*HH,sx,wy+w[2]*HH);
+        wg.addColorStop(0,'rgba(130,200,255,0)');
+        wg.addColorStop(0.5,'rgba(130,200,255,'+w[2]*1.5+')');
+        wg.addColorStop(1,'rgba(130,200,255,0)');
+        ctx.fillStyle=wg; ctx.fillRect(sx,wy-w[2]*HH,TW_px,w[2]*HH*2);
+    });
+    // Glint
     var glint=0.5+Math.sin(t*3.2+sx*.05)*0.5;
-    if(glint>0.82){
-        ctx.fillStyle='rgba(255,255,255,'+(glint*.4)+')';
-        ctx.beginPath(); ctx.arc(cx+HW*.25,cy-HH*.2,1.5,0,Math.PI*2); ctx.fill();
+    if(glint>0.72){
+        ctx.fillStyle='rgba(255,255,255,'+(glint*.42)+')';
+        ctx.beginPath(); ctx.arc(cx+HW*.22,cy-HH*.18,1.5+glint*.5,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx-HW*.14,cy+HH*.1,1.0,0,Math.PI*2); ctx.fill();
     }
-    strokeDiamond(sx,sy,'rgba(100,160,240,0.14)');
+    ctx.restore();
+    // Lily pad — 1 in 6 water tiles, deterministic by position
+    if(((col||0)*3+(row||0)*5)%6===0){
+        var lx=cx+HW*0.06, ly=cy-HH*0.05;
+        ctx.fillStyle='rgba(0,0,0,0.16)';
+        ctx.beginPath(); ctx.ellipse(lx+HW*0.06,ly+HH*0.08,HW*0.26,HH*0.14,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#2a5e1e';
+        ctx.beginPath(); ctx.ellipse(lx,ly,HW*0.24,HH*0.13,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(80,160,40,0.50)';
+        ctx.beginPath(); ctx.ellipse(lx-HW*0.07,ly-HH*0.04,HW*0.09,HH*0.05,-0.3,0,Math.PI*2); ctx.fill();
+        // V-notch (cut out a wedge pointing up-left in isometric)
+        ctx.fillStyle='#2d6ab8';
+        ctx.beginPath(); ctx.moveTo(lx,ly);
+        ctx.lineTo(lx-HW*0.15,ly-HH*0.1); ctx.lineTo(lx-HW*0.04,ly-HH*0.13);
+        ctx.closePath(); ctx.fill();
+        // Tiny water lily on 1 in 4 pads
+        if(((col||0)*7+(row||0)*11)%4===0){
+            ctx.fillStyle='#ff96c8';
+            for(var lp=0;lp<5;lp++){
+                var la=lp/5*Math.PI*2;
+                ctx.beginPath(); ctx.arc(lx+Math.cos(la)*HW*0.07,ly+Math.sin(la)*HH*0.05,HW*0.045,0,Math.PI*2); ctx.fill();
+            }
+            ctx.fillStyle='#fff8a0';
+            ctx.beginPath(); ctx.arc(lx,ly,HW*0.035,0,Math.PI*2); ctx.fill();
+        }
+    }
 }
 
 function tileFlowers(sx,sy,t,v){
@@ -1130,6 +1165,7 @@ function tileFlowers(sx,sy,t,v){
         ctx.beginPath(); ctx.ellipse(cx+fp[0]+HW*.10,cy+fp[1]+HH*.16,HH*.15,HH*.06,0,0,Math.PI*2); ctx.fill();
     });
     var bob=Math.sin(t*0.85+sx*.12)*1.5;
+    var sway=Math.sin(t*0.72+sx*.018+sy*.014)*2.0;
     var flowers=[
         [-HW*.32,-HH*.4,'#ff96c8','#fff8a0',.12],
         [HW*.18,HH*.2,'#b496ff','#ffff80',.11],
@@ -1138,7 +1174,7 @@ function tileFlowers(sx,sy,t,v){
         [-HW*.42,HH*.12,'#ffaadd','#ffffff',.10]
     ];
     flowers.forEach(function(f){
-        var fx=cx+f[0], fy=cy+f[1]+bob, pr=f[4]*TW_px;
+        var fx=cx+f[0]+sway, fy=cy+f[1]+bob, pr=f[4]*TW_px;
         ctx.fillStyle=f[2];
         for(var p=0;p<5;p++){
             var a=p/5*Math.PI*2;
@@ -1205,7 +1241,7 @@ function tileSand(sx,sy){
     strokeDiamond(sx,sy,'rgba(160,130,65,0.10)');
 }
 
-function tileTree(sx,sy,v){
+function tileTree(sx,sy,v,t){
     var cx=sx+HW, cy=sy+HH;
     drawSides(sx,sy,'#0e2808','#081a04');
     var gd=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
@@ -1213,9 +1249,11 @@ function tileTree(sx,sy,v){
     fillDiamond(sx,sy,gd);
     // Size variation: small / normal / tall / giant based on tile hash
     var sc=[0.76,0.76,1.0,1.0,1.0,1.24,1.24,1.42][(v||0)%8];
+    // Wind sway — canopy drifts left/right, each tile offset by position for phase variety
+    var sway=Math.sin((t||0)*0.68+sx*0.022+sy*0.015)*HW*0.045*sc;
     // Ground shadow scales with tree size
     ctx.fillStyle='rgba(0,0,0,.32)';
-    ctx.beginPath(); ctx.ellipse(cx+HH*.24,cy+HH*.38,HW*.76*sc,HH*.30*sc,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+HH*.24+sway*.4,cy+HH*.38,HW*.76*sc,HH*.30*sc,0,0,Math.PI*2); ctx.fill();
     var tkW=Math.max(3,Math.round(TW_px*.1*sc));
     var tkH=Math.round(TH_px*1.5*sc);
     var tkg=ctx.createLinearGradient(cx-tkW,0,cx+tkW,0);
@@ -1223,17 +1261,19 @@ function tileTree(sx,sy,v){
     ctx.fillStyle=tkg;
     ctx.fillRect(cx-Math.round(tkW/2),cy-tkH,tkW,tkH);
     var top=cy-tkH;
+    // Canopy center is shifted by sway — trunk stays fixed
+    var ccx=cx+sway;
     ctx.fillStyle='#1a3e16';
-    ctx.beginPath(); ctx.arc(cx,top,TW_px*.44*sc,0,Math.PI*2); ctx.fill();
-    var cg=ctx.createRadialGradient(cx-HW*.15*sc,top-TH_px*.12*sc,0,cx,top,TW_px*.42*sc);
+    ctx.beginPath(); ctx.arc(ccx,top,TW_px*.44*sc,0,Math.PI*2); ctx.fill();
+    var cg=ctx.createRadialGradient(ccx-HW*.15*sc,top-TH_px*.12*sc,0,ccx,top,TW_px*.42*sc);
     cg.addColorStop(0,'#62cc50'); cg.addColorStop(0.5,'#3c8c28'); cg.addColorStop(1,'#1c5012');
     ctx.fillStyle=cg;
-    ctx.beginPath(); ctx.arc(cx,top,TW_px*.42*sc,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ccx,top,TW_px*.42*sc,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#48a438';
-    ctx.beginPath(); ctx.arc(cx-HW*.35*sc,top+TH_px*.05*sc,TW_px*.26*sc,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+HW*.3*sc,top+TH_px*.08*sc,TW_px*.22*sc,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ccx-HW*.35*sc,top+TH_px*.05*sc,TW_px*.26*sc,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ccx+HW*.3*sc,top+TH_px*.08*sc,TW_px*.22*sc,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#74dc58';
-    ctx.beginPath(); ctx.arc(cx,top-TH_px*.32*sc,TW_px*.16*sc,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ccx,top-TH_px*.32*sc,TW_px*.16*sc,0,Math.PI*2); ctx.fill();
 }
 
 function tileRock(sx,sy,v){
@@ -1256,13 +1296,13 @@ function drawTile(type,sx,sy,t,col,row){
     switch(type){
         case TG: tileGrass(sx,sy,v); break;
         case TD: tileDirt(sx,sy); break;
-        case TW: tileWater(sx,sy,t); break;
+        case TW: tileWater(sx,sy,t,col,row); break;
         case TF: tileFlowers(sx,sy,t,v); break;
         case TK: tileDark(sx,sy); break;
         case TS: tileStone(sx,sy); break;
         case TY: tileFairyRing(sx,sy,t); break;
         case TN: tileSand(sx,sy); break;
-        case TR: tileTree(sx,sy,v); break;
+        case TR: tileTree(sx,sy,v,t); break;
         case TO: tileRock(sx,sy,v); break;
     }
     // Soft gradient fade on grass bordering paths
@@ -4297,7 +4337,7 @@ function spawnTrail(x,y){
 
 // ── Fireflies ──────────────────────────────────────────────────────────────────
 var fireflies=[];
-var FFY_MAX=28;
+var FFY_MAX=42;
 var FFY_CLR=['#ffffa0','#c0ffb0','#fff0b0','#e0ffff'];
 
 function updateFireflies(dt,t){
