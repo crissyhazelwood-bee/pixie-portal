@@ -1306,6 +1306,22 @@
         </div>
     </div>
 
+    <!-- Crisis / 988 Modal -->
+    <div class="modal-overlay" id="modal-crisis">
+        <div class="modal" style="text-align:center;border:1px solid rgba(255,150,200,0.25);">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <div style="font-size:48px;margin-bottom:10px;">💖</div>
+            <h2 style="color:#ff96c8;">You're not alone</h2>
+            <p style="color:#b0a0c8;margin:14px 0 20px;line-height:1.7;font-size:14px;">If you're going through something painful right now, please reach out. Help is available 24/7, it's free, and it's confidential.</p>
+            <div style="background:rgba(255,150,200,0.08);border:1px solid rgba(255,150,200,0.2);border-radius:16px;padding:22px;margin-bottom:22px;">
+                <div style="font-size:42px;font-weight:700;color:#ff96c8;letter-spacing:4px;">988</div>
+                <div style="color:#e0d0ff;font-size:15px;font-weight:600;margin-top:8px;">Suicide &amp; Crisis Lifeline</div>
+                <div style="color:#9080b0;font-size:13px;margin-top:6px;">Call or text <strong style="color:#ff96c8;">988</strong> — available right now</div>
+            </div>
+            <button class="btn btn-primary" onclick="closeModals()" style="width:100%;">I understand 💖</button>
+        </div>
+    </div>
+
     <!-- Report Modal -->
     <div class="modal-overlay" id="modal-report">
         <div class="modal">
@@ -2099,6 +2115,7 @@
                 body: JSON.stringify({ target_type: type, target_id: id, content: input.value.trim() }), credentials: 'include'
             });
             const data = await res.json();
+            if (data.error === 'crisis') { openModal('crisis'); return; }
             if (data.error) { toast(data.error); return; }
             if (data.success) {
                 input.value = '';
@@ -2207,6 +2224,7 @@
                 body: JSON.stringify({ content: ta.value.trim() }), credentials: 'include'
             });
             const data = await res.json();
+            if (data.error === 'crisis') { openModal('crisis'); return; }
             if (data.error) { toast(data.error); return; }
             if (data.success) { ta.value = ''; await loadCommunityBoard(); toast('Posted ✦'); }
         }
@@ -2616,6 +2634,7 @@
                 body: JSON.stringify({ recipient_id: dmOtherUserId, content: input.value.trim() }), credentials: 'include'
             });
             const data = await res.json();
+            if (data.error === 'crisis') { openModal('crisis'); return; }
             if (data.error) { toast(data.error); return; }
             input.value = '';
             await loadDmThread();

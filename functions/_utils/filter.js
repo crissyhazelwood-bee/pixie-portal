@@ -1,8 +1,18 @@
-// Content filter — blocks slurs and severe profanity.
-// Add terms to the lists below to expand coverage.
-
+// Content filter — blocks slurs, severe profanity, and crisis content.
 // Each entry is a regex tested against the normalized input.
 // Normalization: lowercase, common leet-speak substitutions, collapse repeated chars.
+
+// Crisis terms — checked separately so callers can show a 988 prompt instead of a generic block.
+const CRISIS = [
+    /\bsuicid/,                         // suicide, suicidal, suicides
+    /kill\s*my\s*self/,                 // kill myself / kill my self
+    /\bkms\b/,                          // kms
+    /end\s*(it\s*all|my\s*life)/,       // end it all / end my life
+    /self[\s-]?harm/,                   // self harm / self-harm
+    /cut\s*my\s*self/,                  // cut myself
+    /want\s*to\s*die/,                  // want to die
+];
+
 const BLOCKED = [
     // ── Racial / ethnic slurs ──
     /\bn[i1!]+gg[ae3]+r?s?\b/,
@@ -86,6 +96,12 @@ function normalize(text) {
         .replace(/[$]/g, 's')
         // collapse runs of identical letters (heeelllo → hello)
         .replace(/(.)\1{2,}/g, '$1$1');
+}
+
+export function isCrisis(text) {
+    if (!text || typeof text !== 'string') return false;
+    const norm = normalize(text);
+    return CRISIS.some(pattern => pattern.test(norm));
 }
 
 export function isBlocked(text) {
