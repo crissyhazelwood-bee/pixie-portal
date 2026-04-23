@@ -734,7 +734,7 @@
         </div>
     </div>
     <div class="palette" id="palette-grid"></div>
-    <div class="bp-hint" id="build-hint">Select an item then click the world to place it &mdash; right-click to erase</div>
+    <div class="bp-hint" id="build-hint">Select an item then tap the world to place it &mdash; right-click or hold to erase &bull; outside build mode: hold any placed item to resize it</div>
 </div>
 
 <!-- ════════════ RESIZE MENU ════════════ -->
@@ -3809,8 +3809,8 @@ function openResizeMenu(key,x,y){
         b.classList.toggle('active',b.getAttribute('data-sz')===cur);
     });
     // Keep menu on screen
-    m.style.left=Math.min(x-60,window.innerWidth-150)+'px';
-    m.style.top=Math.max(8,y-110)+'px';
+    m.style.left=Math.max(4,Math.min(x-70,window.innerWidth-160))+'px';
+    m.style.top=Math.max(4,Math.min(y-120,window.innerHeight-140))+'px';
 }
 function closeResizeMenu(){
     document.getElementById('resize-menu').style.display='none';
@@ -3847,10 +3847,29 @@ var camDragged=false; // true after user pans — holds view until player moves
 
 // Canvas pointer handling: build placement + drag-to-pan
 // Double-tap/click to pick up and move a placed object
+// Long-press (600ms hold without moving) opens the resize menu
 var lastTapTime=0, lastTapX=0, lastTapY=0;
+var _lpTimer=null, _lpFired=false, _lpClientX=0, _lpClientY=0;
 canvas.addEventListener('pointerdown',function(e){
     if(!started) return;
     if(_resizeKey) closeResizeMenu();
+    _lpFired=false; _lpClientX=e.clientX; _lpClientY=e.clientY;
+    if(!buildMode&&!eraseMode){
+        _lpTimer=setTimeout(function(){
+            _lpFired=true; _lpTimer=null;
+            var rect=canvas.getBoundingClientRect();
+            var csx=_lpClientX-rect.left, csy=_lpClientY-rect.top;
+            var bestKey=null, bestDist=TW_px*TW_px*3;
+            Object.keys(placed).forEach(function(k){
+                var kp=k.split(',');
+                var sp=tileScreenPos(parseInt(kp[1]),parseInt(kp[0]));
+                var cx2=sp.sx+HW, cy2=sp.sy+HH;
+                var d=(csx-cx2)*(csx-cx2)+(csy-cy2)*(csy-cy2);
+                if(d<bestDist){bestDist=d;bestKey=k;}
+            });
+            if(bestKey) openResizeMenu(bestKey,_lpClientX,_lpClientY);
+        },600);
+    }
     var now=Date.now();
     var rect0=canvas.getBoundingClientRect();
     var csx0=e.clientX-rect0.left, csy0=e.clientY-rect0.top;
@@ -3920,11 +3939,16 @@ canvas.addEventListener('pointerdown',function(e){
 canvas.addEventListener('pointermove',function(e){
     if(!drag.on) return;
     var dx=e.clientX-drag.px, dy=e.clientY-drag.py;
-    if(!drag.moved&&Math.sqrt(dx*dx+dy*dy)>4) drag.moved=true;
+    if(!drag.moved&&Math.sqrt(dx*dx+dy*dy)>6){
+        drag.moved=true;
+        if(_lpTimer){clearTimeout(_lpTimer);_lpTimer=null;}
+    }
     if(drag.moved){ cam.x=drag.camX-dx; cam.y=drag.camY-dy; }
     e.preventDefault();
 },{passive:false});
 canvas.addEventListener('pointerup',function(e){
+    if(_lpTimer){clearTimeout(_lpTimer);_lpTimer=null;}
+    if(_lpFired){drag.on=false;drag.moved=false;pendingGardenSlot=-1;return;}
     if(!drag.moved&&pendingGardenSlot>=0) handleWorldGardenClick(pendingGardenSlot);
     if(!drag.moved&&!buildMode&&!mgActive){
         var rect2=canvas.getBoundingClientRect();
