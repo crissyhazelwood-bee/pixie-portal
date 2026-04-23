@@ -36,15 +36,23 @@ export async function onRequestPost({ request, env }) {
     if (!target_type || !target_id) return resp({ error: "Missing params" }, 400);
 
     const { results: existing } = await env.DB.prepare(
-        "SELECT id FROM reactions WHERE user_id = ? AND target_type = ? AND target_id = ?"
+        "SELECT id, reaction FROM reactions WHERE user_id = ? AND target_type = ? AND target_id = ?"
     ).bind(userId, target_type, parseInt(target_id)).all();
 
     if (existing.length > 0) {
-        // Toggle off
-        await env.DB.prepare(
-            "DELETE FROM reactions WHERE user_id = ? AND target_type = ? AND target_id = ?"
-        ).bind(userId, target_type, parseInt(target_id)).run();
-        return resp({ success: true, reacted: false });
+        if (existing[0].reaction === reaction) {
+            // Same emoji — toggle off
+            await env.DB.prepare(
+                "DELETE FROM reactions WHERE user_id = ? AND target_type = ? AND target_id = ?"
+            ).bind(userId, target_type, parseInt(target_id)).run();
+            return resp({ success: true, reacted: false, reaction: null });
+        } else {
+            // Different emoji — switch
+            await env.DB.prepare(
+                "UPDATE reactions SET reaction = ?, created_at = ? WHERE user_id = ? AND target_type = ? AND target_id = ?"
+            ).bind(reaction, Math.floor(Date.now() / 1000), userId, target_type, parseInt(target_id)).run();
+            return resp({ success: true, reacted: true, reaction });
+        }
     } else {
         const now = Math.floor(Date.now() / 1000);
         await env.DB.prepare(
@@ -67,6 +75,6 @@ export async function onRequestPost({ request, env }) {
             }
         } catch (_) {}
 
-        return resp({ success: true, reacted: true });
+        return resp({ success: true, reacted: true, reaction });
     }
 }

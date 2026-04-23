@@ -410,6 +410,10 @@
         .social-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
         .reaction-btn { background:none; border:1px solid rgba(180,150,255,0.2); border-radius:20px; padding:5px 12px; color:#9080b0; font-size:13px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:5px; }
         .reaction-btn:hover, .reaction-btn.reacted { border-color:#ff96c8; color:#ff96c8; background:rgba(255,150,200,0.08); }
+        .reaction-picker { position:fixed; background:rgba(20,8,38,0.97); border:1px solid rgba(180,150,255,0.25); border-radius:30px; padding:6px 10px; display:flex; gap:2px; z-index:9998; box-shadow:0 4px 24px rgba(0,0,0,0.6); }
+        .reaction-option { background:none; border:none; font-size:22px; cursor:pointer; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; transition:transform 0.15s, background 0.15s; }
+        .reaction-option:hover { transform:scale(1.35); background:rgba(180,150,255,0.12); }
+        .reaction-option.active { background:rgba(255,150,200,0.18); }
         .comment-toggle-btn { background:none; border:none; color:#9080b0; font-size:13px; cursor:pointer; padding:5px 8px; }
         .comment-toggle-btn:hover { color:#b496ff; }
         .comments-area { margin-top:12px; padding-top:12px; border-top:1px solid rgba(180,150,255,0.08); display:none; }
@@ -1900,23 +1904,48 @@
         }
 
         function entryReactionHtml(id) {
-            return `<button class="reaction-btn" id="react-journal-${id}" onclick="toggleReaction('journal',${id})">♡ <span id="react-count-journal-${id}">0</span></button>
+            return `<button class="reaction-btn" id="react-journal-${id}" onclick="openReactionPicker('journal',${id},this)"><span class="react-emoji" id="react-emoji-journal-${id}">♡</span> <span id="react-count-journal-${id}">0</span></button>
                     <button class="comment-toggle-btn" onclick="toggleComments('journal',${id})">💬 Comments</button>
                     <div class="comments-area" id="comments-journal-${id}"></div>`;
         }
 
-        async function toggleReaction(type, id) {
+        const REACTION_EMOJIS = ['💖', '😂', '😮', '😢', '😡', '🔥'];
+        let _reactionPickerTarget = null;
+
+        function openReactionPicker(type, id, btn) {
             if (!currentUser) { openModal('login'); return; }
+            const key = type + '-' + id;
+            const existing = document.getElementById('reaction-picker-popup');
+            if (existing) { existing.remove(); if (_reactionPickerTarget === key) { _reactionPickerTarget = null; return; } }
+            _reactionPickerTarget = key;
+            const myEmoji = document.getElementById('react-emoji-' + key)?.textContent;
+            const picker = document.createElement('div');
+            picker.id = 'reaction-picker-popup';
+            picker.className = 'reaction-picker';
+            picker.innerHTML = REACTION_EMOJIS.map(e =>
+                `<button class="reaction-option${myEmoji === e ? ' active' : ''}" onclick="pickReaction('${type}',${id},'${e}')">${e}</button>`
+            ).join('');
+            document.body.appendChild(picker);
+            requestAnimationFrame(() => {
+                const rect = btn.getBoundingClientRect();
+                picker.style.top = (rect.top - picker.offsetHeight - 8 + window.scrollY) + 'px';
+                picker.style.left = Math.max(8, Math.min(rect.left + window.scrollX, window.innerWidth - picker.offsetWidth - 8)) + 'px';
+            });
+        }
+
+        async function pickReaction(type, id, emoji) {
+            document.getElementById('reaction-picker-popup')?.remove();
+            _reactionPickerTarget = null;
             const res = await fetch(API + '/api/social/reactions', {
                 method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ target_type: type, target_id: id }), credentials: 'include'
+                body: JSON.stringify({ target_type: type, target_id: id, reaction: emoji }), credentials: 'include'
             });
             const data = await res.json();
             const btn = document.getElementById('react-' + type + '-' + id);
-            if (btn) {
-                btn.classList.toggle('reacted', data.reacted);
-                loadReactionCount(type, id);
-            }
+            const emojiEl = document.getElementById('react-emoji-' + type + '-' + id);
+            if (btn) btn.classList.toggle('reacted', data.reacted);
+            if (emojiEl) emojiEl.textContent = data.reacted ? data.reaction : '♡';
+            loadReactionCount(type, id);
         }
 
         async function loadReactionCount(type, id) {
@@ -1926,7 +1955,14 @@
             const countEl = document.getElementById('react-count-' + type + '-' + id);
             if (countEl) countEl.textContent = total;
             const btn = document.getElementById('react-' + type + '-' + id);
-            if (btn && data.my_reaction) btn.classList.add('reacted');
+            const emojiEl = document.getElementById('react-emoji-' + type + '-' + id);
+            if (data.my_reaction) {
+                if (btn) btn.classList.add('reacted');
+                if (emojiEl) emojiEl.textContent = data.my_reaction;
+            } else {
+                if (btn) btn.classList.remove('reacted');
+                if (emojiEl) emojiEl.textContent = '♡';
+            }
         }
 
         async function toggleComments(type, id) {
@@ -2055,7 +2091,7 @@
                 </div>
                 <div class="social-content">${escHtml(p.content)}</div>
                 <div class="social-actions">
-                    <button class="reaction-btn" id="react-post-${p.id}" onclick="toggleReaction('post',${p.id})">♡ <span id="react-count-post-${p.id}">${p.reaction_count || 0}</span></button>
+                    <button class="reaction-btn" id="react-post-${p.id}" onclick="openReactionPicker('post',${p.id},this)"><span class="react-emoji" id="react-emoji-post-${p.id}">♡</span> <span id="react-count-post-${p.id}">${p.reaction_count || 0}</span></button>
                     <button class="comment-toggle-btn" onclick="toggleComments('post',${p.id})">💬 ${p.comment_count || 0} comments</button>
                     ${currentUser && currentUser.id !== p.user_id ? `<button class="comment-toggle-btn" style="color:#604060;" onclick="openReport('community_post',${p.id})">⚑ Report</button>` : ''}
                 </div>
@@ -2134,7 +2170,7 @@
                     ${item.title ? `<div class="entry-title" style="margin-bottom:6px;">${escHtml(item.title)}</div>` : ''}
                     <div class="social-content">${escHtml((item.content || '').slice(0, 300))}${(item.content||'').length > 300 ? '...' : ''}</div>
                     <div class="social-actions">
-                        <button class="reaction-btn" id="react-${item.type}-${item.id}" onclick="toggleReaction('${item.type}',${item.id})">♡ <span id="react-count-${item.type}-${item.id}">0</span></button>
+                        <button class="reaction-btn" id="react-${item.type}-${item.id}" onclick="openReactionPicker('${item.type}',${item.id},this)"><span class="react-emoji" id="react-emoji-${item.type}-${item.id}">♡</span> <span id="react-count-${item.type}-${item.id}">0</span></button>
                         <button class="comment-toggle-btn" onclick="toggleComments('${item.type}',${item.id})">💬 Comments</button>
                     </div>
                     <div class="comments-area" id="comments-${item.type}-${item.id}"></div>
@@ -2302,7 +2338,7 @@
                     </div>
                     ${e.title ? `<div class="entry-title">${escHtml(e.title)}</div>` : ''}
                     <div class="social-actions" style="margin-top:10px;">
-                        <button class="reaction-btn" id="react-journal-${e.id}" onclick="toggleReaction('journal',${e.id})">♡ <span id="react-count-journal-${e.id}">0</span></button>
+                        <button class="reaction-btn" id="react-journal-${e.id}" onclick="openReactionPicker('journal',${e.id},this)"><span class="react-emoji" id="react-emoji-journal-${e.id}">♡</span> <span id="react-count-journal-${e.id}">0</span></button>
                         <button class="comment-toggle-btn" onclick="toggleComments('journal',${e.id})">💬 Comments</button>
                     </div>
                     <div class="comments-area" id="comments-journal-${e.id}"></div>
@@ -2768,6 +2804,16 @@
             if (panel && !panel.contains(e.target) && bell && !bell.contains(e.target)) {
                 notifPanelOpen = false;
                 panel.style.display = 'none';
+            }
+        });
+
+        // Close reaction picker when clicking outside
+        document.addEventListener('click', e => {
+            const picker = document.getElementById('reaction-picker-popup');
+            if (!picker) return;
+            if (!picker.contains(e.target) && !e.target.closest('.reaction-btn')) {
+                picker.remove();
+                _reactionPickerTarget = null;
             }
         });
 
