@@ -953,16 +953,52 @@ function tileScreenPos(col,row){
 }
 
 // ── Tile drawing ───────────────────────────────────────────────────────────────
-function tileGrass(sx,sy){
+function tileGrass(sx,sy,v){
     var cx=sx+HW,cy=sy+HH;
-    drawSides(sx,sy,'#2e6018','#1e4c0e');
+    v=(v||0)%8;
+    // Per-variant palette: [top-bright, top-mid, top-dark, blade, side-left, side-right]
+    var pal=[
+        ['#78c85a','#5a9e47','#3e7830','#3a7228','#2e6018','#1e4c0e'],  // 0 standard
+        ['#84d060','#64a84e','#479038','#446e2a','#347018','#245a0a'],   // 1 bright
+        ['#86d25c','#6aaa4e','#4a9038','#4a7c32','#367820','#266a10'],   // 2 yellowy
+        ['#6ab048','#508038','#386028','#365c26','#285c18','#1c4810'],   // 3 dark
+        ['#70b84c','#4e8c38','#347026','#2e5820','#245210','#184008'],   // 4 mossy
+        ['#7acc5c','#5ca446','#3e7c2e','#487a2e','#347018','#245a0a'],   // 5 rich
+        ['#90d878','#72b85a','#529040','#508040','#3a7228','#2a5c1a'],   // 6 pale
+        ['#68c060','#4a9850','#328040','#3c7832','#2c6418','#1e500e'],   // 7 blue-green
+    ];
+    var p=pal[v];
+    drawSides(sx,sy,p[4],p[5]);
     var g=ctx.createLinearGradient(cx,sy,cx,sy+TH_px);
-    g.addColorStop(0,'#78c85a'); g.addColorStop(0.5,'#5a9e47'); g.addColorStop(1,'#3e7830');
+    g.addColorStop(0,p[0]); g.addColorStop(0.5,p[1]); g.addColorStop(1,p[2]);
     fillDiamond(sx,sy,g);
-    ctx.fillStyle='#3a7228';
-    [[-HW*.35,-HH*.55,2,4],[HW*.2,-HH*.35,2,5],[-HW*.1,HH*.1,2,4],[HW*.4,HH*.2,1,3],[-HW*.5,HH*.3,2,3]].forEach(function(b){
-        ctx.fillRect(Math.round(cx+b[0]),Math.round(cy+b[1]),b[2],b[3]);
-    });
+    // 4 blade-position sets — cycled by v, each visually distinct
+    var bs=[
+        [[-HW*.35,-HH*.55,2,4],[HW*.2,-HH*.35,2,5],[-HW*.1,HH*.1,2,4],[HW*.4,HH*.2,1,3],[-HW*.5,HH*.3,2,3]],
+        [[HW*.3,-HH*.5,2,4],[-HW*.42,-HH*.2,2,5],[HW*.1,HH*.32,2,3],[-HW*.22,HH*.46,1,4],[HW*.5,-HH*.14,2,3]],
+        [[-HW*.26,-HH*.44,2,5],[HW*.46,-HH*.28,2,4],[-HW*.5,HH*.22,2,5],[HW*.14,HH*.36,1,3],[-HW*.08,-HH*.12,2,4],[HW*.36,HH*.5,2,3]],
+        [[HW*.42,-HH*.38,2,4],[-HW*.14,-HH*.54,2,3],[HW*.24,HH*.22,2,5],[-HW*.44,HH*.5,1,4],[-HW*.3,HH*.02,2,3],[HW*.08,-HH*.22,1,4]],
+    ];
+    ctx.fillStyle=p[3];
+    bs[v%4].forEach(function(b){ ctx.fillRect(Math.round(cx+b[0]),Math.round(cy+b[1]),b[2],b[3]); });
+    // Micro-details on select variants
+    if(v===3){
+        // Tiny clover cluster
+        ctx.fillStyle='rgba(44,108,24,0.72)';
+        [[-HW*.28,HH*.22,3.5],[-HW*.2,HH*.3,3],[HW*.32,-HH*.08,3.5]].forEach(function(c){
+            ctx.beginPath(); ctx.arc(Math.round(cx+c[0]),Math.round(cy+c[1]),c[2],0,Math.PI*2); ctx.fill();
+        });
+    } else if(v===5){
+        // Pale wildflower dots
+        ctx.fillStyle='rgba(255,255,200,0.65)';
+        ctx.beginPath(); ctx.arc(Math.round(cx-HW*.2),Math.round(cy-HH*.28),2,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(255,215,90,0.5)';
+        ctx.beginPath(); ctx.arc(Math.round(cx+HW*.32),Math.round(cy+HH*.14),1.5,0,Math.PI*2); ctx.fill();
+    } else if(v===6){
+        // Small embedded pebble
+        ctx.fillStyle='rgba(118,112,128,0.52)';
+        ctx.beginPath(); ctx.ellipse(Math.round(cx+HW*.32),Math.round(cy+HH*.28),4,2.5,0.3,0,Math.PI*2); ctx.fill();
+    }
     strokeDiamond(sx,sy,'rgba(42,88,32,0.4)');
 }
 
@@ -1010,8 +1046,8 @@ function tileWater(sx,sy,t){
     strokeDiamond(sx,sy,'rgba(100,160,240,0.35)');
 }
 
-function tileFlowers(sx,sy,t){
-    tileGrass(sx,sy);
+function tileFlowers(sx,sy,t,v){
+    tileGrass(sx,sy,v);
     var cx=sx+HW,cy=sy+HH;
     var bob=Math.sin(t*0.85+sx*.12)*1.5;
     var flowers=[
@@ -1119,8 +1155,8 @@ function tileTree(sx,sy){
     ctx.beginPath(); ctx.arc(cx,top-TH_px*.32,TW_px*.16,0,Math.PI*2); ctx.fill();
 }
 
-function tileRock(sx,sy){
-    tileGrass(sx,sy);
+function tileRock(sx,sy,v){
+    tileGrass(sx,sy,v);
     var cx=sx+HW, cy=sy+HH;
     ctx.fillStyle='rgba(0,0,0,.25)';
     ctx.beginPath(); ctx.ellipse(cx+HH*.2,cy+HH*.35,HW*.3,HH*.18,0,0,Math.PI*2); ctx.fill();
@@ -1134,18 +1170,19 @@ function tileRock(sx,sy){
     ctx.beginPath(); ctx.moveTo(cx-HW*.06,cy-HH*.15); ctx.lineTo(cx+HW*.1,cy+HH*.1); ctx.stroke();
 }
 
-function drawTile(type,sx,sy,t){
+function drawTile(type,sx,sy,t,col,row){
+    var v=((col||0)*7+(row||0)*11)%8;
     switch(type){
-        case TG: tileGrass(sx,sy); break;
+        case TG: tileGrass(sx,sy,v); break;
         case TD: tileDirt(sx,sy); break;
         case TW: tileWater(sx,sy,t); break;
-        case TF: tileFlowers(sx,sy,t); break;
+        case TF: tileFlowers(sx,sy,t,v); break;
         case TK: tileDark(sx,sy); break;
         case TS: tileStone(sx,sy); break;
         case TY: tileFairyRing(sx,sy,t); break;
         case TN: tileSand(sx,sy); break;
         case TR: tileTree(sx,sy); break;
-        case TO: tileRock(sx,sy); break;
+        case TO: tileRock(sx,sy,v); break;
     }
 }
 
@@ -4414,7 +4451,7 @@ function draw(t){
             var sp=tileScreenPos(dc,dr);
             if(sp.sx+TW_px<0||sp.sx>SW||sp.sy+TH_px*5<0||sp.sy>SH) continue;
             var tType=(dr>=23&&dr<=25&&dc>=22&&dc<=24)?TG:map[dr][dc];
-            drawTile(tType,sp.sx,sp.sy,t);
+            drawTile(tType,sp.sx,sp.sy,t,dc,dr);
             drawPlaced(dc,dr,sp.sx,sp.sy,t);
             var gs=getGardenSlotForTile(dr,dc);
             if(gs>=0){
