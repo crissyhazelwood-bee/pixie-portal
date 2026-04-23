@@ -1929,6 +1929,7 @@ function selectGender(el){
     document.querySelectorAll('#gender-row .sw-emoji').forEach(function(e){e.classList.remove('on');});
     el.classList.add('on');
     fairy.gender=el.getAttribute('data-gender')||'';
+    saveFairy();
 }
 function selectSkin(el){
     document.querySelectorAll('#skin-row .sw').forEach(function(e){e.classList.remove('on');});
@@ -4345,11 +4346,18 @@ function drawPlayer(t){
             ctx.beginPath(); ctx.moveTo(pcx-H*0.15,waistY+H*0.18); ctx.lineTo(pcx-H*0.03,waistY+H*0.18); ctx.lineTo(pcx-H*0.05,feet-H*0.01); ctx.lineTo(pcx-H*0.17,feet-H*0.01); ctx.closePath(); ctx.fill();
             ctx.beginPath(); ctx.moveTo(pcx+H*0.03,waistY+H*0.18); ctx.lineTo(pcx+H*0.15,waistY+H*0.18); ctx.lineTo(pcx+H*0.17,feet-H*0.01); ctx.lineTo(pcx+H*0.05,feet-H*0.01); ctx.closePath(); ctx.fill();
         } else if(gnd==='\u200D\u2640\uFE0F'){
-            // Female — full dress with flared hem detail
-            _dp(); ctx.fillStyle=gc+'cc'; ctx.fill(); _shimmer();
-            ctx.globalAlpha=0.35;
-            ctx.fillStyle=gc;
-            ctx.beginPath(); ctx.ellipse(pcx,feet-H*0.04,H*0.28,H*0.06,0,0,Math.PI*2); ctx.fill();
+            // Female — wide bell-shaped skirt, noticeably flared
+            ctx.beginPath();
+            ctx.moveTo(pcx-H*0.07,shoulderY+H*0.07);
+            ctx.bezierCurveTo(pcx-H*0.22,waistY,pcx-H*0.44,feet-H*0.06,pcx-H*0.38,feet+H*0.02);
+            ctx.quadraticCurveTo(pcx,feet+H*0.09,pcx+H*0.38,feet+H*0.02);
+            ctx.bezierCurveTo(pcx+H*0.44,feet-H*0.06,pcx+H*0.22,waistY,pcx+H*0.07,shoulderY+H*0.07);
+            ctx.closePath(); ctx.fillStyle=gc+'cc'; ctx.fill(); _shimmer();
+            // Layered hem highlights
+            ctx.globalAlpha=0.28; ctx.fillStyle=gc;
+            ctx.beginPath(); ctx.ellipse(pcx,feet+H*0.01,H*0.42,H*0.07,0,0,Math.PI*2); ctx.fill();
+            ctx.globalAlpha=0.15;
+            ctx.beginPath(); ctx.ellipse(pcx,feet-H*0.05,H*0.36,H*0.05,0,0,Math.PI*2); ctx.fill();
             ctx.globalAlpha=1;
         } else {
             _dp(); ctx.fillStyle=gc+'cc'; ctx.fill(); _shimmer();
