@@ -906,6 +906,48 @@ function buildMap(){
         var rr=Math.floor(rng()*(MR-10))+5,rc=Math.floor(rng()*(MC-10))+5;
         if(m[rr][rc]===TG) m[rr][rc]=TO;
     }
+
+    // ── Scene density: clustered flower patches ─────────────────────────────────
+    for(i=0;i<12;i++){
+        var fpR=Math.floor(rng()*(MR-14))+7,fpC=Math.floor(rng()*(MC-14))+7;
+        var fpS=2+Math.floor(rng()*2);
+        for(r=fpR-fpS;r<=fpR+fpS;r++) for(c=fpC-fpS;c<=fpC+fpS;c++){
+            var d2=(r-fpR)*(r-fpR)+(c-fpC)*(c-fpC);
+            if(d2<=fpS*fpS*1.3&&rng()<0.62&&r>5&&r<MR-5&&c>5&&c<MC-5&&m[r][c]===TG) m[r][c]=TF;
+        }
+    }
+
+    // ── Scene density: dark moss patches ───────────────────────────────────────
+    for(i=0;i<8;i++){
+        var mpR=Math.floor(rng()*(MR-14))+7,mpC=Math.floor(rng()*(MC-14))+7;
+        var mpS=2+Math.floor(rng()*3);
+        for(r=mpR-mpS;r<=mpR+mpS;r++) for(c=mpC-mpS;c<=mpC+mpS;c++){
+            var dd=(r-mpR)*(r-mpR)+(c-mpC)*(c-mpC);
+            if(dd<=mpS*mpS*1.1&&rng()<0.46&&r>5&&r<MR-5&&c>5&&c<MC-5&&m[r][c]===TG) m[r][c]=TK;
+        }
+    }
+
+    // ── Scene density: small rock formations (2-3 tiles) ───────────────────────
+    for(i=0;i<12;i++){
+        var rpR=Math.floor(rng()*(MR-12))+6,rpC=Math.floor(rng()*(MC-12))+6;
+        if(m[rpR][rpC]===TG){
+            m[rpR][rpC]=TO;
+            var rpD=[[0,1],[1,0],[0,-1],[-1,0]];
+            for(var rpI=0;rpI<rpD.length;rpI++){
+                if(rng()<0.36){
+                    var rpNr=rpR+rpD[rpI][0],rpNc=rpC+rpD[rpI][1];
+                    if(rpNr>5&&rpNr<MR-5&&rpNc>5&&rpNc<MC-5&&m[rpNr][rpNc]===TG) m[rpNr][rpNc]=TO;
+                }
+            }
+        }
+    }
+
+    // ── Scene density: lone scattered trees filling open zones ──────────────────
+    for(i=0;i<8;i++){
+        var ltR=Math.floor(rng()*(MR-12))+6,ltC=Math.floor(rng()*(MC-12))+6;
+        if(m[ltR][ltC]===TG) m[ltR][ltC]=TR;
+    }
+
     return m;
 }
 
@@ -1048,7 +1090,7 @@ function tileDark(sx,sy){
     [[-HW*.3,-HH*.4,2,4],[HW*.25,-HH*.1,2,5],[HW*.4,HH*.35,2,4],[-HW*.45,HH*.4,1,3]].forEach(function(b){
         ctx.fillRect(Math.round(cx+b[0]),Math.round(cy+b[1]),b[2],b[3]);
     });
-    strokeDiamond(sx,sy,'rgba(25,55,18,0.45)');
+    strokeDiamond(sx,sy,'rgba(25,55,18,0.12)');
 }
 
 function tileDirt(sx,sy){
