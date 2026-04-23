@@ -75,6 +75,8 @@
             justify-content:center; align-items:center;
         }
         .modal-bg.open { display:flex; }
+        /* Customizer modal is semi-transparent so you can see your fairy changing live */
+        #cust-modal { background:rgba(5,2,12,0.55); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
         .modal-card {
             background:
                 linear-gradient(145deg,#1e0d42,#0a0620) padding-box,
@@ -1941,43 +1943,6 @@ function selectGender(el){
     document.querySelectorAll('#gender-row .wing-opt').forEach(function(e){e.classList.remove('on');});
     el.classList.add('on');
     fairy.gender=el.getAttribute('data-gender')||'girl';
-    // Re-render outfit list to show/hide gender-specific items
-    var owned=portalData&&portalData.plot?portalData.plot:[];
-    var isBoy=fairy.gender==='boy';
-    var ownedOutfits=FAIRY_OUTFIT_DEFS.filter(function(o){
-        if(!owned.includes(o.id)) return false;
-        if(o.boyOnly && !isBoy) return false;
-        if(o.girlOnly && isBoy) return false;
-        return true;
-    });
-    var outfitRow=document.getElementById('outfit-row');
-    outfitRow.innerHTML='';
-    if(ownedOutfits.length>0){
-        var noneBtn2=document.createElement('button');
-        noneBtn2.className='wing-opt'+((!fairy.outfit||fairy.outfit==='')?' on':'');
-        noneBtn2.textContent='\u2728 Default';
-        noneBtn2.onclick=function(){
-            fairy.outfit='';
-            document.querySelectorAll('#outfit-row .wing-opt').forEach(function(b){b.classList.remove('on');});
-            noneBtn2.classList.add('on');
-        };
-        outfitRow.appendChild(noneBtn2);
-        ownedOutfits.forEach(function(o){
-            var on=fairy.outfit===o.id;
-            var btn=document.createElement('button');
-            btn.className='wing-opt'+(on?' on':'');
-            btn.innerHTML=o.emoji+' '+o.name;
-            btn.onclick=function(){
-                var wasOn=fairy.outfit===o.id;
-                document.querySelectorAll('#outfit-row .wing-opt').forEach(function(b){b.classList.remove('on');});
-                if(wasOn){ fairy.outfit=''; noneBtn2.classList.add('on'); }
-                else{ fairy.outfit=o.id; btn.classList.add('on'); }
-            };
-            outfitRow.appendChild(btn);
-        });
-    } else {
-        outfitRow.innerHTML='<div style="color:#504060;font-size:11px;padding:4px 0;">Visit the Shop \u2728 Fairy tab to unlock outfits</div>';
-    }
     saveFairy();
 }
 function selectSkin(el){
