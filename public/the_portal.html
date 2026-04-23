@@ -4876,6 +4876,50 @@ function update(dt,t){
     updateSeasonParts(dt,t);
     updateFrog(dt);
     updateBirds(dt,t);
+    updateShootingStars(dt);
+}
+
+// ── Shooting Stars ─────────────────────────────────────────────────────────────
+var shootingStars=[];
+function updateShootingStars(dt){
+    var h=new Date().getHours()+new Date().getMinutes()/60;
+    var nf=h<5.5?1:h<8?Math.max(0,(8-h)/2.5):h<18?0:h<20.5?Math.max(0,(h-18)/2.5):1;
+    if(nf>0.35&&shootingStars.length<2&&Math.random()<dt*0.07*nf){
+        var angle=Math.PI/6+Math.random()*Math.PI/9;
+        var spd=SH*(1.3+Math.random()*0.9);
+        shootingStars.push({
+            x:SW*(0.05+Math.random()*0.75),
+            y:SH*(Math.random()*0.22),
+            vx:Math.cos(angle)*spd,
+            vy:Math.sin(angle)*spd,
+            life:1,ml:0.55+Math.random()*0.35,
+            trail:[]
+        });
+    }
+    for(var i=shootingStars.length-1;i>=0;i--){
+        var s=shootingStars[i];
+        s.trail.unshift({x:s.x,y:s.y});
+        if(s.trail.length>16) s.trail.pop();
+        s.x+=s.vx*dt; s.y+=s.vy*dt;
+        s.life-=dt/s.ml;
+        if(s.life<=0) shootingStars.splice(i,1);
+    }
+}
+function drawShootingStars(nf){
+    if(nf<0.1||!shootingStars.length) return;
+    for(var i=0;i<shootingStars.length;i++){
+        var s=shootingStars[i];
+        var tl=s.trail.length;
+        for(var j=0;j<tl;j++){
+            var tp=s.trail[j];
+            var frac=1-j/tl;
+            ctx.globalAlpha=frac*s.life*nf*0.85;
+            ctx.fillStyle=j<3?'#ffffff':'#c8dcff';
+            ctx.shadowColor='#b0ccff'; ctx.shadowBlur=j<3?12:5;
+            ctx.beginPath(); ctx.arc(tp.x,tp.y,2.8*frac,0,Math.PI*2); ctx.fill();
+        }
+    }
+    ctx.globalAlpha=1; ctx.shadowBlur=0;
 }
 
 // ── Building Glow (night) ──────────────────────────────────────────────────────
@@ -4931,6 +4975,7 @@ function draw(t){
         ctx.font='40px serif'; ctx.textAlign='center'; ctx.textBaseline='top';
         ctx.fillText('\uD83C\uDF19',SW*0.85,SH*0.05);
         ctx.globalAlpha=1; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+        drawShootingStars(ph.n);
     }
     if(!started) return;
 
