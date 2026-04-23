@@ -1314,6 +1314,10 @@
             <h2>My Appearance</h2>
             <p class="sub">so your journal always knows how you look ✦</p>
             <div class="form-group">
+                <label>Gender</label>
+                <input type="text" id="appearance-gender" placeholder="e.g. woman, man, nonbinary" maxlength="40">
+            </div>
+            <div class="form-group">
                 <label>Hair Color</label>
                 <input type="text" id="appearance-hair-color" placeholder="e.g. auburn, dark brown" maxlength="80">
             </div>
@@ -2861,6 +2865,7 @@
 
         async function saveAppearance() {
             const ap = {
+                gender: document.getElementById('appearance-gender').value.trim(),
                 hair_color: document.getElementById('appearance-hair-color').value.trim(),
                 hair_style: document.getElementById('appearance-hair-style').value.trim(),
                 eye_color: document.getElementById('appearance-eye-color').value.trim(),
@@ -2930,6 +2935,7 @@
             if (id === 'shop') updateFairyShopCard();
             if (id === 'appearance' && currentUser) {
                 const ap = currentUser.appearance || {};
+                document.getElementById('appearance-gender').value = ap.gender || '';
                 document.getElementById('appearance-hair-color').value = ap.hair_color || '';
                 document.getElementById('appearance-hair-style').value = ap.hair_style || '';
                 document.getElementById('appearance-eye-color').value = ap.eye_color || '';

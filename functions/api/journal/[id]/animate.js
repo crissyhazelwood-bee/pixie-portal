@@ -89,7 +89,9 @@ export async function onRequestPost({ params, request, env }) {
             if (ap.skin_tone) parts.push(`${ap.skin_tone} skin`);
             if (ap.height) parts.push(`${ap.height} tall`);
             if (ap.build) parts.push(`${ap.build} build`);
-            if (parts.length > 0) appearanceLine = ` The main character is a person with ${parts.join(", ")}.`;
+            const who = ap.gender ? `a ${ap.gender}` : "a person";
+            if (parts.length > 0) appearanceLine = ` The main character is ${who} with ${parts.join(", ")}.`;
+            else if (ap.gender) appearanceLine = ` The main character is a ${ap.gender}.`;
         }
     } catch(e) {}
 

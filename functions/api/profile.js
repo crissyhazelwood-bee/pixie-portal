@@ -11,6 +11,7 @@ export async function onRequestPut({ request, env }) {
   let safeAppearance = null;
   if (appearance && typeof appearance === 'object') {
     safeAppearance = JSON.stringify({
+      gender: (appearance.gender || "").slice(0, 40),
       hair_color: (appearance.hair_color || "").slice(0, 80),
       hair_style: (appearance.hair_style || "").slice(0, 80),
       eye_color: (appearance.eye_color || "").slice(0, 80),
