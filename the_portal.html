@@ -4442,20 +4442,31 @@ function drawPlayer(t){
         ctx.shadowColor=gc; ctx.shadowBlur=16;
         var _isBoy=gnd==='boy'||gnd.indexOf('\u2642')>=0;
         if(_isBoy){
-            // Male — vest/tunic + separate legs
-            ctx.fillStyle=gc+'dd';
+            // Male — blue tunic + dark pants (fixed colors, clearly distinct from girl)
+            ctx.shadowColor='#4488cc'; ctx.shadowBlur=14;
+            var _btG=ctx.createLinearGradient(pcx,shoulderY,pcx,waistY+H*0.18);
+            _btG.addColorStop(0,'#3a7cc8'); _btG.addColorStop(1,'#2558a0');
+            ctx.fillStyle=_btG;
             ctx.beginPath();
-            ctx.moveTo(pcx-H*0.07,shoulderY+H*0.07);
-            ctx.bezierCurveTo(pcx-H*0.16,waistY+H*0.04,pcx-H*0.18,waistY+H*0.1,pcx-H*0.16,waistY+H*0.18);
-            ctx.lineTo(pcx+H*0.16,waistY+H*0.18);
-            ctx.bezierCurveTo(pcx+H*0.18,waistY+H*0.1,pcx+H*0.16,waistY+H*0.04,pcx+H*0.07,shoulderY+H*0.07);
+            ctx.moveTo(pcx-H*0.1,shoulderY+H*0.05);
+            ctx.bezierCurveTo(pcx-H*0.19,waistY,pcx-H*0.19,waistY+H*0.08,pcx-H*0.17,waistY+H*0.18);
+            ctx.lineTo(pcx+H*0.17,waistY+H*0.18);
+            ctx.bezierCurveTo(pcx+H*0.19,waistY+H*0.08,pcx+H*0.19,waistY,pcx+H*0.1,shoulderY+H*0.05);
             ctx.closePath(); ctx.fill();
-            _shimmer();
+            // Tunic shimmer stripe
+            ctx.globalAlpha=0.35; ctx.strokeStyle='#88ccff'; ctx.lineWidth=H*0.018; ctx.lineCap='round';
+            ctx.beginPath(); ctx.moveTo(pcx-H*0.04,shoulderY+H*0.08); ctx.lineTo(pcx-H*0.08,waistY+H*0.14); ctx.stroke();
+            ctx.globalAlpha=1;
             ctx.shadowBlur=0;
-            // Pants/legs
-            ctx.fillStyle=gc+'66';
-            ctx.beginPath(); ctx.moveTo(pcx-H*0.15,waistY+H*0.18); ctx.lineTo(pcx-H*0.03,waistY+H*0.18); ctx.lineTo(pcx-H*0.05,feet-H*0.01); ctx.lineTo(pcx-H*0.17,feet-H*0.01); ctx.closePath(); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(pcx+H*0.03,waistY+H*0.18); ctx.lineTo(pcx+H*0.15,waistY+H*0.18); ctx.lineTo(pcx+H*0.17,feet-H*0.01); ctx.lineTo(pcx+H*0.05,feet-H*0.01); ctx.closePath(); ctx.fill();
+            // Belt
+            ctx.fillStyle='#1a2a3a';
+            ctx.beginPath(); ctx.rect(pcx-H*0.18,waistY+H*0.13,H*0.36,H*0.055); ctx.fill();
+            ctx.fillStyle='#88aacc';
+            ctx.beginPath(); ctx.rect(pcx-H*0.04,waistY+H*0.12,H*0.08,H*0.075); ctx.fill();
+            // Dark pants/legs
+            ctx.fillStyle='#1e3050';
+            ctx.beginPath(); ctx.moveTo(pcx-H*0.17,waistY+H*0.185); ctx.lineTo(pcx-H*0.03,waistY+H*0.185); ctx.lineTo(pcx-H*0.04,feet); ctx.lineTo(pcx-H*0.18,feet); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(pcx+H*0.03,waistY+H*0.185); ctx.lineTo(pcx+H*0.17,waistY+H*0.185); ctx.lineTo(pcx+H*0.18,feet); ctx.lineTo(pcx+H*0.04,feet); ctx.closePath(); ctx.fill();
         } else if(!_isBoy){
             // Female — wide bell-shaped skirt, noticeably flared
             ctx.beginPath();
