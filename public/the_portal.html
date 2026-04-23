@@ -3651,9 +3651,17 @@ function drawPlaced(tc,tr,sx,sy,t){
     var obj=placed[tr+','+tc];
     if(!obj) return;
     var cx=sx+HW, cy=sy+HH;
-    var fn=getPremiumDraw(obj);
-    if(fn){ fn(cx,cy,t); return; }
     var scale=SIZE_SCALE[obj.size||'M']||1.0;
+    var fn=getPremiumDraw(obj);
+    if(fn){
+        if(scale!==1.0){
+            ctx.save();
+            ctx.translate(cx,cy); ctx.scale(scale,scale); ctx.translate(-cx,-cy);
+            fn(cx,cy,t);
+            ctx.restore();
+        } else { fn(cx,cy,t); }
+        return;
+    }
     var sz=Math.round(HW*1.55*scale);
     // Ground shadow
     ctx.fillStyle='rgba(0,0,0,0.22)';
