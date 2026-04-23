@@ -4968,35 +4968,34 @@ function getGardenSlotForTile(row,col){
 }
 var PLANT_DRAW = {};
 (function(pd){
-    function ptls(R,n,pr,rx,ry,cols,sp){
-        for(var i=0;i<n;i++){
-            var a=i/n*Math.PI*2+(sp||0);
-            ctx.fillStyle=cols[i%cols.length];
-            ctx.beginPath(); ctx.ellipse(Math.cos(a)*pr,Math.sin(a)*pr-R*0.1,rx,ry,a,0,Math.PI*2); ctx.fill();
-        }
-    }
     function ctr(R,r,c){ ctx.fillStyle=c; ctx.beginPath(); ctx.arc(0,-R*0.1,r,0,Math.PI*2); ctx.fill(); }
 
+    // MINT — flat ground cover, 6 rounded leaves splayed outward, no tall stem
     pd.mint=function(R,t,stage){
-        var s=Math.sin(t*1.1)*0.04;
-        ctx.strokeStyle='#4e9444'; ctx.lineWidth=2.5;
-        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(s*R,-R*0.8); ctx.stroke();
-        for(var i=0;i<4;i++){
-            var ly=-R*(0.1+i*0.22),lx=(i%2?1:-1)*R*0.34,ang=(i%2?1:-1)*0.5+s;
-            ctx.save(); ctx.translate(lx,ly); ctx.rotate(ang);
-            ctx.fillStyle=i%2?'#62c258':'#4ea044';
-            ctx.beginPath(); ctx.ellipse(0,0,R*0.3,R*0.14,0,0,Math.PI*2); ctx.fill();
+        var sw=Math.sin(t*0.8)*0.04;
+        for(var i=0;i<6;i++){
+            var a=i/6*Math.PI*2+sw;
+            ctx.save(); ctx.translate(Math.cos(a)*R*0.32,Math.sin(a)*R*0.25-R*0.1); ctx.rotate(a+0.5);
+            ctx.fillStyle=i%2?'#4ea044':'#6ac850';
+            ctx.beginPath(); ctx.ellipse(0,0,R*0.18,R*0.34,0,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle='rgba(20,60,10,0.2)'; ctx.lineWidth=0.8;
+            ctx.beginPath(); ctx.moveTo(0,-R*0.26); ctx.lineTo(0,R*0.26); ctx.stroke();
             ctx.restore();
         }
+        ctx.fillStyle='#3a8030'; ctx.beginPath(); ctx.arc(0,-R*0.08,R*0.1,0,Math.PI*2); ctx.fill();
     };
+    // BASIL — tall narrow upright bush, pointed leaves angled upward
     pd.basil=function(R,t,stage){
-        var s=Math.sin(t*1.1)*0.04;
-        ctx.strokeStyle='#3a7030'; ctx.lineWidth=2.5;
-        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(s*R,-R*0.78); ctx.stroke();
-        for(var i=0;i<3;i++){
-            var ly=-R*(0.18+i*0.28),lx=(i%2?1:-1)*R*0.38,ang2=(i%2?1:-1)*0.5;
-            ctx.save(); ctx.translate(lx,ly); ctx.rotate(ang2);
-            ctx.fillStyle='#3d8438'; ctx.beginPath(); ctx.ellipse(0,0,R*0.35,R*0.16,0,0,Math.PI*2); ctx.fill();
+        var sw=Math.sin(t*0.7)*0.04;
+        ctx.strokeStyle='#2a5a22'; ctx.lineWidth=2.5;
+        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(sw*R,-R*0.78); ctx.stroke();
+        for(var i=0;i<5;i++){
+            var ly=-R*(0.12+i*0.14),lx=(i%2?1:-1)*R*(0.3+i*0.04),ang=(i%2?0.55:-0.55);
+            ctx.save(); ctx.translate(lx,ly); ctx.rotate(ang);
+            ctx.fillStyle=i<2?'#2a6820':'#3d8438';
+            ctx.beginPath(); ctx.ellipse(0,0,R*0.12,R*(0.24+i*0.02),0,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle='rgba(10,40,8,0.25)'; ctx.lineWidth=0.8;
+            ctx.beginPath(); ctx.moveTo(0,-R*0.18); ctx.lineTo(0,R*0.18); ctx.stroke();
             ctx.restore();
         }
     };
@@ -5024,33 +5023,78 @@ var PLANT_DRAW = {};
             }
         }
     };
+    // DAISY — tall single stem, flower head only at very top
     pd.daisy=function(R,t,stage){
-        ptls(R,8,R*0.28,R*0.13,R*0.3,['#fff8f8','#ffe8f0'],t*0.12);
-        ctr(R,R*0.22,'#ffe542');
-        ctx.strokeStyle='#5a9244'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(0,-R*0.0); ctx.stroke();
+        ctx.strokeStyle='#4a8040'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(0,-R*0.58); ctx.stroke();
+        ctx.fillStyle='#5a9a48'; ctx.beginPath(); ctx.ellipse(-R*0.2,-R*0.22,R*0.07,R*0.22,-0.4,0,Math.PI*2); ctx.fill();
+        for(var i=0;i<8;i++){
+            var a=i/8*Math.PI*2+t*0.1;
+            ctx.fillStyle='#fffcf8';
+            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.2,Math.sin(a)*R*0.2-R*0.68,R*0.09,R*0.22,a,0,Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle='#ffd020'; ctx.beginPath(); ctx.arc(0,-R*0.68,R*0.15,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(160,100,0,0.4)'; ctx.beginPath(); ctx.arc(0,-R*0.68,R*0.08,0,Math.PI*2); ctx.fill();
     };
+    // SUNPETAL — massive wide disc that fills the tile, like a sunflower from above
     pd.sunpetal=function(R,t,stage){
-        ptls(R,12,R*0.45,R*0.15,R*0.36,['#ffcc00','#ff9f00'],t*0.08);
-        ctx.fillStyle='#5a2d00'; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.28,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='rgba(255,200,50,0.25)'; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.28,0,Math.PI*2); ctx.fill();
+        var rot=t*0.07;
+        for(var i=0;i<14;i++){
+            var a=i/14*Math.PI*2+rot;
+            ctx.fillStyle=i%2?'#ffcc00':'#ff9f00';
+            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.54,Math.sin(a)*R*0.42-R*0.04,R*0.18,R*0.44,a,0,Math.PI*2); ctx.fill();
+        }
+        var dcg=ctx.createRadialGradient(R*0.04,-R*0.08,0,0,-R*0.04,R*0.36);
+        dcg.addColorStop(0,'#3a1800'); dcg.addColorStop(0.5,'#5a3000'); dcg.addColorStop(1,'#7a4800');
+        ctx.fillStyle=dcg; ctx.beginPath(); ctx.arc(0,-R*0.04,R*0.36,0,Math.PI*2); ctx.fill();
     };
+    // VIOLET — distinctive heart-shaped leaves + tiny purple flowers above
     pd.violet=function(R,t,stage){
-        ptls(R,5,R*0.3,R*0.2,R*0.3,['#7b68ee','#9878e8'],0);
-        ctr(R,R*0.13,'#fff7a0');
-    };
-    pd.rose=function(R,t,stage){
-        var p=stage===2?(1+Math.sin(t*2)*0.06):1;
-        ctx.save(); ctx.scale(p,p);
-        ['#e82040','#c81830','#a81020'].forEach(function(c,layer){
-            var n=6-layer;
-            for(var i=0;i<n;i++){
-                var a=i/n*Math.PI*2+layer*0.3+t*0.05,lr=R*(0.38-layer*0.1),lc=R*(0.22-layer*0.06);
-                ctx.fillStyle=c;
-                ctx.beginPath(); ctx.ellipse(Math.cos(a)*lc,Math.sin(a)*lc-R*(0.06+layer*0.04),R*0.16,lr,a,0,Math.PI*2); ctx.fill();
+        for(var i=0;i<3;i++){
+            var lx=(i-1)*R*0.36,ly=R*(0.0-Math.abs(i-1)*0.06);
+            ctx.save(); ctx.translate(lx,ly);
+            ctx.fillStyle=i===1?'#3a6c28':'#4a8038';
+            ctx.beginPath(); ctx.moveTo(0,-R*0.25);
+            ctx.bezierCurveTo(R*0.28,-R*0.48,R*0.44,-R*0.14,0,R*0.1);
+            ctx.bezierCurveTo(-R*0.44,-R*0.14,-R*0.28,-R*0.48,0,-R*0.25);
+            ctx.fill(); ctx.restore();
+        }
+        for(var i=0;i<3;i++){
+            var fx=(i-1)*R*0.32,fy=-R*(0.36+Math.abs(i-1)*0.06);
+            for(var j=0;j<5;j++){
+                var pa=j/5*Math.PI*2;
+                ctx.fillStyle=j<2?'#9068d8':'#7b52c8';
+                ctx.beginPath(); ctx.ellipse(fx+Math.cos(pa)*R*0.1,fy+Math.sin(pa)*R*0.1,R*0.06,R*0.09,pa,0,Math.PI*2); ctx.fill();
             }
-        });
-        ctr(R,R*0.09,'#ffd700'); ctx.restore();
+            ctx.fillStyle='#ffe080'; ctx.beginPath(); ctx.arc(fx,fy,R*0.04,0,Math.PI*2); ctx.fill();
+        }
+    };
+    // ROSE — cupped bezier petals forming a bud, NOT a flat petal ring
+    pd.rose=function(R,t,stage){
+        var spin=t*0.06;
+        ctx.fillStyle='#3a6820';
+        for(var i=0;i<5;i++){
+            var a=i/5*Math.PI*2;
+            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.24,Math.sin(a)*R*0.24+R*0.04,R*0.08,R*0.22,a,0,Math.PI*2); ctx.fill();
+        }
+        for(var i=0;i<5;i++){
+            var a=i/5*Math.PI*2+spin;
+            ctx.fillStyle='#c01838';
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a-0.3)*R*0.16,Math.sin(a-0.3)*R*0.16-R*0.05);
+            ctx.bezierCurveTo(Math.cos(a-0.2)*R*0.5,Math.sin(a-0.2)*R*0.5-R*0.25,Math.cos(a+0.2)*R*0.5,Math.sin(a+0.2)*R*0.5-R*0.25,Math.cos(a+0.3)*R*0.16,Math.sin(a+0.3)*R*0.16-R*0.05);
+            ctx.fill();
+        }
+        for(var i=0;i<4;i++){
+            var a=i/4*Math.PI*2+spin+0.4;
+            ctx.fillStyle='#e03050';
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a-0.3)*R*0.12,Math.sin(a-0.3)*R*0.12-R*0.1);
+            ctx.bezierCurveTo(Math.cos(a-0.2)*R*0.36,Math.sin(a-0.2)*R*0.36-R*0.35,Math.cos(a+0.2)*R*0.36,Math.sin(a+0.2)*R*0.36-R*0.35,Math.cos(a+0.3)*R*0.12,Math.sin(a+0.3)*R*0.12-R*0.1);
+            ctx.fill();
+        }
+        ctx.fillStyle='#ff5070'; ctx.beginPath(); ctx.arc(0,-R*0.18,R*0.2,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#ff8095'; ctx.beginPath(); ctx.arc(-R*0.06,-R*0.22,R*0.1,0,Math.PI*2); ctx.fill();
     };
     pd.tulip=function(R,t,stage){
         var s=Math.sin(t*0.9)*0.06;
@@ -5075,15 +5119,39 @@ var PLANT_DRAW = {};
             }
         }
     };
+    // CHAMOMILE — 4 arching thin stems each topped with a tiny daisy
     pd.chamomile=function(R,t,stage){
-        ptls(R,12,R*0.3,R*0.1,R*0.26,['#fffbe0'],t*0.08);
-        ctx.fillStyle='#f5c518'; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.2,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='rgba(200,140,0,0.35)'; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.12,0,Math.PI*2); ctx.fill();
+        for(var s=0;s<4;s++){
+            var sx=(s-1.5)*R*0.28,sway=Math.sin(t*0.9+s*0.8)*0.04;
+            var topY=-R*(0.5+Math.abs(s-1.5)*0.12),topX=sx+sway*R;
+            ctx.strokeStyle='#6a9a52'; ctx.lineWidth=1.8;
+            ctx.beginPath(); ctx.moveTo(sx*0.3,R*0.1); ctx.quadraticCurveTo(sx*0.6+sway*R*0.5,-R*0.2,topX,topY); ctx.stroke();
+            for(var p=0;p<10;p++){
+                var pa=p/10*Math.PI*2;
+                ctx.fillStyle='#fffcea';
+                ctx.beginPath(); ctx.ellipse(topX+Math.cos(pa)*R*0.12,topY+Math.sin(pa)*R*0.12,R*0.05,R*0.13,pa,0,Math.PI*2); ctx.fill();
+            }
+            ctx.fillStyle='#ffc020'; ctx.beginPath(); ctx.arc(topX,topY,R*0.09,0,Math.PI*2); ctx.fill();
+        }
     };
+    // MOONFLOWER — large open bell/trumpet shape, very wide silhouette
     pd.moonflower=function(R,t,stage){
-        if(stage===2){ ctx.shadowColor='#c4e0ff'; ctx.shadowBlur=R*(0.4+Math.sin(t*1.4)*0.4); }
-        ptls(R,6,R*0.35,R*0.14,R*0.36,['#d4eeff','#e8f4ff'],t*0.05);
-        ctr(R,R*0.2,'#fff0d0'); ctx.shadowBlur=0;
+        if(stage===2){ ctx.shadowColor='#b0d8ff'; ctx.shadowBlur=R*(0.35+Math.sin(t*1.4)*0.35); }
+        ctx.strokeStyle='#5a8860'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(0,-R*0.34); ctx.stroke();
+        var tg=ctx.createRadialGradient(0,-R*0.62,R*0.05,0,-R*0.5,R*0.65);
+        tg.addColorStop(0,'#e8f4ff'); tg.addColorStop(0.6,'#cce4ff'); tg.addColorStop(1,'rgba(200,224,255,0.1)');
+        ctx.fillStyle=tg;
+        ctx.beginPath();
+        ctx.moveTo(-R*0.08,-R*0.34);
+        ctx.bezierCurveTo(-R*0.1,-R*0.55,-R*0.72,-R*0.65,-R*0.75,-R*0.38);
+        ctx.bezierCurveTo(-R*0.72,-R*0.12,-R*0.08,-R*0.06,0,-R*0.06);
+        ctx.bezierCurveTo(R*0.08,-R*0.06,R*0.72,-R*0.12,R*0.75,-R*0.38);
+        ctx.bezierCurveTo(R*0.72,-R*0.65,R*0.1,-R*0.55,R*0.08,-R*0.34);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#ffe060';
+        for(var i=0;i<5;i++){ var sa=i/5*Math.PI*2; ctx.beginPath(); ctx.arc(Math.cos(sa)*R*0.18,-R*0.5,R*0.04,0,Math.PI*2); ctx.fill(); }
+        ctx.shadowBlur=0;
     };
     pd.firebloom=function(R,t,stage){
         var fl=Math.sin(t*8)*0.06;
@@ -5106,36 +5174,45 @@ var PLANT_DRAW = {};
             }
         }
     };
+    // STARDUST — 5 fern fronds spreading in all directions like a star
     pd.stardust=function(R,t,stage){
-        for(var fr=0;fr<3;fr++){
-            var fa=fr/3*Math.PI-Math.PI/2+Math.sin(t*0.7)*0.05;
-            ctx.strokeStyle='#6ab86a'; ctx.lineWidth=2;
-            ctx.beginPath(); ctx.moveTo(0,R*0.05); ctx.lineTo(Math.cos(fa)*R*0.8,Math.sin(fa)*R*0.8); ctx.stroke();
-            for(var i=1;i<=5;i++){
-                var fx=Math.cos(fa)*R*0.14*i,fy=Math.sin(fa)*R*0.14*i,fpa=fa+Math.PI/2;
-                ctx.strokeStyle='#8fd48f'; ctx.lineWidth=1.5;
-                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx+Math.cos(fpa)*R*0.1,fy+Math.sin(fpa)*R*0.1); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx-Math.cos(fpa)*R*0.1,fy-Math.sin(fpa)*R*0.1); ctx.stroke();
+        for(var fr=0;fr<5;fr++){
+            var fa=fr/5*Math.PI*2-Math.PI*0.5+Math.sin(t*0.7+fr)*0.04;
+            ctx.strokeStyle=fr%2?'#6ab86a':'#4a9848'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.moveTo(0,R*0.05); ctx.lineTo(Math.cos(fa)*R*0.75,Math.sin(fa)*R*0.75); ctx.stroke();
+            for(var i=1;i<=4;i++){
+                var fx=Math.cos(fa)*R*0.16*i,fy=Math.sin(fa)*R*0.16*i,fpa=fa+Math.PI/2,flen=R*(0.12-i*0.01);
+                ctx.strokeStyle=fr%2?'#8fd48f':'#6ab86a'; ctx.lineWidth=1.5;
+                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx+Math.cos(fpa)*flen,fy+Math.sin(fpa)*flen); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx-Math.cos(fpa)*flen,fy-Math.sin(fpa)*flen); ctx.stroke();
             }
         }
         if(stage===2){
             for(var i=0;i<3;i++){
-                var sa=t*2.5+i*2.1,sr=R*(0.42+i*0.14);
+                var sa=t*2.5+i*2.1,sr=R*(0.38+i*0.16);
                 ctx.globalAlpha=0.5+Math.sin(t*4+i)*0.5;
-                ctx.fillStyle='#ffe680'; ctx.beginPath(); ctx.arc(Math.cos(sa)*sr,Math.sin(sa)*sr-R*0.2,R*0.06,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#ffe680'; ctx.beginPath(); ctx.arc(Math.cos(sa)*sr,Math.sin(sa)*sr-R*0.15,R*0.06,0,Math.PI*2); ctx.fill();
             }
             ctx.globalAlpha=1;
         }
     };
+    // CRYSTAL LILY — upward-pointing crystal spike crown, tall narrow silhouette
     pd.crystal_lily=function(R,t,stage){
+        var sp=t*0.12;
         for(var i=0;i<6;i++){
-            var a=i/6*Math.PI*2+t*0.15;
-            var gc=ctx.createLinearGradient(0,-R*0.1,Math.cos(a)*R*0.55,Math.sin(a)*R*0.55-R*0.1);
-            gc.addColorStop(0,'#a0e8ff'); gc.addColorStop(1,'#60c0e8');
+            var a=i/6*Math.PI*2+sp;
+            var bx=Math.cos(a)*R*0.28,by=Math.sin(a)*R*0.28-R*0.05;
+            var tx=Math.cos(a)*R*0.62,ty=Math.sin(a)*R*0.62-R*0.7;
+            var gc=ctx.createLinearGradient(bx,by,tx,ty);
+            gc.addColorStop(0,'rgba(160,232,255,0.9)'); gc.addColorStop(1,'rgba(200,244,255,0.15)');
             ctx.fillStyle=gc;
-            ctx.beginPath(); ctx.moveTo(0,-R*0.1); ctx.lineTo(Math.cos(a-0.25)*R*0.55,Math.sin(a-0.25)*R*0.55-R*0.1); ctx.lineTo(Math.cos(a)*R*0.72,Math.sin(a)*R*0.72-R*0.1); ctx.lineTo(Math.cos(a+0.25)*R*0.55,Math.sin(a+0.25)*R*0.55-R*0.1); ctx.closePath(); ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(bx-Math.sin(a)*R*0.1,by+Math.cos(a)*R*0.1);
+            ctx.lineTo(tx,ty);
+            ctx.lineTo(bx+Math.sin(a)*R*0.1,by-Math.cos(a)*R*0.1);
+            ctx.closePath(); ctx.fill();
         }
-        ctx.fillStyle='#e0f8ff'; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.18,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#e0f8ff'; ctx.beginPath(); ctx.arc(0,-R*0.05,R*0.18,0,Math.PI*2); ctx.fill();
     };
     pd.stargrass=function(R,t,stage){
         for(var i=0;i<7;i++){
@@ -5172,25 +5249,44 @@ var PLANT_DRAW = {};
             ctx.stroke(); ctx.globalAlpha=1;
         }
     };
+    // DREAMBLOOM — dandelion puffball, sphere of radiating seed spikes
     pd.dreambloom=function(R,t,stage){
-        for(var i=0;i<8;i++){
-            var a=i/8*Math.PI*2+t*0.2,hue=270+i*15+Math.sin(t*0.5)*20;
-            ctx.fillStyle='hsla('+hue+',80%,75%,0.65)';
-            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.38,Math.sin(a)*R*0.38-R*0.1,R*0.2,R*0.38,a+0.3,0,Math.PI*2); ctx.fill();
-        }
-        var dc=ctx.createRadialGradient(0,-R*0.1,0,0,-R*0.1,R*0.22);
-        dc.addColorStop(0,'#fff0ff'); dc.addColorStop(1,'#cc88ff');
-        ctx.fillStyle=dc; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.22,0,Math.PI*2); ctx.fill();
-    };
-    pd.starbeam_orchid=function(R,t,stage){
-        ptls(R,5,R*0.32,R*0.15,R*0.38,['#ff6090','#ff90a8'],t*0.06);
-        if(stage===2){
-            var ba=t*0.4;
-            ctx.globalAlpha=0.3+Math.sin(t*2.5)*0.2; ctx.fillStyle='#fff8a0';
-            ctx.beginPath(); ctx.moveTo(0,-R*0.08); ctx.lineTo(Math.cos(ba-0.15)*R*0.9,Math.sin(ba-0.15)*R*0.9-R*0.08); ctx.lineTo(Math.cos(ba+0.15)*R*0.9,Math.sin(ba+0.15)*R*0.9-R*0.08); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='#7a9a60'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(0,-R*0.32); ctx.stroke();
+        var nr=stage===2?22:14;
+        for(var i=0;i<nr;i++){
+            var a=i/nr*Math.PI*2+t*0.15;
+            var len=R*(0.38+Math.sin(t*0.5+i)*0.06);
+            ctx.strokeStyle='rgba(200,180,110,0.65)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(0,-R*0.34); ctx.lineTo(Math.cos(a)*len,-R*0.34+Math.sin(a)*len); ctx.stroke();
+            ctx.globalAlpha=0.7+Math.sin(t*2+i)*0.3;
+            ctx.fillStyle='#ffe898';
+            ctx.beginPath(); ctx.arc(Math.cos(a)*len,-R*0.34+Math.sin(a)*len,R*0.06,0,Math.PI*2); ctx.fill();
             ctx.globalAlpha=1;
         }
-        ctr(R,R*0.17,'#fff0a0');
+        ctx.fillStyle='rgba(80,60,30,0.85)'; ctx.beginPath(); ctx.arc(0,-R*0.34,R*0.1,0,Math.PI*2); ctx.fill();
+    };
+    // STARBEAM ORCHID — asymmetric orchid: 3 upper petals + 2 side petals + large lip
+    pd.starbeam_orchid=function(R,t,stage){
+        var sw=Math.sin(t*0.8)*0.03;
+        ctx.strokeStyle='#5a8260'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(0,R*0.12); ctx.lineTo(sw*R,-R*0.32); ctx.stroke();
+        [[-0.44,-0.4],[0,-0.72],[0.44,-0.4]].forEach(function(p,i){
+            ctx.fillStyle=i===1?'#ff8090':'#ff5878';
+            ctx.beginPath(); ctx.ellipse(p[0]*R,p[1]*R,R*0.18,R*0.36,-0.2+i*0.2,0,Math.PI*2); ctx.fill();
+        });
+        [[-0.52,-0.14],[0.52,-0.14]].forEach(function(p,i){
+            ctx.fillStyle='#e04868';
+            ctx.beginPath(); ctx.ellipse(p[0]*R,p[1]*R,R*0.22,R*0.13,i===0?0.6:-0.6,0,Math.PI*2); ctx.fill();
+        });
+        ctx.fillStyle='#ff9090'; ctx.beginPath(); ctx.ellipse(0,-R*0.28,R*0.26,R*0.22,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#fff0c0'; ctx.beginPath(); ctx.ellipse(0,-R*0.3,R*0.1,R*0.09,0,0,Math.PI*2); ctx.fill();
+        if(stage===2){
+            var ba=t*0.4;
+            ctx.globalAlpha=0.25+Math.sin(t*2.5)*0.15; ctx.fillStyle='#fff8a0';
+            ctx.beginPath(); ctx.moveTo(0,-R*0.28); ctx.lineTo(Math.cos(ba-0.12)*R*0.85,Math.sin(ba-0.12)*R*0.85-R*0.28); ctx.lineTo(Math.cos(ba+0.12)*R*0.85,Math.sin(ba+0.12)*R*0.85-R*0.28); ctx.closePath(); ctx.fill();
+            ctx.globalAlpha=1;
+        }
     };
     pd.shadowfern=function(R,t,stage){
         for(var i=0;i<4;i++){
@@ -5229,16 +5325,16 @@ var PLANT_DRAW = {};
         }
         ctx.globalAlpha=1;
     };
+    // NEBULA FLOWER — scattered overlapping cloud blobs at irregular positions
     pd.nebula_flower=function(R,t,stage){
-        for(var i=0;i<6;i++){
-            var a=i/6*Math.PI*2+t*0.08,ax=Math.cos(a)*R*0.4,ay=Math.sin(a)*R*0.4-R*0.1;
-            var gc=ctx.createRadialGradient(ax,ay,0,ax,ay,R*0.42);
-            gc.addColorStop(0,'rgba(255,100,200,0.8)'); gc.addColorStop(1,'rgba(150,50,200,0)');
-            ctx.fillStyle=gc; ctx.beginPath(); ctx.arc(ax,ay,R*0.42,0,Math.PI*2); ctx.fill();
-        }
-        var nc=ctx.createRadialGradient(-R*0.05,-R*0.15,0,0,-R*0.1,R*0.22);
-        nc.addColorStop(0,'#fff0ff'); nc.addColorStop(0.5,'#d060c0'); nc.addColorStop(1,'rgba(100,20,180,0)');
-        ctx.fillStyle=nc; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.26,0,Math.PI*2); ctx.fill();
+        var blobs=[[0,-R*0.5,R*0.36],[R*0.38,-R*0.24,R*0.3],[-R*0.36,-R*0.3,R*0.28],[R*0.22,-R*0.64,R*0.24],[-R*0.2,-R*0.66,R*0.22],[R*0.08,-R*0.1,R*0.26]];
+        blobs.forEach(function(b,i){
+            var hue=280+i*18+Math.sin(t*0.4+i)*20;
+            var gc=ctx.createRadialGradient(b[0],b[1],0,b[0],b[1],b[2]);
+            gc.addColorStop(0,'hsla('+hue+',80%,70%,0.75)'); gc.addColorStop(1,'hsla('+hue+',60%,50%,0)');
+            ctx.fillStyle=gc; ctx.beginPath(); ctx.arc(b[0],b[1],b[2],0,Math.PI*2); ctx.fill();
+        });
+        ctx.fillStyle='rgba(255,220,255,0.8)'; ctx.beginPath(); ctx.arc(R*0.04,-R*0.44,R*0.1,0,Math.PI*2); ctx.fill();
     };
     pd.celestial_bloom=function(R,t,stage){
         var sp=t*0.18,pts=[];
@@ -5250,86 +5346,109 @@ var PLANT_DRAW = {};
             ctx.shadowBlur=0;
         }
     };
+    // VOID LOTUS — flat wide lotus petals pointing outward at low angle, like a lily pad with flower
     pd.void_lotus=function(R,t,stage){
+        var sp=t*0.08;
         for(var i=0;i<8;i++){
-            var a=i/8*Math.PI*2+t*0.1;
-            ctx.fillStyle=i%2?'#0a0520':'#150a38';
-            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.4,Math.sin(a)*R*0.4-R*0.08,R*0.18,R*0.42,a,0,Math.PI*2); ctx.fill();
+            var a=i/8*Math.PI*2+sp;
+            ctx.fillStyle=i%2?'#08031a':'#120828';
+            ctx.beginPath();
+            ctx.moveTo(0,R*0.02);
+            ctx.bezierCurveTo(Math.cos(a-0.5)*R*0.28,Math.sin(a-0.5)*R*0.2+R*0.02,Math.cos(a)*R*0.82,Math.sin(a)*R*0.58+R*0.02,Math.cos(a+0.5)*R*0.28,Math.sin(a+0.5)*R*0.2+R*0.02);
+            ctx.closePath(); ctx.fill();
         }
-        var vg=ctx.createRadialGradient(0,-R*0.08,0,0,-R*0.08,R*0.28);
-        vg.addColorStop(0,'rgba(180,80,255,0.9)'); vg.addColorStop(1,'rgba(80,0,120,0)');
-        ctx.fillStyle=vg; ctx.beginPath(); ctx.arc(0,-R*0.08,R*0.3,0,Math.PI*2); ctx.fill();
+        for(var i=0;i<5;i++){
+            var a=i/5*Math.PI*2-sp*0.5;
+            ctx.fillStyle='#1e0840';
+            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.28,Math.sin(a)*R*0.22-R*0.12,R*0.14,R*0.3,a,0,Math.PI*2); ctx.fill();
+        }
+        var vg=ctx.createRadialGradient(0,-R*0.18,0,0,-R*0.18,R*0.22);
+        vg.addColorStop(0,'rgba(180,80,255,0.9)'); vg.addColorStop(1,'rgba(60,0,100,0)');
+        ctx.fillStyle=vg; ctx.beginPath(); ctx.arc(0,-R*0.18,R*0.22,0,Math.PI*2); ctx.fill();
         if(stage===2){
             for(var i=0;i<5;i++){
-                var va=t*2+i*1.26,vr=R*(0.25+Math.sin(t*1.5+i)*0.12);
-                ctx.globalAlpha=0.5+Math.sin(t*3+i)*0.5;
-                ctx.fillStyle='#c060ff'; ctx.beginPath(); ctx.arc(Math.cos(va)*vr,Math.sin(va)*vr-R*0.08,R*0.06,0,Math.PI*2); ctx.fill();
+                var va=t*2+i*1.26,vr=R*(0.22+Math.sin(t*1.5+i)*0.1);
+                ctx.globalAlpha=0.4+Math.sin(t*3+i)*0.4;
+                ctx.fillStyle='#c060ff'; ctx.beginPath(); ctx.arc(Math.cos(va)*vr,Math.sin(va)*vr-R*0.18,R*0.06,0,Math.PI*2); ctx.fill();
             }
             ctx.globalAlpha=1;
         }
     };
+    // PRISM PETAL — 18 sharp pointed triangular prisms radiating from center
     pd.prism_petal=function(R,t,stage){
-        for(var i=0;i<7;i++){
-            var a=i/7*Math.PI*2+t*0.12,hue=i/7*360;
-            ctx.fillStyle='hsla('+hue+',90%,65%,0.85)';
-            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.35,Math.sin(a)*R*0.35-R*0.08,R*0.17,R*0.42,a,0,Math.PI*2); ctx.fill();
+        var sp=t*0.1;
+        for(var i=0;i<18;i++){
+            var a=i/18*Math.PI*2+sp,hue=i/18*360;
+            var len=R*(0.42+Math.sin(i*0.7)*0.12);
+            ctx.fillStyle='hsla('+hue+',90%,65%,0.8)';
+            ctx.beginPath();
+            ctx.moveTo(0,-R*0.05);
+            ctx.lineTo(Math.cos(a-0.18)*len*0.38,Math.sin(a-0.18)*len*0.38-R*0.05);
+            ctx.lineTo(Math.cos(a)*len,Math.sin(a)*len-R*0.05);
+            ctx.lineTo(Math.cos(a+0.18)*len*0.38,Math.sin(a+0.18)*len*0.38-R*0.05);
+            ctx.closePath(); ctx.fill();
         }
-        var pcg=ctx.createRadialGradient(-R*0.04,-R*0.12,0,0,-R*0.08,R*0.22);
-        pcg.addColorStop(0,'#ffffff'); pcg.addColorStop(1,'rgba(200,200,255,0)');
-        ctx.fillStyle=pcg; ctx.beginPath(); ctx.arc(0,-R*0.08,R*0.25,0,Math.PI*2); ctx.fill();
-        if(stage===2){
-            ctx.globalAlpha=0.6+Math.sin(t*4)*0.4; ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=1;
-            for(var i=0;i<6;i++){
-                var ra=i/6*Math.PI*2+t*0.5;
-                ctx.beginPath(); ctx.moveTo(0,-R*0.08); ctx.lineTo(Math.cos(ra)*R*0.55,Math.sin(ra)*R*0.55-R*0.08); ctx.stroke();
-            }
-            ctx.globalAlpha=1;
-        }
+        var pcg=ctx.createRadialGradient(0,-R*0.05,0,0,-R*0.05,R*0.2);
+        pcg.addColorStop(0,'#ffffff'); pcg.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=pcg; ctx.beginPath(); ctx.arc(0,-R*0.05,R*0.22,0,Math.PI*2); ctx.fill();
     };
+    // COSMIC FERN — 3 fronds hanging DOWNWARD, opposite direction from stardust
     pd.cosmic_fern=function(R,t,stage){
         for(var i=0;i<3;i++){
-            var fa=i/3*Math.PI-Math.PI/2+Math.sin(t*0.6)*0.05;
+            var fa=(i-1)*0.38+Math.sin(t*0.6+i)*0.04;
             ctx.strokeStyle='#3060a0'; ctx.lineWidth=2;
-            ctx.beginPath(); ctx.moveTo(0,R*0.05); ctx.lineTo(Math.cos(fa)*R*0.82,Math.sin(fa)*R*0.82); ctx.stroke();
-            for(var j=1;j<=5;j++){
-                var fx=Math.cos(fa)*R*0.15*j,fy=Math.sin(fa)*R*0.15*j,fpa=fa+Math.PI/2;
+            ctx.beginPath(); ctx.moveTo(0,R*0.05); ctx.lineTo(Math.cos(fa)*R*0.18,R*0.82); ctx.stroke();
+            for(var j=1;j<=6;j++){
+                var fy=R*0.05+j/6*(R*0.82-R*0.05),fx=Math.cos(fa)*R*0.18*j/6,fpa=fa+Math.PI/2,flen=R*(0.16-j*0.02);
                 ctx.strokeStyle='rgba(100,160,220,0.75)'; ctx.lineWidth=1.5;
-                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx+Math.cos(fpa)*R*0.11,fy+Math.sin(fpa)*R*0.11); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx-Math.cos(fpa)*R*0.11,fy-Math.sin(fpa)*R*0.11); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx+Math.cos(fpa)*flen,fy+Math.sin(fpa)*flen); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx-Math.cos(fpa)*flen,fy-Math.sin(fpa)*flen); ctx.stroke();
             }
         }
         if(stage===2){
             for(var i=0;i<4;i++){
-                var ca=t*2.2+i*1.57,cr=R*(0.3+i*0.12);
+                var ca=t*2.2+i*1.57,cr=R*(0.25+i*0.1);
                 ctx.globalAlpha=0.5+Math.sin(t*4+i)*0.5;
-                ctx.fillStyle='#80c0ff'; ctx.beginPath(); ctx.arc(Math.cos(ca)*cr,Math.sin(ca)*cr-R*0.2,R*0.07,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#80c0ff'; ctx.beginPath(); ctx.arc(Math.cos(ca)*cr,Math.sin(ca)*cr-R*0.1,R*0.07,0,Math.PI*2); ctx.fill();
             }
             ctx.globalAlpha=1;
         }
     };
+    // FAIRY QUEEN ROSE — large layered rose + golden crown drawn above it
     pd.fairy_queen_rose=function(R,t,stage){
+        var sp=t*0.05;
         ['#c82060','#e03878','#f05090','#ff80b0'].forEach(function(c,layer){
             var n=8-layer;
             for(var i=0;i<n;i++){
-                var a=i/n*Math.PI*2+layer*0.4+t*0.06,lr=R*(0.82-layer*0.15),lc=R*(0.38-layer*0.07);
+                var a=i/n*Math.PI*2+layer*0.4+sp,lr=R*(0.82-layer*0.15),lc=R*(0.38-layer*0.07);
                 ctx.fillStyle=c;
                 ctx.beginPath(); ctx.ellipse(Math.cos(a)*lc,Math.sin(a)*lc-R*(0.06+layer*0.06),R*0.13,lr*0.9,a,0,Math.PI*2); ctx.fill();
             }
         });
-        if(stage===2){ ctx.strokeStyle='#ffd700'; ctx.lineWidth=1.5; ctx.globalAlpha=0.7; ctx.beginPath(); ctx.arc(0,-R*0.12,R*0.28,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; }
+        // golden crown above the rose
+        ctx.strokeStyle='#ffd700'; ctx.lineWidth=2; ctx.globalAlpha=0.9;
+        var crY=-R*0.9;
+        ctx.beginPath(); ctx.moveTo(-R*0.32,crY+R*0.14); ctx.lineTo(-R*0.32,crY); ctx.lineTo(-R*0.18,crY+R*0.1); ctx.lineTo(0,crY-R*0.06); ctx.lineTo(R*0.18,crY+R*0.1); ctx.lineTo(R*0.32,crY); ctx.lineTo(R*0.32,crY+R*0.14); ctx.stroke();
+        ctx.globalAlpha=1;
         ctx.fillStyle='#fff0a0'; ctx.beginPath(); ctx.arc(0,-R*0.12,R*0.12,0,Math.PI*2); ctx.fill();
     };
+    // INFINITY BLOOM — petals arranged along a lemniscate (figure-8) curve
     pd.infinity_bloom=function(R,t,stage){
-        for(var i=0;i<12;i++){
-            var a=i/12*Math.PI*2+t*0.15,sc2=1+Math.sin(a*2)*0.25,hue=i/12*300+180+Math.sin(t*0.4)*30;
-            ctx.fillStyle='hsla('+hue+',85%,70%,0.75)';
-            ctx.beginPath(); ctx.ellipse(Math.cos(a)*R*0.38*sc2,Math.sin(a)*R*0.38*sc2-R*0.08,R*0.15,R*0.38,a,0,Math.PI*2); ctx.fill();
+        var sp=t*0.12;
+        for(var i=0;i<28;i++){
+            var theta=i/28*Math.PI*2+sp;
+            var denom=1+Math.sin(theta)*Math.sin(theta);
+            var lx=R*0.58*Math.cos(theta)/denom;
+            var ly=R*0.42*Math.sin(theta)*Math.cos(theta)/denom-R*0.1;
+            var hue=i/28*320+200+Math.sin(t*0.4)*30;
+            ctx.fillStyle='hsla('+hue+',85%,70%,0.72)';
+            ctx.beginPath(); ctx.arc(lx,ly,R*0.1,0,Math.PI*2); ctx.fill();
         }
         if(stage===2){
-            ctx.globalAlpha=0.4+Math.sin(t*1.5)*0.2;
-            var ig=ctx.createRadialGradient(0,-R*0.08,0,0,-R*0.08,R*0.38);
+            ctx.globalAlpha=0.4+Math.sin(t*1.5)*0.25;
+            var ig=ctx.createRadialGradient(0,-R*0.1,0,0,-R*0.1,R*0.25);
             ig.addColorStop(0,'#ffffff'); ig.addColorStop(1,'rgba(255,255,255,0)');
-            ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(0,-R*0.08,R*0.4,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(0,-R*0.1,R*0.28,0,Math.PI*2); ctx.fill();
             ctx.globalAlpha=1;
         }
     };
