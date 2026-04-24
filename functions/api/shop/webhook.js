@@ -53,9 +53,21 @@ export async function onRequestPost({ request, env }) {
         }
 
         if (userId && credits) {
-            await env.DB.prepare(
-                "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
-            ).bind(credits, userId).run();
+            const FIRST_PURCHASE_BONUS = { starter: 3, value: 5, max: 15 };
+            const pack = session.metadata?.pack;
+            const bonus = FIRST_PURCHASE_BONUS[pack] || 0;
+
+            // Atomically apply credits + first-purchase bonus (if applicable)
+            const { meta } = await env.DB.prepare(
+                "UPDATE users SET animation_credits = animation_credits + ?, first_purchase_done = 1 WHERE id = ? AND first_purchase_done = 0"
+            ).bind(credits + bonus, userId).run();
+
+            if (meta.rows_written === 0) {
+                // Not first purchase — just add the base credits
+                await env.DB.prepare(
+                    "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
+                ).bind(credits, userId).run();
+            }
         }
 
         if (userId && product === "fairy_pet") {

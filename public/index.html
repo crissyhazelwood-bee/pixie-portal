@@ -1229,25 +1229,29 @@
             <div class="shop-packs">
                 <div class="pack-card" onclick="buyPack('starter')">
                     <div class="pack-amount">5</div>
-                    <div class="pack-label">animations</div>
+                    <div class="pack-label">credits</div>
+                    <div class="pack-first-bonus" style="display:none;color:#80ffb4;font-size:11px;font-weight:700;margin:2px 0 4px;">+3 FREE ✦</div>
                     <div class="pack-price">$2.99</div>
                     <button class="btn btn-primary btn-small" style="width:100%;margin-top:14px;">Buy ✦</button>
                 </div>
                 <div class="pack-card pack-featured" onclick="buyPack('value')">
                     <div class="pack-badge">Best Value</div>
                     <div class="pack-amount">20</div>
-                    <div class="pack-label">animations</div>
+                    <div class="pack-label">credits</div>
+                    <div class="pack-first-bonus" style="display:none;color:#80ffb4;font-size:11px;font-weight:700;margin:2px 0 4px;">+5 FREE ✦</div>
                     <div class="pack-price">$9.99</div>
                     <button class="btn btn-primary btn-small" style="width:100%;margin-top:14px;">Buy ✦</button>
                 </div>
                 <div class="pack-card" onclick="buyPack('max')">
                     <div class="pack-amount">50</div>
-                    <div class="pack-label">animations</div>
+                    <div class="pack-label">credits</div>
+                    <div class="pack-first-bonus" style="display:none;color:#80ffb4;font-size:11px;font-weight:700;margin:2px 0 4px;">+15 FREE ✦</div>
                     <div class="pack-price">$19.99</div>
                     <button class="btn btn-primary btn-small" style="width:100%;margin-top:14px;">Buy ✦</button>
                 </div>
             </div>
-            <p style="color:#504060;font-size:12px;text-align:center;margin-top:20px;">Everyone gets 1 free animation per day ✦ Credits never expire</p>
+            <p style="color:#504060;font-size:12px;text-align:center;margin-top:20px;">Everyone gets 1 free credit per day ✦ Credits never expire</p>
+            <p id="shop-first-purchase-note" style="display:none;color:#80ffb4;font-size:12px;text-align:center;margin-top:6px;">✦ First purchase bonus — extra credits included!</p>
             <hr style="border:none;border-top:1px solid rgba(180,150,255,0.15);margin:28px 0 20px;">
             <h3 style="color:#e0aaff;margin:0 0 6px;">Desktop Pet</h3>
             <p class="sub" style="margin-bottom:16px;">a tiny fairy for your computer ✦</p>
@@ -2965,7 +2969,13 @@
                 document.getElementById('edit-bio').value = currentUser.bio || '';
                 document.getElementById('edit-avatar').value = currentUser.avatar_emoji || '✦';
             }
-            if (id === 'shop') updateFairyShopCard();
+            if (id === 'shop') {
+                updateFairyShopCard();
+                const showBonus = currentUser && !currentUser.first_purchase_done;
+                document.querySelectorAll('.pack-first-bonus').forEach(el => el.style.display = showBonus ? 'block' : 'none');
+                const fpNote = document.getElementById('shop-first-purchase-note');
+                if (fpNote) fpNote.style.display = showBonus ? 'block' : 'none';
+            }
             if (id === 'appearance' && currentUser) {
                 const ap = currentUser.appearance || {};
                 document.getElementById('appearance-gender').value = ap.gender || '';

@@ -1,9 +1,9 @@
 import { getSessionUserId } from "../../_utils/auth.js";
 
 const PACKS = {
-    starter: { credits: 5,  amount: 299,  name: "5 Dream Animations" },
-    value:   { credits: 20, amount: 999,  name: "20 Dream Animations" },
-    max:     { credits: 50, amount: 1999, name: "50 Dream Animations" },
+    starter: { credits: 5,  amount: 299,  name: "5 Dream Credits" },
+    value:   { credits: 20, amount: 999,  name: "20 Dream Credits" },
+    max:     { credits: 50, amount: 1999, name: "50 Dream Credits" },
 };
 
 export async function onRequestPost({ request, env }) {
@@ -25,6 +25,7 @@ export async function onRequestPost({ request, env }) {
         "line_items[0][price_data][unit_amount]": String(selected.amount),
         "line_items[0][quantity]": "1",
         "metadata[credits]": String(selected.credits),
+        "metadata[pack]": pack,
     });
 
     const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
