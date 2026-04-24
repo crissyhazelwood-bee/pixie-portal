@@ -2,3 +2,4 @@ node_modules/
 pixie_portal.db
 .wrangler/
 *.log
+.dev.vars
