@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Dash ✦ Pixie Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0a0614; overflow:hidden; font-family:'Quicksand',sans-serif; touch-action:none; user-select:none; -webkit-user-select:none; }
+        canvas { display:block; }
+
+        #start-screen { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(10,6,20,0.96); z-index:100; display:flex; justify-content:center; align-items:center; flex-direction:column; cursor:pointer; }
+        #start-screen h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:52px; margin-bottom:10px; text-shadow:0 0 30px rgba(255,150,200,0.4); }
+        #start-screen .dragon-bounce { font-size:80px; animation:dragonBounce 1.5s ease-in-out infinite; }
+        @keyframes dragonBounce { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-22px) rotate(5deg)} }
+        #start-screen .tap-text { color:#b496ff; font-size:20px; font-weight:600; margin-top:20px; animation:fadeInOut 2s ease-in-out infinite; }
+        @keyframes fadeInOut { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        #start-screen .subtitle { color:#9080b0; font-size:14px; margin-top:8px; }
+
+        #ui { position:fixed; top:0; left:0; right:0; padding:10px 20px; display:none; justify-content:space-between; align-items:center; z-index:10; background:linear-gradient(180deg,rgba(10,6,20,0.9),transparent); pointer-events:none; }
+        #ui > * { pointer-events:auto; }
+        .ui-left, .ui-right { display:flex; align-items:center; gap:15px; }
+        .stat { color:#f0d0ff; font-size:14px; font-weight:600; }
+        .stat-val { color:#ff96c8; font-size:18px; font-weight:700; }
+        .hearts { font-size:20px; letter-spacing:3px; }
+        .back-btn { color:#b496ff; text-decoration:none; font-size:13px; cursor:pointer; padding:6px 14px; border:1px solid rgba(180,150,255,0.3); border-radius:20px; }
+        .back-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+
+        #game-over { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(5,3,10,0.9); z-index:100; justify-content:center; align-items:center; flex-direction:column; }
+        #game-over.active { display:flex; }
+        #game-over h1 { font-family:'Pacifico',cursive; color:#ff96c8; font-size:48px; margin-bottom:10px; text-shadow:0 0 30px rgba(255,150,200,0.4); }
+        #game-over .final-score { font-size:60px; font-weight:700; color:#ffffa0; margin:15px 0; text-shadow:0 0 20px rgba(255,255,160,0.3); }
+        #game-over .stats { color:#b496ff; font-size:16px; margin-bottom:25px; line-height:2; text-align:center; }
+        #game-over button { padding:12px 30px; border-radius:25px; border:none; background:linear-gradient(135deg,#ff96c8,#b496ff); color:#0a0614; font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin:5px; transition:transform 0.2s; }
+        #game-over button:hover { transform:scale(1.05); box-shadow:0 5px 25px rgba(255,150,200,0.3); }
+        #game-over .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
+        #game-over .ghost-btn:hover { border-color:#ff96c8; color:#ff96c8; }
+    </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="start-screen">
+    <h1>Dragon Dash</h1>
+    <div class="dragon-bounce">🐉</div>
+    <div class="tap-text">Tap to Take Flight</div>
+    <div class="subtitle">Soar through the enchanted crystal cave!</div>
+    <div style="color:#706080; font-size:13px; margin-top:24px; line-height:2.2; text-align:center;">
+        <span style="color:#b496ff;">SPACE</span> or <span style="color:#b496ff;">Tap</span> to flap your wings<br>
+        Collect <span style="color:#ff96c8;">💎</span> gems &amp; dodge crystal pillars<br>
+        Press <span style="color:#ffffa0;">F</span> or <span style="color:#ffffa0;">Hold tap</span> for 🔥 fire breath
+    </div>
+</div>
+
+<div id="ui">
+    <div class="ui-left">
+        <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
+        <div class="stat">✨ <span class="stat-val" id="score">0</span></div>
+    </div>
+    <div class="ui-right">
+        <div class="stat" id="fire-ui">🔥 <span class="stat-val" id="fire-val">·</span></div>
+        <div class="stat">Lv <span class="stat-val" id="level-disp">1</span></div>
+        <div class="hearts" id="hearts">💖💖💖</div>
+    </div>
+</div>
+
+<div id="game-over">
+    <h1>Crash Landing!</h1>
+    <div class="final-score" id="final-score">0</div>
+    <div class="stats" id="final-stats"></div>
+    <button onclick="startGame()">Fly Again ✦</button>
+    <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
+</div>
+
+<script>
+window.onerror = function(msg, url, line) {
+    document.title = 'ERROR: ' + msg + ' (line ' + line + ')';
+    var ss = document.getElementById('start-screen');
+    if (ss) ss.innerHTML = '<h1 style="color:red;font-size:16px;padding:40px;">ERROR: ' + msg + '<br>Line: ' + line + '</h1>';
+    return false;
+};
+
+// ── Canvas ─────────────────────────────────────────────────────────────────────
+var canvas = document.getElementById('game');
+var ctx = canvas.getContext('2d');
+var W = 0, H = 0;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+
+// ── Colors ─────────────────────────────────────────────────────────────────────
+var PINK = '#ff96c8', PURPLE = '#b496ff', MINT = '#96ffdc', YELLOW = '#ffffa0', BG = '#0a0614';
+
+// ── State ──────────────────────────────────────────────────────────────────────
+var state = 'start';
+var score = 0, lives = 3, level = 1;
+var gemsCollected = 0, columnsCleared = 0, fireCharges = 0;
+var scrollSpeed = 0;
+var savedScore = false;
+
+// Dragon
+var dragon = { x:0, y:0, vy:0, radius:20, invincible:0, flapAnim:0, trail:[] };
+
+// Physics & balance
+var GRAVITY = 620;
+var FLAP_VEL = -290;
+var BASE_SPEED = 185;
+var SPEED_PER_LEVEL = 16;
+var COLS_PER_LEVEL = 10;
+var BASE_GAP = 178;
+var GAP_SHRINK = 6;
+var MIN_GAP = 118;
+var COL_SPACING = 300;
+var COL_WIDTH = 56;
+
+// Objects
+var columns = [];
+var gems = [];
+var particles = [];
+var bgStars = [];
+var nextColAt = 0; // scroll distance until next column
+
+// Fire breath
+var fireActive = false;
+var fireTimer = 0;
+var FIRE_DUR = 0.42;
+
+var lastTime = 0;
+var touchStartTime = 0;
+
+// ── Input ──────────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+    if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        e.preventDefault();
+        if (state === 'start') { startGame(); return; }
+        if (state === 'playing') flap();
+    }
+    if ((e.key === 'f' || e.key === 'F') && state === 'playing') useFireBreath();
+});
+canvas.addEventListener('mousedown', function(e) {
+    touchStartTime = Date.now();
+    if (state === 'start') { startGame(); return; }
+    if (state === 'playing') flap();
+});
+canvas.addEventListener('mouseup', function() {
+    if (state === 'playing' && Date.now() - touchStartTime > 280) useFireBreath();
+});
+canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    touchStartTime = Date.now();
+    if (state === 'start') { startGame(); return; }
+    if (state === 'playing') flap();
+}, {passive:false});
+canvas.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    if (state === 'playing' && Date.now() - touchStartTime > 280) useFireBreath();
+}, {passive:false});
+document.getElementById('start-screen').addEventListener('click', startGame);
+
+// ── Actions ────────────────────────────────────────────────────────────────────
+function flap() {
+    dragon.vy = FLAP_VEL;
+    dragon.flapAnim = 1;
+    spawnBurst(dragon.x, dragon.y, PURPLE, 5, 0.3);
+}
+
+function useFireBreath() {
+    if (fireCharges <= 0 || fireActive) return;
+    fireCharges--;
+    fireActive = true;
+    fireTimer = FIRE_DUR;
+    updateHUD();
+    for (var i = 0; i < 18; i++) {
+        particles.push({ x: dragon.x + dragon.radius, y: dragon.y + (Math.random()-0.5)*20,
+            vx: 380 + Math.random()*220, vy: (Math.random()-0.5)*140,
+            life:1, maxLife: 0.28 + Math.random()*0.18, r: 4 + Math.random()*6,
+            color: Math.random()<0.5 ? '#ff6020' : YELLOW, isFire:true });
+    }
+}
+
+// ── Init / start ───────────────────────────────────────────────────────────────
+function initBgStars() {
+    bgStars = [];
+    for (var i = 0; i < 85; i++) {
+        bgStars.push({ x: Math.random()*W, y: Math.random()*H,
+            r: Math.random()*1.5+0.3, alpha: Math.random()*0.5+0.1,
+            phase: Math.random()*Math.PI*2, scrollSpeed: 8 + Math.random()*22 });
+    }
+}
+
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-over').classList.remove('active');
+    document.getElementById('ui').style.display = 'flex';
+    state = 'playing';
+    score = 0; lives = 3; level = 1;
+    gemsCollected = 0; columnsCleared = 0; fireCharges = 0;
+    scrollSpeed = BASE_SPEED;
+    savedScore = false;
+    dragon.x = Math.floor(W * 0.22);
+    dragon.y = H / 2;
+    dragon.vy = 0; dragon.invincible = 0; dragon.flapAnim = 0; dragon.trail = [];
+    columns = []; gems = []; particles = [];
+    fireActive = false; fireTimer = 0;
+    nextColAt = COL_SPACING * 0.55;
+    initBgStars();
+    updateHUD();
+}
+
+// ── Column & gem spawning ──────────────────────────────────────────────────────
+function spawnColumn() {
+    var gap = Math.max(MIN_GAP, BASE_GAP - GAP_SHRINK * (level - 1));
+    var margin = H * 0.1;
+    var gapY = margin + Math.random() * (H - margin * 2 - gap);
+    columns.push({ x: W + 50, gapY: gapY, gap: gap, w: COL_WIDTH, scored: false, destroyed: false, phase: Math.random()*Math.PI*2 });
+    // one gem per column, floating in the gap
+    var gy = gapY + gap * 0.5 + (Math.random()-0.5) * gap * 0.38;
+    gems.push({ x: W + 50 + COL_WIDTH * 0.5, y: gy, r: 12, phase: Math.random()*Math.PI*2,
+        collected: false, type: Math.random() < 0.14 ? 'star' : 'gem' });
+}
+
+// ── Update ─────────────────────────────────────────────────────────────────────
+function update(dt) {
+    if (state !== 'playing') return;
+
+    // Dragon physics
+    dragon.vy += GRAVITY * dt;
+    dragon.y += dragon.vy * dt;
+    dragon.flapAnim = Math.max(0, dragon.flapAnim - dt * 4);
+
+    // Trail
+    dragon.trail.unshift({ x: dragon.x, y: dragon.y, a: 0.45 });
+    if (dragon.trail.length > 10) dragon.trail.pop();
+    for (var ti = 0; ti < dragon.trail.length; ti++) {
+        dragon.trail[ti].a -= dt * 2.5;
+        if (dragon.trail[ti].a < 0) dragon.trail[ti].a = 0;
+    }
+
+    // Invincibility countdown
+    if (dragon.invincible > 0) dragon.invincible -= dt;
+
+    // Ceiling — bounce back gently
+    if (dragon.y - dragon.radius < 0) { dragon.y = dragon.radius; dragon.vy = Math.abs(dragon.vy) * 0.25; }
+    // Floor — die
+    if (dragon.y + dragon.radius > H) { hitObstacle(); return; }
+
+    // Scroll
+    var dx = scrollSpeed * dt;
+
+    // Move bg stars (parallax)
+    for (var si = 0; si < bgStars.length; si++) {
+        bgStars[si].x -= bgStars[si].scrollSpeed * 0.15 * dt;
+        bgStars[si].phase += dt;
+        if (bgStars[si].x < -4) bgStars[si].x = W + 4;
+    }
+
+    // Spawn next column
+    nextColAt -= dx;
+    if (nextColAt <= 0) { spawnColumn(); nextColAt = COL_SPACING; }
+
+    // Update columns
+    for (var ci = columns.length - 1; ci >= 0; ci--) {
+        var col = columns[ci];
+        if (col.destroyed) { columns.splice(ci, 1); continue; }
+        col.x -= dx;
+        col.phase += dt;
+
+        // Score when dragon passes right edge of column
+        if (!col.scored && col.x + col.w < dragon.x - dragon.radius) {
+            col.scored = true;
+            columnsCleared++;
+            score += 10;
+            if (columnsCleared % 5 === 0 && fireCharges < 3) {
+                fireCharges++;
+                spawnBurst(dragon.x, dragon.y, YELLOW, 8, 0.55);
+            }
+            if (columnsCleared % COLS_PER_LEVEL === 0) {
+                level++;
+                scrollSpeed = BASE_SPEED + SPEED_PER_LEVEL * (level - 1);
+                score += 100;
+                spawnBurst(dragon.x, dragon.y, MINT, 12, 0.7);
+            }
+            updateHUD();
+        }
+
+        // Fire breath destroys column
+        if (fireActive && col.x - dragon.x < W * 0.6 && col.x > dragon.x - 40 && !col.destroyed) {
+            col.destroyed = true;
+            score += 30;
+            spawnBurst(col.x + col.w * 0.5, H * 0.5, '#ff6020', 14, 0.5);
+            updateHUD();
+        }
+
+        // Collision (circle vs rects, use 0.82 of radius for forgiveness)
+        if (dragon.invincible <= 0 && !col.destroyed) {
+            var cr = dragon.radius * 0.82;
+            var cx = dragon.x, cy = dragon.y;
+            if (cx + cr > col.x && cx - cr < col.x + col.w) {
+                if (cy - cr < col.gapY || cy + cr > col.gapY + col.gap) {
+                    hitObstacle(); return;
+                }
+            }
+        }
+
+        if (col.x + col.w < -60) columns.splice(ci, 1);
+    }
+
+    // Update gems
+    for (var gi = gems.length - 1; gi >= 0; gi--) {
+        var g = gems[gi];
+        if (g.collected) { gems.splice(gi, 1); continue; }
+        g.x -= dx;
+        g.phase += dt * 3;
+        var ddx = dragon.x - g.x, ddy = dragon.y - g.y;
+        if (Math.sqrt(ddx*ddx + ddy*ddy) < dragon.radius + g.r) {
+            g.collected = true;
+            gemsCollected++;
+            score += g.type === 'star' ? 50 : 25;
+            spawnBurst(g.x, g.y, g.type === 'star' ? YELLOW : PINK, 10, 0.5);
+            updateHUD();
+        }
+        if (g.x < -20) gems.splice(gi, 1);
+    }
+
+    // Fire breath ongoing particles
+    if (fireActive) {
+        fireTimer -= dt;
+        if (fireTimer <= 0) { fireActive = false; fireTimer = 0; }
+        if (Math.random() < 0.5) {
+            particles.push({ x: dragon.x + dragon.radius + Math.random()*70, y: dragon.y + (Math.random()-0.5)*28,
+                vx: 180 + Math.random()*140, vy: (Math.random()-0.5)*80,
+                life:1, maxLife: 0.18 + Math.random()*0.12, r: 3 + Math.random()*5,
+                color: Math.random()<0.55 ? '#ff6020' : YELLOW, isFire:true });
+        }
+    }
+
+    // Update particles
+    for (var pi = particles.length - 1; pi >= 0; pi--) {
+        var p = particles[pi];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += (p.isFire ? -50 : 65) * dt;
+        p.life -= dt / p.maxLife;
+        if (p.life <= 0) particles.splice(pi, 1);
+    }
+}
+
+function hitObstacle() {
+    if (dragon.invincible > 0) return;
+    lives--;
+    dragon.invincible = 2.2;
+    dragon.vy = -210;
+    spawnBurst(dragon.x, dragon.y, PINK, 14, 0.6);
+    updateHUD();
+    if (lives <= 0) endGame();
+}
+
+// ── Draw ───────────────────────────────────────────────────────────────────────
+function draw(ts) {
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+
+    // Cave edge vignette
+    var vTop = ctx.createLinearGradient(0,0,0,70);
+    vTop.addColorStop(0,'rgba(25,8,55,0.7)'); vTop.addColorStop(1,'rgba(25,8,55,0)');
+    ctx.fillStyle = vTop; ctx.fillRect(0,0,W,70);
+    var vBot = ctx.createLinearGradient(0,H-60,0,H);
+    vBot.addColorStop(0,'rgba(25,8,55,0)'); vBot.addColorStop(1,'rgba(25,8,55,0.7)');
+    ctx.fillStyle = vBot; ctx.fillRect(0,H-60,W,60);
+
+    // Background sparkles
+    for (var si = 0; si < bgStars.length; si++) {
+        var s = bgStars[si];
+        var a = s.alpha * (0.5 + 0.5 * Math.sin(s.phase));
+        ctx.fillStyle = 'rgba(200,180,255,' + a + ')';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+    }
+
+    if (state !== 'playing' && state !== 'over') return;
+
+    // Columns
+    for (var ci = 0; ci < columns.length; ci++) drawColumn(columns[ci]);
+
+    // Gems
+    for (var gi = 0; gi < gems.length; gi++) drawGem(gems[gi]);
+
+    // Particles
+    ctx.save();
+    for (var pi = 0; pi < particles.length; pi++) {
+        var p = particles[pi];
+        var al = Math.max(0, p.life);
+        ctx.globalAlpha = al;
+        ctx.fillStyle = p.color;
+        if (p.isFire) { ctx.shadowColor = p.color; ctx.shadowBlur = 8; }
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * Math.max(0.1, al), 0, Math.PI*2); ctx.fill();
+        if (p.isFire) ctx.shadowBlur = 0;
+    }
+    ctx.globalAlpha = 1; ctx.restore();
+
+    // Dragon
+    drawDragon(ts);
+}
+
+function drawColumn(col) {
+    ctx.save();
+    var cx = col.x, cw = col.w;
+    // Gentle sway on crystal tips
+    var sway = Math.sin(col.phase * 2) * 1.2;
+
+    // Build a gradient for column body
+    var bodyGrad = ctx.createLinearGradient(cx, 0, cx + cw, 0);
+    bodyGrad.addColorStop(0, '#2a0c50');
+    bodyGrad.addColorStop(0.35, '#4e1c8a');
+    bodyGrad.addColorStop(0.65, '#5c24a0');
+    bodyGrad.addColorStop(1, '#2a0c50');
+
+    ctx.shadowColor = '#8040c0';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = bodyGrad;
+
+    // Top pillar
+    var topH = col.gapY;
+    if (topH > 0) {
+        ctx.fillRect(cx, 0, cw, topH);
+        // Crystal tip
+        ctx.fillStyle = '#b496ff';
+        ctx.beginPath();
+        ctx.moveTo(cx + cw * 0.18 + sway, topH);
+        ctx.lineTo(cx + cw * 0.5 + sway, topH + 22);
+        ctx.lineTo(cx + cw * 0.82 + sway, topH);
+        ctx.closePath(); ctx.fill();
+        // Inner shine
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.fillRect(cx + 5, 0, 9, topH);
+        // Edge lines
+        ctx.strokeStyle = 'rgba(180,150,255,0.45)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, topH); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx + cw, 0); ctx.lineTo(cx + cw, topH); ctx.stroke();
+        // Restore fill for bot pillar
+        ctx.fillStyle = bodyGrad;
+    }
+
+    // Bottom pillar
+    var botY = col.gapY + col.gap;
+    var botH = H - botY;
+    if (botH > 0) {
+        ctx.fillStyle = bodyGrad;
+        ctx.fillRect(cx, botY, cw, botH);
+        // Crystal tip
+        ctx.fillStyle = '#b496ff';
+        ctx.beginPath();
+        ctx.moveTo(cx + cw * 0.18 - sway, botY);
+        ctx.lineTo(cx + cw * 0.5 - sway, botY - 22);
+        ctx.lineTo(cx + cw * 0.82 - sway, botY);
+        ctx.closePath(); ctx.fill();
+        // Inner shine
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.fillRect(cx + 5, botY, 9, botH);
+        // Edge lines
+        ctx.strokeStyle = 'rgba(180,150,255,0.45)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cx, botY); ctx.lineTo(cx, H); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx + cw, botY); ctx.lineTo(cx + cw, H); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function drawGem(g) {
+    var pulse = 0.75 + 0.25 * Math.sin(g.phase);
+    ctx.save();
+    ctx.shadowColor = g.type === 'star' ? YELLOW : PINK;
+    ctx.shadowBlur = 16 * pulse;
+    ctx.globalAlpha = 0.92;
+    ctx.font = Math.round(g.r * 2.3) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(g.type === 'star' ? '⭐' : '💎', g.x, g.y);
+    ctx.restore();
+}
+
+function drawDragon(ts) {
+    var flicker = dragon.invincible > 0 && Math.floor(dragon.invincible * 9) % 2 === 0;
+    if (flicker) return;
+
+    var bob = Math.sin(ts * 0.0025) * 2.5;
+    var dy = dragon.y + bob;
+
+    ctx.save();
+
+    // Trail (fading ghost dragons)
+    for (var ti = 0; ti < dragon.trail.length; ti++) {
+        var tp = dragon.trail[ti];
+        if (tp.a <= 0) continue;
+        var sz = Math.round((1 - ti / dragon.trail.length) * 28 + 10);
+        ctx.globalAlpha = tp.a * 0.35;
+        ctx.shadowColor = PURPLE; ctx.shadowBlur = 6;
+        ctx.font = sz + 'px serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('🐉', tp.x - ti * 4, tp.y);
+    }
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+    // Outer glow halo
+    var grad = ctx.createRadialGradient(dragon.x, dy, 0, dragon.x, dy, dragon.radius * 1.9);
+    grad.addColorStop(0, 'rgba(255,150,200,0.28)');
+    grad.addColorStop(1, 'rgba(180,100,255,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(dragon.x, dy, dragon.radius * 1.9, 0, Math.PI*2); ctx.fill();
+
+    // Dragon emoji
+    ctx.shadowColor = PINK;
+    ctx.shadowBlur = 22;
+    ctx.font = (46 + dragon.flapAnim * 7) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🐉', dragon.x, dy);
+
+    // Fire breath
+    if (fireActive) {
+        ctx.shadowColor = '#ff6020';
+        ctx.shadowBlur = 28;
+        ctx.font = '34px serif';
+        ctx.fillText('🔥', dragon.x + dragon.radius * 2.2, dy - 4);
+    }
+
+    ctx.restore();
+}
+
+// ── HUD ────────────────────────────────────────────────────────────────────────
+function updateHUD() {
+    document.getElementById('score').textContent = score;
+    document.getElementById('level-disp').textContent = level;
+    var fires = '';
+    for (var i = 0; i < fireCharges; i++) fires += '🔥';
+    document.getElementById('fire-val').textContent = fires || '·';
+    var h = '';
+    for (var j = 0; j < 3; j++) h += j < lives ? '💖' : '🖤';
+    document.getElementById('hearts').textContent = h;
+}
+
+// ── End game ───────────────────────────────────────────────────────────────────
+function endGame() {
+    state = 'over';
+    document.getElementById('game-over').classList.add('active');
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-stats').innerHTML =
+        '🐉 Columns Cleared: ' + columnsCleared + '<br>' +
+        '💎 Gems Collected: ' + gemsCollected + '<br>' +
+        '⭐ Level Reached: ' + level;
+    if (!savedScore) {
+        savedScore = true;
+        fetch('/api/scores', { method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ game:'dragon_dash', score:score,
+                details:{ level:level, columns:columnsCleared, gems:gemsCollected } })
+        }).catch(function(){});
+    }
+}
+
+// ── Particles ──────────────────────────────────────────────────────────────────
+function spawnBurst(x, y, color, count, maxLife) {
+    for (var i = 0; i < count; i++) {
+        var a = Math.PI*2*i/count, spd = 60 + Math.random()*85;
+        particles.push({ x:x, y:y, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
+            life:1, maxLife:(maxLife||0.5) + Math.random()*0.18,
+            r: Math.random()*4+2, color:color, isFire:false });
+    }
+}
+
+// ── Loop ───────────────────────────────────────────────────────────────────────
+function loop(ts) {
+    var dt = lastTime ? Math.min((ts - lastTime) / 1000, 0.05) : 0;
+    lastTime = ts;
+    update(dt);
+    draw(ts);
+    requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+
+<!-- Bug Report -->
+<div id="bug-btn" onclick="document.getElementById('bug-modal').style.display='flex'" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(20,12,35,0.75);border:1px solid rgba(180,150,255,0.15);border-radius:20px;padding:5px 16px;color:#604870;font-family:Quicksand,sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px;backdrop-filter:blur(4px);">&#x1F41B; report a bug</div>
+<div id="bug-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,3,10,0.88);z-index:10000;justify-content:center;align-items:center;backdrop-filter:blur(5px);">
+  <div style="background:linear-gradient(135deg,#1a1030,#0d0820);border:1px solid rgba(180,150,255,0.2);border-radius:20px;padding:28px;width:360px;max-width:92vw;font-family:Quicksand,sans-serif;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span style="color:#ff96c8;font-size:18px;font-weight:700;">Report a Bug</span>
+      <span onclick="document.getElementById('bug-modal').style.display='none'" style="color:#9080b0;cursor:pointer;font-size:22px;line-height:1;">&#x2715;</span>
+    </div>
+    <p style="color:#9080b0;font-size:13px;margin-bottom:14px;">Found something broken? Crissy wants to know!</p>
+    <textarea id="bug-desc" placeholder="What went wrong? What were you doing?" style="width:100%;height:110px;background:rgba(20,12,35,0.8);border:1px solid rgba(180,150,255,0.2);border-radius:10px;color:#f0d0ff;font-family:Quicksand,sans-serif;font-size:13px;padding:10px 12px;resize:none;outline:none;box-sizing:border-box;"></textarea>
+    <button onclick="(function(){var d=document.getElementById('bug-desc').value.trim();if(!d)return;var b='Page: '+window.location.pathname+'\n\n'+d;window.location.href='mailto:crissy@pixieportalgames.com?subject='+encodeURIComponent('Pixie Portal Bug Report')+'&body='+encodeURIComponent(b);document.getElementById('bug-modal').style.display='none';document.getElementById('bug-desc').value='';})();" style="margin-top:12px;width:100%;padding:10px;border-radius:20px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:Quicksand,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Send Bug Report &#x2726;</button>
+  </div>
+</div>
+</body>
+</html>
