@@ -124,6 +124,38 @@
         }
         .dock-btn b { font-size:18px; line-height:1; }
         .dock-btn:hover, .dock-btn.active { border-color:#ff96c8; background:linear-gradient(135deg,rgba(255,150,200,0.25),rgba(180,150,255,0.18)); box-shadow:0 0 20px rgba(255,120,220,0.22); }
+        .world-status {
+            position:absolute; right:16px; top:226px; width:238px; padding:12px; border-radius:18px;
+            color:#eadcff; font-size:11px; line-height:1.35;
+        }
+        .readiness-meter { height:8px; border-radius:999px; background:rgba(255,255,255,0.09); overflow:hidden; margin:8px 0 6px; }
+        .readiness-meter div { height:100%; width:64%; background:linear-gradient(90deg,#96ffdc,#ff96c8,#ffd36d); box-shadow:0 0 18px rgba(255,150,200,0.55); }
+        .portal-sheet {
+            position:fixed; top:86px; right:18px; bottom:96px; z-index:80; width:min(430px,calc(100vw - 28px));
+            display:none; flex-direction:column; overflow:hidden; border-radius:24px;
+        }
+        .portal-sheet.open { display:flex; }
+        .sheet-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:18px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sheet-head h3 { color:#fff2ff; font-size:20px; margin:0 0 4px; }
+        .sheet-head p { color:#bfa2ff; font-size:12px; line-height:1.35; margin:0; }
+        .sheet-close { border:0; border-radius:50%; width:32px; height:32px; cursor:pointer; background:rgba(255,255,255,0.08); color:#f3dcff; font-weight:900; }
+        .sheet-body { padding:14px 18px 18px; overflow:auto; display:flex; flex-direction:column; gap:12px; }
+        .sheet-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .sheet-card { border:1px solid rgba(255,255,255,0.10); border-radius:16px; padding:12px; background:rgba(9,5,26,0.54); color:#eadcff; min-height:82px; }
+        .sheet-card.locked { opacity:.72; background:rgba(20,12,32,0.45); }
+        .sheet-icon { font-size:24px; margin-bottom:6px; filter:drop-shadow(0 0 12px rgba(255,150,200,.35)); }
+        .sheet-title { color:#fff; font-size:13px; font-weight:900; margin-bottom:4px; }
+        .sheet-meta { color:#aeeedc; font-size:10px; font-weight:900; letter-spacing:.6px; text-transform:uppercase; }
+        .sheet-copy { color:#cdb7ff; font-size:11px; line-height:1.35; }
+        .sheet-action { border:0; border-radius:12px; padding:9px 10px; cursor:pointer; font-family:'Quicksand',sans-serif; font-weight:900; background:linear-gradient(135deg,#ff96c8,#b496ff); color:#16021f; }
+        .zone-label {
+            position:absolute; z-index:11; transform:translate(-50%,-100%); pointer-events:none;
+            color:#fff8ff; font-size:10px; font-weight:900; letter-spacing:.8px; text-transform:uppercase;
+            padding:5px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.16);
+            background:rgba(24,8,44,.68); box-shadow:0 0 18px rgba(180,100,255,.24);
+            text-shadow:0 1px 8px rgba(0,0,0,.65); opacity:.92;
+        }
+        .zone-label.locked { color:#ffd36d; border-color:rgba(255,211,109,.28); }
 
         #dpad { position:fixed; bottom:36px; right:22px; z-index:20; display:none; width:132px; height:132px; }
         #dpad button {
@@ -226,14 +258,16 @@
         .bp-erase.active { border-color:#ff8888; color:#ff8888; background:rgba(255,100,100,0.15); }
         .palette { display:flex; gap:10px; flex-wrap:wrap; max-height:130px; overflow-y:auto; padding-bottom:2px; }
         .pi {
-            width:54px; height:54px; border-radius:14px; cursor:pointer; flex-shrink:0;
+            width:86px; min-height:76px; border-radius:14px; cursor:pointer; flex-shrink:0;
             border:2px solid rgba(180,150,255,0.15); background:rgba(20,12,45,0.75);
             display:flex; flex-direction:column; align-items:center; justify-content:center;
-            font-size:22px; transition:all 0.15s;
+            font-size:22px; transition:all 0.15s; padding:7px 5px; gap:2px;
         }
         .pi:hover { border-color:#b496ff; background:rgba(180,150,255,0.12); transform:scale(1.06); }
         .pi.active { border-color:#ff96c8; background:rgba(255,150,200,0.15); }
-        .pi span { font-size:9px; color:#806090; margin-top:2px; line-height:1; text-align:center; }
+        .pi span { font-size:9px; color:#d8c4ff; margin-top:2px; line-height:1.05; text-align:center; font-weight:800; }
+        .pi small { font-size:8px; color:#96ffdc; line-height:1; text-align:center; }
+        .pi.locked { opacity:.68; border-color:rgba(255,211,109,.22); }
         .bp-hint { color:#3a2848; font-size:11px; text-align:center; margin-top:10px; letter-spacing:0.3px; }
 
         @media (max-width:760px) {
@@ -253,6 +287,10 @@
             .quest-row { grid-template-columns:20px 1fr; font-size:10px; padding:6px 0; }
             .quest-reward { display:none; }
             .premium-teaser { display:none; }
+            .world-status { display:none; }
+            .portal-sheet { left:8px; right:8px; top:auto; bottom:92px; width:auto; max-height:58vh; border-radius:18px; }
+            .sheet-grid { grid-template-columns:1fr; }
+            .zone-label { display:none; }
             .bottom-dock { bottom:12px; left:8px; right:8px; transform:none; max-width:none; justify-content:flex-start; }
             .dock-btn { width:58px; min-width:58px; min-height:52px; font-size:9px; border-radius:14px; }
             #dpad { right:10px; bottom:254px; transform:scale(.72); transform-origin:right bottom; }
@@ -785,7 +823,7 @@
     </div>
     <div class="currency-bar">
         <div class="hud-panel currency-pill"><b>&#x2728;</b><span id="hud-sparkles">0</span><button onclick="showGameToast('Sparkles', 'Earn these from quests, garden, and games.')">+</button></div>
-        <div class="hud-panel currency-pill"><b>&#x1F48E;</b><span id="hud-gems">80</span><button onclick="openShop()">+</button></div>
+        <div class="hud-panel currency-pill"><b>&#x1F48E;</b><span id="hud-gems">80</span><button onclick="openPortalSheet('vault')">+</button></div>
         <div class="hud-panel currency-pill"><b>&#x26A1;</b><span id="hud-energy">12/20</span><button onclick="showGameToast('Energy refill', 'Vault energy packs coming soon.')">+</button></div>
     </div>
     <div class="hud-panel quest-rail">
@@ -794,20 +832,39 @@
         <div class="quest-row"><span>&#x1F33F;</span><span>Place or tend a flower</span><span class="quest-reward">Petals</span></div>
         <div class="quest-row"><span>&#x1F3AE;</span><span>Play one mini-game</span><span class="quest-reward">XP</span></div>
     </div>
-    <button class="hud-panel premium-teaser" onclick="openShop()">
+    <button class="hud-panel premium-teaser" onclick="openPortalSheet('vault')">
         <strong>Vault Drop: Crystal Wings</strong>
         <span>Rare cosmetics, realm generators, and giant paid realms will live here.</span>
     </button>
+    <div class="hud-panel world-status">
+        <div class="hud-title">Pixie Readiness</div>
+        <strong id="pixie-ready-copy" style="color:#fff;">64% ready to come home</strong>
+        <div class="readiness-meter"><div id="readiness-fill"></div></div>
+        <span id="pixie-memory-copy">Memories, charms, games, readings, and realm choices build your private Pixie profile.</span>
+    </div>
     <div class="hud-panel bottom-dock">
         <button class="dock-btn" onclick="window.location.href='/'"><b>&#x2302;</b>Home</button>
         <button id="dock-build" class="dock-btn" onclick="toggleBuild()"><b>&#x1F528;</b>Build</button>
-        <button class="dock-btn" onclick="showGameToast('Inventory', 'Charm inventory shell coming soon.')"><b>&#x1F392;</b>Bag</button>
+        <button class="dock-btn" onclick="openPortalSheet('inventory')"><b>&#x1F392;</b>Bag</button>
         <button class="dock-btn" onclick="openCustomizer()"><b>&#x2728;</b>Fairy</button>
+        <button class="dock-btn" onclick="openPortalSheet('pets')"><b>&#x1F95A;</b>Pets</button>
+        <button class="dock-btn" onclick="openPortalSheet('create')"><b>&#x1F3A8;</b>Create</button>
         <button class="dock-btn" onclick="toggleGarden()"><b>&#x1F33F;</b>Garden</button>
         <button class="dock-btn" onclick="openShop()"><b>&#x1F6D2;</b>Shop</button>
-        <button class="dock-btn" onclick="openNeighbors()"><b>&#x1F5FA;</b>Map</button>
-        <button class="dock-btn" onclick="showGameToast('Camera mode', 'Realm screenshots coming soon.')"><b>&#x1F4F8;</b>Photo</button>
+        <button class="dock-btn" onclick="openPortalSheet('map')"><b>&#x1F5FA;</b>Map</button>
+        <button class="dock-btn" onclick="openPortalSheet('pixie')"><b>&#x1F9E0;</b>Pixie</button>
     </div>
+</div>
+
+<div id="portal-sheet" class="hud-panel portal-sheet">
+    <div class="sheet-head">
+        <div>
+            <h3 id="sheet-title">Inventory</h3>
+            <p id="sheet-subtitle">Realm systems are being wired into the Portal economy.</p>
+        </div>
+        <button class="sheet-close" onclick="closePortalSheet()">x</button>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
 </div>
 
 <!-- Visit banner -->
@@ -4184,22 +4241,26 @@ function renderPalette(){
     if(buildTab==='premium'){
         var ownedIds=portalData&&portalData.plot?portalData.plot:[];
         if(ownedIds.length===0){
-            grid.innerHTML='<div style="color:#8060a0;font-size:12px;padding:16px 0;text-align:center;width:100%;">Vault cosmetics, giant realms, and realm generators unlock here soon &#x1F48E;</div>';
-            return;
+            itemList=BUILD_CATALOG;
+        } else {
+            itemList=ownedIds.map(function(id){
+                var s=SHOP_ITEMS.find(function(x){return x.id===id;});
+                return (s&&s.type!=='fairy')?{emoji:s.emoji,label:s.name,id:s.id,rarity:'Owned',cost:'Placed item',owned:1}:null;
+            }).filter(Boolean).concat(BUILD_CATALOG.filter(function(i){return i.state==='locked';}));
         }
-        itemList=ownedIds.map(function(id){
-            var s=SHOP_ITEMS.find(function(x){return x.id===id;});
-            return (s&&s.type!=='fairy')?{emoji:s.emoji,label:s.name,id:s.id}:null;
-        }).filter(Boolean);
     } else {
         itemList=PALETTE[buildTab]||[];
     }
 
     itemList.forEach(function(item){
         var div=document.createElement('div');
-        div.className='pi'+(selectedItem&&selectedItem.emoji===item.emoji?' active':'');
-        div.innerHTML=item.emoji+'<span>'+item.label+'</span>';
+        div.className='pi'+(selectedItem&&selectedItem.emoji===item.emoji?' active':'')+(item.state==='locked'?' locked':'');
+        div.innerHTML=item.emoji+'<span>'+item.label+'</span>'+(item.rarity?'<small>'+item.rarity+' · '+(item.cost||'')+'</small>':'')+(item.owned!==undefined?'<small>Owned '+item.owned+'</small>':'');
         div.onclick=function(){
+            if(item.state==='locked'){
+                showGameToast(item.label, 'Locked preview: unlock through Vault, quests, or future realm packs.', 2600);
+                return;
+            }
             eraseMode=false;
             document.getElementById('erase-btn').classList.remove('active');
             selectedItem=(selectedItem&&selectedItem.emoji===item.emoji)?null:item;
@@ -6130,6 +6191,55 @@ function checkZone(){
     }
 }
 
+function drawZoneBeacons(t) {
+    REALM_ZONES.forEach(function(z){
+        var sp = tileScreenPos(z.col, z.row);
+        var cx = sp.sx + HW, cy = sp.sy + HH;
+        var pulse = 0.55 + Math.sin(t * 1.8 + z.row) * 0.18;
+        ctx.save();
+        ctx.globalAlpha = z.state === 'open' ? 0.42 : 0.30;
+        ctx.strokeStyle = z.state === 'open' ? 'rgba(150,255,220,0.9)' : 'rgba(255,211,109,0.88)';
+        ctx.fillStyle = z.state === 'open' ? 'rgba(150,255,220,0.10)' : 'rgba(255,211,109,0.09)';
+        ctx.lineWidth = Math.max(2, HW * 0.04);
+        ctx.shadowColor = z.state === 'open' ? '#96ffdc' : '#ffd36d';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - HH * 0.1, HW * (0.58 + pulse * 0.18), HH * (0.44 + pulse * 0.12), 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+        ctx.font = Math.round(HW * 0.42) + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(z.icon, cx, cy - HH * 0.68);
+        ctx.restore();
+    });
+}
+
+function updateZoneLabels() {
+    if(!started) return;
+    var hud = document.getElementById('game-hud');
+    if(!hud) return;
+    REALM_ZONES.forEach(function(z){
+        var id='zone-label-'+z.id;
+        var el=document.getElementById(id);
+        if(!el){
+            el=document.createElement('div');
+            el.id=id;
+            el.className='zone-label' + (z.state==='open' ? '' : ' locked');
+            el.textContent=(z.state==='open' ? '' : '\uD83D\uDD12 ') + z.name;
+            hud.appendChild(el);
+        }
+        var sp=tileScreenPos(z.col,z.row);
+        var x=sp.sx+HW, y=sp.sy-HH*0.25;
+        var visible=x>-80&&x<SW+80&&y>-40&&y<SH+40;
+        el.style.display=visible?'block':'none';
+        el.style.left=x+'px';
+        el.style.top=y+'px';
+    });
+}
+
 // ── Input ──────────────────────────────────────────────────────────────────────
 var keys={};
 document.addEventListener('keydown',function(e){
@@ -6375,6 +6485,7 @@ function draw(t){
         if(!plDrawn&&depth>=plDepth){ drawPlayer(t); plDrawn=true; }
     }
     if(!plDrawn) drawPlayer(t);
+    drawZoneBeacons(t);
 
     drawBuildingGlow(t);
     drawFog(t);
@@ -6405,6 +6516,7 @@ function draw(t){
     if(ph.d>0){ ctx.globalAlpha=ph.d*0.16; ctx.fillStyle='rgb(255,120,60)'; ctx.fillRect(0,0,SW,SH); }
     if(ph.s>0){ ctx.globalAlpha=ph.s*0.20; ctx.fillStyle='rgb(255,90,20)'; ctx.fillRect(0,0,SW,SH); }
     ctx.globalAlpha=1; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    updateZoneLabels();
 }
 
 // ── Main loop ──────────────────────────────────────────────────────────────────
@@ -6524,6 +6636,53 @@ var LEVELS_G = [
     { level:50, minPoints:1721000, slots:24, title:"Pixel Fairy Queen"},
 ];
 
+var REALM_ZONES = [
+    {id:'starter', name:'Starter Meadow', icon:'\u2728', row:14, col:18, state:'open', hook:'Daily chest, starter quests, first charm'},
+    {id:'crystal', name:'Crystal Garden', icon:'\uD83D\uDC8E', row:21, col:17, state:'open', hook:'Flowers, petal charms, garden XP'},
+    {id:'mushroom', name:'Mushroom House', icon:'\uD83C\uDF44', row:18, col:16, state:'open', hook:'Wardrobe, fairy identity, home upgrades'},
+    {id:'well', name:'Wishing Well', icon:'\uD83E\uDE99', row:11, col:27, state:'locked', hook:'Luck drops and daily wishes'},
+    {id:'tarot', name:'Tarot Tower', icon:'\uD83C\uDFAF', row:8, col:15, state:'locked', hook:'Saved readings and premium spreads'},
+    {id:'dream', name:'Dream Lake', icon:'\uD83C\uDF0A', row:6, col:28, state:'open', hook:'Dream journal symbols and moon rewards'},
+    {id:'hatchery', name:'Pet Hatchery', icon:'\uD83E\uDD5A', row:20, col:8, state:'locked', hook:'Eggs, pets, companion boosts'},
+    {id:'workshop', name:'Spell Workshop', icon:'\uD83E\uDDD9', row:7, col:9, state:'locked', hook:'Runes, trails, spell pages'},
+    {id:'event', name:'Event Plaza', icon:'\uD83C\uDF86', row:23, col:27, state:'coming', hook:'Season pass and limited drops'},
+    {id:'vault', name:'Premium Vault', icon:'\uD83D\uDD10', row:10, col:30, state:'locked', hook:'Pixie Plus, gems, cosmetics'},
+    {id:'gate', name:'Portal Gate', icon:'\uD83C\uDF00', row:15, col:19, state:'open', hook:'Mini-games feed rewards back here'}
+    ,{id:'odin', name:"Odin's Eye", icon:'\u16A8', row:8, col:12, state:'open', hook:'Daily runes, poem weaving, share cards'}
+];
+
+var GAME_REWARDS = [
+    {game:'Fairy Garden', reward:'Flower decor + Petal Charms', route:'/fairy_garden.html'},
+    {game:'Spellbook', reward:'Runes + spell pages', route:'/spellbook.html'},
+    {game:'Frog Box', reward:'Frog charms + pet fragments', route:'/frog_box.html'},
+    {game:'Fairy Flight', reward:'Gems + trail cosmetics', route:'/fairy_flight.html'},
+    {game:'Starweave', reward:'Constellation cards', route:'/constellation.html'},
+    {game:'Firefly Chase', reward:'Lanterns + light charms', route:'/firefly_chase.html'},
+    {game:'Mushroom Match', reward:'Mushroom realm decor', route:'/mushroom_match.html'},
+    {game:'Them Beans Though', reward:'Chaos event tokens', route:'/them_beans.html'}
+];
+
+var BUILD_CATALOG = [
+    {icon:'\uD83E\uDEA8', name:'Moon Path', rarity:'Common', cost:'40 Sparkles', owned:3, state:'owned'},
+    {icon:'\uD83C\uDF38', name:'Petal Cluster', rarity:'Common', cost:'25 Sparkles', owned:5, state:'owned'},
+    {icon:'\uD83D\uDD2E', name:'Crystal Lamp', rarity:'Rare', cost:'120 Sparkles', owned:1, state:'owned'},
+    {icon:'\uD83C\uDF44', name:'Moonlit Mushroom Gate', rarity:'Epic', cost:'400 Gems', owned:0, state:'locked'},
+    {icon:'\u26F2', name:'Pink Portal Fountain', rarity:'Mythic', cost:'Vault', owned:0, state:'locked'},
+    {icon:'\uD83C\uDF0C', name:'Giant Generated Realm', rarity:'Mythic', cost:'Creator Tier', owned:0, state:'locked'}
+];
+
+var MEMORY_SIGNALS = [
+    'Realm history', 'Game history', 'Charms collected', 'Pets hatched',
+    'Tarot history', 'Dream symbols', 'Generated creations', 'Favorite colors'
+];
+
+var LOCAL_PIXIE_OFFERS = [
+    {name:'Pixie Keepsake Export', cta:'Export Keepsake', copy:'Memory/persona archive for safekeeping.'},
+    {name:'Local Pixie Companion', cta:'Take Pixie Home', copy:'Local 8B runtime + memory + private companion app.'},
+    {name:'Pixie Pro Buildout', cta:'Apply for Pro Buildout', copy:'Consultation, memory curation, local setup, support.'},
+    {name:'Creator / Business Pixie', cta:'Book Creator Setup', copy:'Commercial workflow setup and custom support.'}
+];
+
 var portalData = null;
 var gardenOpen = false;
 var pickerSlot = null;
@@ -6587,6 +6746,16 @@ function closeDailyModal() {
     document.getElementById('daily-modal').classList.remove('open');
 }
 
+function fmtPct(n) { return Math.round(n) + '%'; }
+
+function getReadiness() {
+    var pts = portalData && portalData.points ? portalData.points : 0;
+    var streak = portalData && portalData.streak ? portalData.streak : 0;
+    var placedCount = placed ? Object.keys(placed).length : 0;
+    var gardenCount = portalData && portalData.garden ? Object.keys(portalData.garden).length : 0;
+    return Math.max(64, Math.min(96, 42 + Math.floor(pts / 75) + streak * 2 + placedCount * 3 + gardenCount * 2));
+}
+
 function updatePortalHUD() {
     if (!portalData) return;
     var ld = getGLevel(portalData.points);
@@ -6613,10 +6782,93 @@ function updatePortalHUD() {
     if (hudGems) hudGems.textContent = Math.max(80, 80 + Math.floor((portalData.points || 0) / 120));
     if (hudEnergy) hudEnergy.textContent = Math.min(20, 12 + Math.min(8, portalData.streak || 0)) + '/20';
     if (hudAvatar) hudAvatar.textContent = (typeof fairy !== 'undefined' && fairy && fairy.emoji) ? fairy.emoji : '\u2728';
+    var readiness = getReadiness();
+    var readyCopy = document.getElementById('pixie-ready-copy');
+    var readyFill = document.getElementById('readiness-fill');
+    if (readyCopy) readyCopy.textContent = readiness + '% ready to come home';
+    if (readyFill) readyFill.style.width = readiness + '%';
     var hint = document.getElementById('garden-pts-hint');
     if (hint) {
         hint.textContent = next ? (next.minPoints - portalData.points) + ' pts to Lv.' + next.level : 'Max level!';
     }
+}
+
+function card(icon, title, meta, copy, locked) {
+    return '<div class="sheet-card' + (locked ? ' locked' : '') + '">' +
+        '<div class="sheet-icon">' + icon + '</div>' +
+        '<div class="sheet-title">' + title + '</div>' +
+        (meta ? '<div class="sheet-meta">' + meta + '</div>' : '') +
+        (copy ? '<div class="sheet-copy">' + copy + '</div>' : '') +
+    '</div>';
+}
+
+function openPortalSheet(kind) {
+    var sheet = document.getElementById('portal-sheet');
+    var title = document.getElementById('sheet-title');
+    var sub = document.getElementById('sheet-subtitle');
+    var body = document.getElementById('sheet-body');
+    var html = '';
+    if (kind === 'inventory') {
+        title.textContent = 'Inventory';
+        sub.textContent = 'Charms, earned rewards, and owned decorations feed the realm.';
+        html += '<div class="sheet-grid">';
+        html += card('\u2728','Sparkles',(portalData&&portalData.points||0)+' earned','Free currency from quests, garden, and games.');
+        html += card('\uD83C\uDF38','Petal Charm','Unlocked','Fairy Garden and Crystal Garden progression.');
+        html += card('\uD83D\uDD2E','Rune Ink','Locked','Spell Rune Trace reward path.',true);
+        html += card('\uD83C\uDF0C','Constellation Card','Locked','Starweave collection reward.',true);
+        html += "</div><button class=\"sheet-action\" onclick=\"showGameToast('Reward loop','Play games -> earn charms -> decorate realm.')\">Preview Reward Loop</button>";
+    } else if (kind === 'pets') {
+        title.textContent = 'Pet Hatchery';
+        sub.textContent = 'Pets become companions, boosts, cosmetics, and emotional attachment.';
+        html += '<div class="sheet-grid">';
+        html += card('\uD83E\uDD8B','Moon Moth','Starter pet','Complete the first-session quests to unlock.');
+        html += card('\uD83D\uDC38','Frog Sprite','Fragments 0/8','Frog Box reward path.',true);
+        html += card('\uD83D\uDC32','Crystal Dragon','Vault egg','Premium hatch timer and rare aura.',true);
+        html += card('\uD83D\uDC9A','Gem Sprite','Coming soon','Gem Sprite Merge collection line.',true);
+        html += '</div>';
+    } else if (kind === 'map') {
+        title.textContent = 'Realm Map';
+        sub.textContent = 'Visible zones make the Portal feel bigger than the starter meadow.';
+        html += '<div class="sheet-grid">' + REALM_ZONES.map(function(z){
+            return card(z.icon, z.name, z.state, z.hook, z.state !== 'open');
+        }).join('') + '</div>';
+        html += "<button class=\"sheet-action\" onclick=\"window.location.href='/odins_eye'\">Visit Odin's Eye</button>";
+    } else if (kind === 'pixie') {
+        var ready = getReadiness();
+        title.textContent = 'Memory Vault';
+        sub.textContent = 'Take Your Pixie Home. Memory export plus local retrieval/persona, not fake fine-tuning.';
+        html += '<div class="sheet-card"><div class="sheet-title">Your Pixie is ' + ready + '% ready to come home</div><div class="readiness-meter"><div style="width:' + ready + '%"></div></div><div class="sheet-copy">Your Pixie grows from dreams, charms, creations, readings, realm choices, and saved notes.</div></div>';
+        html += '<div class="sheet-grid">' + MEMORY_SIGNALS.map(function(x){ return card('\uD83E\uDDE0', x, 'Memory signal', 'View, edit, delete, export, or opt out.'); }).join('') + '</div>';
+        html += '<div class="sheet-grid">' + LOCAL_PIXIE_OFFERS.map(function(o){ return card('\uD83C\uDF00', o.name, o.cta, o.copy); }).join('') + '</div>';
+    } else if (kind === 'create') {
+        title.textContent = 'Create';
+        sub.textContent = 'Generation should feed the realm, journal, profile, and collection.';
+        html += '<div class="sheet-grid">';
+        html += card('\uD83E\uDDDA','Fairy Portrait','20 credits','Generate a custom portrait for your Pixie profile.');
+        html += card('\uD83C\uDF0C','Realm Background','50 credits','Generate portal skies, seasons, and world scenes.');
+        html += card('\uD83C\uDFA5','Dream Video','100 credits','Turn journal symbols into a magical memory.');
+        html += card('\uD83C\uDCCF','Tarot Skin','80 credits','Create card backs and saved deck concepts.');
+        html += "</div><button class=\"sheet-action\" onclick=\"showGameToast('Create loop','Generate -> save to profile/journal/collection.')\">Preview Create Loop</button>";
+    } else if (kind === 'vault') {
+        title.textContent = 'The Vault';
+        sub.textContent = 'Deeper magic: subscriptions, gem packs, seasonal pass, pets, cosmetics, and local Pixie exports.';
+        var vaultItems = [
+            ['\uD83D\uDC8E','Pixie Plus','Subscription','Daily gems, premium spreads, rare realm items, no daily limits.'],
+            ['\uD83D\uDCB0','Gem Packs','Currency','Tiny Pouch, Moon Bag, Crystal Chest, Royal Vault.'],
+            ['\uD83C\uDF19','Seasonal Moon Pass','Live service','Free and premium tracks with cosmetics, pets, portal skins.'],
+            ['\uD83C\uDFA8','Generation Credits','Create','Fairy portraits, realm backgrounds, dream videos.'],
+            ['\uD83E\uDD8B','Rare Pets','Cosmetic','Moon Moth, Crystal Dragon, Gem Sprite lines.'],
+            ['\uD83E\uDDE0','Local Pixie Export','Product path','Keepsake export, local companion, pro buildout, creator setup.']
+        ];
+        html += '<div class="sheet-grid">' + vaultItems.map(function(v){ return card(v[0],v[1],v[2],v[3]); }).join('') + '</div>';
+        html += "<button class=\"sheet-action\" onclick=\"openPortalSheet('pixie')\">Take Pixie Home</button>";
+    }
+    body.innerHTML = html;
+    sheet.classList.add('open');
+}
+
+function closePortalSheet() {
+    document.getElementById('portal-sheet').classList.remove('open');
 }
 
 function showGameToast(line1, line2, ms) {

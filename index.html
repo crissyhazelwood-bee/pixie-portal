@@ -1490,9 +1490,10 @@
         <div class="links" id="nav-links">
             <div class="nav-primary">
                 <a class="nav-tab active" data-page="home" onclick="showPage('home')">Portal</a>
-                <a class="nav-tab" data-page="games" onclick="showPage('games')">Games</a>
-                <a class="nav-tab" data-page="horoscope" onclick="showPage('horoscope')">Stars</a>
+                <a class="nav-tab" data-page="games" onclick="showPage('games')">Play</a>
+                <a class="nav-tab" data-page="create" onclick="showPage('create')">Create</a>
                 <a class="nav-tab" data-page="tarot" onclick="showPage('tarot')">Tarot</a>
+                <a class="nav-tab" data-page="horoscope" onclick="showPage('horoscope')">Stars</a>
                 <a class="nav-tab" data-page="journal-page" onclick="showPage('journal-page')">Dreams</a>
                 <a class="nav-tab" data-page="charms" onclick="showPage('charms')">Charms</a>
                 <a class="nav-tab" data-page="my-pixie" onclick="showPage('my-pixie')">My Pixie</a>
@@ -1615,6 +1616,15 @@
                             <span class="reward-pill">Reward: Petal Charms</span>
                         </div>
                     </div>
+                    <div class="portal-hub-card" onclick="window.location.href='/odins_eye'">
+                        <div class="hub-kicker">A raven is circling</div>
+                        <div class="hub-title">Odin's Eye</div>
+                        <div class="hub-copy">Draw a daily rune, reveal secret associations, weave poems, and make share cards.</div>
+                        <div class="reward-row">
+                            <span class="reward-pill">Reward: Rune Dust</span>
+                            <span class="reward-pill locked-badge">Secrets hidden</span>
+                        </div>
+                    </div>
                     <div class="portal-hub-card wide">
                         <div class="hub-kicker">Progress preview</div>
                         <div class="hub-title" id="portal-level-title">Level 3 Portal Seeker</div>
@@ -1641,6 +1651,12 @@
                     <div class="card-title">The Portal</div>
                     <div class="card-desc">A living fairy world to explore. Wander meadows, discover the lake, dance on the fairy ring. Phase 1 — more coming soon.</div>
                     <span class="card-tag tag-game">Play</span>
+                </div>
+                <div class="card reveal" onclick="window.location.href='/odins_eye'">
+                    <span class="card-icon">&#x16A8;</span>
+                    <div class="card-title">Odin's Eye</div>
+                    <div class="card-desc">Choose a path, tap gods and runes, draw a daily omen, weave mythic poems, and make share cards.</div>
+                    <span class="card-tag tag-game">Discover</span>
                 </div>
                 <div class="card reveal" onclick="window.location.href='/wishing_well.html'">
                     <span class="card-icon">🪙</span>
@@ -2102,6 +2118,34 @@
         </section>
     </div>
 
+    <!-- ============ CREATE PAGE ============ -->
+    <div class="page" id="page-create">
+        <section>
+            <h2 class="section-title">Create</h2>
+            <p class="section-subtitle">generate magic that belongs to your Pixie, realm, journal, and collection</p>
+            <div class="games-shell">
+                <div class="portal-hub-grid">
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Realm creation</div>
+                        <div class="hub-title">Make assets that feed The Portal</div>
+                        <div class="hub-copy">Fairy portraits, realm backgrounds, dreamscapes, tarot skins, pet concepts, and magical videos should save back into your Pixie identity.</div>
+                    </div>
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Credits</div>
+                        <div class="hub-title">Generation credits</div>
+                        <div class="hub-copy">Use credits, gems, or Vault packs for deeper creation without separating Create from the game economy.</div>
+                    </div>
+                </div>
+                <div class="charms-grid">
+                    <div class="charm-tile earned"><div class="charm-glyph">&#129498;</div><div class="tile-kicker">20 credits</div><div class="hub-title" style="font-size:18px;">Fairy Portrait</div><div class="tile-copy">Save to profile and Memory Vault.</div></div>
+                    <div class="charm-tile"><div class="charm-glyph">&#127756;</div><div class="tile-kicker">50 credits</div><div class="hub-title" style="font-size:18px;">Realm Background</div><div class="tile-copy">Portal skies, seasons, and scene concepts.</div></div>
+                    <div class="charm-tile locked"><div class="charm-glyph">&#127916;</div><div class="tile-kicker">100 credits</div><div class="hub-title" style="font-size:18px;">Dream Video</div><div class="tile-copy">Turn journal symbols into a magical memory.</div></div>
+                    <div class="charm-tile locked"><div class="charm-glyph">&#127183;</div><div class="tile-kicker">80 credits</div><div class="hub-title" style="font-size:18px;">Tarot Skin</div><div class="tile-copy">Deck backs and saved card concepts.</div></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
     <!-- ============ CHARMS PAGE ============ -->
     <div class="page" id="page-charms">
         <section>
@@ -2209,6 +2253,19 @@
                         <li>No daily limits</li>
                     </ul>
                     <button class="btn btn-ghost">Coming Soon</button>
+                </div>
+                <div class="vault-tier">
+                    <div class="hub-kicker">Memory Vault</div>
+                    <div class="hub-title">Take Your Pixie Home</div>
+                    <div class="hub-copy">Your Pixie grows with your dreams, charms, creations, readings, realm, and memories. Export her into a private local companion that runs on your own computer.</div>
+                    <ul>
+                        <li>View, edit, delete, export, or opt out of memory</li>
+                        <li>Pixie Keepsake Export</li>
+                        <li>Local Pixie Companion</li>
+                        <li>Pixie Pro Buildout</li>
+                        <li>Creator / Business Pixie</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="window.location.href='/the_portal.html'">Open Memory Vault</button>
                 </div>
             </div>
 

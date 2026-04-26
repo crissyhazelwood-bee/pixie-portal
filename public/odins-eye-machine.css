@@ -1,0 +1,237 @@
+* { box-sizing: border-box; }
+body.odin-page {
+  margin: 0;
+  min-height: 100vh;
+  color: #f8edff;
+  background: #05030b;
+  font-family: "Quicksand", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+.odin-machine-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 156, 217, .18), transparent 28%),
+    radial-gradient(circle at 18% 76%, rgba(91, 255, 212, .14), transparent 32%),
+    linear-gradient(135deg, #05030b, #1a0827 48%, #061620);
+}
+.odin-machine-bg::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    linear-gradient(110deg, transparent 10%, rgba(90,255,210,.12), transparent 34%),
+    linear-gradient(70deg, transparent 28%, rgba(255,110,210,.12), transparent 58%);
+  filter: blur(20px);
+  animation: odinAurora 8s ease-in-out infinite alternate;
+}
+.odin-orbit-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.45) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba(255,156,217,.38) 0 1px, transparent 2px);
+  background-size: 120px 120px, 180px 180px;
+  animation: particleDrift 22s linear infinite;
+}
+.odin-shell { width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 18px 0 56px; }
+.odin-topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 0 22px;
+}
+.odin-back, .odin-share-button, .odin-primary {
+  border: 1px solid rgba(255,255,255,.14);
+  color: #f8edff;
+  background: rgba(18, 8, 32, .72);
+  border-radius: 999px;
+  padding: 11px 15px;
+  text-decoration: none;
+  font-weight: 800;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+}
+.odin-share-button, .odin-primary {
+  color: #16051f;
+  border: 0;
+  background: linear-gradient(135deg, #ff9cd9, #c59bff, #81ffd9);
+  box-shadow: 0 0 24px rgba(255, 156, 217, .24);
+}
+.odin-mark, .odin-hero h1, .odin-daily-panel h2, .odin-weaver-panel h2 {
+  font-family: "Cinzel", Georgia, serif;
+}
+.odin-mark { font-size: 18px; letter-spacing: 4px; text-transform: uppercase; color: #ffdca8; }
+.odin-hero {
+  min-height: 280px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 28px;
+  align-items: center;
+  padding: 34px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 74% 42%, rgba(255,220,168,.16), transparent 28%),
+    linear-gradient(135deg, rgba(32, 12, 54, .72), rgba(8, 5, 18, .78));
+  box-shadow: 0 34px 120px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.12);
+}
+.odin-kicker { margin: 0 0 8px; color: #92ffe1; font-size: 11px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; }
+.odin-hero h1 { max-width: 850px; margin: 0; font-size: clamp(34px, 6vw, 72px); line-height: .98; letter-spacing: 0; }
+.odin-copy { max-width: 620px; color: #cdb7ff; font-size: 17px; line-height: 1.55; }
+.odin-progress-orb {
+  width: 138px; height: 138px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center; padding: 18px;
+  border: 1px solid rgba(255,220,168,.26);
+  background: radial-gradient(circle at 34% 20%, #fff, #ff9cd9 18%, #452166 62%, #090414);
+  box-shadow: 0 0 50px rgba(255,156,217,.34), inset 0 1px 0 rgba(255,255,255,.42);
+}
+.odin-progress-orb.is-floating {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9998;
+  width: 116px;
+  height: 116px;
+}
+.odin-progress-orb span { font-size: 30px; }
+.odin-progress-orb strong { display: block; font-size: 26px; }
+.odin-progress-orb small { display: block; font-size: 10px; color: #d8c6ff; font-weight: 900; text-transform: uppercase; }
+.odin-controls {
+  display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 14px;
+  margin: 18px 0;
+}
+#odin-search, #odin-poem-form input, #odin-poem-form select, #odin-poem-form textarea {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  color: #fff;
+  background: rgba(11, 5, 22, .78);
+  padding: 13px 15px;
+  font: inherit;
+}
+.odin-tabs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.odin-tabs button {
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 999px;
+  padding: 11px 14px;
+  color: #cdb7ff;
+  background: rgba(21, 9, 38, .76);
+  cursor: pointer;
+  font-weight: 900;
+}
+.odin-tabs button.active {
+  color: white;
+  border-color: rgba(255,156,217,.48);
+  box-shadow: 0 0 18px rgba(255,156,217,.24), inset 0 -2px 0 #ff9cd9;
+}
+.odin-loop-grid { display: grid; grid-template-columns: .92fr 1.08fr; gap: 18px; margin-bottom: 20px; }
+.odin-daily-panel, .odin-weaver-panel {
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  background: rgba(14, 6, 28, .74);
+  padding: 22px;
+  box-shadow: 0 26px 90px rgba(0,0,0,.34);
+}
+.daily-rune-stage { display: grid; grid-template-columns: 88px 1fr; gap: 16px; align-items: center; margin-bottom: 16px; }
+.daily-rune-symbol {
+  width: 88px; height: 88px; border-radius: 22px; display: grid; place-items: center;
+  font-size: 48px; color: #ffe3ad; background: radial-gradient(circle, rgba(255,220,168,.22), rgba(16,8,34,.9));
+  box-shadow: 0 0 34px rgba(255,220,168,.22);
+}
+#odin-poem-form { display: grid; grid-template-columns: 1fr 150px 150px; gap: 10px; }
+#odin-poem-form textarea, #odin-poem-form select[name="mode"], #odin-poem-form button { grid-column: 1 / -1; }
+#odin-poem-form textarea { min-height: 86px; resize: vertical; }
+.odin-discovery-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.odin-artifact-card {
+  position: relative;
+  min-height: 250px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 24px;
+  padding: 22px;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(255,220,168,.14), transparent 25%),
+    linear-gradient(145deg, rgba(31, 13, 51, .82), rgba(8, 5, 18, .84));
+  box-shadow: 0 22px 70px rgba(0,0,0,.32);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.odin-artifact-card:hover, .odin-artifact-card.expanded {
+  transform: translateY(-3px);
+  border-color: rgba(255,156,217,.48);
+  box-shadow: 0 24px 90px rgba(255,156,217,.16), 0 22px 70px rgba(0,0,0,.36);
+}
+.odin-artifact-card.is-discovered::after {
+  content: "discovered";
+  position: absolute; right: 14px; top: 14px;
+  color: #92ffe1; font-size: 10px; font-weight: 900; text-transform: uppercase;
+}
+.odin-artifact-card.is-secret { border-style: dashed; opacity: .82; }
+.artifact-sigil { display: block; font-size: 52px; color: #ffe3ad; text-shadow: 0 0 20px rgba(255,220,168,.4); }
+.odin-artifact-card h3 { font-family: "Cinzel", serif; font-size: 28px; margin: 10px 0 8px; }
+.odin-artifact-card p { color: #d8c9ff; line-height: 1.5; }
+.artifact-hidden {
+  max-height: 0;
+  overflow: hidden;
+  color: #ffe3ad;
+  transition: max-height .28s ease;
+}
+.odin-artifact-card.expanded .artifact-hidden { max-height: 120px; }
+.odin-discovery-toast {
+  position: fixed; left: 50%; top: 18px; transform: translate(-50%, -20px);
+  z-index: 99999; opacity: 0;
+  padding: 13px 18px; border-radius: 999px;
+  color: #fff; background: rgba(18, 8, 32, .92); border: 1px solid rgba(255,156,217,.35);
+  box-shadow: 0 0 34px rgba(255,156,217,.24);
+  transition: all .28s ease;
+}
+.odin-discovery-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.odin-secret-pulse .odin-machine-bg { filter: saturate(1.4) brightness(1.12); }
+.odin-poem-result-card {
+  margin: 28px auto 0;
+  max-width: 760px;
+  padding: 30px;
+  border-radius: 28px;
+  background: rgba(22, 10, 38, .84);
+  border: 1px solid rgba(255, 182, 240, .24);
+  box-shadow: 0 30px 100px rgba(0,0,0,.5), 0 0 40px rgba(255,156,217,.18);
+  text-align: center;
+}
+.odin-poem-result-card h2 { font-family: "Cinzel", serif; margin: 0 0 14px; }
+.odin-poem-result-card pre { white-space: pre-wrap; line-height: 1.65; text-align: left; }
+.odin-premium-lock {
+  position: fixed; inset: 0; z-index: 99999; display: grid; place-items: center;
+  background: rgba(0,0,0,.76); padding: 20px;
+}
+.odin-premium-lock > div {
+  max-width: 420px; border-radius: 24px; padding: 26px;
+  background: #130821; border: 1px solid rgba(255,156,217,.22); text-align: center;
+}
+.odin-credit-close { float: right; border: 0; background: transparent; color: white; font-size: 22px; cursor: pointer; }
+.odin-share-modal { position: fixed; inset: 0; z-index: 99999; display: grid; place-items: center; padding: 18px; background: rgba(0,0,0,.82); }
+.odin-share-modal-inner { max-width: 460px; padding: 24px; border-radius: 22px; text-align: center; background: #130821; border: 1px solid rgba(255,156,217,.22); }
+.odin-share-modal img { width: 100%; border-radius: 16px; margin: 16px 0; }
+.odin-secret-reveal { color: #ffe3ad; font-weight: 900; }
+@keyframes odinAurora { from { transform: translateX(-4%) scale(1); opacity: .42; } to { transform: translateX(4%) scale(1.08); opacity: .78; } }
+@keyframes particleDrift { to { background-position: 120px 240px, -180px 180px; } }
+@media (max-width: 820px) {
+  .odin-shell { width: min(100% - 18px, 1180px); }
+  .odin-topbar, .odin-hero, .odin-controls, .odin-loop-grid { grid-template-columns: 1fr; }
+  .odin-topbar { align-items: stretch; }
+  .odin-mark { text-align: center; }
+  .odin-hero { padding: 24px 18px; }
+  .odin-progress-orb { width: 116px; height: 116px; margin: 0 auto; }
+  .odin-tabs { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .odin-tabs button { white-space: nowrap; min-height: 44px; }
+  .odin-discovery-row { grid-template-columns: 1fr; }
+  #odin-poem-form { grid-template-columns: 1fr; }
+  .daily-rune-stage { grid-template-columns: 72px 1fr; }
+  .daily-rune-symbol { width: 72px; height: 72px; font-size: 40px; }
+  .odin-artifact-card { min-height: 210px; }
+}
