@@ -26,13 +26,13 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "You need to be logged in to weave a poem." }, { status: 401 });
   }
 
-  // Check one-per-day limit (UTC date)
+  // Check one-per-day limit (UTC date) — admins are exempt
   const today = new Date().toISOString().slice(0, 10);
   const { results } = await env.DB.prepare(
-    "SELECT poem_date FROM users WHERE id = ?"
+    "SELECT poem_date, is_admin FROM users WHERE id = ?"
   ).bind(userId).all();
   const user = results[0];
-  if (user && user.poem_date === today) {
+  if (!user?.is_admin && user?.poem_date === today) {
     return json({ error: "You've already woven your poem for today. Come back tomorrow." }, { status: 429 });
   }
 
