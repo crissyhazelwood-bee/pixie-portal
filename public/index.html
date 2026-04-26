@@ -3011,7 +3011,8 @@
                     toast('Welcome back, ' + currentUser.display_name + '! ✦');
                 }
             } catch(e) {
-                document.getElementById('login-error').textContent = 'Connection error. Please try again.';
+                console.error('Login error:', e);
+                document.getElementById('login-error').textContent = 'Connection error: ' + (e && e.message ? e.message : String(e));
             }
         }
 
