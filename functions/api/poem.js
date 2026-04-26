@@ -1,4 +1,6 @@
-// /api/poem — AI poem generator for Odin's Eye
+// /api/poem — AI poem generator for Odin's Eye (1 per user per day)
+
+import { getSessionUserId } from "../_utils/auth.js";
 
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -18,6 +20,22 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost({ request, env }) {
+  // Require login
+  const userId = await getSessionUserId(env, request);
+  if (!userId) {
+    return json({ error: "You need to be logged in to weave a poem." }, { status: 401 });
+  }
+
+  // Check one-per-day limit (UTC date)
+  const today = new Date().toISOString().slice(0, 10);
+  const { results } = await env.DB.prepare(
+    "SELECT poem_date FROM users WHERE id = ?"
+  ).bind(userId).all();
+  const user = results[0];
+  if (user && user.poem_date === today) {
+    return json({ error: "You've already woven your poem for today. Come back tomorrow." }, { status: 429 });
+  }
+
   let body = {};
   try { body = await request.json(); }
   catch { return json({ error: "Invalid JSON" }, { status: 400 }); }
@@ -63,6 +81,12 @@ export async function onRequestPost({ request, env }) {
     const data = await response.json();
     const block = data.content?.find(b => b.type === "text");
     const poem = block?.text?.trim() || "The muse went quiet. Try again.";
+
+    // Record today's date so user can't generate again until tomorrow
+    await env.DB.prepare(
+      "UPDATE users SET poem_date = ? WHERE id = ?"
+    ).bind(today, userId).run();
+
     return json({ poem });
   } catch {
     return json({ error: "The poem got lost in the stars. Try again." }, { status: 502 });

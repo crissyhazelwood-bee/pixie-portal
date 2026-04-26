@@ -1453,6 +1453,7 @@
       const res = await fetch('/api/poem', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ subject, style, mood, theme }),
       });
       const data = await res.json();
