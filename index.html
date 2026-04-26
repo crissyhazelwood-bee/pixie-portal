@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixie Portal ✦</title>
+    <link rel="icon" type="image/png" href="/pixie-portal-icon.png">
+    <link rel="apple-touch-icon" href="/pixie-portal-icon.png">
+    <meta name="theme-color" content="#17051f">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&family=Pacifico&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -551,6 +554,507 @@
             .tarot-spread { gap: 10px; }
             .scene-fairy { font-size: 26px !important; }
         }
+        /* Portal-grade redesign layer */
+        :root {
+            --portal-pink: #ff4fd8;
+            --portal-violet: #8d55ff;
+            --portal-cyan: #79f7ff;
+            --portal-line: rgba(255, 143, 235, 0.22);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 50% 6%, rgba(255, 79, 216, 0.24), transparent 34rem),
+                radial-gradient(circle at 20% 32%, rgba(121, 247, 255, 0.13), transparent 25rem),
+                radial-gradient(circle at 82% 48%, rgba(141, 85, 255, 0.24), transparent 30rem),
+                linear-gradient(145deg, #07030d 0%, #190622 42%, #100316 100%);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(circle at 50% 15%, black, transparent 78%);
+        }
+
+        nav {
+            top: 14px;
+            left: 50%;
+            right: auto;
+            width: min(1540px, calc(100% - 32px));
+            transform: translateX(-50%);
+            border: 1px solid rgba(255, 143, 235, 0.18);
+            border-radius: 18px;
+            background:
+                linear-gradient(135deg, rgba(36, 12, 52, 0.88), rgba(10, 5, 22, 0.68)),
+                radial-gradient(circle at 12% 0%, rgba(255, 79, 216, 0.24), transparent 16rem);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+            backdrop-filter: blur(18px);
+        }
+
+        nav .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #fff4ff;
+        }
+
+        .nav-logo-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            box-shadow: 0 0 24px rgba(255, 79, 216, 0.42);
+        }
+
+        nav .links a {
+            color: #e8d2ff;
+            font-size: 12px;
+            letter-spacing: 0.12em;
+        }
+
+        .btn {
+            border-radius: 999px;
+            min-height: 38px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.16);
+        }
+
+        .btn-primary {
+            color: #18051f;
+            background: linear-gradient(135deg, #ff4fd8 0%, #ffb3f3 42%, #8d55ff 100%);
+            box-shadow: 0 0 30px rgba(255, 79, 216, 0.24), inset 0 1px 0 rgba(255,255,255,0.48);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 12px 38px rgba(255, 79, 216, 0.34), 0 0 46px rgba(141, 85, 255, 0.26);
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255, 143, 235, 0.24);
+            color: #f2d4ff;
+        }
+
+        .hero {
+            min-height: 100vh;
+            padding: 128px 24px 84px;
+            isolation: isolate;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 7% 6% auto;
+            height: 74vh;
+            min-height: 540px;
+            z-index: -1;
+            border: 1px solid rgba(255, 143, 235, 0.16);
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 50% 43%, rgba(255, 79, 216, 0.26), transparent 18rem),
+                linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 22px 80px rgba(0,0,0,0.3);
+        }
+
+        .hero-mark {
+            width: clamp(150px, 18vw, 244px);
+            border-radius: 28%;
+            margin: 0 0 18px;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.2),
+                0 24px 84px rgba(255,79,216,0.34),
+                0 0 70px rgba(141,85,255,0.42);
+            animation: portal-breathe 4.8s ease-in-out infinite;
+        }
+
+        @keyframes portal-breathe {
+            0%, 100% { transform: translateY(0) scale(1); filter: saturate(1); }
+            50% { transform: translateY(-8px) scale(1.018); filter: saturate(1.18); }
+        }
+
+        .hero-title {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 800;
+            font-size: clamp(46px, 8vw, 96px);
+            line-height: 0.88;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            text-align: center;
+            text-shadow: 0 0 38px rgba(255, 79, 216, 0.4);
+        }
+
+        .hero-subtitle {
+            color: #fff0ff;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255, 143, 235, 0.18);
+            border-radius: 999px;
+            padding: 10px 18px;
+            letter-spacing: 0.22em;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .hero-cta {
+            transform: scale(1.08);
+        }
+
+        .hero-cta .btn {
+            min-height: 48px;
+            padding: 12px 26px;
+            box-shadow:
+                0 0 28px rgba(255, 108, 232, 0.45),
+                inset 0 1px 0 rgba(255,255,255,0.35);
+        }
+
+        .orb {
+            filter: blur(28px);
+            opacity: 0.9;
+        }
+
+        .orb-1 { background: rgba(255, 79, 216, 0.22); }
+        .orb-2 { background: rgba(141, 85, 255, 0.22); }
+        .orb-3 { background: rgba(121, 247, 255, 0.13); }
+
+        section {
+            max-width: 1180px;
+        }
+
+        .section-title {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: #fff1ff;
+        }
+
+        .section-subtitle {
+            color: #d9b6ff;
+        }
+
+        .cards {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+        }
+
+        .games-shell,
+        .spell-panel,
+        .portal-feature-grid {
+            position: relative;
+            max-width: 1180px;
+            margin: 30px auto 0;
+            padding: 28px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(255, 102, 230, 0.16), transparent 42%),
+                radial-gradient(circle at 12% 90%, rgba(121, 247, 255, 0.08), transparent 28%),
+                rgba(20, 8, 34, 0.36);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 30px 90px rgba(0,0,0,0.35);
+        }
+
+        .portal-feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            width: min(820px, calc(100vw - 36px));
+            margin-top: 26px;
+            padding: 14px;
+        }
+
+        .portal-feature {
+            display: grid;
+            gap: 6px;
+            align-content: center;
+            min-height: 90px;
+            padding: 16px;
+            border: 1px solid rgba(255, 143, 235, 0.18);
+            border-radius: 8px;
+            background: linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+        }
+
+        .portal-feature strong {
+            color: #fff5ff;
+            font-size: 15px;
+        }
+
+        .portal-feature span {
+            color: #cdb4df;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .card,
+        .journal-entry,
+        .pack-card,
+        .score-row,
+        .lb-row,
+        .modal {
+            border-radius: 8px;
+            border-color: var(--portal-line);
+            background:
+                linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+                radial-gradient(circle at 20% 0%, rgba(255, 79, 216, 0.15), transparent 12rem),
+                rgba(17, 6, 28, 0.78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 50px rgba(0,0,0,0.18);
+            backdrop-filter: blur(16px);
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            min-height: 245px;
+            padding: 28px;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            pointer-events: none;
+            border-radius: 7px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.14), transparent 35%);
+            opacity: 0.58;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            height: auto;
+            background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.12), transparent 56%);
+            opacity: 0;
+            transform: translateX(-120%);
+            transition: transform 0.7s ease, opacity 0.35s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: rgba(255, 79, 216, 0.44);
+            box-shadow: 0 24px 70px rgba(255, 79, 216, 0.16), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+            transform: translateX(120%);
+        }
+
+        .card-icon {
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, rgba(255, 79, 216, 0.22), rgba(121, 247, 255, 0.12));
+            box-shadow: 0 0 30px rgba(255, 79, 216, 0.18), inset 0 1px 0 rgba(255,255,255,0.16);
+        }
+
+        .card-title {
+            color: #fff5ff;
+            font-size: 21px;
+        }
+
+        .card-desc,
+        .about-text p,
+        .entry-content {
+            color: #d0b9de;
+        }
+
+        .card-tag {
+            display: block;
+            margin-top: auto;
+            padding: 9px 13px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .tag-game,
+        .tag-tarot,
+        .tag-horoscope,
+        .tag-journal {
+            color: #fff5ff;
+            background: linear-gradient(135deg, rgba(255, 79, 216, 0.24), rgba(141, 85, 255, 0.18));
+        }
+
+        .about-avatar,
+        .profile-avatar,
+        .horoscope-sign-icon {
+            background-image: url('/pixie-portal-icon.png');
+            background-size: cover;
+            background-position: center;
+            color: transparent;
+            box-shadow: 0 0 54px rgba(255, 79, 216, 0.32);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            border-radius: 8px;
+            border-color: rgba(255, 143, 235, 0.2);
+            background: rgba(12, 4, 22, 0.72);
+        }
+
+        .page.active {
+            min-height: calc(100vh - 130px);
+        }
+
+        .page:not(#page-home) section {
+            padding-top: 128px;
+            padding-bottom: 100px;
+        }
+
+        #page-tarot section,
+        #page-horoscope section,
+        #page-journal-page section {
+            min-height: calc(100vh - 120px);
+        }
+
+        .tarot-spread {
+            position: relative;
+            width: min(980px, 100%);
+            margin: 34px auto 42px;
+            padding: 34px 22px;
+            border: 1px solid rgba(201,168,76,0.16);
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(201,168,76,0.12), transparent 16rem),
+                radial-gradient(circle at 50% 0%, rgba(255,79,216,0.12), transparent 22rem),
+                rgba(20, 8, 34, 0.34);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 24px 80px rgba(0,0,0,0.24);
+        }
+
+        .tarot-spread::before {
+            content: '';
+            position: absolute;
+            inset: 28px;
+            pointer-events: none;
+            border-radius: 50%;
+            border: 1px solid rgba(201,168,76,0.12);
+            box-shadow: 0 0 70px rgba(201,168,76,0.08);
+        }
+
+        .zodiac-picker {
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(141,85,255,0.14), transparent 28rem),
+                rgba(20,8,34,0.32);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+
+        footer {
+            margin-top: 20px;
+            background: linear-gradient(180deg, transparent, rgba(10,4,18,0.72));
+        }
+
+        .star-gate-panel,
+        .sealed-journal-panel {
+            position: relative;
+            overflow: hidden;
+            width: min(760px, 100%);
+            margin: 30px auto 0;
+            padding: 34px;
+            text-align: center;
+            border: 1px solid rgba(255, 143, 235, 0.18);
+            border-radius: 12px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(255, 79, 216, 0.18), transparent 15rem),
+                linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+                rgba(17, 6, 28, 0.78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 24px 70px rgba(0,0,0,0.26);
+        }
+
+        .star-gate-panel::before,
+        .sealed-journal-panel::before {
+            content: '';
+            position: absolute;
+            inset: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.08);
+            opacity: 0.35;
+            transform: scale(1.25);
+        }
+
+        .panel-orb {
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: 78px;
+            height: 78px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            font-size: 34px;
+            background: linear-gradient(135deg, rgba(255, 79, 216, 0.24), rgba(121, 247, 255, 0.13));
+            box-shadow: 0 0 38px rgba(255, 79, 216, 0.28);
+        }
+
+        .star-gate-panel h3,
+        .sealed-journal-panel h3 {
+            position: relative;
+            margin: 0 0 8px;
+            color: #fff5ff;
+            font-size: 22px;
+        }
+
+        .star-gate-panel p,
+        .sealed-journal-panel p {
+            position: relative;
+            max-width: 480px;
+            margin: 0 auto 20px;
+            color: #d0b9de;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 760px) {
+            nav {
+                top: 8px;
+                left: 50%;
+                right: auto;
+                width: calc(100% - 16px);
+                padding: 10px 14px;
+            }
+
+            .nav-logo-mark {
+                width: 34px;
+                height: 34px;
+            }
+
+            .hero {
+                padding-top: 118px;
+            }
+
+            .hero::before {
+                inset: 78px 10px auto;
+                min-height: 500px;
+            }
+
+            .hero-mark {
+                width: min(190px, 62vw);
+            }
+
+            .portal-feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .games-shell,
+            .spell-panel {
+                padding: 16px;
+                border-radius: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -558,7 +1062,7 @@
 
     <!-- Navigation -->
     <nav>
-        <div class="logo" onclick="showPage('home')">Pixie Portal</div>
+        <div class="logo" onclick="showPage('home')"><img class="nav-logo-mark" src="/pixie-portal-icon.png" alt="">Pixie Portal</div>
         <div class="links" id="nav-links">
             <a onclick="showPage('home')">Home</a>
             <a onclick="showPage('games')">Games</a>
@@ -629,16 +1133,32 @@
             <div class="orb orb-1"></div>
             <div class="orb orb-2"></div>
             <div class="orb orb-3"></div>
+            <img class="hero-mark" src="/pixie-portal-icon.png" alt="Pixie Portal magical portal logo">
             <h1 class="hero-title">Pixie Portal</h1>
             <p class="hero-subtitle">games ✦ journal ✦ magic</p>
             <div class="hero-cta">
                 <button class="btn btn-primary" id="hero-btn" onclick="openModal('signup')">Enter the Portal ✦</button>
+            </div>
+            <div class="portal-feature-grid reveal">
+                <div class="portal-feature">
+                    <strong>Play enchanted games</strong>
+                    <span>Step into little worlds with scores, secrets, and sparkly chaos.</span>
+                </div>
+                <div class="portal-feature">
+                    <strong>Draw daily tarot</strong>
+                    <span>Pull three cards from the fairy realm when the portal feels loud.</span>
+                </div>
+                <div class="portal-feature">
+                    <strong>Save dreams & magic</strong>
+                    <span>Keep private entries, symbols, moods, and recurring dream threads.</span>
+                </div>
             </div>
         </section>
 
         <section id="home-games">
             <h2 class="section-title reveal">Games</h2>
             <p class="section-subtitle reveal">little worlds to play in</p>
+            <div class="games-shell reveal">
             <div class="cards">
                 <div class="card reveal" onclick="window.location.href='/the_portal.html'">
                     <span class="card-icon">🌀</span>
@@ -713,11 +1233,13 @@
                     <span class="card-tag tag-game">LIVE</span>
                 </a>
             </div>
+            </div>
         </section>
 
         <section id="home-horoscope">
             <h2 class="section-title reveal">Daily Horoscope</h2>
             <p class="section-subtitle reveal">the stars have something to say</p>
+            <div class="spell-panel reveal">
             <div class="cards">
                 <div class="card reveal" onclick="showPage('horoscope')" style="text-align:center;">
                     <span class="card-icon">🔮</span>
@@ -731,6 +1253,7 @@
                     <div class="card-desc">Draw three enchanted cards from the Fairy Realm. A new spread awaits you each day.</div>
                     <span class="card-tag tag-tarot">Draw Cards</span>
                 </div>
+            </div>
             </div>
         </section>
 
@@ -754,6 +1277,7 @@
         <section>
             <h2 class="section-title">Games</h2>
             <p class="section-subtitle">click to play ✦ scores save to your profile</p>
+            <div class="games-shell">
             <div class="cards">
                 <div class="card" onclick="window.location.href='/the_portal.html'">
                     <span class="card-icon">🌀</span>
@@ -834,6 +1358,7 @@
                     <span class="card-tag tag-game">LIVE</span>
                 </a>
             </div>
+            </div>
 
             <h2 class="section-title" style="margin-top:60px;">Leaderboard</h2>
             <p class="section-subtitle">top scores across all players</p>
@@ -884,6 +1409,11 @@
                         <div class="horoscope-extra"><span class="extra-label">Compatibility</span><span class="extra-value" id="horoscope-compat"></span></div>
                     </div>
                 </div>
+            </div>
+            <div id="horoscope-empty" class="star-gate-panel">
+                <div class="panel-orb">✦</div>
+                <h3>Choose a sign to open today's star gate.</h3>
+                <p>The constellation chamber is listening. Pick your zodiac sign and the reading panel will unfold here.</p>
             </div>
         </section>
     </div>
@@ -936,16 +1466,10 @@
             <h2 class="section-title">Dream Journal</h2>
             <p class="section-subtitle">capture the vibes ✦ your entries are private</p>
 
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
-                <button class="btn btn-ghost btn-small" onclick="showPage('home')">🏠 Home</button>
-                <button class="btn btn-ghost btn-small" onclick="showPage('games')">🎮 Games</button>
-                <button class="btn btn-ghost btn-small" onclick="showPage('horoscope')">🔮 Horoscope</button>
-                <button class="btn btn-ghost btn-small" onclick="showPage('tarot')">🃏 Tarot</button>
-            </div>
-
-            <div id="journal-logged-out" style="text-align:center; padding:40px;">
-                <span style="font-size:50px; display:block; margin-bottom:15px;">🌙</span>
-                <p style="color:#9080b0; margin-bottom:20px;">Log in to start your dream journal</p>
+            <div id="journal-logged-out" class="sealed-journal-panel">
+                <div class="panel-orb">🌙</div>
+                <h3>Your dream journal is sealed</h3>
+                <p>Log in to unlock private entries, symbols, moods, and recurring dream patterns.</p>
                 <button class="btn btn-primary" onclick="openModal('login')">Log In</button>
             </div>
 
@@ -3336,6 +3860,8 @@
             document.getElementById('horoscope-mood').textContent = reading.mood;
             document.getElementById('horoscope-compat').textContent = reading.compat;
             document.getElementById('horoscope-reading').style.display = 'block';
+            const emptyGate = document.getElementById('horoscope-empty');
+            if (emptyGate) emptyGate.style.display = 'none';
         }
 
         function loadProfileHoroscope() {
@@ -3577,6 +4103,8 @@
             }
         })();
     </script>
+
+<script src="/pixie-agent.js"></script>
 
 <!-- Bug Report -->
 <div id="bug-btn" onclick="document.getElementById('bug-modal').style.display='flex'" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(20,12,35,0.75);border:1px solid rgba(180,150,255,0.15);border-radius:20px;padding:5px 16px;color:#604870;font-family:Quicksand,sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px;backdrop-filter:blur(4px);">&#x1F41B; report a bug</div>
