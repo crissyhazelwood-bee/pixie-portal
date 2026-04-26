@@ -8,17 +8,175 @@
   };
 
   const runes = [
-    { id: "fehu", symbol: "ᚠ", name: "Fehu", meaning: "Wealth & Luck", omen: "Something small wants to become abundant." },
-    { id: "uruz", symbol: "ᚢ", name: "Uruz", meaning: "Strength & Vitality", omen: "Your force returns before your certainty does." },
-    { id: "thurisaz", symbol: "ᚦ", name: "Thurisaz", meaning: "Chaos & Protection", omen: "A locked gate may also be a shield." },
-    { id: "ansuz", symbol: "ᚨ", name: "Ansuz", meaning: "Wisdom & Communication", omen: "A message is trying to arrive cleanly." },
-    { id: "raidho", symbol: "ᚱ", name: "Raidho", meaning: "Journey & Rhythm", omen: "The path changes when your pace does." },
-    { id: "kenaz", symbol: "ᚲ", name: "Kenaz", meaning: "Knowledge & Fire", omen: "A hidden thing becomes useful when named." },
-    { id: "gebo", symbol: "ᚷ", name: "Gebo", meaning: "Gift & Balance", omen: "The exchange matters more than the prize." },
-    { id: "wunjo", symbol: "ᚹ", name: "Wunjo", meaning: "Joy & Harmony", omen: "Let delight become evidence." },
-    { id: "hagalaz", symbol: "ᚺ", name: "Hagalaz", meaning: "Hail & Disruption", omen: "The broken pattern is still a pattern." },
-    { id: "jera", symbol: "ᛃ", name: "Jera", meaning: "Harvest & Cycles", omen: "What returns now was planted earlier." }
-  ];
+  {
+    id: "fehu",
+    symbol: "ᚠ",
+    name: "Fehu",
+    meaning: "Cattle & Wealth",
+    omen: "Resources are moving. Steward what you have, share wisely, and do not confuse possession with security."
+  },
+  {
+    id: "uruz",
+    symbol: "ᚢ",
+    name: "Uruz",
+    meaning: "Aurochs & Vital Force",
+    omen: "You have more force available than you think. Use discipline so strength becomes useful instead of reckless."
+  },
+  {
+    id: "thurisaz",
+    symbol: "ᚦ",
+    name: "Thurisaz",
+    meaning: "Thorn / Giant",
+    omen: "Pause before acting. A sharp force is present; it can protect you or wound you depending on timing."
+  },
+  {
+    id: "ansuz",
+    symbol: "ᚨ",
+    name: "Ansuz",
+    meaning: "God / Breath / Speech",
+    omen: "Listen closely and speak cleanly. The important thing may arrive as a word, sign, teaching, or correction."
+  },
+  {
+    id: "raidho",
+    symbol: "ᚱ",
+    name: "Raidho",
+    meaning: "Ride & Journey",
+    omen: "Move with rhythm. The path matters, but so does pace, sequence, and the way you travel."
+  },
+  {
+    id: "kenaz",
+    symbol: "ᚲ",
+    name: "Kenaz",
+    meaning: "Torch & Knowing",
+    omen: "A thing can be understood now. Bring skill, attention, and a clean flame to the work."
+  },
+  {
+    id: "gebo",
+    symbol: "ᚷ",
+    name: "Gebo",
+    meaning: "Gift & Exchange",
+    omen: "A bond is being formed or tested. Give freely, but keep the exchange honorable and balanced."
+  },
+  {
+    id: "wunjo",
+    symbol: "ᚹ",
+    name: "Wunjo",
+    meaning: "Joy & Fellowship",
+    omen: "Let yourself recognize what is working. Joy is not trivial when it restores the group and the heart."
+  },
+  {
+    id: "hagalaz",
+    symbol: "ᚺ",
+    name: "Hagalaz",
+    meaning: "Hail & Disruption",
+    omen: "Something may break pattern suddenly. Respond to the weather; do not waste strength arguing with the storm."
+  },
+  {
+    id: "naudhiz",
+    symbol: "ᚾ",
+    name: "Naudhiz",
+    meaning: "Need & Constraint",
+    omen: "Separate need from want. Constraint is uncomfortable, but it can clarify the next honest action."
+  },
+  {
+    id: "isa",
+    symbol: "ᛁ",
+    name: "Isa",
+    meaning: "Ice & Stillness",
+    omen: "Do not force movement. Stillness may be the medicine, the warning, or the only clean mirror."
+  },
+  {
+    id: "jera",
+    symbol: "ᛃ",
+    name: "Jera",
+    meaning: "Year & Harvest",
+    omen: "What was planted returns in season. Work with the cycle instead of trying to bully the calendar."
+  },
+  {
+    id: "eihwaz",
+    symbol: "ᛇ",
+    name: "Eihwaz",
+    meaning: "Yew & Endurance",
+    omen: "Hold steady through the threshold. What looks like an ending may be a hard change of form."
+  },
+  {
+    id: "perthro",
+    symbol: "ᛈ",
+    name: "Perthro",
+    meaning: "Lot Cup & Mystery",
+    omen: "Not all variables are visible. Leave room for surprise, privacy, and the unknown."
+  },
+  {
+    id: "algiz",
+    symbol: "ᛉ",
+    name: "Algiz",
+    meaning: "Elk & Protection",
+    omen: "Raise your awareness. Protection comes from boundaries, attention, and knowing what stands behind you."
+  },
+  {
+    id: "sowilo",
+    symbol: "ᛊ",
+    name: "Sowilo",
+    meaning: "Sun & Victory",
+    omen: "Clarity is available. Use the light well; success asks for direction, not just brightness."
+  },
+  {
+    id: "tiwaz",
+    symbol: "ᛏ",
+    name: "Tiwaz",
+    meaning: "Tyr & Justice",
+    omen: "Choose the honorable action. Integrity may cost something, but it gives the path its spine."
+  },
+  {
+    id: "berkano",
+    symbol: "ᛒ",
+    name: "Berkano",
+    meaning: "Birch & New Growth",
+    omen: "Something young needs tending. Protect the beginning instead of demanding harvest too soon."
+  },
+  {
+    id: "ehwaz",
+    symbol: "ᛖ",
+    name: "Ehwaz",
+    meaning: "Horse & Trust",
+    omen: "Progress depends on trust and coordination. Move together or do not move yet."
+  },
+  {
+    id: "mannaz",
+    symbol: "ᛗ",
+    name: "Mannaz",
+    meaning: "Human & Community",
+    omen: "Know yourself in relation to others. The answer may be social, not solitary."
+  },
+  {
+    id: "laguz",
+    symbol: "ᛚ",
+    name: "Laguz",
+    meaning: "Water & Flow",
+    omen: "Follow the current without surrendering discernment. Feeling may know before language does."
+  },
+  {
+    id: "ingwaz",
+    symbol: "ᛜ",
+    name: "Ingwaz",
+    meaning: "Ing & Seeded Potential",
+    omen: "Energy is gathered inside the seed. Finish the inner formation before forcing outer movement."
+  },
+  {
+    id: "dagaz",
+    symbol: "ᛞ",
+    name: "Dagaz",
+    meaning: "Day & Breakthrough",
+    omen: "A shift in perspective changes the field. Stand at the threshold and let the new light arrive."
+  },
+  {
+    id: "othala",
+    symbol: "ᛟ",
+    name: "Othala",
+    meaning: "Heritage & Home",
+    omen: "Look to roots, home, and inherited patterns. Keep what gives life; release what only repeats harm."
+  }
+];
 
   function getOdinMemory() {
     try { return { ...defaultMemory, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; }

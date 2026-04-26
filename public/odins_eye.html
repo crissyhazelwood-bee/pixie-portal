@@ -541,7 +541,8 @@
       .rune-detail-grid { grid-template-columns: 1fr; }
     }
   </style>
-  <link rel="stylesheet" href="/odins-eye-machine.css">`r`n</head>
+  <link rel="stylesheet" href="/odins-eye-machine.css">
+</head>
 <body>
 
   <div class="topbar">
@@ -559,7 +560,7 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('gods')">âœ¦ Greek Gods</button>
       <button class="tab-btn" onclick="switchTab('norse')">âš”ï¸ Norse Gods</button>
-      <button class="tab-btn" onclick="switchTab('runes')">áš± Norse Runes</button>
+      <button class="tab-btn" onclick="switchTab('runes')">ᚱ Norse Runes</button>
       <button class="tab-btn" onclick="switchTab('poem')">âœ Poem Weaver</button>
     </div>
 
@@ -965,48 +966,385 @@
   ];
 
   const AETTS = [
-    {
-      name:"Freyr's Aett", subtitle:"The first family â€” beginnings, abundance, and the elemental forces",
-      runes:[
-        {glyph:"áš ",name:"Fehu",trans:"F",short:"Wealth & Luck",desc:"Fehu represents cattle â€” the original wealth of the Norse world. It speaks of earned prosperity, abundance, and new beginnings. It is the energy of something valuable that must also be shared and circulated, or it stagnates.",associations:["Prosperity","New Beginnings","Success","Luck","Vitality"],divination:"Good fortune is within reach â€” but wealth that is hoarded loses its power. Share what you have. The rune of abundance in motion."},
-        {glyph:"áš¢",name:"Uruz",trans:"U",short:"Strength & Vitality",desc:"Uruz is the aurochs â€” the massive, wild ox of ancient Europe. Pure primal strength, endurance, and vital force. It speaks of untamed power, persistence, and the energy of deep health. What cannot be tamed, only respected.",associations:["Strength","Endurance","Health","Wild Power","Transformation"],divination:"Great energy is available to you. This is a time for physical action, courage, and pushing through what seemed immovable. Trust your body and your instincts."},
-        {glyph:"áš¦",name:"Thurisaz",trans:"Th",short:"Chaos & Protection",desc:"Thurisaz is the thorn and the giant. A powerful, dangerous force â€” neither good nor evil, but requiring respect and care. The thorn that draws blood. The giant that can protect or destroy. Chaos that clears the way for something new.",associations:["Chaos","Protection","Destruction","Danger","Threshold"],divination:"Something must be broken before it can be rebuilt. Proceed with caution at boundaries and edges. Not the time for rash action â€” but also not the time for passivity."},
-        {glyph:"áš¨",name:"Ansuz",trans:"A",short:"Wisdom & Communication",desc:"Ansuz is Odin's rune â€” the divine breath, the inspired word. It governs speech, wisdom, poetry, the gift of language. The rune of receiving messages, of divine inspiration, of the moment a truth crystallizes in your mind.",associations:["Wisdom","Communication","Inspiration","Odin","Truth"],divination:"Listen carefully. A message is coming â€” or needs to be sent. The power of words is at play. This may be a time for important conversations, writing, or receiving guidance."},
-        {glyph:"áš±",name:"Raidho",trans:"R",short:"Journey & Rhythm",desc:"Raidho is the ride â€” the wheel turning, the journey taken. It speaks of movement, travel, right timing, and the natural rhythm of life. Not just physical travel but the journey of growth, of following one's path with purpose.",associations:["Journey","Movement","Rhythm","Right Action","Progress"],divination:"You are in motion. Trust the path even when you can't see the destination. Focus on the next step, not the whole road. Rhythm and pace matter here."},
-        {glyph:"áš²",name:"Kenaz",trans:"K/C",short:"Knowledge & Fire",desc:"Kenaz is the torch â€” the controlled flame of knowledge, craft, and creativity. It illuminates what was hidden. The fire of human skill and intelligence. The hearth fire that gathers a community. The creative spark.",associations:["Knowledge","Fire","Creativity","Illumination","Craft"],divination:"Something is becoming clear. This is a time of learning, creative work, and following your own inner light. The skill you have is enough â€” use it."},
-        {glyph:"áš·",name:"Gebo",trans:"G",short:"Gift & Balance",desc:"Gebo is the gift â€” but in the Norse world, gifts always carried obligation. Every gift creates a bond. The rune of exchange, partnership, generosity, and sacred contracts. The shape is an X â€” two lines crossing, a meeting of equals.",associations:["Gifts","Partnership","Balance","Exchange","Sacred Bond"],divination:"A gift is given or received. A partnership is forming or needs tending. What you give and what you receive must be in balance. Honor your commitments."},
-        {glyph:"áš¹",name:"Wunjo",trans:"W",short:"Joy & Harmony",desc:"Wunjo is joy â€” but not frivolous happiness. It is the deep satisfaction of belonging, of harmony within a community, of things being exactly as they should be. Contentment that comes from alignment between inner and outer life.",associations:["Joy","Harmony","Success","Community","Belonging"],divination:"You are approaching a moment of true contentment. Relationships are aligned. Something is going right. Allow yourself to feel the fullness of what you have."}
-      ]
-    },
-    {
-      name:"Hagal's Aett", subtitle:"The second family â€” disruption, constraint, and transformation",
-      runes:[
-        {glyph:"ášº",name:"Hagalaz",trans:"H",short:"Hail & Disruption",desc:"Hagalaz is hail â€” sudden, destructive, and uncontrollable. It represents disruption that comes from outside your control, shattering what was. But hailstones melt into water that nourishes the earth. Destruction as the prelude to transformation.",associations:["Disruption","Chaos","Transformation","Natural Force","Purification"],divination:"Something unexpected is breaking through. You cannot control this â€” only endure it and look for what it makes possible afterward. Not punishment, but weather."},
-        {glyph:"áš¾",name:"Naudhiz",trans:"N",short:"Need & Willpower",desc:"Naudhiz is the friction that creates fire â€” need, necessity, constraint. The rune of what is lacking, what is required. But from constraint comes willpower. It is the pressure that forges character. The rune of survival and inner strength.",associations:["Need","Constraint","Survival","Willpower","Resilience"],divination:"You are being tested. Resources are limited. But the friction you feel right now is building something. Find what you actually need versus what you merely want."},
-        {glyph:"á›",name:"Isa",trans:"I",short:"Ice & Stillness",desc:"Isa is ice â€” standstill, stillness, the moment when everything freezes. It can be stagnation, or it can be the perfect clarity of a frozen lake. Things do not move forward now. The rune of patience, of waiting, of necessary pause.",associations:["Stillness","Patience","Clarity","Stagnation","Reflection"],divination:"This is not the time to push forward. Wait. Be still. In the stillness, clarity will come. What looks like blockage may be protection."},
-        {glyph:"á›ƒ",name:"Jera",trans:"J/Y",short:"Harvest & Cycles",desc:"Jera is the year â€” the turning of the seasons, the cycle of planting and harvest. It is the rune of right timing, of patience rewarded, of the natural order of effort and reward. What you plant, you reap. Good things take time.",associations:["Harvest","Cycles","Right Timing","Patience","Natural Order"],divination:"What you have worked for is coming to fruition. The cycle is completing. Trust the natural timing. Do not force what will come in its own season."},
-        {glyph:"á›‡",name:"Eihwaz",trans:"Ei",short:"Yew Tree & Endurance",desc:"Eihwaz is the yew â€” the eternal tree, living thousands of years, neither fully alive nor fully dead. The Yew stands in churchyards. It is Yggdrasil, the World Tree. The rune of death and regeneration, of resilience across the threshold.",associations:["Endurance","Death","Rebirth","The World Tree","Deep Roots"],divination:"You have more strength than you realize. Something that seemed like an ending is a transformation. Roots are growing in the dark, anchoring you for what comes next."},
-        {glyph:"á›ˆ",name:"Perthro",trans:"P",short:"Fate & Mystery",desc:"Perthro is the lot cup â€” fate's dice shaken and cast. It is the rune of mystery, of hidden things, of secrets and chance. What cannot be known in advance. The forces that shape a life beyond any plan. The womb of possibility.",associations:["Fate","Mystery","Hidden Knowledge","Chance","The Unknown"],divination:"Something hidden is about to be revealed â€” or must remain hidden longer. Trust fate here. What cannot be controlled can still be navigated. Be open to surprise."},
-        {glyph:"á›‰",name:"Algiz",trans:"Z",short:"Protection & Connection",desc:"Algiz is the elk â€” its spreading antlers like raised hands, like a figure calling down divine energy from above. The rune of protection, of sanctuary, of divine connection. Standing at the boundary between human and divine.",associations:["Protection","Sanctuary","Divine Connection","Guardian","Higher Power"],divination:"You are protected. Something or someone is watching over you. This is also a time to reach toward something greater â€” to open yourself to guidance from above."},
-        {glyph:"á›Š",name:"Sowilo",trans:"S",short:"Sun & Victory",desc:"Sowilo is the sun â€” clear, powerful, victorious. The light that does not yield to darkness. Health, success, vital energy. The will to prevail. The Norse sun was feminine: a fierce force that drove the wolf of darkness across the sky each day.",associations:["Sun","Success","Vitality","Clarity","Victory"],divination:"Success is coming. Clarity is breaking through. Trust your own energy and direction. This is a time of vitality and purpose â€” use it."}
-      ]
-    },
-    {
-      name:"Tyr's Aett", subtitle:"The third family â€” society, humanity, and the return to source",
-      runes:[
-        {glyph:"á›",name:"Tiwaz",trans:"T",short:"Justice & Honor",desc:"Tiwaz is Tyr â€” the one-handed god of justice who sacrificed his hand to bind the great wolf Fenrir. The rune of honor, of self-sacrifice for the greater good, of justice that holds even when it costs you personally. Victory through integrity.",associations:["Justice","Honor","Sacrifice","Victory","Integrity"],divination:"Act with complete integrity, even if it costs you. The right action is clear â€” take it. Justice is at work in this situation. What you give now will be returned."},
-        {glyph:"á›’",name:"Berkano",trans:"B",short:"Birth & Renewal",desc:"Berkano is the birch tree â€” the first tree to return after winter, the tree of new beginnings, of the goddess, of birth and rebirth. It is nurturing, healing, growth from seed. The rune of becoming, of gestation, of new life taking root.",associations:["Birth","Renewal","Growth","The Goddess","Healing"],divination:"Something new is beginning â€” a project, a phase of life, a relationship. Nurture it carefully. This is a time for planting and tending, not harvesting."},
-        {glyph:"á›–",name:"Ehwaz",trans:"E",short:"Partnership & Movement",desc:"Ehwaz is the horse â€” and specifically the bond between horse and rider. True partnership: mutual trust, synchronized movement, two beings that make each other greater. The rune of teamwork, of travel, of trusting the relationship.",associations:["Partnership","Trust","Movement","Teamwork","Loyalty"],divination:"A partnership â€” in work, in life, in spirit â€” is highlighted. Move together. Trust the other completely. Journey is possible only when both move as one."},
-        {glyph:"á›—",name:"Mannaz",trans:"M",short:"Humanity & Self",desc:"Mannaz is the human â€” the individual self in the context of community. It speaks of the mind, memory, identity, and our place among others. Not isolation but the self that exists in relationship. The rune of self-knowledge and our shared humanity.",associations:["Self","Community","Mind","Memory","Humanity"],divination:"Look inward. Who are you, and how do you relate to others? This is a time for self-examination, for understanding your role in your community. Know thyself."},
-        {glyph:"á›š",name:"Laguz",trans:"L",short:"Water & Intuition",desc:"Laguz is water â€” the lake, the river, the sea. It flows, finds the lowest path, fills every container. The rune of intuition, the unconscious, the deep knowing that precedes rational thought. The currents of feeling beneath the surface.",associations:["Intuition","Flow","Unconscious","Emotion","The Deep"],divination:"Trust your intuition over your logic right now. Something knows, beneath the surface. Allow feelings to move through you rather than damming them. Go with the current."},
-        {glyph:"á›œ",name:"Ingwaz",trans:"Ng",short:"Fertility & Potential",desc:"Ingwaz is Ing â€” a fertility god, the seed within the earth. The rune of gestation, of potential gathering before release. The quiet accumulation of energy before the breakthrough. Like a seed underground â€” invisible, but everything is there.",associations:["Fertility","Potential","Gestation","Inner Strength","Completion"],divination:"Something is ready to be completed before the next phase begins. Energy has been gathering. The seed is ready. A release is coming â€” trust the process."},
-        {glyph:"á›ž",name:"Dagaz",trans:"D",short:"Dawn & Transformation",desc:"Dagaz is the day â€” specifically the threshold between night and day. The liminal moment of dawn and dusk when categories dissolve. Transformation, breakthroughs, the moment when everything changes. The infinite â€” the shape of the rune is a mÃ¶bius strip.",associations:["Transformation","Breakthrough","Dawn","Clarity","The Infinite"],divination:"A breakthrough is here or coming. Something is transforming completely. The old is ending and the new is beginning simultaneously. Stand in the threshold with open arms."},
-        {glyph:"á›Ÿ",name:"Othala",trans:"O",short:"Inheritance & Home",desc:"Othala is the homeland â€” ancestral land, inherited wisdom, the home of the soul. It is what cannot be bought or sold, only inherited and passed on. The rune of roots, of belonging, of the wisdom carried in bloodlines and tradition.",associations:["Heritage","Home","Ancestry","Belonging","Inherited Wisdom"],divination:"Look to your roots. What has been passed to you â€” wisdom, tradition, values, a sense of home? Honor what came before. You stand on the shoulders of those who carried you here."}
-      ]
-    }
-  ];
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• RENDER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  {
+    name: "Freyr's Aett",
+    subtitle: "The first family - beginnings, resources, embodied force, exchange, and belonging",
+    runes: [
+      {
+        glyph: "ᚠ",
+        name: "Fehu",
+        trans: "F",
+        short: "Cattle & Wealth",
+        desc: "Fehu is cattle, movable wealth, earned resources, and value in circulation. In historical rune poems, wealth is useful but unstable when hoarded or fought over.",
+        associations: [
+          "Cattle",
+          "Wealth",
+          "Resources",
+          "Abundance",
+          "Circulation"
+        ],
+        divination: "Resources are moving. Steward what you have, share wisely, and do not confuse possession with security."
+      },
+      {
+        glyph: "ᚢ",
+        name: "Uruz",
+        trans: "U",
+        short: "Aurochs & Vital Force",
+        desc: "Uruz is the aurochs: raw strength, endurance, health, and untamed life force. It is power that must be respected rather than casually controlled.",
+        associations: [
+          "Aurochs",
+          "Strength",
+          "Endurance",
+          "Health",
+          "Wild Power"
+        ],
+        divination: "You have more force available than you think. Use discipline so strength becomes useful instead of reckless."
+      },
+      {
+        glyph: "ᚦ",
+        name: "Thurisaz",
+        trans: "Th",
+        short: "Thorn / Giant",
+        desc: "Thurisaz is the thorn and the giant: danger, defense, conflict, reactive force, and thresholds that demand care.",
+        associations: [
+          "Thorn",
+          "Giants",
+          "Defense",
+          "Danger",
+          "Threshold"
+        ],
+        divination: "Pause before acting. A sharp force is present; it can protect you or wound you depending on timing."
+      },
+      {
+        glyph: "ᚨ",
+        name: "Ansuz",
+        trans: "A",
+        short: "God / Breath / Speech",
+        desc: "Ansuz is associated with a god, often Odin in modern readings: breath, speech, messages, wisdom, poetry, and inspired language.",
+        associations: [
+          "Odin",
+          "Speech",
+          "Breath",
+          "Wisdom",
+          "Messages"
+        ],
+        divination: "Listen closely and speak cleanly. The important thing may arrive as a word, sign, teaching, or correction."
+      },
+      {
+        glyph: "ᚱ",
+        name: "Raidho",
+        trans: "R",
+        short: "Ride & Journey",
+        desc: "Raidho is riding, travel, rhythm, ordered movement, and the right path taken with timing and intention.",
+        associations: [
+          "Riding",
+          "Journey",
+          "Rhythm",
+          "Road",
+          "Right Action"
+        ],
+        divination: "Move with rhythm. The path matters, but so does pace, sequence, and the way you travel."
+      },
+      {
+        glyph: "ᚲ",
+        name: "Kenaz",
+        trans: "K",
+        short: "Torch & Knowing",
+        desc: "Kenaz is the torch: controlled fire, craft, skill, learning, and illumination that reveals what was hidden.",
+        associations: [
+          "Torch",
+          "Fire",
+          "Craft",
+          "Knowledge",
+          "Illumination"
+        ],
+        divination: "A thing can be understood now. Bring skill, attention, and a clean flame to the work."
+      },
+      {
+        glyph: "ᚷ",
+        name: "Gebo",
+        trans: "G",
+        short: "Gift & Exchange",
+        desc: "Gebo is the gift: generosity, exchange, partnership, obligation, and reciprocal bonds.",
+        associations: [
+          "Gift",
+          "Exchange",
+          "Partnership",
+          "Balance",
+          "Sacred Bond"
+        ],
+        divination: "A bond is being formed or tested. Give freely, but keep the exchange honorable and balanced."
+      },
+      {
+        glyph: "ᚹ",
+        name: "Wunjo",
+        trans: "W",
+        short: "Joy & Fellowship",
+        desc: "Wunjo is joy, fellowship, harmony, belonging, and the relief of things aligning well.",
+        associations: [
+          "Joy",
+          "Harmony",
+          "Fellowship",
+          "Success",
+          "Belonging"
+        ],
+        divination: "Let yourself recognize what is working. Joy is not trivial when it restores the group and the heart."
+      }
+    ]
+  },
+  {
+    name: "Hagal's Aett",
+    subtitle: "The second family - disruption, necessity, stillness, cycles, fate, and protection",
+    runes: [
+      {
+        glyph: "ᚺ",
+        name: "Hagalaz",
+        trans: "H",
+        short: "Hail & Disruption",
+        desc: "Hagalaz is hail: sudden weather, disruption, impact, and natural force outside personal control.",
+        associations: [
+          "Hail",
+          "Disruption",
+          "Weather",
+          "Impact",
+          "Transformation"
+        ],
+        divination: "Something may break pattern suddenly. Respond to the weather; do not waste strength arguing with the storm."
+      },
+      {
+        glyph: "ᚾ",
+        name: "Naudhiz",
+        trans: "N",
+        short: "Need & Constraint",
+        desc: "Naudhiz is need: necessity, friction, hunger, limits, and the fire made by pressure.",
+        associations: [
+          "Need",
+          "Constraint",
+          "Friction",
+          "Survival",
+          "Willpower"
+        ],
+        divination: "Separate need from want. Constraint is uncomfortable, but it can clarify the next honest action."
+      },
+      {
+        glyph: "ᛁ",
+        name: "Isa",
+        trans: "I",
+        short: "Ice & Stillness",
+        desc: "Isa is ice: stillness, pause, concentration, blockage, clarity, and frozen time.",
+        associations: [
+          "Ice",
+          "Stillness",
+          "Clarity",
+          "Delay",
+          "Focus"
+        ],
+        divination: "Do not force movement. Stillness may be the medicine, the warning, or the only clean mirror."
+      },
+      {
+        glyph: "ᛃ",
+        name: "Jera",
+        trans: "J / Y",
+        short: "Year & Harvest",
+        desc: "Jera is the year: harvest, cycles, seasonality, return, and patient reward after right timing.",
+        associations: [
+          "Year",
+          "Harvest",
+          "Cycles",
+          "Season",
+          "Patience"
+        ],
+        divination: "What was planted returns in season. Work with the cycle instead of trying to bully the calendar."
+      },
+      {
+        glyph: "ᛇ",
+        name: "Eihwaz",
+        trans: "Ei / Y",
+        short: "Yew & Endurance",
+        desc: "Eihwaz is the yew: endurance, deep roots, death-and-renewal symbolism, and the axis between worlds.",
+        associations: [
+          "Yew",
+          "Endurance",
+          "World Tree",
+          "Threshold",
+          "Resilience"
+        ],
+        divination: "Hold steady through the threshold. What looks like an ending may be a hard change of form."
+      },
+      {
+        glyph: "ᛈ",
+        name: "Perthro",
+        trans: "P",
+        short: "Lot Cup & Mystery",
+        desc: "Perthro is often read as the lot cup: chance, hidden things, fate, games of outcome, and mystery.",
+        associations: [
+          "Lots",
+          "Mystery",
+          "Chance",
+          "Hidden Knowledge",
+          "Fate"
+        ],
+        divination: "Not all variables are visible. Leave room for surprise, privacy, and the unknown."
+      },
+      {
+        glyph: "ᛉ",
+        name: "Algiz",
+        trans: "Z",
+        short: "Elk & Protection",
+        desc: "Algiz is often linked with elk-sedge/protection: defense, sanctuary, alertness, and connection with higher powers.",
+        associations: [
+          "Elk",
+          "Protection",
+          "Alertness",
+          "Sanctuary",
+          "Guardian"
+        ],
+        divination: "Raise your awareness. Protection comes from boundaries, attention, and knowing what stands behind you."
+      },
+      {
+        glyph: "ᛊ",
+        name: "Sowilo",
+        trans: "S",
+        short: "Sun & Victory",
+        desc: "Sowilo is the sun: clarity, life force, guidance, success, and the light that makes the path visible.",
+        associations: [
+          "Sun",
+          "Clarity",
+          "Vitality",
+          "Victory",
+          "Guidance"
+        ],
+        divination: "Clarity is available. Use the light well; success asks for direction, not just brightness."
+      }
+    ]
+  },
+  {
+    name: "Tyr's Aett",
+    subtitle: "The third family - justice, growth, humanity, flow, transformation, and inheritance",
+    runes: [
+      {
+        glyph: "ᛏ",
+        name: "Tiwaz",
+        trans: "T",
+        short: "Tyr & Justice",
+        desc: "Tiwaz is associated with Tyr: justice, oath, honor, law, courage, and sacrifice for right order.",
+        associations: [
+          "Tyr",
+          "Justice",
+          "Honor",
+          "Oath",
+          "Sacrifice"
+        ],
+        divination: "Choose the honorable action. Integrity may cost something, but it gives the path its spine."
+      },
+      {
+        glyph: "ᛒ",
+        name: "Berkano",
+        trans: "B",
+        short: "Birch & New Growth",
+        desc: "Berkano is birch: birth, renewal, protection, nurturing, and the first green return after hardship.",
+        associations: [
+          "Birch",
+          "Birth",
+          "Renewal",
+          "Growth",
+          "Nurture"
+        ],
+        divination: "Something young needs tending. Protect the beginning instead of demanding harvest too soon."
+      },
+      {
+        glyph: "ᛖ",
+        name: "Ehwaz",
+        trans: "E",
+        short: "Horse & Trust",
+        desc: "Ehwaz is the horse: movement, trust, partnership, cooperation, and the bond that makes travel possible.",
+        associations: [
+          "Horse",
+          "Trust",
+          "Movement",
+          "Partnership",
+          "Loyalty"
+        ],
+        divination: "Progress depends on trust and coordination. Move together or do not move yet."
+      },
+      {
+        glyph: "ᛗ",
+        name: "Mannaz",
+        trans: "M",
+        short: "Human & Community",
+        desc: "Mannaz is humanity: selfhood, mind, community, memory, and the individual held within the human web.",
+        associations: [
+          "Humanity",
+          "Self",
+          "Mind",
+          "Community",
+          "Memory"
+        ],
+        divination: "Know yourself in relation to others. The answer may be social, not solitary."
+      },
+      {
+        glyph: "ᛚ",
+        name: "Laguz",
+        trans: "L",
+        short: "Water & Flow",
+        desc: "Laguz is water: lake, sea, flow, intuition, emotion, and the deep current beneath conscious thought.",
+        associations: [
+          "Water",
+          "Flow",
+          "Intuition",
+          "Emotion",
+          "Depth"
+        ],
+        divination: "Follow the current without surrendering discernment. Feeling may know before language does."
+      },
+      {
+        glyph: "ᛜ",
+        name: "Ingwaz",
+        trans: "Ng",
+        short: "Ing & Seeded Potential",
+        desc: "Ingwaz is associated with Ing/Freyr: fertility, stored energy, completion before release, and seed potential.",
+        associations: [
+          "Ing",
+          "Seed",
+          "Fertility",
+          "Potential",
+          "Completion"
+        ],
+        divination: "Energy is gathered inside the seed. Finish the inner formation before forcing outer movement."
+      },
+      {
+        glyph: "ᛞ",
+        name: "Dagaz",
+        trans: "D",
+        short: "Day & Breakthrough",
+        desc: "Dagaz is day: dawn, breakthrough, transformation, awakening, and the threshold where night becomes light.",
+        associations: [
+          "Day",
+          "Dawn",
+          "Breakthrough",
+          "Transformation",
+          "Awakening"
+        ],
+        divination: "A shift in perspective changes the field. Stand at the threshold and let the new light arrive."
+      },
+      {
+        glyph: "ᛟ",
+        name: "Othala",
+        trans: "O",
+        short: "Heritage & Home",
+        desc: "Othala is inheritance: ancestral land, home, belonging, family legacy, and what is received or passed on.",
+        associations: [
+          "Inheritance",
+          "Home",
+          "Ancestry",
+          "Belonging",
+          "Legacy"
+        ],
+        divination: "Look to roots, home, and inherited patterns. Keep what gives life; release what only repeats harm."
+      }
+    ]
+  }
+];
 
   let currentCat = "all";
   let openGodId = null;
@@ -1016,7 +1354,8 @@
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('section-' + tab).classList.add('active');
-    event.currentTarget.classList.add('active');
+    const trigger = event?.currentTarget || [...document.querySelectorAll('.tab-btn')].find(b => b.getAttribute('onclick')?.includes("'" + tab + "'"));
+    trigger?.classList.add('active');
   }
 
   function setCat(btn, cat) {
@@ -1282,7 +1621,7 @@
         {title:"The Binding of Fenrir",text:"The great wolf Fenrir was growing at an alarming rate and the gods knew from prophecy that he would swallow Odin at Ragnarok. They needed to bind him. Three times they fettered him with seemingly unbreakable chains, and three times Fenrir burst free. The dwarves crafted Gleipnir â€” a ribbon of silk made from impossible things (the sound of a cat's step, the beard of a woman, the roots of a mountain, the sinews of a bear, the breath of a fish, the spittle of a bird). Fenrir suspected magic. He agreed to be bound only if one god put their hand in his mouth as a pledge. No god was willing â€” except Tyr. Fenrir found he could not break Gleipnir. In fury and betrayal, he bit off Tyr's hand at the wrist. Tyr accepted the loss, because the world needed Fenrir bound."},
         {title:"Tyr at Ragnarok",text:"At the last battle, Tyr faces the great hound Garm, who guards the gates of Hel's realm. They slay each other. Tyr dies knowing he gave everything that justice required â€” including his life, as he gave his hand. He is the god who understands that some things are worth the cost."}
       ],
-      facts:["Tuesday is named for Tyr â€” 'Tyr's day' in Old English.","He may be one of the oldest Germanic deities â€” in very early texts, he appears to have been the chief sky god before Odin rose to prominence.","The rune Tiwaz (á›) is named for him and represents justice and victory through honorable sacrifice.","He is one of the few Norse gods defined not by power but by virtue â€” he is great because of what he chose, not what he could do.","In some traditions, Tyr is a son of the giant Hymir, not Odin â€” which would make his choice to protect the Aesir even more remarkable."]
+      facts:["Tuesday is named for Tyr â€” 'Tyr's day' in Old English.","He may be one of the oldest Germanic deities â€” in very early texts, he appears to have been the chief sky god before Odin rose to prominence.","The rune Tiwaz (ᛏ) is named for him and represents justice and victory through honorable sacrifice.","He is one of the few Norse gods defined not by power but by virtue â€” he is great because of what he chose, not what he could do.","In some traditions, Tyr is a son of the giant Hymir, not Odin â€” which would make his choice to protect the Aesir even more remarkable."]
     },
     {
       id:"heimdall", name:"Heimdall", oldnorse:"Heimdallr", title:"Watchman of the Gods, Guardian of Bifrost",
