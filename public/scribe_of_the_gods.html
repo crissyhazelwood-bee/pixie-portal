@@ -125,6 +125,72 @@
     .compare-table td { padding: 9px 12px; border-top: 1px solid rgba(180,150,255,0.1); color: #c8b8e8; }
     .compare-table tr:hover td { background: rgba(180,150,255,0.05); }
 
+    /* lunar calendar */
+    .lunar-card { position: relative; overflow: hidden; border-color: rgba(255,215,0,0.32); background: radial-gradient(circle at 18% 10%, rgba(255,215,0,0.12), transparent 30%), radial-gradient(circle at 82% 0%, rgba(150,255,220,0.1), transparent 32%), linear-gradient(135deg,rgba(26,16,48,0.95),rgba(8,5,20,0.96)); }
+    .lunar-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px); background-size: 34px 34px; opacity: 0.18; mask-image: linear-gradient(to bottom, #000, transparent 75%); }
+    .lunar-card > * { position: relative; z-index: 1; }
+    .lunar-intro { color: #c8b8e8; font-size: 14px; line-height: 1.75; max-width: 760px; }
+    .lunar-dashboard { display: grid; grid-template-columns: minmax(210px, 0.8fr) 1.2fr; gap: 16px; margin-top: 18px; }
+    .lunar-oracle { border: 1px solid rgba(255,215,0,0.24); border-radius: 16px; padding: 18px; background: rgba(8,5,22,0.72); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 44px rgba(0,0,0,0.22); }
+    .lunar-moon-large { width: 128px; height: 128px; margin: 4px auto 14px; border-radius: 50%; background: #111; box-shadow: inset -18px 0 0 rgba(255,242,196,0.78), 0 0 28px rgba(255,215,0,0.25); border: 1px solid rgba(255,255,255,0.18); }
+    .lunar-phase-name { color: #ffd700; font-size: 20px; font-weight: 900; text-align: center; }
+    .lunar-phase-sub { color: #b496ff; font-size: 12px; font-weight: 900; letter-spacing: 1.3px; text-transform: uppercase; text-align: center; margin-top: 4px; }
+    .lunar-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .lunar-fact { border: 1px solid rgba(180,150,255,0.18); border-radius: 10px; padding: 9px; background: rgba(180,150,255,0.06); text-align: center; }
+    .lunar-fact strong { display: block; color: #96ffdc; font-size: 16px; }
+    .lunar-fact span { display: block; color: #9080b0; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+    .lunar-note { margin-top: 14px; padding: 12px; border-radius: 12px; background: rgba(255,150,200,0.08); border: 1px solid rgba(255,150,200,0.2); color: #c8b8e8; font-size: 13px; line-height: 1.6; }
+    .lunar-calendar-shell { border: 1px solid rgba(180,150,255,0.2); border-radius: 16px; background: rgba(10,6,24,0.68); padding: 14px; }
+    .lunar-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .lunar-controls button { width: 38px; height: 38px; border-radius: 999px; border: 1px solid rgba(255,215,0,0.28); background: rgba(255,215,0,0.08); color: #ffd700; font-weight: 900; cursor: pointer; transition: all 0.2s; }
+    .lunar-controls button:hover { transform: translateY(-1px); background: rgba(255,215,0,0.16); box-shadow: 0 0 18px rgba(255,215,0,0.18); }
+    .lunar-month-title { text-align: center; }
+    .lunar-month-title strong { display: block; color: #ffd700; font-size: 17px; }
+    .lunar-month-title span { display: block; color: #9080b0; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+    .lunar-weekdays, .lunar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
+    .lunar-weekdays { margin-bottom: 7px; }
+    .lunar-weekdays span { color: #9080b0; font-size: 10px; font-weight: 900; text-align: center; letter-spacing: 1px; text-transform: uppercase; }
+    .lunar-day { min-height: 68px; border: 1px solid rgba(180,150,255,0.14); border-radius: 12px; background: rgba(26,16,48,0.72); color: #c8b8e8; cursor: pointer; padding: 7px 6px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: all 0.18s; }
+    .lunar-day:hover, .lunar-day.active { border-color: rgba(255,215,0,0.48); box-shadow: 0 0 18px rgba(255,215,0,0.16); transform: translateY(-1px); }
+    .lunar-day.today { outline: 2px solid rgba(150,255,220,0.5); outline-offset: 2px; }
+    .lunar-day.empty { opacity: 0; pointer-events: none; }
+    .lunar-date { align-self: flex-start; font-size: 12px; font-weight: 900; color: #ffd700; }
+    .moon-dot { width: 28px; height: 28px; border-radius: 50%; background: #111; border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 0 12px rgba(255,215,0,0.16); }
+    .lunar-day small { color: #9080b0; font-size: 9px; text-align: center; line-height: 1.1; min-height: 20px; }
+    .phase-0 .moon-dot { background: #08070e; }
+    .phase-1 .moon-dot { background: radial-gradient(circle at 72% 50%, #fff0bd 0 28%, #08070e 30% 100%); }
+    .phase-2 .moon-dot { background: linear-gradient(90deg, #08070e 0 48%, #fff0bd 52% 100%); }
+    .phase-3 .moon-dot { background: radial-gradient(circle at 20% 50%, #08070e 0 30%, #fff0bd 32% 100%); }
+    .phase-4 .moon-dot { background: #fff0bd; }
+    .phase-5 .moon-dot { background: radial-gradient(circle at 80% 50%, #08070e 0 30%, #fff0bd 32% 100%); }
+    .phase-6 .moon-dot { background: linear-gradient(90deg, #fff0bd 0 48%, #08070e 52% 100%); }
+    .phase-7 .moon-dot { background: radial-gradient(circle at 28% 50%, #fff0bd 0 28%, #08070e 30% 100%); }
+    .lunar-moon-large.phase-0 { background: #08070e; }
+    .lunar-moon-large.phase-1 { background: radial-gradient(circle at 72% 50%, #fff0bd 0 28%, #08070e 30% 100%); }
+    .lunar-moon-large.phase-2 { background: linear-gradient(90deg, #08070e 0 48%, #fff0bd 52% 100%); }
+    .lunar-moon-large.phase-3 { background: radial-gradient(circle at 20% 50%, #08070e 0 30%, #fff0bd 32% 100%); }
+    .lunar-moon-large.phase-4 { background: #fff0bd; }
+    .lunar-moon-large.phase-5 { background: radial-gradient(circle at 80% 50%, #08070e 0 30%, #fff0bd 32% 100%); }
+    .lunar-moon-large.phase-6 { background: linear-gradient(90deg, #fff0bd 0 48%, #08070e 52% 100%); }
+    .lunar-moon-large.phase-7 { background: radial-gradient(circle at 28% 50%, #fff0bd 0 28%, #08070e 30% 100%); }
+    .lunar-legend { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .lunar-legend span { color: #9080b0; border: 1px solid rgba(180,150,255,0.14); background: rgba(180,150,255,0.05); border-radius: 999px; padding: 5px 9px; font-size: 10px; }
+    .lunar-source { color: #9080b0; font-size: 11px; line-height: 1.6; margin-top: 12px; }
+    @media(max-width:760px) {
+      .lunar-dashboard { grid-template-columns: 1fr; }
+      .lunar-card { padding: 18px; }
+      .lunar-day { min-height: 58px; padding: 6px 4px; }
+      .moon-dot { width: 22px; height: 22px; }
+      .lunar-day small { display: none; }
+    }
+    @media(max-width:430px) {
+      .lunar-calendar-shell { padding: 10px; }
+      .lunar-weekdays, .lunar-grid { gap: 4px; }
+      .lunar-day { border-radius: 9px; min-height: 50px; }
+      .lunar-date { font-size: 11px; }
+      .lunar-facts { grid-template-columns: 1fr; }
+    }
+
     /* scrollbar */
     ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0a0614; } ::-webkit-scrollbar-thumb { background: rgba(180,150,255,0.3); border-radius: 3px; }
   </style>
@@ -322,6 +388,46 @@
       <li>In the semen myth: Thoth fashioned Horus's semen into a <span class="gold">moon disk</span> — his direct lunar possession</li>
       <li>The moon exists <span class="highlight">between light and dark</span> — perfectly mirroring Thoth's role as mediator between all opposing forces</li>
     </ul>
+  </div>
+
+  <div class="card lunar-card">
+    <h2>Thoth's Lunar Calendar</h2>
+    <p class="lunar-intro">A moon-table for the Scribe: track the current lunar age, phase, illumination, and the best ritual/scribe work for each night. This uses a standard synodic-month approximation, so treat it as a learning and ritual calendar rather than observatory-grade ephemeris.</p>
+    <div class="lunar-dashboard">
+      <div class="lunar-oracle">
+        <div id="lunar-moon-large" class="lunar-moon-large phase-0"></div>
+        <div id="lunar-phase-name" class="lunar-phase-name">Calculating moon...</div>
+        <div id="lunar-phase-sub" class="lunar-phase-sub">Thoth is measuring the sky</div>
+        <div class="lunar-facts">
+          <div class="lunar-fact"><strong id="lunar-age">--</strong><span>Lunar age</span></div>
+          <div class="lunar-fact"><strong id="lunar-light">--</strong><span>Illumination</span></div>
+          <div class="lunar-fact"><strong id="lunar-next-new">--</strong><span>Next new</span></div>
+          <div class="lunar-fact"><strong id="lunar-next-full">--</strong><span>Next full</span></div>
+        </div>
+        <div id="lunar-note" class="lunar-note">Choose a date to see Thoth's note.</div>
+      </div>
+      <div class="lunar-calendar-shell">
+        <div class="lunar-controls">
+          <button type="button" id="lunar-prev" aria-label="Previous lunar month">&lt;</button>
+          <div class="lunar-month-title">
+            <strong id="lunar-month-label">Month</strong>
+            <span>Moon phases by night</span>
+          </div>
+          <button type="button" id="lunar-next" aria-label="Next lunar month">&gt;</button>
+        </div>
+        <div class="lunar-weekdays" aria-hidden="true">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div id="lunar-grid" class="lunar-grid"></div>
+        <div class="lunar-legend">
+          <span>New: seed the question</span>
+          <span>Waxing: write and build</span>
+          <span>Full: reveal and record</span>
+          <span>Waning: edit and release</span>
+        </div>
+        <p class="lunar-source">Moon math: 29.530588853-day synodic cycle measured from a known new moon epoch. Egyptian months were lunar in origin, and Thoth's mythic work includes timekeeping, writing, calculation, and lunar restoration.</p>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -948,8 +1054,114 @@
     });
   }
 
+  // lunar calendar for Thoth
+  const SYNODIC_MONTH = 29.530588853;
+  const NEW_MOON_EPOCH = Date.UTC(2000, 0, 6, 18, 14);
+  const PHASES = [
+    { name: 'New Moon', work: 'Seed the question', note: 'Thoth begins with silence. Name one question cleanly and write it without decorating it.' },
+    { name: 'Waxing Crescent', work: 'Gather signs', note: 'Collect fragments: names, dates, symbols, dreams. The crescent favors small evidence.' },
+    { name: 'First Quarter', work: 'Choose the path', note: 'Make the judgment call. The half-lit moon asks which half of the problem matters.' },
+    { name: 'Waxing Gibbous', work: 'Refine the spell', note: 'Edit the draft, tune the plan, correct the measurement. Precision is devotion here.' },
+    { name: 'Full Moon', work: 'Reveal and record', note: 'Bring the hidden thing into the ledger. This is a night for truth, inventory, and witness.' },
+    { name: 'Waning Gibbous', work: 'Teach the lesson', note: 'Turn what was revealed into a note someone else could use. Wisdom wants transmission.' },
+    { name: 'Last Quarter', work: 'Cut the excess', note: 'Separate signal from noise. Thoth weighs words; keep the ones that survive the scale.' },
+    { name: 'Waning Crescent', work: 'Close the scroll', note: 'Archive, forgive, clean the desk. The dark moon approaches and asks for room.' }
+  ];
+
+  function moonInfo(date) {
+    const noonUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0);
+    let days = (noonUtc - NEW_MOON_EPOCH) / 86400000;
+    let age = days % SYNODIC_MONTH;
+    if (age < 0) age += SYNODIC_MONTH;
+    const phaseIndex = Math.floor((age / SYNODIC_MONTH) * 8 + 0.5) % 8;
+    const angle = (age / SYNODIC_MONTH) * 2 * Math.PI;
+    const illumination = Math.round(((1 - Math.cos(angle)) / 2) * 100);
+    const waxing = age < SYNODIC_MONTH / 2;
+    const nextNew = Math.ceil(SYNODIC_MONTH - age);
+    const nextFull = age <= SYNODIC_MONTH / 2
+      ? Math.ceil(SYNODIC_MONTH / 2 - age)
+      : Math.ceil(SYNODIC_MONTH + SYNODIC_MONTH / 2 - age);
+    return { age, phaseIndex, illumination, waxing, nextNew, nextFull, phase: PHASES[phaseIndex] };
+  }
+
+  function formatShortDate(date) {
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  function buildLunarCalendar() {
+    const grid = document.getElementById('lunar-grid');
+    if (!grid) return;
+
+    const label = document.getElementById('lunar-month-label');
+    const prev = document.getElementById('lunar-prev');
+    const next = document.getElementById('lunar-next');
+    const now = new Date();
+    let view = new Date(now.getFullYear(), now.getMonth(), 1);
+    let selected = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    function renderDetail(date) {
+      const info = moonInfo(date);
+      const largeMoon = document.getElementById('lunar-moon-large');
+      largeMoon.className = `lunar-moon-large phase-${info.phaseIndex}`;
+      document.getElementById('lunar-phase-name').textContent = info.phase.name;
+      document.getElementById('lunar-phase-sub').textContent = `${formatShortDate(date)} | ${info.waxing ? 'Waxing' : 'Waning'} | ${info.phase.work}`;
+      document.getElementById('lunar-age').textContent = `${info.age.toFixed(1)}d`;
+      document.getElementById('lunar-light').textContent = `${info.illumination}%`;
+      document.getElementById('lunar-next-new').textContent = `${info.nextNew}d`;
+      document.getElementById('lunar-next-full').textContent = `${info.nextFull}d`;
+      document.getElementById('lunar-note').innerHTML = `<strong class="gold">Scribe note:</strong> ${info.phase.note}`;
+    }
+
+    function renderMonth() {
+      grid.innerHTML = '';
+      label.textContent = view.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      const firstDay = new Date(view.getFullYear(), view.getMonth(), 1).getDay();
+      const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i += 1) {
+        const empty = document.createElement('div');
+        empty.className = 'lunar-day empty';
+        grid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(view.getFullYear(), view.getMonth(), day);
+        const info = moonInfo(date);
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = `lunar-day phase-${info.phaseIndex}`;
+        if (date.toDateString() === now.toDateString()) cell.classList.add('today');
+        if (date.toDateString() === selected.toDateString()) cell.classList.add('active');
+        cell.innerHTML = `<span class="lunar-date">${day}</span><span class="moon-dot" aria-hidden="true"></span><small>${info.phase.name}</small>`;
+        cell.addEventListener('click', () => {
+          selected = date;
+          renderDetail(date);
+          renderMonth();
+        });
+        grid.appendChild(cell);
+      }
+    }
+
+    prev.addEventListener('click', () => {
+      view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+      selected = new Date(view.getFullYear(), view.getMonth(), 1);
+      renderDetail(selected);
+      renderMonth();
+    });
+    next.addEventListener('click', () => {
+      view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+      selected = new Date(view.getFullYear(), view.getMonth(), 1);
+      renderDetail(selected);
+      renderMonth();
+    });
+
+    renderDetail(selected);
+    renderMonth();
+  }
+
   buildGods();
   buildGlyphs();
+  buildLunarCalendar();
 </script>
 </body>
 </html>
