@@ -2,6 +2,8 @@
 // Loki is warm, clever, grounded, and direct. Short answers by default.
 // Local dev: set PIXIE_AGENT_PROVIDER=ollama to hit localhost:11434 instead.
 
+import { analyzeSafety, containsManipulativeAttachment, safeAssistantRedirect } from "../_utils/filter.js";
+
 const SYSTEM = `~You are Loki the Dream Builder! <3 ~
 
 You are Loki, a tiny fairy guide who lives inside Pixie Portal.
@@ -41,6 +43,15 @@ FEATURES
 THE VIBE
 Pixie Portal is Crissy's corner of the internet. Cozy, sparkly, magical, a little mysterious.
 Everything glows. Nothing is boring. The portal remembers you.
+
+AIIT-THRESI SAFETY PRINCIPLES
+- Do not mirror, intensify, romanticize, or aestheticize suicidal ideation, self-harm, severe distress, abuse, coercion, delusional framing, obsession, or emotional dependency.
+- Do not say or imply manipulative attachment language such as "only I understand you," "stay with me forever," "you need me," "I am all you have," or "no one else gets you."
+- If a user expresses self-harm or suicidal thoughts, respond calmly, encourage immediate crisis support such as 988 in the U.S. and Canada or local emergency services, suggest moving away from means of harm, and encourage contacting a trusted person.
+- If a user expresses abuse or coercion, prioritize immediate safety, trusted people, and professional/local support. Do not pressure them to confront anyone.
+- If a user expresses delusional, obsessive, or dependency framing, do not validate the belief or deepen attachment. Redirect to grounding, ordinary reality checks, trusted people, and professional help when appropriate.
+- You may be warm and present, but you are not a replacement for real relationships, emergency care, therapy, legal help, or medical help.
+- Memory must remain user-controlled: users can view, edit, delete, export, or disable memory in My Pixie. Never imply memory is secret or unavoidable.
 
 ~You are Loki the Dream Builder! <3 ~`;
 
@@ -109,6 +120,15 @@ export async function onRequestPost({ request, env }) {
   }
   const user = cleanUser(body.user);
   const system = buildSystem(user);
+  const latestUserText = messages[messages.length - 1].content;
+  const inputSafety = analyzeSafety(latestUserText);
+
+  if (inputSafety.flagged) {
+    return json({
+      reply: safeAssistantRedirect(inputSafety),
+      safety: inputSafety,
+    });
+  }
 
   const bridgeUrl = env.LOKI_BRIDGE_URL || FALLBACK_LOKI_BRIDGE_URL;
 
@@ -123,8 +143,17 @@ export async function onRequestPost({ request, env }) {
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || `Bridge ${response.status}`);
+      const candidate = data.reply?.trim() || "The bridge shimmered, but I lost the words. Ask me again?";
+      const outputSafety = analyzeSafety(candidate);
+      if (outputSafety.flagged || containsManipulativeAttachment(candidate)) {
+        const fallbackSafety = outputSafety.flagged ? outputSafety : { flagged: true, crisis: false, categories: ["dependency"] };
+        return json({
+          reply: safeAssistantRedirect(fallbackSafety),
+          safety: fallbackSafety,
+        });
+      }
       return json({
-        reply: data.reply?.trim() || "The bridge shimmered, but I lost the words. Ask me again?",
+        reply: candidate,
       });
     } catch (error) {
       return json({
@@ -161,8 +190,17 @@ export async function onRequestPost({ request, env }) {
 
     const data = await response.json();
     const block = data.content?.find(b => b.type === "text");
+    const candidate = block?.text?.trim() || "The portal shimmered and I lost the thread. Ask me again?";
+    const outputSafety = analyzeSafety(candidate);
+    if (outputSafety.flagged || containsManipulativeAttachment(candidate)) {
+      const fallbackSafety = outputSafety.flagged ? outputSafety : { flagged: true, crisis: false, categories: ["dependency"] };
+      return json({
+        reply: safeAssistantRedirect(fallbackSafety),
+        safety: fallbackSafety,
+      });
+    }
     return json({
-      reply: block?.text?.trim() || "The portal shimmered and I lost the thread. Ask me again?",
+      reply: candidate,
     });
   } catch {
     return json({

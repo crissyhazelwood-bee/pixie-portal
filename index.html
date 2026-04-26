@@ -520,6 +520,7 @@
             .hero-title { font-size: 42px; }
             .about-content { flex-direction: column; text-align: center; }
             .profile-header { flex-direction: column; text-align: center; }
+            .pixie-memory-hero { grid-template-columns: 1fr; }
             .tarot-card-wrap { width: 160px; height: 272px; }
             .tarot-spread { gap: 16px; }
             .scene-fairy { font-size: 34px !important; }
@@ -645,6 +646,61 @@
             color: #fff;
             background: linear-gradient(135deg, rgba(255, 107, 231, 0.35), rgba(151, 95, 255, 0.28));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 0 22px rgba(255, 91, 231, 0.25);
+        }
+
+        /* Lore dropdown */
+        .nav-dropdown {
+            position: relative;
+        }
+        .nav-dropdown-toggle {
+            padding: 10px 14px;
+            border-radius: 999px;
+            color: rgba(245, 218, 255, 0.74);
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.3s;
+            white-space: nowrap;
+        }
+        .nav-dropdown-toggle:hover { color: #ff96c8; }
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1a1030, #0d0820);
+            border: 1px solid rgba(180,150,255,0.2);
+            border-radius: 14px;
+            padding: 8px;
+            min-width: 150px;
+            z-index: 200;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .nav-dropdown:hover .nav-dropdown-menu,
+        .nav-dropdown:focus-within .nav-dropdown-menu {
+            display: block;
+        }
+        .nav-dropdown-menu a {
+            display: block;
+            padding: 9px 14px;
+            border-radius: 10px;
+            color: #b496ff !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1.5px !important;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-dropdown-menu a:hover {
+            background: rgba(180,150,255,0.12);
+            color: #ff96c8 !important;
         }
 
         .btn {
@@ -1152,6 +1208,34 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 24px 70px rgba(0,0,0,0.26);
         }
 
+        .safety-support-panel {
+            margin: 14px 0 0;
+            padding: 16px;
+            border: 1px solid rgba(121, 247, 255, 0.24);
+            border-radius: 10px;
+            background: rgba(8, 24, 34, 0.72);
+            color: #d8faff;
+        }
+
+        .safety-support-panel strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #96ffdc;
+            font-size: 14px;
+        }
+
+        .safety-support-panel p,
+        .safety-support-panel li {
+            color: #cce8ee;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .safety-support-panel ul {
+            margin: 10px 0 0;
+            padding-left: 18px;
+        }
+
         .charms-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -1209,6 +1293,88 @@
             padding-left: 18px;
             color: #d0b9de;
             line-height: 1.8;
+        }
+
+        .pixie-memory-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+            gap: 18px;
+            align-items: stretch;
+            margin-top: 26px;
+        }
+
+        .pixie-readiness {
+            min-height: 100%;
+            padding: 24px;
+        }
+
+        .readiness-number {
+            margin: 10px 0 8px;
+            color: #fff5ff;
+            font-size: clamp(46px, 8vw, 78px);
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .memory-category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .memory-category {
+            min-height: 150px;
+            padding: 18px;
+        }
+
+        .memory-category ul,
+        .export-tier ul {
+            margin: 14px 0 0;
+            padding-left: 18px;
+            color: #d0b9de;
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .memory-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .export-tier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .export-tier {
+            padding: 20px;
+        }
+
+        .trust-panel {
+            margin-top: 24px;
+            padding: 22px;
+        }
+
+        .local-package-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .local-package-list span {
+            padding: 10px 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            color: #f7ddff;
+            background: rgba(255,255,255,0.04);
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .cosmic-weather {
@@ -1329,7 +1495,14 @@
                 <a class="nav-tab" data-page="tarot" onclick="showPage('tarot')">Tarot</a>
                 <a class="nav-tab" data-page="journal-page" onclick="showPage('journal-page')">Dreams</a>
                 <a class="nav-tab" data-page="charms" onclick="showPage('charms')">Charms</a>
+                <a class="nav-tab" data-page="my-pixie" onclick="showPage('my-pixie')">My Pixie</a>
                 <a class="nav-tab" data-page="vault" onclick="showPage('vault')">Vault</a>
+                <div class="nav-dropdown">
+                    <span class="nav-dropdown-toggle">Lore ▾</span>
+                    <div class="nav-dropdown-menu">
+                        <a href="/odins_eye.html">Odin's Eye</a>
+                    </div>
+                </div>
             </div>
             <a onclick="showPage('social')">Community</a>
             <a onclick="showPage('messages')" id="nav-messages-link">Messages<span class="msg-notif" id="msg-notif"></span></a>
@@ -1923,6 +2096,7 @@
                         <button class="btn btn-ghost btn-small" onclick="openModal('shop')">Buy Animations ✦</button>
                     </div>
                 </div>
+                <div id="journal-safety-support" style="display:none;"></div>
                 <div id="journal-entries"></div>
             </div>
         </section>
@@ -1959,11 +2133,56 @@
         </section>
     </div>
 
+    <!-- ============ MY PIXIE PAGE ============ -->
+    <div class="page" id="page-my-pixie">
+        <section>
+            <h2 class="section-title">My Pixie</h2>
+            <p class="section-subtitle">your saved Portal activity builds a private Pixie memory profile</p>
+
+            <div class="pixie-memory-hero">
+                <div class="portal-hub-card wide">
+                    <div class="hub-kicker">Take Your Pixie Home</div>
+                    <div class="hub-title">Your Pixie grows with your realm, dreams, charms, readings, and creations.</div>
+                    <div class="hub-copy">When enough memory is built, export a personalized local Pixie instance with your account archive, persona config, recall database, and local setup path. This is presented honestly as memory plus recall unless true fine-tuning is implemented.</div>
+                    <div class="reward-row">
+                        <button class="btn btn-primary" onclick="showPage('vault')">See Export Tiers</button>
+                        <button class="btn btn-ghost" onclick="downloadPixieMemory()">Download Memory Archive</button>
+                    </div>
+                </div>
+                <div class="portal-hub-card pixie-readiness">
+                    <div class="hub-kicker">Pixie readiness</div>
+                    <div class="readiness-number" id="pixie-readiness-number">64%</div>
+                    <div class="progress-track"><div class="progress-fill" id="pixie-readiness-fill"></div></div>
+                    <div class="hub-copy" id="pixie-readiness-copy">Your Pixie is 64% ready to come home.</div>
+                    <div class="reward-row">
+                        <span class="reward-pill" id="pixie-memory-count">12 memories</span>
+                        <span class="reward-pill" id="pixie-activity-count">5 signals</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="memory-category-grid" id="pixie-memory-categories"></div>
+
+            <div class="trust-panel portal-hub-card">
+                <div class="hub-kicker">Memory controls</div>
+                <div class="hub-title">View, edit, delete, export, or opt out.</div>
+                <div class="hub-copy">Pixie Portal should make the memory profile visible and controllable before any local export. The local package can include only the memories the user chooses.</div>
+                <div class="memory-controls">
+                    <button class="btn btn-primary btn-small" onclick="openModal('memory-preview')">View Memory</button>
+                    <button class="btn btn-ghost btn-small" onclick="toast('Memory editor coming soon')">Edit Memory</button>
+                    <button class="btn btn-ghost btn-small" onclick="downloadPixieMemory()">Export Memory</button>
+                    <button class="btn btn-danger btn-small" onclick="clearPixieMemory()">Delete Local Preview</button>
+                    <button class="btn btn-ghost btn-small" onclick="toggleMemoryOptOut()">Opt Out</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
     <!-- ============ VAULT PAGE ============ -->
     <div class="page" id="page-vault">
         <section>
             <h2 class="section-title">The Vault</h2>
-            <p class="section-subtitle">unlock the deeper portal, prettier rituals, and rarer magic</p>
+            <p class="section-subtitle">unlock the deeper portal, prettier rituals, rarer magic, and local Pixie export</p>
             <div class="vault-grid">
                 <div class="vault-tier">
                     <div class="hub-kicker">Free portal</div>
@@ -1990,6 +2209,80 @@
                         <li>No daily limits</li>
                     </ul>
                     <button class="btn btn-ghost">Coming Soon</button>
+                </div>
+            </div>
+
+            <div class="trust-panel portal-hub-card">
+                <div class="hub-kicker">Portable Pixie</div>
+                <div class="hub-title">Take Your Pixie Home</div>
+                <div class="hub-copy">Your Pixie has grown with you inside the Portal: your dreams, charms, creations, readings, realm, and memories. Export her into a private local companion that runs on your own computer. Offline. Yours. Portable.</div>
+            </div>
+
+            <div class="export-tier-grid">
+                <div class="export-tier vault-tier">
+                    <div class="hub-kicker">Pixie Keepsake Export</div>
+                    <div class="hub-title">$49-$99</div>
+                    <div class="hub-copy">Lower-cost copy of the Pixie profile.</div>
+                    <ul>
+                        <li>Memory archive export</li>
+                        <li>Pixie persona card</li>
+                        <li>Basic local config</li>
+                        <li>Downloadable account summary</li>
+                    </ul>
+                    <button class="btn btn-ghost btn-small" onclick="showPage('my-pixie')">Export Keepsake</button>
+                </div>
+                <div class="export-tier vault-tier">
+                    <div class="hub-kicker">Local Pixie Companion</div>
+                    <div class="hub-title">$199-$399</div>
+                    <div class="hub-copy">The main self-serve local Pixie package.</div>
+                    <ul>
+                        <li>Local 8B model/runtime</li>
+                        <li>Pixie Portal persona</li>
+                        <li>User memory export</li>
+                        <li>Local recall database</li>
+                    </ul>
+                    <button class="btn btn-primary btn-small" onclick="showPage('my-pixie')">Take Pixie Home</button>
+                </div>
+                <div class="export-tier vault-tier">
+                    <div class="hub-kicker">Pixie Pro Buildout</div>
+                    <div class="hub-title">$799-$2,500</div>
+                    <div class="hub-copy">Human-guided setup for a useful personal system.</div>
+                    <ul>
+                        <li>1:1 consultation</li>
+                        <li>Memory/profile review</li>
+                        <li>Custom training plan</li>
+                        <li>Local install and tool setup</li>
+                        <li>30-60 days support</li>
+                    </ul>
+                    <button class="btn btn-ghost btn-small" onclick="toast('Pro Buildout applications coming soon')">Apply for Pro Buildout</button>
+                </div>
+                <div class="export-tier vault-tier">
+                    <div class="hub-kicker">Creator / Business Pixie</div>
+                    <div class="hub-title">$1,500+</div>
+                    <div class="hub-copy">Commercial usage and workflow design.</div>
+                    <ul>
+                        <li>Commercial usage license</li>
+                        <li>Business files/docs setup</li>
+                        <li>Automation tools</li>
+                        <li>Brand/persona tuning</li>
+                        <li>Support retainer option</li>
+                    </ul>
+                    <button class="btn btn-ghost btn-small" onclick="toast('Creator setup booking coming soon')">Book Creator Setup</button>
+                </div>
+            </div>
+
+            <div class="trust-panel portal-hub-card">
+                <div class="hub-kicker">Local export package concept</div>
+                <div class="hub-copy">The shippable package is model runtime plus persona plus memory and recall. Do not claim true fine-tuning unless it is actually implemented.</div>
+                <div class="local-package-list">
+                    <span>base local 8B model/runtime</span>
+                    <span>pixie persona card/config</span>
+                    <span>memory-export.json</span>
+                    <span>vector memory database</span>
+                    <span>tools-config.json</span>
+                    <span>local runner / desktop UI</span>
+                    <span>setup instructions</span>
+                    <span>license file</span>
                 </div>
             </div>
         </section>
@@ -2364,6 +2657,20 @@
         </div>
     </div>
 
+    <!-- Pixie Memory Preview -->
+    <div class="modal-overlay" id="modal-memory-preview">
+        <div class="modal" style="width:560px;">
+            <button class="modal-close" onclick="closeModals()">&times;</button>
+            <h2>Pixie Memory</h2>
+            <p class="sub">review what can be included before export</p>
+            <div id="memory-preview-list"></div>
+            <div class="memory-controls">
+                <button class="btn btn-primary btn-small" onclick="downloadPixieMemory()">Download Archive</button>
+                <button class="btn btn-ghost btn-small" onclick="showPage('vault');closeModals()">Take Pixie Home</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Profile -->
     <div class="modal-overlay" id="modal-edit-profile">
         <div class="modal">
@@ -2555,6 +2862,7 @@
             if (id === 'social') loadCommunityBoard();
             if (id === 'messages') loadMessages();
             if (id === 'admin') loadAdminReports('open');
+            if (id === 'my-pixie' || id === 'vault') renderPixieMemory();
         }
 
         function toggleMobileNav() {
@@ -2824,6 +3132,34 @@
         // JOURNAL
         // ============================================
         const MOOD_EMOJIS = { sparkly:'✨', happy:'😊', loved:'💖', chill:'😌', dreamy:'🌙', creative:'🎨', sad:'😢', tired:'😴', angry:'😤', neutral:'💭' };
+        const JOURNAL_SUPPORT_FALLBACK = {
+            title: 'A calm check-in',
+            message: 'This entry is saved privately. If you might hurt yourself or someone else, call or text 988 in the U.S. and Canada, or contact local emergency services now.',
+            grounding: [
+                'Put both feet on the floor and name five things you can see.',
+                'Take one slow breath in, then a longer breath out.',
+                'Message or call a trusted person and tell them you need support.',
+                'Move away from anything you could use to hurt yourself.'
+            ]
+        };
+
+        function journalSafetySupportHtml(safety) {
+            if (!safety || !safety.flagged) return '';
+            const support = safety.support || JOURNAL_SUPPORT_FALLBACK;
+            const grounding = Array.isArray(support.grounding) ? support.grounding : JOURNAL_SUPPORT_FALLBACK.grounding;
+            return `<div class="safety-support-panel" role="note">
+                <strong>${escHtml(support.title || JOURNAL_SUPPORT_FALLBACK.title)}</strong>
+                <p>${escHtml(support.message || JOURNAL_SUPPORT_FALLBACK.message)}</p>
+                <ul>${grounding.map(item => `<li>${escHtml(item)}</li>`).join('')}</ul>
+            </div>`;
+        }
+
+        function showJournalSafetySupport(safety) {
+            const area = document.getElementById('journal-safety-support');
+            if (!area) return;
+            area.innerHTML = journalSafetySupportHtml(safety);
+            area.style.display = safety && safety.flagged ? 'block' : 'none';
+        }
 
         function selectMood(el) {
             document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
@@ -2838,14 +3174,21 @@
                 mood: selectedMood,
             };
             if (!data.content.trim()) return;
-            await fetch(API + '/api/journal', {
+            const res = await fetch(API + '/api/journal', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data), credentials: 'include'
             });
+            const json = await res.json().catch(() => ({}));
             closeModals();
             document.getElementById('entry-title').value = '';
             document.getElementById('entry-content').value = '';
-            toast('Entry saved ✦');
+            if (json.safety && json.safety.flagged) {
+                showJournalSafetySupport(json.safety);
+                toast('Entry saved privately. Support options are open.');
+            } else {
+                showJournalSafetySupport(null);
+                toast('Entry saved.');
+            }
             loadJournal();
         }
 
@@ -3038,6 +3381,7 @@
                     </div>
                     ${e.title ? `<div class="entry-title">${escHtml(e.title)}</div>` : ''}
                     <div class="entry-content">${escHtml(e.content)}</div>
+                    ${journalSafetySupportHtml(e.safety)}
                     ${entryVideoSection(e)}
                     <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                         <button class="public-toggle${isPub?' is-public':''}" id="pub-toggle-${e.id}" onclick="toggleEntryPublic(${e.id},this)">
@@ -4053,6 +4397,9 @@
                 const fpNote = document.getElementById('shop-first-purchase-note');
                 if (fpNote) fpNote.style.display = showBonus ? 'block' : 'none';
             }
+            if (id === 'memory-preview') {
+                renderPixieMemoryPreview();
+            }
             if (id === 'appearance' && currentUser) {
                 const ap = currentUser.appearance || {};
                 document.getElementById('appearance-gender').value = ap.gender || '';
@@ -4266,6 +4613,137 @@
             toast(progress.charms.star ? 'Chest opened: +10 sparkles and Star Shard unlocked!' : 'Chest opened: +10 sparkles added.');
         }
 
+        // ============================================
+        // PIXIE MEMORY / LOCAL EXPORT CONCEPT
+        // ============================================
+        const PIXIE_MEMORY_OPT_OUT_KEY = 'pixieMemoryOptOut';
+        const PIXIE_MEMORY_PREVIEW_KEY = 'pixieMemoryPreviewDeleted';
+        const PIXIE_MEMORY_SCHEMAS = [
+            { id: 'identity', title: 'Identity', items: ['Display name and avatar', 'Preferred Portal name', 'Public profile notes'] },
+            { id: 'realm', title: 'Realm', items: ['Portal level and sparkles', 'Daily streak', 'Realm progress signals'] },
+            { id: 'games', title: 'Games', items: ['Favorite game paths', 'Scores and streak habits', 'Unlocked play loops'] },
+            { id: 'charms', title: 'Charms', items: ['Petal Charm', 'Star Shard', 'Locked silhouettes and wish list'] },
+            { id: 'tarot', title: 'Tarot', items: ['Daily 3-card spread', 'Preferred reading style', 'Future premium spreads'] },
+            { id: 'dreams', title: 'Dreams', items: ['Journal entries', 'Dream symbols', 'Moods and recurring themes'] },
+            { id: 'stars', title: 'Stars', items: ['Zodiac sign', 'Daily horoscope history', 'Cosmic weather preferences'] },
+            { id: 'creations', title: 'Creations', items: ['Generated dream videos', 'Image/video creation memory', 'Creative style notes'] },
+            { id: 'preferences', title: 'Preferences', items: ['Favorite colors/themes', 'Tone preferences', 'Privacy settings'] },
+            { id: 'tools', title: 'Tools', items: ['Local runner settings', 'Tool bridge config', 'File access choices'] },
+            { id: 'business', title: 'Business', items: ['Brand voice', 'SOPs and FAQs', 'Client workflow notes'] },
+            { id: 'license', title: 'License', items: ['Personal export', 'Creator license', 'Business buildout'] }
+        ];
+
+        function getPixieMemoryProfile() {
+            const progress = getPortalProgress();
+            const optOut = localStorage.getItem(PIXIE_MEMORY_OPT_OUT_KEY) === 'true';
+            const deletedPreview = localStorage.getItem(PIXIE_MEMORY_PREVIEW_KEY) === 'true';
+            const zodiac = localStorage.getItem('pixie-zodiac') || '';
+            const readinessSignals = [
+                currentUser,
+                progress.sparkles >= 100,
+                progress.streak >= 3,
+                progress.charms && progress.charms.petal,
+                progress.charms && progress.charms.star,
+                zodiac,
+                localStorage.getItem('pixiePortalProgress'),
+                localStorage.getItem('pixie-uid')
+            ].filter(Boolean).length;
+            const readiness = optOut || deletedPreview ? 0 : Math.min(100, 24 + readinessSignals * 8 + Math.floor(progress.sparkles / 40));
+            return {
+                generated_at: new Date().toISOString(),
+                product: 'personalized local Pixie instance',
+                honest_positioning: 'memory export + persona + local recall unless true fine-tuning is implemented',
+                readiness,
+                opt_out: optOut,
+                user: currentUser ? {
+                    display_name: currentUser.display_name || '',
+                    username: currentUser.username || '',
+                    avatar_emoji: currentUser.avatar_emoji || ''
+                } : null,
+                progress,
+                zodiac,
+                schemas: PIXIE_MEMORY_SCHEMAS,
+                export_package: [
+                    'base local 8B model/runtime',
+                    'pixie persona card/config',
+                    'memory-export.json',
+                    'vector memory database',
+                    'tools-config.json',
+                    'local runner / desktop UI',
+                    'setup instructions',
+                    'license file'
+                ],
+                monetization_tiers: [
+                    { name: 'Pixie Keepsake Export', price: '$49-$99' },
+                    { name: 'Local Pixie Companion', price: '$199-$399' },
+                    { name: 'Pixie Pro Buildout', price: '$799-$2,500' },
+                    { name: 'Creator / Business Pixie', price: '$1,500+' }
+                ]
+            };
+        }
+
+        function renderPixieMemory() {
+            const profile = getPixieMemoryProfile();
+            setText('pixie-readiness-number', profile.readiness + '%');
+            setText('pixie-readiness-copy', profile.opt_out ? 'Memory building is opted out.' : 'Your Pixie is ' + profile.readiness + '% ready to come home.');
+            setText('pixie-memory-count', profile.schemas.length + ' schemas');
+            setText('pixie-activity-count', (profile.progress.sparkles || 0) + ' sparkles');
+            const fill = document.getElementById('pixie-readiness-fill');
+            if (fill) fill.style.width = Math.max(4, profile.readiness) + '%';
+            const grid = document.getElementById('pixie-memory-categories');
+            if (!grid) return;
+            grid.innerHTML = profile.schemas.map(schema => `
+                <div class="memory-category portal-hub-card">
+                    <div class="hub-kicker">${escHtml(schema.id)}</div>
+                    <div class="hub-title" style="font-size:19px;">${escHtml(schema.title)}</div>
+                    <ul>${schema.items.map(item => `<li>${escHtml(item)}</li>`).join('')}</ul>
+                </div>
+            `).join('');
+        }
+
+        function renderPixieMemoryPreview() {
+            const profile = getPixieMemoryProfile();
+            const list = document.getElementById('memory-preview-list');
+            if (!list) return;
+            list.innerHTML = profile.schemas.map(schema => `
+                <div class="score-row" style="align-items:flex-start;">
+                    <div>
+                        <span class="score-game">${escHtml(schema.title)}</span>
+                        <div style="color:#9080b0;font-size:12px;margin-top:4px;">${schema.items.map(escHtml).join(' / ')}</div>
+                    </div>
+                    <span class="score-points" style="font-size:14px;">include</span>
+                </div>
+            `).join('');
+        }
+
+        function downloadPixieMemory() {
+            const profile = getPixieMemoryProfile();
+            const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pixie-memory-export.json';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            toast('Pixie memory archive prepared.');
+        }
+
+        function clearPixieMemory() {
+            if (!confirm('Delete the local memory preview on this device? Account/server data is not changed.')) return;
+            localStorage.setItem(PIXIE_MEMORY_PREVIEW_KEY, 'true');
+            renderPixieMemory();
+            toast('Local memory preview deleted.');
+        }
+
+        function toggleMemoryOptOut() {
+            const next = localStorage.getItem(PIXIE_MEMORY_OPT_OUT_KEY) !== 'true';
+            localStorage.setItem(PIXIE_MEMORY_OPT_OUT_KEY, next ? 'true' : 'false');
+            renderPixieMemory();
+            toast(next ? 'Memory building opted out.' : 'Memory building opted in.');
+        }
+
         function filterGames(filter) {
             document.querySelectorAll('#game-filter-tabs .filter-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.filter === filter);
@@ -4303,6 +4781,7 @@
         }
         observeReveals();
         renderPortalProgress();
+        renderPixieMemory();
         filterGames('all');
 
         // Close notification panel when clicking outside

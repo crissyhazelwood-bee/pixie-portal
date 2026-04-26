@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odin's Eye ✦ Pixie Portal</title>
+  <link rel="icon" type="image/png" href="/pixie-portal-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0614;
+      color: #f0d0ff;
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Stars background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(180,150,255,0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255,150,200,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 12px 24px;
+      background: linear-gradient(180deg, rgba(10,6,20,0.96) 0%, rgba(10,6,20,0.8) 80%, transparent 100%);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .back-link {
+      color: #b496ff; text-decoration: none; font-weight: 600; font-size: 13px;
+      text-transform: uppercase; letter-spacing: 2px;
+      transition: color 0.3s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .back-link:hover { color: #ff96c8; }
+    .topbar-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 20px;
+      background: linear-gradient(135deg, #ff96c8, #b496ff, #96ffdc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Main content */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 90px 20px 60px;
+      position: relative; z-index: 1;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 40px 0 48px;
+    }
+    .hero h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(36px, 7vw, 64px);
+      background: linear-gradient(135deg, #ff96c8 0%, #b496ff 50%, #96ffdc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      color: #9080b0;
+      font-size: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Tab bar */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .tab-btn {
+      padding: 10px 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(180,150,255,0.25);
+      background: rgba(20,10,35,0.6);
+      color: rgba(240,208,255,0.65);
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .tab-btn:hover { border-color: #b496ff; color: #f0d0ff; }
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(255,107,231,0.3), rgba(151,95,255,0.25));
+      border-color: rgba(255,150,200,0.5);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(255,91,231,0.2);
+    }
+
+    /* Section panels */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ───────── GREEK GODS ───────── */
+    .gods-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      align-items: center;
+    }
+    .gods-search {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(180,150,255,0.2);
+      background: rgba(20,10,35,0.7);
+      color: #f0d0ff;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .gods-search:focus { border-color: #ff96c8; }
+    .gods-search::placeholder { color: #5a4a6a; }
+    .filter-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(180,150,255,0.2);
+      background: rgba(20,10,35,0.5);
+      color: #9080b0;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      border-color: #b496ff;
+      color: #f0d0ff;
+      background: rgba(180,150,255,0.12);
+    }
+
+    .gods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .god-card {
+      background: linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.9));
+      border: 1px solid rgba(180,150,255,0.15);
+      border-radius: 20px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .god-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #ff96c8, #b496ff);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .god-card:hover { border-color: rgba(255,150,200,0.35); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(180,150,255,0.12); }
+    .god-card:hover::before { opacity: 1; }
+    .god-card.open { border-color: rgba(255,150,200,0.4); }
+    .god-card.open::before { opacity: 1; }
+    .god-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .god-emoji { font-size: 28px; flex-shrink: 0; }
+    .god-name-wrap { flex: 1; }
+    .god-name { font-family: 'Pacifico', cursive; font-size: 18px; color: #ff96c8; }
+    .god-greek { font-size: 12px; color: #6a5a7a; }
+    .god-title { font-size: 12px; color: #b496ff; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .god-domains {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px;
+    }
+    .domain-tag {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(150,255,220,0.08);
+      border: 1px solid rgba(150,255,220,0.15);
+      color: #96ffdc;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .god-roman { font-size: 11px; color: #5a4a6a; }
+    .god-expand-hint {
+      font-size: 11px;
+      color: #5a4a6a;
+      text-align: right;
+      margin-top: 8px;
+      transition: color 0.2s;
+    }
+    .god-card:hover .god-expand-hint { color: #b496ff; }
+
+    /* Expanded details */
+    .god-details {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(180,150,255,0.12);
+    }
+    .god-card.open .god-details { display: block; }
+    .god-section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #6a5080;
+      font-weight: 700;
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+    .god-section-label:first-child { margin-top: 0; }
+    .god-appearance { font-size: 13px; color: #c0a8d8; line-height: 1.6; }
+    .god-symbols {
+      display: flex; flex-wrap: wrap; gap: 5px;
+    }
+    .symbol-tag {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(255,150,200,0.07);
+      border: 1px solid rgba(255,150,200,0.15);
+      color: #ff96c8;
+      font-size: 11px;
+    }
+    .myth-block { margin-bottom: 12px; }
+    .myth-title { font-weight: 700; color: #b496ff; font-size: 13px; margin-bottom: 4px; }
+    .myth-text { font-size: 13px; color: #b8a0c8; line-height: 1.65; }
+    .god-facts-list { padding-left: 0; list-style: none; }
+    .god-facts-list li {
+      font-size: 12px; color: #9880b0; line-height: 1.6;
+      padding-left: 14px; position: relative; margin-bottom: 4px;
+    }
+    .god-facts-list li::before { content: '✦'; position: absolute; left: 0; color: #96ffdc; font-size: 9px; top: 3px; }
+
+    /* Group cards (Muses, Fates, Graces) */
+    .group-card {
+      background: linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.9));
+      border: 1px solid rgba(180,150,255,0.15);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .group-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .group-emoji { font-size: 32px; }
+    .group-name { font-family: 'Pacifico', cursive; font-size: 20px; color: #ff96c8; }
+    .group-subtitle { font-size: 12px; color: #9080b0; margin-top: 2px; }
+    .group-members {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .member-item {
+      background: rgba(180,150,255,0.06);
+      border: 1px solid rgba(180,150,255,0.1);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+    .member-name { font-weight: 700; color: #b496ff; font-size: 13px; }
+    .member-role { font-size: 12px; color: #7a6890; margin-top: 2px; }
+    .member-desc { font-size: 12px; color: #9080b0; margin-top: 4px; line-height: 1.5; }
+
+    /* ───────── RUNES ───────── */
+    .runes-intro {
+      background: linear-gradient(135deg, rgba(26,16,48,0.6), rgba(13,8,32,0.7));
+      border: 1px solid rgba(180,150,255,0.15);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 32px;
+      font-size: 14px;
+      color: #b0a0c0;
+      line-height: 1.7;
+    }
+    .runes-intro strong { color: #ff96c8; }
+
+    .draw-rune-area {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .draw-btn {
+      padding: 14px 36px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,150,200,0.4);
+      background: linear-gradient(135deg, rgba(255,107,231,0.15), rgba(151,95,255,0.12));
+      color: #ff96c8;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 20px rgba(255,91,231,0.15);
+    }
+    .draw-btn:hover {
+      background: linear-gradient(135deg, rgba(255,107,231,0.25), rgba(151,95,255,0.2));
+      box-shadow: 0 0 35px rgba(255,91,231,0.3);
+      transform: scale(1.04);
+    }
+    .drawn-rune-display {
+      margin-top: 24px;
+      display: none;
+    }
+    .drawn-rune-display.visible { display: block; animation: fadeInUp 0.5s ease; }
+    .drawn-rune-symbol {
+      font-size: 72px;
+      color: #ff96c8;
+      text-shadow: 0 0 30px rgba(255,150,200,0.6), 0 0 60px rgba(255,150,200,0.3);
+      margin-bottom: 8px;
+      animation: runeGlow 2s ease-in-out infinite alternate;
+    }
+    @keyframes runeGlow {
+      from { text-shadow: 0 0 20px rgba(255,150,200,0.5), 0 0 40px rgba(180,150,255,0.3); }
+      to   { text-shadow: 0 0 40px rgba(255,150,200,0.8), 0 0 80px rgba(180,150,255,0.5); }
+    }
+    .drawn-rune-name { font-family: 'Pacifico', cursive; font-size: 22px; color: #b496ff; }
+    .drawn-rune-meaning { font-size: 14px; color: #9080b0; margin-top: 6px; }
+    .drawn-rune-message {
+      font-size: 14px; color: #c0a8d8;
+      max-width: 400px; margin: 10px auto 0;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .aett-section { margin-bottom: 40px; }
+    .aett-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 18px;
+      color: #96ffdc;
+      margin-bottom: 6px;
+    }
+    .aett-subtitle { font-size: 12px; color: #6a5a7a; margin-bottom: 16px; }
+    .runes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+    .rune-card {
+      background: linear-gradient(135deg, rgba(26,16,48,0.8), rgba(13,8,32,0.9));
+      border: 1px solid rgba(180,150,255,0.15);
+      border-radius: 16px;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .rune-card:hover {
+      border-color: rgba(255,150,200,0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(180,150,255,0.15);
+    }
+    .rune-card.open {
+      border-color: rgba(255,150,200,0.5);
+      background: linear-gradient(135deg, rgba(40,20,70,0.9), rgba(20,10,45,0.95));
+      grid-column: 1 / -1;
+    }
+    .rune-glyph { font-size: 32px; color: #b496ff; margin-bottom: 6px; line-height: 1; }
+    .rune-card.open .rune-glyph { font-size: 52px; color: #ff96c8; text-shadow: 0 0 20px rgba(255,150,200,0.5); }
+    .rune-name { font-weight: 700; color: #f0d0ff; font-size: 13px; }
+    .rune-trans { font-size: 11px; color: #6a5a7a; }
+    .rune-short-meaning { font-size: 11px; color: #9080b0; margin-top: 4px; }
+    .rune-full-detail {
+      display: none;
+      text-align: left;
+      padding: 20px 24px;
+    }
+    .rune-card.open .rune-full-detail { display: block; }
+    .rune-detail-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: start;
+      gap: 24px;
+    }
+    .rune-detail-glyph-wrap { text-align: center; }
+    .rune-detail-content {}
+    .rune-detail-name { font-family: 'Pacifico', cursive; font-size: 24px; color: #ff96c8; margin-bottom: 4px; }
+    .rune-detail-transliteration { font-size: 13px; color: #6a5a7a; margin-bottom: 12px; }
+    .rune-detail-desc { font-size: 13px; color: #b8a0c8; line-height: 1.7; margin-bottom: 12px; }
+    .rune-associations { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .rune-assoc-tag {
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(150,255,220,0.07);
+      border: 1px solid rgba(150,255,220,0.15);
+      color: #96ffdc;
+      font-size: 11px;
+    }
+    .rune-divination {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: rgba(180,150,255,0.06);
+      border-left: 2px solid #b496ff;
+      border-radius: 0 10px 10px 0;
+      font-size: 12px;
+      color: #9880b0;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    /* ───────── POEM WEAVER ───────── */
+    .poem-weaver {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .poem-intro {
+      background: linear-gradient(135deg, rgba(26,16,48,0.6), rgba(13,8,32,0.7));
+      border: 1px solid rgba(180,150,255,0.15);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .poem-intro h2 { font-family: 'Pacifico', cursive; font-size: 24px; color: #ff96c8; margin-bottom: 8px; }
+    .poem-intro p { font-size: 14px; color: #9080b0; line-height: 1.6; }
+
+    .poem-form {
+      background: linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.9));
+      border: 1px solid rgba(180,150,255,0.15);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .form-row { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #b496ff;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(180,150,255,0.2);
+      background: rgba(20,10,35,0.8);
+      color: #f0d0ff;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 14px;
+      transition: border-color 0.3s;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus { border-color: #ff96c8; }
+    .form-input::placeholder { color: #4a3a5a; }
+    .form-select { cursor: pointer; }
+    .form-select option { background: #1a1030; }
+
+    .poem-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #ff96c8, #b496ff);
+      color: #0a0614;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(255,150,200,0.25);
+    }
+    .poem-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(255,150,200,0.4); }
+    .poem-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .poem-result {
+      display: none;
+      background: linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.9));
+      border: 1px solid rgba(255,150,200,0.2);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      animation: fadeInUp 0.5s ease;
+    }
+    .poem-result.visible { display: block; }
+    .poem-result::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, #ff96c8, #b496ff, #96ffdc);
+      border-radius: 20px 20px 0 0;
+    }
+    .poem-text {
+      font-size: 16px;
+      line-height: 2;
+      color: #e8d0f8;
+      white-space: pre-wrap;
+      font-style: italic;
+      text-align: center;
+    }
+    .poem-error { color: #ff6688; font-size: 14px; text-align: center; padding: 20px; }
+    .poem-loading {
+      text-align: center;
+      color: #9080b0;
+      font-size: 14px;
+      padding: 20px;
+      display: none;
+    }
+    .poem-loading.visible { display: block; }
+    .poem-loading span {
+      display: inline-block;
+      animation: blink 1.2s infinite;
+    }
+    .poem-loading span:nth-child(2) { animation-delay: 0.2s; }
+    .poem-loading span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0; } 40% { opacity: 1; } }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0614; }
+    ::-webkit-scrollbar-thumb { background: rgba(180,150,255,0.25); border-radius: 3px; }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .page-wrap { padding: 80px 12px 40px; }
+      .gods-grid { grid-template-columns: 1fr; }
+      .runes-grid { grid-template-columns: repeat(4, 1fr); }
+      .rune-detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="back-link" href="/index.html">&#8592; Portal</a>
+    <div class="topbar-title">Odin's Eye</div>
+  </div>
+
+  <div class="page-wrap">
+
+    <div class="hero">
+      <h1>Odin's Eye</h1>
+      <p>Ancient wisdom, divine myth, and the magic of the runes — all in one place. Explore the gods, learn the alphabet of the cosmos, and weave your own spells into verse.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('gods')">✦ Greek Gods</button>
+      <button class="tab-btn" onclick="switchTab('norse')">⚔️ Norse Gods</button>
+      <button class="tab-btn" onclick="switchTab('runes')">ᚱ Norse Runes</button>
+      <button class="tab-btn" onclick="switchTab('poem')">✍ Poem Weaver</button>
+    </div>
+
+    <!-- ═══════════════════════════════ GREEK GODS ═══════════════════════════════ -->
+    <div class="section active" id="section-gods">
+
+      <div class="gods-controls">
+        <input class="gods-search" type="text" id="god-search" placeholder="Search gods, domains, symbols..." oninput="filterGods()">
+        <div class="filter-btns">
+          <button class="filter-btn active" data-cat="all" onclick="setCat(this,'all')">All</button>
+          <button class="filter-btn" data-cat="olympian" onclick="setCat(this,'olympian')">Olympians</button>
+          <button class="filter-btn" data-cat="underworld" onclick="setCat(this,'underworld')">Underworld</button>
+          <button class="filter-btn" data-cat="titan" onclick="setCat(this,'titan')">Titans</button>
+          <button class="filter-btn" data-cat="groups" onclick="setCat(this,'groups')">Divine Groups</button>
+        </div>
+      </div>
+
+      <div class="gods-grid" id="gods-grid"></div>
+      <div id="groups-section"></div>
+
+    </div>
+
+    <!-- ═══════════════════════════════ NORSE GODS ═══════════════════════════════ -->
+    <div class="section" id="section-norse">
+
+      <div class="gods-controls">
+        <input class="gods-search" type="text" id="norse-search" placeholder="Search Norse gods, domains, symbols..." oninput="filterNorse()">
+        <div class="filter-btns">
+          <button class="filter-btn active" data-ncat="all" onclick="setNorseCat(this,'all')">All</button>
+          <button class="filter-btn" data-ncat="aesir" onclick="setNorseCat(this,'aesir')">Æsir</button>
+          <button class="filter-btn" data-ncat="vanir" onclick="setNorseCat(this,'vanir')">Vanir</button>
+          <button class="filter-btn" data-ncat="other" onclick="setNorseCat(this,'other')">Giants &amp; Others</button>
+        </div>
+      </div>
+
+      <div class="gods-grid" id="norse-grid"></div>
+
+    </div>
+
+    <!-- ═══════════════════════════════ NORSE RUNES ═══════════════════════════════ -->
+    <div class="section" id="section-runes">
+
+      <div class="runes-intro">
+        <strong>The Elder Futhark</strong> is the oldest known runic alphabet, used by Germanic peoples from roughly the 2nd to 8th centuries CE. Its name comes from the first six runes: F-U-Th-A-R-K. The 24 runes are divided into three groups of eight called <strong>aetts</strong> (families). Each rune is more than a letter — it carries a deep symbolic meaning, a force in the world, and a lesson for those who seek to understand it.
+        <br><br>
+        Click any rune to learn its full meaning. Use the <strong>Draw a Rune</strong> button to receive a rune for the day.
+      </div>
+
+      <div class="draw-rune-area">
+        <button class="draw-btn" onclick="drawRune()">✦ Draw a Rune ✦</button>
+        <div class="drawn-rune-display" id="drawn-rune-display">
+          <div class="drawn-rune-symbol" id="drawn-symbol"></div>
+          <div class="drawn-rune-name" id="drawn-name"></div>
+          <div class="drawn-rune-meaning" id="drawn-meaning"></div>
+          <div class="drawn-rune-message" id="drawn-message"></div>
+        </div>
+      </div>
+
+      <div id="runes-content"></div>
+
+    </div>
+
+    <!-- ═══════════════════════════════ POEM WEAVER ═══════════════════════════════ -->
+    <div class="section" id="section-poem">
+      <div class="poem-weaver">
+
+        <div class="poem-intro">
+          <h2>Poem Weaver</h2>
+          <p>Speak a subject into the old magic. Choose your style and mood. The spirits will weave your words into verse.</p>
+        </div>
+
+        <div class="poem-form">
+          <div class="form-row">
+            <label class="form-label" for="poem-subject">Subject *</label>
+            <input class="form-input" type="text" id="poem-subject" placeholder="e.g. Athena's wisdom, a winter moon, falling stars...">
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="poem-style">Style</label>
+            <select class="form-select" id="poem-style">
+              <option value="Free Verse">Free Verse</option>
+              <option value="Classical Ode">Classical Ode</option>
+              <option value="Romantic">Romantic</option>
+              <option value="Haiku">Haiku</option>
+              <option value="Limerick">Limerick</option>
+              <option value="Norse Saga verse">Norse Saga Verse</option>
+              <option value="Sonnet">Sonnet</option>
+              <option value="Lyrical">Lyrical</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="poem-mood">Mood</label>
+            <select class="form-select" id="poem-mood">
+              <option value="Lyrical">Lyrical</option>
+              <option value="Joyful">Joyful</option>
+              <option value="Melancholic">Melancholic</option>
+              <option value="Epic">Epic</option>
+              <option value="Mysterious">Mysterious</option>
+              <option value="Whimsical">Whimsical</option>
+              <option value="Fierce">Fierce</option>
+              <option value="Serene">Serene</option>
+              <option value="Longing">Longing</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="poem-theme">Extra Inspiration (optional)</label>
+            <input class="form-input" type="text" id="poem-theme" placeholder="e.g. include imagery of ravens, the sea at night...">
+          </div>
+          <button class="poem-btn" id="poem-btn" onclick="generatePoem()">Weave the Poem ✦</button>
+        </div>
+
+        <div class="poem-loading" id="poem-loading">
+          <span>✦</span><span>✦</span><span>✦</span>
+          <div style="margin-top:8px;">The spirits are weaving your verse...</div>
+        </div>
+
+        <div class="poem-result" id="poem-result">
+          <div class="poem-text" id="poem-text"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end page-wrap -->
+
+  <script>
+  // ═══════════════════════════════ DATA ═══════════════════════════════
+
+  const GODS = [
+    {
+      id:"zeus", name:"Zeus", greek:"Ζεύς", title:"King of the Gods, Father of All",
+      category:"olympian", emoji:"⚡", roman:"Jupiter",
+      domains:["Sky","Thunder","Lightning","Law","Order","Justice","Kingship"],
+      symbols:["Lightning Bolt","Eagle","Oak Tree","Bull","Sceptre"],
+      appearance:"A towering, powerfully built man in the prime of life, with a full dark beard shot through with silver. His eyes hold the fire of heaven. He radiates absolute authority — calm only when unchallenged, terrifying when crossed.",
+      myths:[
+        {title:"The Titanomachy — War Against the Titans",text:"Zeus was hidden from his father Cronus (who devoured his children to prevent being overthrown) by his mother Rhea, who gave Cronus a stone wrapped in blankets instead. Raised secretly on Crete, Zeus returned as a young man, forced Cronus to vomit his swallowed siblings, and led a ten-year war against the Titans. After victory, the three brothers drew lots: Zeus claimed the sky and supremacy, Poseidon the sea, and Hades the underworld."},
+        {title:"Prometheus and the Stolen Fire",text:"When the Titan Prometheus stole fire from the forge of Hephaestus and gave it to humanity, Zeus was furious. He chained Prometheus to a mountain peak in the Caucasus and sent an eagle to devour his liver each day — it regenerated every night, ensuring the punishment was eternal. Heracles eventually freed him, with Zeus's grudging permission."},
+        {title:"Leda and the Swan",text:"Zeus transformed himself into a magnificent swan and came to the Spartan queen Leda. From their union came two divine eggs: one containing Castor and Pollux (the Dioscuri, twin stars), the other Helen — whose beauty would eventually launch a thousand ships and ignite the Trojan War — and Clytemnestra."},
+        {title:"The Creation of Pandora",text:"After Prometheus gifted fire to humanity, Zeus devised a more insidious punishment. He commissioned Hephaestus to create the first woman from clay — Pandora — and had all the gods give her gifts. Hermes gave her curiosity and deceptive speech. She was sent to Earth with a sealed jar containing all the evils of the world. Her irresistible curiosity led her to open it."}
+      ],
+      facts:["Zeus is technically the youngest of Cronus's children — but also the eldest, because he was the last to be freed after his siblings were regurgitated.","The oracle at Dodona communicated Zeus's will through the rustling of sacred oak leaves — one of Greece's oldest oracles.","Zeus's 'love affairs' were largely understood as mythological explanations for how divinity entered various royal bloodlines.","The word 'Zeus' is linguistically related to the Latin 'Deus' (god) and Sanskrit 'Dyaus' — all meaning 'sky' or 'shine.'"]
+    },
+    {
+      id:"hera", name:"Hera", greek:"Ἥρα", title:"Queen of the Gods, Goddess of Marriage",
+      category:"olympian", emoji:"👑", roman:"Juno",
+      domains:["Marriage","Women","Childbirth","Family","Royalty"],
+      symbols:["Peacock","Pomegranate","Cuckoo","Lily","Crown"],
+      appearance:"Regal and breathtaking — tall, composed, with wide, luminous eyes described as 'cow-eyed' (boopis) in the oldest texts, meaning deep and beautiful. She wears a crown (polos) or diadem. Even Zeus cannot match her dignity.",
+      myths:[
+        {title:"The Punishment of Io",text:"Zeus fell in love with the priestess Io and transformed her into a white heifer to hide her from Hera. Hera was not deceived — she asked Zeus to give her the beautiful cow as a gift. Zeus couldn't refuse. Hera then set the hundred-eyed giant Argus Panoptes to guard Io day and night. Zeus sent Hermes to rescue her. Hermes played his pipes until all hundred eyes fell asleep, then killed Argus. Hera placed Argus's eyes in the tail of her sacred peacock and sent a gadfly to torment Io across the earth."},
+        {title:"The Binding of Zeus",text:"In a rare act of rebellion, Hera conspired with Poseidon and Athena to bind Zeus while he slept. They bound him with a hundred knots. He was freed by the sea-nymph Thetis, who summoned the hundred-handed giant Briareos to untie the knots. Zeus punished Hera by hanging her from her wrists in the sky with golden chains and heavy anvils attached to her feet. The other gods dared not help her."},
+        {title:"The Twelve Labors of Heracles",text:"Hera drove Heracles mad, causing him to murder his wife and children. The oracle at Delphi declared the twelve labors as his penance. Throughout all twelve labors, Hera worked against him — sending larger versions of the creatures he fought, manipulating Eurystheus to add impossible tasks, and generally doing everything in her considerable power to ensure his failure. He succeeded anyway."}
+      ],
+      facts:["Hera was swallowed by Cronus at birth and later freed — making her Zeus's sister as well as his wife.","Before the Olympian period, Hera was likely a pre-Hellenic goddess of nature and seasons, far older than Zeus.","Hera rarely punished Zeus directly — instead, she took her revenge on his lovers and illegitimate children.","The peacock, the pomegranate (symbol of married life and fertility), and the cuckoo (Zeus courted her in this form) are all sacred to her."]
+    },
+    {
+      id:"poseidon", name:"Poseidon", greek:"Ποσειδῶν", title:"Lord of the Sea, the Earth-Shaker",
+      category:"olympian", emoji:"🔱", roman:"Neptune",
+      domains:["Sea","Earthquakes","Storms","Horses","Freshwater"],
+      symbols:["Trident","Dolphin","Horse","Bull","Fish","Seahorse"],
+      appearance:"Enormous and wild, with a beard like breaking waves and deep sea-green eyes. Carries a massive bronze trident that shakes the foundations of the world. Rides a chariot pulled by hippocamps — horses with the tails of fish.",
+      myths:[
+        {title:"Athens vs. Poseidon",text:"The city of Athens needed a patron deity. Poseidon and Athena competed for the honor. Poseidon struck his trident into the rock of the Acropolis and a saltwater spring burst forth — powerful, but not drinkable. Athena planted an olive tree — useful for oil, food, and wood. The city's people (or the gods themselves) voted in Athena's favor. Poseidon, furious, flooded the plains of Attica in retaliation."},
+        {title:"The Walls of Troy",text:"Poseidon and Apollo were once condemned to serve the Trojan king Laomedon for a year as punishment from Zeus. Together they built the legendary indestructible walls of Troy. When Laomedon refused to pay them their promised wages (or even tried to enslave them), Poseidon sent a sea monster to ravage Troy. The monster was eventually slain by Heracles."},
+        {title:"The Curse of Odysseus",text:"Poseidon's cyclops son Polyphemus captured Odysseus and his crew, eating several of them. Odysseus blinded Polyphemus with a sharpened stake to escape. As the cyclops sat in agony he called out to his father Poseidon to curse the man. Poseidon granted the curse — Odysseus wandered for ten years, lost all his ships and crew, and barely survived before returning home to Ithaca."}
+      ],
+      facts:["Poseidon created the first horse by striking the earth with his trident — an explanation for why earthquakes occur.","He is called the 'Earth-Shaker' because the Greeks believed the sea extended beneath the land, and his movements caused earthquakes.","Poseidon had more quarrels with other deities than almost any other god — with Athena over Athens, with Helios over Corinth, with Hera over Argos.","The dolphin is sacred to him partly because he once transformed into a dolphin to court the sea goddess Amphitrite."]
+    },
+    {
+      id:"demeter", name:"Demeter", greek:"Δημήτηρ", title:"Goddess of the Harvest, Lady of the Golden Blade",
+      category:"olympian", emoji:"🌾", roman:"Ceres",
+      domains:["Harvest","Agriculture","Grain","Fertility","Sacred Law","Seasons"],
+      symbols:["Wheat Sheaf","Torch","Cornucopia","Poppy","Serpent","Pig"],
+      appearance:"A stately woman with flowing golden hair crowned with grain and poppies. She carries a torch in one hand and a sheaf of wheat in the other. When searching for Persephone, she appeared as a grieving old woman — grey-cloaked and hollow with sorrow.",
+      myths:[
+        {title:"The Abduction of Persephone",text:"Hades abducted Demeter's beloved daughter Persephone as she picked narcissus flowers in a meadow, dragging her through a crack in the earth. Demeter wandered the world for nine days and nights with two torches, neither eating nor bathing. She learned from Hecate what had happened. In her grief, she withdrew her divine power — crops withered, the earth cracked, livestock died. Humanity began to starve. Zeus finally intervened, but Persephone had eaten six pomegranate seeds in the underworld and was bound there for part of each year. When she returns, it is spring. When she descends, it is winter."},
+        {title:"The Punishment of Erysichthon",text:"The Thessalian king Erysichthon ordered his men to cut down Demeter's sacred grove to build himself a feasting hall. He even personally attacked the oldest and most sacred oak. Demeter appeared disguised as a priestess and warned him to stop. He threatened her. She revealed herself in her full divine form and cursed him with insatiable, consuming hunger. No matter how much he ate — entire oxen, whole granaries — he could never feel full. He eventually sold everything he owned for food, then sold his own daughter into slavery, and finally began devouring his own flesh."},
+        {title:"The Eleusinian Mysteries",text:"After the return of Persephone, Demeter established the sacred Mysteries at Eleusis near Athens. For almost two thousand years, these rites were the most important religious ceremonies in the Greek world. Initiates witnessed something so profound that many described it as transforming their fear of death entirely. The content was kept absolutely secret — initiates who revealed it were executed. We still do not know exactly what happened inside, only that it changed those who experienced it forever."}
+      ],
+      facts:["The word 'cereal' derives from Ceres, her Roman name.","The poppy flower is sacred to her because it grows naturally in grain fields and appears after the harvest.","She is one of the oldest Greek deities, predating the Olympian pantheon.","Demeter's grief at Persephone's absence is the oldest literary metaphor for the seasons in Western culture."]
+    },
+    {
+      id:"athena", name:"Athena", greek:"Ἀθηνᾶ", title:"Goddess of Wisdom, Patron of Athens",
+      category:"olympian", emoji:"🦉", roman:"Minerva",
+      domains:["Wisdom","Strategic Warfare","Crafts","Justice","Reason","Civilization","Arts"],
+      symbols:["Owl","Olive Tree","Aegis","Spear","Helmet","Serpent"],
+      appearance:"Always armored — Corinthian helmet, bronze breastplate bearing the aegis (her divine shield, often mounted with Medusa's head), spear in hand. Tall, grey-eyed, radiating intelligence and controlled power. Never caught unprepared. Never undignified.",
+      myths:[
+        {title:"Birth from Zeus's Skull",text:"Zeus had swallowed his first wife, the Titaness Metis (goddess of counsel and wisdom), after a prophecy warned that their children would surpass him. But Metis continued working inside his skull, forging divine armor. Zeus developed agonizing headaches. Hephaestus (or in some versions Prometheus) split Zeus's head open with an axe. Athena leapt out fully grown, fully armored, and crying her war-cry — fully formed wisdom from the mind of a god."},
+        {title:"Arachne and the Weaving Contest",text:"The Lydian weaver Arachne was so skilled she boasted her work surpassed Athena's. Athena disguised herself as an old woman and warned her to show humility. Arachne refused. They competed. Arachne's tapestry was technically flawless — and depicted the gods' love scandals in scandalous detail, mockery woven in silk. Athena tore it apart. Arachne, shamed, hanged herself. Athena took pity and transformed her into a spider, so she could weave for eternity."},
+        {title:"Perseus and the Gorgon",text:"Athena was the divine guide behind Perseus's quest to slay Medusa. She gave him a polished bronze shield to use as a mirror — allowing him to look at Medusa's reflection rather than her petrifying gaze. She also guided him to the Hesperides for additional tools. After the deed, she placed Medusa's severed head on her aegis, which she wore forever after."},
+        {title:"The Trojan War",text:"Athena fought passionately on the side of the Greeks in the Trojan War. She directly guided heroes like Achilles, Diomedes, and Odysseus. In one extraordinary scene, she guided the spear of the mortal Diomedes to wound the god Ares himself, sending him screaming from the battlefield. She was strategic, present, and utterly committed to Greek victory."}
+      ],
+      facts:["Athena is the only Olympian never to have had a romantic partner — she is the eternal virgin goddess.","She was born wearing armor, the only deity in Greek myth born this way.","The Parthenon in Athens contained a colossal ivory and gold statue of Athena nearly 40 feet tall, crafted by Pheidias.","The owl associated with Athena became the symbol of Athens and appeared on Athenian coins — making it one of the most recognized symbols in ancient coinage."]
+    },
+    {
+      id:"apollo", name:"Apollo", greek:"Ἀπόλλων", title:"God of Light, Music, and Prophecy",
+      category:"olympian", emoji:"☀️", roman:"Apollo",
+      domains:["Sun","Light","Music","Poetry","Prophecy","Healing","Archery","Truth","Reason","Plague"],
+      symbols:["Lyre","Laurel Wreath","Silver Bow","Raven","Dolphin","Swan"],
+      appearance:"The ideal of divine masculine beauty — eternally young, radiant, with golden hair and a face of perfect symmetry. He carries a silver bow (his arrows bring plague as well as healing) and a lyre of extraordinary craftsmanship. His very presence is brilliant.",
+      myths:[
+        {title:"Slaying the Python at Delphi",text:"Hera sent the great serpent Python to torment Leto during her pregnancy with Apollo and Artemis. Shortly after his birth on the island of Delos, the young Apollo tracked Python to Delphi, where it lay coiled. He slew it with his silver arrows and claimed the oracle for himself. The oracle became the most important prophetic site in the ancient world, consulted by kings and generals for over a thousand years."},
+        {title:"Daphne and the Laurel",text:"Eros, mocked by Apollo for carrying a bow despite being a child, took revenge. He shot Apollo with a gold arrow of overwhelming desire, then shot the nymph Daphne with a lead arrow of total repulsion. Apollo pursued Daphne across the earth. She prayed to her father, the river god Peneus, as Apollo's fingers nearly touched her. Her skin hardened into bark, her hair into leaves, her arms into branches. She became the first laurel tree. Apollo embraced the tree, declaring the laurel his sacred plant — a crown he and his favored would wear forever."},
+        {title:"Cassandra's Curse",text:"Apollo fell in love with the Trojan princess Cassandra and gave her the gift of true prophecy. When she rejected his advances, he couldn't take the gift back — divine gifts are permanent — so he added a curse: she would always prophesy truth, but never be believed. She predicted the fall of Troy. She identified the Trojan Horse as the weapon that would end her city. No one listened. She watched everything she had foreseen come true."},
+        {title:"Marsyas the Flute Player",text:"The satyr Marsyas found a discarded flute and became so skilled he challenged Apollo to a music contest. Apollo played his lyre; Marsyas his flute. The Muses judged — and the outcome depended on the contest's terms: Apollo played upside down, something impossible on a flute. The Muses declared Apollo the winner. Apollo flayed Marsyas alive for his presumption. Even the gods wept at the cruelty, and their tears became a river."}
+      ],
+      facts:["Apollo is one of the very few Greek deities whose Roman name remains the same — unusual, as most got Roman equivalents.","The Oracle of Delphi (the Pythia) sat over a chasm inhaling volcanic gases, through which Apollo was believed to speak.","Apollo and Artemis were twins, born on the sacred island of Delos — which supposedly floated and was not anchored until they were born there.","Apollo was so closely associated with the sun that he merged with the Titan Helios in later periods of Greek religion."]
+    },
+    {
+      id:"artemis", name:"Artemis", greek:"Ἄρτεμις", title:"Goddess of the Hunt, Lady of Wild Things",
+      category:"olympian", emoji:"🌙", roman:"Diana",
+      domains:["Hunt","Wilderness","Moon","Chastity","Animals","Childbirth (protection)","Young Women"],
+      symbols:["Silver Bow","Moon Crescent","Stag","Cypress","Bear","Hunting Hounds"],
+      appearance:"Athletic, swift, and luminous. She wears a short hunting tunic that allows free movement, carries a silver bow, and is always surrounded by hunting hounds and a golden-antlered stag. The moon crowns her. She is never still — always in motion.",
+      myths:[
+        {title:"Actaeon's Fatal Glimpse",text:"The hunter Actaeon was tracking prey through the forest of Cithaeron when he stumbled into a hidden grotto where Artemis and her nymphs were bathing. The goddess looked up, saw him — and acted immediately. She splashed water on his face. Antlers sprouted from his head, his hands became hooves, a hide covered his body. He tried to speak and couldn't. His own fifty hunting hounds smelled a stag, chased him down, and tore him apart. He died unable to tell anyone what had happened to him."},
+        {title:"Orion the Hunter",text:"Orion was the greatest mortal hunter who ever lived, and he was Artemis's beloved companion — the only man she ever considered an equal. They hunted together across the earth. Accounts differ on how he died: either Apollo, jealous of his sister's attachment, tricked her into shooting him herself; or Orion boasted he would eventually kill every beast on earth (an insult to Artemis). In either case, Artemis placed him in the sky as the constellation Orion, his two hunting dogs beside him."},
+        {title:"The Sacrifice of Iphigenia",text:"When the Greek fleet was becalmed at Aulis on the way to Troy, the seer Calchas declared that Artemis demanded sacrifice — Agamemnon had killed a sacred stag (or offended her in some way). The price was his daughter Iphigenia. As the sacrificial knife descended, Artemis swept her away and left a deer in her place, installing Iphigenia as a priestess at her sanctuary in Tauris."}
+      ],
+      facts:["Artemis helped her mother Leto give birth to her twin Apollo immediately after her own birth — making her a divine midwife from her very first moments.","Bears were sacred to Artemis at Brauron, where young Athenian girls served as 'bears' before marriage, acting out a myth of reconciliation with a bear she had killed.","She is simultaneously the protector of childbirth and young women AND the enforcer of chastity — a duality the ancient Greeks found natural.","Artemis is one of the most widely worshipped deities in ancient Greece, with major sanctuaries at Ephesus (one of the Seven Wonders of the Ancient World) and Brauron."]
+    },
+    {
+      id:"ares", name:"Ares", greek:"Ἄρης", title:"God of War, Lord of Bloodlust",
+      category:"olympian", emoji:"⚔️", roman:"Mars",
+      domains:["War","Bloodlust","Violence","Courage","Physical Strength","Battle"],
+      symbols:["Sword","Spear","Shield","Helmet","Vulture","Dog"],
+      appearance:"Powerfully built, handsome in a hard and martial way, always in full armor even on Olympus. His eyes burn with barely controlled fury. He smells of iron and blood. Even his presence raises the temperature of a room — or a battlefield.",
+      myths:[
+        {title:"Ares and Aphrodite Exposed",text:"Ares and Aphrodite conducted a long, passionate love affair despite her marriage to Hephaestus. Helios, the sun who sees everything, informed Hephaestus. The smith god forged an invisible, unbreakable golden net and strung it above their bed. When the lovers next met, the net fell and bound them together. Hephaestus called all the gods to witness. They came — and laughed. Ares was humiliated. He paid the adulterer's fine, was freed, and continued the affair."},
+        {title:"The Trial of Ares",text:"Ares killed Poseidon's son Halirrhothius after he assaulted Ares's daughter Alcippe. Poseidon demanded justice. The gods convened a trial on a hill in Athens. Ares argued he acted as a father defending his daughter. The gods acquitted him. The hill was forever after named the Areopagus — Hill of Ares — and became Athens' highest murder court."},
+        {title:"Wounded by a Mortal",text:"In the Trojan War, the mortal hero Diomedes — aided and empowered by Athena — fought Ares himself. With Athena guiding his spear, Diomedes struck Ares in the belly. The god of war let out a roar like ten thousand men screaming and fled to Olympus to demand Zeus's sympathy. Zeus told him bluntly that he was the most hateful of all the gods. Ares was healed by Paeon and returned to battle."}
+      ],
+      facts:["Zeus called Ares 'the most hateful of all the gods' — his own son.","Despite this, Ares was deeply revered in Sparta, where warriors identified with his virtues.","The planet Mars was named for him, as were the months of March in the Roman calendar.","Ares and Aphrodite together were the parents of Eros (love), Phobos (fear), Deimos (terror), and Harmonia (harmony) — a divine family of extremes."]
+    },
+    {
+      id:"aphrodite", name:"Aphrodite", greek:"Ἀφροδίτη", title:"Goddess of Love, Beauty, and Desire",
+      category:"olympian", emoji:"💕", roman:"Venus",
+      domains:["Love","Beauty","Desire","Pleasure","Passion","Procreation"],
+      symbols:["Dove","Rose","Myrtle","Swan","Apple","Seashell","Sparrow"],
+      appearance:"Impossible to fully describe without losing oneself in the attempt. She is the most beautiful being ever created. Often depicted rising from the sea foam, hair still wet, surrounded by doves. Her beauty is not a physical attribute — it is a divine force.",
+      myths:[
+        {title:"The Judgment of Paris",text:"Three goddesses quarreled over a golden apple inscribed 'For the Fairest' — Hera, Athena, and Aphrodite. Zeus, wisely refusing to judge, sent them to the Trojan prince Paris. Each bribed him: Hera offered power and kingdoms, Athena offered wisdom and martial skill, Aphrodite offered the most beautiful woman in the world. Paris chose Aphrodite. She delivered Helen, wife of Spartan king Menelaus. This single choice triggered the Trojan War."},
+        {title:"Pygmalion",text:"The sculptor Pygmalion hated women and refused to marry. He sculpted an ivory woman of perfect beauty and fell hopelessly in love with his creation. He dressed her, gave her gifts, prayed to Aphrodite to bring her to life. The goddess, moved by his devotion, breathed warmth into the ivory. The statue became flesh. He named her Galatea. They married and had children."},
+        {title:"Eros and Psyche",text:"The mortal Psyche was so beautiful that people worshipped her instead of Aphrodite. Insulted and jealous, Aphrodite commanded her son Eros to make Psyche fall in love with something repulsive. But Eros, seeing Psyche, accidentally scratched himself with his own arrow and fell desperately in love. He hid her in a magical palace and visited only in darkness. When Psyche saw him by lamplight and he fled, Aphrodite set impossible tasks: sorting mountains of seeds overnight, gathering golden fleece from violent rams, bringing water from the impossible Styx. Psyche completed each one. Aphrodite finally relented, Zeus made Psyche immortal, and she and Eros were married on Olympus."}
+      ],
+      facts:["In Hesiod's version, Aphrodite was born from the sea foam that gathered around Uranus's severed body parts — making her older than the Olympians, a primordial force.","The word 'aphrodisiac' comes directly from her name.","Her sacred island of Cythera (near Sparta) and Cyprus (especially Paphos) were her primary cult centers.","Despite her association with love, Aphrodite could be ruthless — she ruined the lives of many who slighted her or denied her power."]
+    },
+    {
+      id:"hephaestus", name:"Hephaestus", greek:"Ἥφαιστος", title:"Master Craftsman, God of the Forge",
+      category:"olympian", emoji:"🔨", roman:"Vulcan",
+      domains:["Fire","Forge","Craftsmanship","Metalworking","Volcanoes","Artisans"],
+      symbols:["Hammer","Anvil","Tongs","Fire","Volcano","Donkey"],
+      appearance:"Unlike every other Olympian, Hephaestus is not beautiful or imposing. He limps on deformed legs. His face is smoke-darkened. But his arms and shoulders are enormously powerful from a lifetime at the forge, and his hands — those hands — are the most skilled in the universe.",
+      myths:[
+        {title:"Cast from Olympus",text:"Two versions: In one, Hera threw the infant Hephaestus from Olympus because he was born deformed — he fell for a whole day, landing on Lemnos, where his leg was shattered. In the other, Zeus hurled him when he tried to defend Hera during a quarrel. He landed on Lemnos, was raised by mortals, and eventually returned to Olympus as the greatest craftsman ever known."},
+        {title:"The Throne of Revenge",text:"Hephaestus sent his mother Hera a magnificent golden throne as a gift. When she sat in it, invisible bonds seized her and she could not escape. The gods begged Hephaestus to return and free her. He refused, finally taking revenge for being thrown out of Olympus. Only Dionysus managed to get him drunk enough to agree, bringing him back to Olympus on a donkey. He freed Hera — and was given Aphrodite as his bride as compensation."},
+        {title:"The Armor of Achilles",text:"When Achilles's armor was taken by the Trojans after Patroclus was killed wearing it, the sea nymph Thetis (Achilles's divine mother) went weeping to Hephaestus. He owed her a debt — she had sheltered him after his fall from Olympus. He worked through the night forging new armor: an elaborate shield depicting the entire cosmos, a gleaming breastplate, a golden helmet. The armor was divine. The man who wore it still died — but he died magnificently."}
+      ],
+      facts:["Hephaestus built golden mechanical women to assist him in his forge — arguably the first robots in Western mythology.","He crafted most of the gods' legendary items: Zeus's thunderbolts, Achilles's armor, Hermes's winged sandals, the chains that held Prometheus.","His Roman counterpart Vulcan gave his name to 'volcano.'","Despite his ugliness and lameness, Hephaestus created the most beautiful and powerful objects in existence — a recurring theme of hidden power."]
+    },
+    {
+      id:"hermes", name:"Hermes", greek:"Ἑρμῆς", title:"Messenger of the Gods, Guide of Souls",
+      category:"olympian", emoji:"🐍", roman:"Mercury",
+      domains:["Messengers","Travel","Trade","Thieves","Luck","Language","Boundaries","Athletics","Guide of the Dead"],
+      symbols:["Caduceus","Winged Sandals","Winged Helmet","Lyre","Rooster","Ram"],
+      appearance:"Young, quick, perpetually in motion. He wears winged golden sandals (talaria) and a winged helmet (petasus). He carries the caduceus — a staff entwined by two serpents, topped with wings. He moves faster than thought.",
+      myths:[
+        {title:"The Infant Thief",text:"On the very day he was born in a cave on Mount Cyllene, Hermes crept out of his cradle, walked to Thessaly, and stole fifty cattle from Apollo's sacred herd. He walked them backward to disguise their tracks. When Apollo confronted him, the newborn Hermes was lying in his cradle, looking innocent. Apollo dragged him to Zeus. Hermes admitted the theft — but played a lyre he'd made from a tortoise shell. Apollo was so enchanted he traded the entire herd for the instrument. That was the day music was born, and Hermes became the god of thieves."},
+        {title:"Slaying Argus Panoptes",text:"Zeus sent Hermes to rescue Io, trapped as a cow under the watch of the hundred-eyed giant Argus. Hermes disguised himself as a shepherd, sat beside Argus, and began telling stories in the most boring voice imaginable. One by one, all hundred of Argus's eyes began to droop. When every eye was shut, Hermes silenced him with his staff and freed Io. Hera placed Argus's hundred eyes in the tail of the peacock — her sacred bird."},
+        {title:"Guiding the Dead",text:"Hermes served as psychopomp — the guide who led the souls of the newly dead to the entrance of the Underworld. He was the only Olympian who could travel freely to the land of the dead and return, making him a deity of all transitions and thresholds. When Zeus needed someone to negotiate with Hades over Persephone, he sent Hermes."}
+      ],
+      facts:["The caduceus (two-serpent staff) is often confused with the rod of Asclepius (one serpent) — the actual symbol of medicine. Hermes's caduceus is the symbol of commerce and messengers.","The word 'hermetic' (sealed, secret) comes from his name, from his association with alchemy and esoteric knowledge.","Hermes is the patron of both merchants AND thieves — a logical combination, some would say.","The planet Mercury, the fastest planet, is named for his Roman counterpart."]
+    },
+    {
+      id:"dionysus", name:"Dionysus", greek:"Διόνυσος", title:"God of Wine, Ecstasy, and Theater",
+      category:"olympian", emoji:"🍇", roman:"Bacchus",
+      domains:["Wine","Ecstasy","Madness","Fertility","Theater","Ritual","Rebirth"],
+      symbols:["Grapevine","Ivy","Thyrsus","Leopard","Bull","Wine Cup","Mask"],
+      appearance:"Depicted in two ways: as a bearded older man in the earliest art, or as a beautiful, almost feminine young man in later classical art — with clusters of grapes wound in his dark curling hair, eyes glittering with divine madness, perpetually attended by satyrs, maenads, and wild animals.",
+      myths:[
+        {title:"The Twice-Born God",text:"Zeus loved the mortal Theban princess Semele and she became pregnant. Hera, disguised as a nurse, convinced Semele to ask Zeus to reveal himself in his true divine form. Zeus begged her not to — but she insisted and he had sworn on the Styx. He appeared in his true blazing, thunderous glory. Semele was instantly incinerated. Zeus rescued the unborn Dionysus, sewed him into his own thigh, and carried him to term. Dionysus was born from Zeus's thigh — the only god born of a man, and therefore 'twice born.'"},
+        {title:"The Punishment of Pentheus",text:"When Dionysus came to Thebes, his own birthplace, King Pentheus denied his divinity and had him imprisoned. Dionysus escaped as easily as walking through a door. He then drove the women of Thebes — including Pentheus's own mother Agave — into divine ecstatic madness. He lured Pentheus to spy on the maenads in the mountains. In their divine frenzy, they tore him to pieces, Agave leading the destruction. She carried his head back to Thebes in triumph, believing it a lion's."},
+        {title:"The Tyrrhenian Pirates",text:"Dionysus was kidnapped by Tyrrhenian pirates who believed him a wealthy young prince. When they tried to bind him, the ropes fell away. Vines began growing up the mast. Wine streamed across the deck. A lion appeared at the prow. Bears materialized below. The ship filled with the sound of flutes. The pirates, in terror, leapt into the sea — and were transformed into dolphins. Only the kind helmsman, who had recognized the god and urged releasing him, was spared."}
+      ],
+      facts:["Dionysus is unique among the Olympians in having a mortal mother (Semele).","Greek theater — both tragedy and comedy — grew directly from his festivals (the Dionysia). Every Greek play was an act of worship.","His worship was deliberately inclusive: women, foreigners, slaves could all participate — unusual for Greek religious practice.","The ivy crown worn by poets comes from Dionysus — he was the god of inspiration as well as wine."]
+    },
+    // ── OTHER MAJOR DEITIES ──
+    {
+      id:"hades", name:"Hades", greek:"Ἅιδης", title:"King of the Underworld, Lord of the Dead",
+      category:"underworld", emoji:"💀", roman:"Pluto / Dis Pater",
+      domains:["Underworld","Death","Wealth","Afterlife","Precious Metals"],
+      symbols:["Helm of Darkness","Bident","Cerberus","Cornucopia","Cypress","Narcissus"],
+      appearance:"Stern and powerfully built, with dark hair and a beard, wearing dark robes. He radiates cold authority rather than warmth. Carries a sceptre or bident (two-pronged staff). Always accompanied by Cerberus, the three-headed dog who guards his realm.",
+      myths:[
+        {title:"The Abduction of Persephone",text:"Hades fell in love with Persephone, daughter of Demeter and Zeus. With Zeus's secret permission, he burst through the earth and seized her as she gathered flowers in a Sicilian meadow. He made her Queen of the Underworld. Demeter's grief caused the seasons to halt and crops to die. Zeus intervened, but Persephone had eaten pomegranate seeds, binding her to the underworld for part of each year. This negotiated division created the seasons."},
+        {title:"Orpheus in the Underworld",text:"The legendary musician Orpheus descended to the Underworld to retrieve his wife Eurydice, who had died from a snakebite. His music was so beautiful that the shades stood still to listen, Sisyphus sat down on his stone, and Tantalus forgot his hunger. Even Hades and Persephone wept. They granted Eurydice's return on one condition: Orpheus must not look back until he reached the upper world. At the very last moment, in doubt that she was following, he looked back. Eurydice was taken back forever."},
+        {title:"Sisyphus Cheats Death",text:"The crafty king Sisyphus was the only mortal to ever cheat Hades twice. Once, he somehow bound Death (Thanatos) in chains — no one could die while Death was imprisoned. The gods freed Death, and Sisyphus was escorted to the Underworld. But he had instructed his wife not to perform his funeral rites, and he convinced Persephone to let him return temporarily to sort things out. He didn't return. He lived to old age before being captured again. His eternal punishment: roll a great boulder up a hill, only to watch it roll back down forever."}
+      ],
+      facts:["Hades's name was so feared that the euphemism 'Pluto' (meaning 'the wealthy one,' for the riches buried in earth) was used instead.","Unlike death deities in many other cultures, Hades is not evil — he is neutral, just, and impartial. Everyone comes to him eventually.","The helmet of invisibility (Helm of Darkness) he wore was made by the Cyclopes during the Titanomachy.","Hades rarely left the Underworld and was rarely worshipped with named temples — the Greeks feared drawing his attention."]
+    },
+    {
+      id:"persephone", name:"Persephone", greek:"Περσεφόνη", title:"Queen of the Underworld, Goddess of Spring",
+      category:"underworld", emoji:"🌸", roman:"Proserpina",
+      domains:["Spring","Vegetation","Underworld","Afterlife","Fertility","Grain"],
+      symbols:["Pomegranate","Torch","Narcissus","Grain","Bat","Deer"],
+      appearance:"Dual-natured and extraordinary. In spring, she is radiant with flowers in her hair and light in her eyes. In the Underworld, she is regal, pale, composed — the cold authority of a queen who has seen every shade of every soul that ever lived.",
+      myths:[
+        {title:"The Descent and Return",text:"Persephone was picking narcissus flowers in a meadow when the earth split open and Hades seized her. She cried out but was taken below. She ate six pomegranate seeds in the Underworld — some versions say she was tricked, others that she chose. The seeds bound her to the underworld for six months each year. When she descends, her mother Demeter grieves and the world grows cold. When she returns, the earth blooms in joy."},
+        {title:"Queen of the Dead",text:"In the Underworld, Persephone was not simply a captive queen — she grew into a powerful, independent ruler. She heard the prayers of the dead, allocated fates, and pronounced judgment. When Heracles came to borrow Cerberus, it was Persephone who gave permission. When Orpheus came for Eurydice, it was both her and Hades who decided. She ruled with authority equal to her husband."},
+        {title:"Psyche's Last Trial",text:"When Aphrodite sent Psyche to the Underworld to retrieve a box of beauty from Persephone, the queen of the dead showed unexpected compassion to the mortal woman. She filled the box and sent Psyche back to the living. She did not have to be kind — but she was."}
+      ],
+      facts:["The Eleusinian Mysteries centered on Persephone's descent and return and were the most important religious rites in ancient Greece for nearly 2,000 years.","She rules over the Elysian Fields — the paradise of the blessed dead.","In Orphic tradition, Persephone is one of the most powerful deities in the entire cosmos.","Her name may mean 'she who destroys the light' or 'she who brings destruction' — a reminder that spring follows winter's death."]
+    },
+    {
+      id:"hecate", name:"Hecate", greek:"Ἑκάτη", title:"Goddess of Magic, Crossroads, and the Night",
+      category:"underworld", emoji:"🔮", roman:"Trivia",
+      domains:["Magic","Witchcraft","Crossroads","Night","Moon","Ghosts","Necromancy","Poison Plants"],
+      symbols:["Twin Torches","Key","Serpent","Black Dogs","Crossroads","Dagger"],
+      appearance:"Often depicted in triple form — three women standing back-to-back at a crossroads, each facing a different direction. She carries torches. She is surrounded by ghost hounds. Ancient, luminous, and beyond ordinary categories of good or evil.",
+      myths:[
+        {title:"Searching for Persephone",text:"When Hades abducted Persephone, Hecate was the only deity who heard her cries. Armed with two torches, she joined Demeter in searching the earth for nine days. She became Persephone's loyal companion in the Underworld after the resolution, serving as her advisor, witness, and guide. The two queens of the dark are deeply connected."},
+        {title:"Medea's Power",text:"The legendary sorceress Medea was Hecate's most devoted priestess. Hecate taught Medea the deepest arts of witchcraft — the properties of every plant, the turning of fate, the calling of spirits. When Medea helped Jason steal the Golden Fleece and escape Colchis, every spell she cast was an invocation of Hecate's power. Hecate was the divine source behind all the most powerful magic in Greek mythology."},
+        {title:"Hecate's Supper",text:"Every month, on the dark of the new moon, the ancient Greeks left offerings at three-way crossroads — scraps of food, torches, sometimes puppies. Called 'Hecate's Supper,' these were left to propitiate her as she wandered the earth at night with her ghost hounds. Three-way crossroads were considered liminal spaces — neither here nor there — and therefore under her dominion."}
+      ],
+      facts:["Hecate is one of the few Titan-era deities who kept her powers and status under the Olympians — even Zeus respected her authority.","She is the only deity in Greek mythology who is both of the sky (her torches light the night), the earth (crossroads), and the underworld (realm of shades).","The Greek Magical Papyri — the most complete surviving collection of ancient spells — invoke Hecate more than any other deity.","She may have originated as a Thracian goddess before being absorbed into the Greek pantheon."]
+    },
+    {
+      id:"eros", name:"Eros", greek:"Ἔρως", title:"God of Love and Desire",
+      category:"titan", emoji:"💘", roman:"Cupid / Amor",
+      domains:["Love","Desire","Attraction","Passion"],
+      symbols:["Golden Bow","Lead Arrows","Wings","Torch","Quiver"],
+      appearance:"In early myth, a primordial cosmic force without form. By classical times, a beautiful winged youth — sometimes shown blindfolded, always carrying his golden bow and quiver of arrows. His gold arrows ignite love; his lead arrows repel.",
+      myths:[
+        {title:"Eros and Psyche",text:"Aphrodite ordered Eros to make the beautiful mortal Psyche fall in love with something hideous. But seeing Psyche, Eros pricked himself with his own arrow. He fell desperately in love, hid her in a palace of invisible servants, and visited only in darkness. Psyche's sisters convinced her Eros must be a monster. She lit a lamp while he slept and saw his divine beauty — but a drop of hot oil woke him and he fled, wounded. Psyche completed Aphrodite's four impossible tasks (sorting seeds, gathering golden fleece, fetching Styx water, retrieving beauty from the Underworld). Zeus made her immortal. She and Eros were wed on Olympus."},
+        {title:"Apollo and Daphne",text:"Apollo mocked Eros for carrying a bow, calling him a child playing with weapons. Eros took precise, calculated revenge. He shot Apollo with a gold arrow of overwhelming desire — focused on the nymph Daphne. He shot Daphne with a lead arrow of total repulsion. Apollo pursued her madly across the world. She transformed into a laurel tree to escape. The god of prophecy and reason was helpless before the god of desire."},
+        {title:"Primordial Eros",text:"In Hesiod's Theogony, Eros is not Aphrodite's son but one of the first beings in existence — born from the primordial Chaos alongside Gaia (Earth) and Tartarus. This Eros was the force of attraction that held the cosmos together. Without him, the universe would fly apart. Desire as a fundamental cosmic law."}
+      ],
+      facts:["The word 'erotic' comes from his name.","In Orphic cosmology, Eros (called Phanes) was the first being to emerge from the cosmic egg, bringing light and life into the universe.","He is the parent of Anteros (requited love), Himeros (longing), and Pothos (yearning) — a complete taxonomy of desire.","The Romans called him Cupid (desire) or Amor (love) — the same being, two aspects."]
+    },
+    {
+      id:"prometheus", name:"Prometheus", greek:"Προμηθεύς", title:"Champion of Humanity, Bearer of Fire",
+      category:"titan", emoji:"🔥", roman:"Prometheus",
+      domains:["Fire","Forethought","Craft","Civilization","Humanity"],
+      symbols:["Fire","Torch","Eagle","Fennel Stalk","Chains"],
+      appearance:"A Titan — immense, older than the Olympians, carrying the weight of foresight. His face holds knowing sadness. He carries a hollow fennel stalk (inside which he smuggled divine fire). Later images show him chained to a cliff, the eagle always overhead.",
+      myths:[
+        {title:"Stealing Fire for Humanity",text:"The gods kept fire for themselves, leaving humanity in cold darkness. Prometheus, who had helped Zeus defeat the Titans and remembered his love for the humans he had helped create, could not bear it. He crept to Olympus, stole a spark from the forge of Hephaestus, hid it in a hollow fennel stalk, and carried it down to humanity. Zeus was furious. He chained Prometheus to a mountain peak in the Caucasus and sent an eagle to devour his liver each day. The liver regenerated each night. The torment was eternal — until Heracles freed him, with Zeus's eventual permission."},
+        {title:"The Trickery of Mecone",text:"At the first great sacrifice between gods and mortals at Mecone, Prometheus divided a great ox: one portion was good meat hidden under ugly stomach lining; the other was gleaming fat over bones. He let Zeus choose first. Zeus chose the gleaming fat — knowing he was being tricked, but unable to refuse the test. And that is why, ever after, humans kept the meat for themselves and burned only fat and bones for the gods."},
+        {title:"The Creation of Humanity",text:"In some accounts, Prometheus himself fashioned the first humans from clay, molding them in the image of the gods. Athena breathed divine life into them. Prometheus then taught humanity everything: fire, architecture, astronomy, mathematics, agriculture, language, medicine, law. He gave them the arts of civilization. Zeus, who had planned to destroy humanity and start over, was bound by what Prometheus had already accomplished."}
+      ],
+      facts:["'Prometheus' means 'forethought.' His brother Epimetheus means 'afterthought' — who received Pandora and opened her jar without thinking.","Prometheus knew in advance exactly what would happen to him — he chose it anyway, for humanity's sake.","He was finally freed by Heracles, who slew the eagle. Zeus allowed it partly to give Heracles more glory, and partly because he had come to respect Prometheus.","In Aeschylus's play 'Prometheus Bound,' Prometheus knows a secret that could destroy Zeus — and refuses to tell him. The power of knowledge against power."]
+    },
+    {
+      id:"nike", name:"Nike", greek:"Νίκη", title:"Goddess of Victory",
+      category:"titan", emoji:"🏆", roman:"Victoria",
+      domains:["Victory","Speed","Strength","Glory"],
+      symbols:["Wings","Laurel Wreath","Palm Branch","Trophy","Golden Sandals"],
+      appearance:"A winged woman, forever in motion — arriving at the moment of triumph, crowning the victor with a laurel wreath. She carries palm branches and trophies. She is the sensation of winning given divine form.",
+      myths:[
+        {title:"Victoria of the Titanomachy",text:"Nike was the daughter of the Titan Pallas and the goddess Styx. When Zeus called for allies against the Titans, Styx brought her children to Olympus to fight for him. Nike fought alongside Zeus and the Olympians. In gratitude, Zeus honored Nike above all — keeping her by his side always, letting her fly around Olympus bearing trophies to the deserving."},
+        {title:"Athena Nike",text:"At Athens, Nike was worshipped as an aspect of Athena — 'Athena Nike,' victorious wisdom. A small but elegant temple to Athena Nike stood at the entrance to the Acropolis. Victory was inseparable from wisdom."},
+        {title:"The Nike of Samothrace",text:"The famous statue Nike of Samothrace (now in the Louvre) shows her landing on the prow of a ship, wings spread, robes whipped back by sea wind. Scholars believe it commemorated a naval victory — the goddess herself descending to crown the fleet."}
+      ],
+      facts:["The Nike sportswear company takes its name and the famous 'swoosh' from her wings.","She carried a palm branch, which became a universal symbol of victory and peace.","Nike was closely associated with both athletic and military victory — there was no real distinction between them in ancient Greece.","She is often shown carrying a trophy (tropaion) — an image of arms hung from a post to mark where the enemy turned and fled."]
+    }
+  ];
+
+  const GROUPS = [
+    {
+      id:"muses", name:"The Nine Muses", emoji:"🎭",
+      subtitle:"Daughters of Zeus and Mnemosyne (Memory). Born on Mount Pieria. They inspire all art, knowledge, and music.",
+      members:[
+        {name:"Calliope",role:"Muse of Epic Poetry",desc:"The eldest and most honored Muse. Carries a writing tablet or scroll. Mother of Orpheus. She gave epic poets their power."},
+        {name:"Clio",role:"Muse of History",desc:"Carries a scroll and clepsydra (water clock). Records all things, immortalizes deeds. Her name means 'glory.'"},
+        {name:"Erato",role:"Muse of Love Poetry",desc:"Carries a lyre. Inspires poems of love and romance. Her name means 'lovely' or 'desired.'"},
+        {name:"Euterpe",role:"Muse of Music",desc:"Carries an aulos (double flute). Patron of flute players. Her name means 'rejoicing well.'"},
+        {name:"Melpomene",role:"Muse of Tragedy",desc:"Wears a tragic mask and carries a club or sword. Her name means 'the singing one.' She gives terrible stories their gravity."},
+        {name:"Polyhymnia",role:"Muse of Sacred Hymns",desc:"Often depicted veiled, in pensive silence. Inspires hymns, sacred poetry, and religious devotion. Her name means 'many hymns.'"},
+        {name:"Terpsichore",role:"Muse of Dance",desc:"Her name means 'delighting in dance.' Carries a lyre. Patron of dance and choral song. Said to be the mother of the Sirens."},
+        {name:"Thalia",role:"Muse of Comedy",desc:"Carries a comic mask and a shepherd's crook. Her name means 'the blooming one.' She makes mortal comedy divine."},
+        {name:"Urania",role:"Muse of Astronomy",desc:"Carries a globe and compass, studies the stars. Her name means 'heavenly.' She inspired astronomers, mathematicians, and cosmologists."}
+      ]
+    },
+    {
+      id:"fates", name:"The Three Fates", emoji:"⚖️",
+      subtitle:"The Moirai — older than the Olympians and beyond even Zeus's authority. They determine the life, fate, and death of every being.",
+      members:[
+        {name:"Clotho",role:"The Spinner",desc:"Spins the thread of each life at the moment of birth. She determines that life will begin."},
+        {name:"Lachesis",role:"The Allotter",desc:"Measures the length of each thread with her rod — the span of a life. She determines how long each life will be."},
+        {name:"Atropos",role:"She Who Cannot Be Turned",desc:"Cuts the thread. Her scissors are the mechanism of death itself. No one — not Zeus, not the gods — can stay her hand."}
+      ]
+    },
+    {
+      id:"graces", name:"The Three Graces", emoji:"🌺",
+      subtitle:"The Charites — daughters of Zeus, the divine embodiments of charm, beauty, and festivity. They attend Aphrodite and bring joy.",
+      members:[
+        {name:"Aglaea",role:"Splendor",desc:"Goddess of beauty, adornment, glory, and magnificence. The youngest and most radiant."},
+        {name:"Euphrosyne",role:"Good Cheer",desc:"Goddess of joy, mirth, merriment, and good company. Her name means 'joyfulness.'"},
+        {name:"Thalia",role:"Festivity & Bloom",desc:"Goddess of festivity, luxurious banquets, and flowering. Brings abundance to every gathering."}
+      ]
+    }
+  ];
+
+  const AETTS = [
+    {
+      name:"Freyr's Aett", subtitle:"The first family — beginnings, abundance, and the elemental forces",
+      runes:[
+        {glyph:"ᚠ",name:"Fehu",trans:"F",short:"Wealth & Luck",desc:"Fehu represents cattle — the original wealth of the Norse world. It speaks of earned prosperity, abundance, and new beginnings. It is the energy of something valuable that must also be shared and circulated, or it stagnates.",associations:["Prosperity","New Beginnings","Success","Luck","Vitality"],divination:"Good fortune is within reach — but wealth that is hoarded loses its power. Share what you have. The rune of abundance in motion."},
+        {glyph:"ᚢ",name:"Uruz",trans:"U",short:"Strength & Vitality",desc:"Uruz is the aurochs — the massive, wild ox of ancient Europe. Pure primal strength, endurance, and vital force. It speaks of untamed power, persistence, and the energy of deep health. What cannot be tamed, only respected.",associations:["Strength","Endurance","Health","Wild Power","Transformation"],divination:"Great energy is available to you. This is a time for physical action, courage, and pushing through what seemed immovable. Trust your body and your instincts."},
+        {glyph:"ᚦ",name:"Thurisaz",trans:"Th",short:"Chaos & Protection",desc:"Thurisaz is the thorn and the giant. A powerful, dangerous force — neither good nor evil, but requiring respect and care. The thorn that draws blood. The giant that can protect or destroy. Chaos that clears the way for something new.",associations:["Chaos","Protection","Destruction","Danger","Threshold"],divination:"Something must be broken before it can be rebuilt. Proceed with caution at boundaries and edges. Not the time for rash action — but also not the time for passivity."},
+        {glyph:"ᚨ",name:"Ansuz",trans:"A",short:"Wisdom & Communication",desc:"Ansuz is Odin's rune — the divine breath, the inspired word. It governs speech, wisdom, poetry, the gift of language. The rune of receiving messages, of divine inspiration, of the moment a truth crystallizes in your mind.",associations:["Wisdom","Communication","Inspiration","Odin","Truth"],divination:"Listen carefully. A message is coming — or needs to be sent. The power of words is at play. This may be a time for important conversations, writing, or receiving guidance."},
+        {glyph:"ᚱ",name:"Raidho",trans:"R",short:"Journey & Rhythm",desc:"Raidho is the ride — the wheel turning, the journey taken. It speaks of movement, travel, right timing, and the natural rhythm of life. Not just physical travel but the journey of growth, of following one's path with purpose.",associations:["Journey","Movement","Rhythm","Right Action","Progress"],divination:"You are in motion. Trust the path even when you can't see the destination. Focus on the next step, not the whole road. Rhythm and pace matter here."},
+        {glyph:"ᚲ",name:"Kenaz",trans:"K/C",short:"Knowledge & Fire",desc:"Kenaz is the torch — the controlled flame of knowledge, craft, and creativity. It illuminates what was hidden. The fire of human skill and intelligence. The hearth fire that gathers a community. The creative spark.",associations:["Knowledge","Fire","Creativity","Illumination","Craft"],divination:"Something is becoming clear. This is a time of learning, creative work, and following your own inner light. The skill you have is enough — use it."},
+        {glyph:"ᚷ",name:"Gebo",trans:"G",short:"Gift & Balance",desc:"Gebo is the gift — but in the Norse world, gifts always carried obligation. Every gift creates a bond. The rune of exchange, partnership, generosity, and sacred contracts. The shape is an X — two lines crossing, a meeting of equals.",associations:["Gifts","Partnership","Balance","Exchange","Sacred Bond"],divination:"A gift is given or received. A partnership is forming or needs tending. What you give and what you receive must be in balance. Honor your commitments."},
+        {glyph:"ᚹ",name:"Wunjo",trans:"W",short:"Joy & Harmony",desc:"Wunjo is joy — but not frivolous happiness. It is the deep satisfaction of belonging, of harmony within a community, of things being exactly as they should be. Contentment that comes from alignment between inner and outer life.",associations:["Joy","Harmony","Success","Community","Belonging"],divination:"You are approaching a moment of true contentment. Relationships are aligned. Something is going right. Allow yourself to feel the fullness of what you have."}
+      ]
+    },
+    {
+      name:"Hagal's Aett", subtitle:"The second family — disruption, constraint, and transformation",
+      runes:[
+        {glyph:"ᚺ",name:"Hagalaz",trans:"H",short:"Hail & Disruption",desc:"Hagalaz is hail — sudden, destructive, and uncontrollable. It represents disruption that comes from outside your control, shattering what was. But hailstones melt into water that nourishes the earth. Destruction as the prelude to transformation.",associations:["Disruption","Chaos","Transformation","Natural Force","Purification"],divination:"Something unexpected is breaking through. You cannot control this — only endure it and look for what it makes possible afterward. Not punishment, but weather."},
+        {glyph:"ᚾ",name:"Naudhiz",trans:"N",short:"Need & Willpower",desc:"Naudhiz is the friction that creates fire — need, necessity, constraint. The rune of what is lacking, what is required. But from constraint comes willpower. It is the pressure that forges character. The rune of survival and inner strength.",associations:["Need","Constraint","Survival","Willpower","Resilience"],divination:"You are being tested. Resources are limited. But the friction you feel right now is building something. Find what you actually need versus what you merely want."},
+        {glyph:"ᛁ",name:"Isa",trans:"I",short:"Ice & Stillness",desc:"Isa is ice — standstill, stillness, the moment when everything freezes. It can be stagnation, or it can be the perfect clarity of a frozen lake. Things do not move forward now. The rune of patience, of waiting, of necessary pause.",associations:["Stillness","Patience","Clarity","Stagnation","Reflection"],divination:"This is not the time to push forward. Wait. Be still. In the stillness, clarity will come. What looks like blockage may be protection."},
+        {glyph:"ᛃ",name:"Jera",trans:"J/Y",short:"Harvest & Cycles",desc:"Jera is the year — the turning of the seasons, the cycle of planting and harvest. It is the rune of right timing, of patience rewarded, of the natural order of effort and reward. What you plant, you reap. Good things take time.",associations:["Harvest","Cycles","Right Timing","Patience","Natural Order"],divination:"What you have worked for is coming to fruition. The cycle is completing. Trust the natural timing. Do not force what will come in its own season."},
+        {glyph:"ᛇ",name:"Eihwaz",trans:"Ei",short:"Yew Tree & Endurance",desc:"Eihwaz is the yew — the eternal tree, living thousands of years, neither fully alive nor fully dead. The Yew stands in churchyards. It is Yggdrasil, the World Tree. The rune of death and regeneration, of resilience across the threshold.",associations:["Endurance","Death","Rebirth","The World Tree","Deep Roots"],divination:"You have more strength than you realize. Something that seemed like an ending is a transformation. Roots are growing in the dark, anchoring you for what comes next."},
+        {glyph:"ᛈ",name:"Perthro",trans:"P",short:"Fate & Mystery",desc:"Perthro is the lot cup — fate's dice shaken and cast. It is the rune of mystery, of hidden things, of secrets and chance. What cannot be known in advance. The forces that shape a life beyond any plan. The womb of possibility.",associations:["Fate","Mystery","Hidden Knowledge","Chance","The Unknown"],divination:"Something hidden is about to be revealed — or must remain hidden longer. Trust fate here. What cannot be controlled can still be navigated. Be open to surprise."},
+        {glyph:"ᛉ",name:"Algiz",trans:"Z",short:"Protection & Connection",desc:"Algiz is the elk — its spreading antlers like raised hands, like a figure calling down divine energy from above. The rune of protection, of sanctuary, of divine connection. Standing at the boundary between human and divine.",associations:["Protection","Sanctuary","Divine Connection","Guardian","Higher Power"],divination:"You are protected. Something or someone is watching over you. This is also a time to reach toward something greater — to open yourself to guidance from above."},
+        {glyph:"ᛊ",name:"Sowilo",trans:"S",short:"Sun & Victory",desc:"Sowilo is the sun — clear, powerful, victorious. The light that does not yield to darkness. Health, success, vital energy. The will to prevail. The Norse sun was feminine: a fierce force that drove the wolf of darkness across the sky each day.",associations:["Sun","Success","Vitality","Clarity","Victory"],divination:"Success is coming. Clarity is breaking through. Trust your own energy and direction. This is a time of vitality and purpose — use it."}
+      ]
+    },
+    {
+      name:"Tyr's Aett", subtitle:"The third family — society, humanity, and the return to source",
+      runes:[
+        {glyph:"ᛏ",name:"Tiwaz",trans:"T",short:"Justice & Honor",desc:"Tiwaz is Tyr — the one-handed god of justice who sacrificed his hand to bind the great wolf Fenrir. The rune of honor, of self-sacrifice for the greater good, of justice that holds even when it costs you personally. Victory through integrity.",associations:["Justice","Honor","Sacrifice","Victory","Integrity"],divination:"Act with complete integrity, even if it costs you. The right action is clear — take it. Justice is at work in this situation. What you give now will be returned."},
+        {glyph:"ᛒ",name:"Berkano",trans:"B",short:"Birth & Renewal",desc:"Berkano is the birch tree — the first tree to return after winter, the tree of new beginnings, of the goddess, of birth and rebirth. It is nurturing, healing, growth from seed. The rune of becoming, of gestation, of new life taking root.",associations:["Birth","Renewal","Growth","The Goddess","Healing"],divination:"Something new is beginning — a project, a phase of life, a relationship. Nurture it carefully. This is a time for planting and tending, not harvesting."},
+        {glyph:"ᛖ",name:"Ehwaz",trans:"E",short:"Partnership & Movement",desc:"Ehwaz is the horse — and specifically the bond between horse and rider. True partnership: mutual trust, synchronized movement, two beings that make each other greater. The rune of teamwork, of travel, of trusting the relationship.",associations:["Partnership","Trust","Movement","Teamwork","Loyalty"],divination:"A partnership — in work, in life, in spirit — is highlighted. Move together. Trust the other completely. Journey is possible only when both move as one."},
+        {glyph:"ᛗ",name:"Mannaz",trans:"M",short:"Humanity & Self",desc:"Mannaz is the human — the individual self in the context of community. It speaks of the mind, memory, identity, and our place among others. Not isolation but the self that exists in relationship. The rune of self-knowledge and our shared humanity.",associations:["Self","Community","Mind","Memory","Humanity"],divination:"Look inward. Who are you, and how do you relate to others? This is a time for self-examination, for understanding your role in your community. Know thyself."},
+        {glyph:"ᛚ",name:"Laguz",trans:"L",short:"Water & Intuition",desc:"Laguz is water — the lake, the river, the sea. It flows, finds the lowest path, fills every container. The rune of intuition, the unconscious, the deep knowing that precedes rational thought. The currents of feeling beneath the surface.",associations:["Intuition","Flow","Unconscious","Emotion","The Deep"],divination:"Trust your intuition over your logic right now. Something knows, beneath the surface. Allow feelings to move through you rather than damming them. Go with the current."},
+        {glyph:"ᛜ",name:"Ingwaz",trans:"Ng",short:"Fertility & Potential",desc:"Ingwaz is Ing — a fertility god, the seed within the earth. The rune of gestation, of potential gathering before release. The quiet accumulation of energy before the breakthrough. Like a seed underground — invisible, but everything is there.",associations:["Fertility","Potential","Gestation","Inner Strength","Completion"],divination:"Something is ready to be completed before the next phase begins. Energy has been gathering. The seed is ready. A release is coming — trust the process."},
+        {glyph:"ᛞ",name:"Dagaz",trans:"D",short:"Dawn & Transformation",desc:"Dagaz is the day — specifically the threshold between night and day. The liminal moment of dawn and dusk when categories dissolve. Transformation, breakthroughs, the moment when everything changes. The infinite — the shape of the rune is a möbius strip.",associations:["Transformation","Breakthrough","Dawn","Clarity","The Infinite"],divination:"A breakthrough is here or coming. Something is transforming completely. The old is ending and the new is beginning simultaneously. Stand in the threshold with open arms."},
+        {glyph:"ᛟ",name:"Othala",trans:"O",short:"Inheritance & Home",desc:"Othala is the homeland — ancestral land, inherited wisdom, the home of the soul. It is what cannot be bought or sold, only inherited and passed on. The rune of roots, of belonging, of the wisdom carried in bloodlines and tradition.",associations:["Heritage","Home","Ancestry","Belonging","Inherited Wisdom"],divination:"Look to your roots. What has been passed to you — wisdom, tradition, values, a sense of home? Honor what came before. You stand on the shoulders of those who carried you here."}
+      ]
+    }
+  ];
+
+  // ═══════════════════════════════ RENDER ═══════════════════════════════
+
+  let currentCat = "all";
+  let openGodId = null;
+  let openRuneId = null;
+
+  function switchTab(tab) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + tab).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function setCat(btn, cat) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat = cat;
+    filterGods();
+  }
+
+  function filterGods() {
+    const q = document.getElementById('god-search').value.toLowerCase();
+    const grid = document.getElementById('gods-grid');
+    const groupsSection = document.getElementById('groups-section');
+
+    if (currentCat === 'groups') {
+      grid.style.display = 'none';
+      groupsSection.style.display = 'block';
+      return;
+    }
+    grid.style.display = '';
+    groupsSection.style.display = 'none';
+
+    grid.querySelectorAll('.god-card').forEach(card => {
+      const id = card.dataset.id;
+      const god = GODS.find(g => g.id === id);
+      let show = true;
+      if (currentCat !== 'all' && god.category !== currentCat) show = false;
+      if (q && show) {
+        const haystack = [god.name, god.greek, god.title, ...god.domains, ...god.symbols, god.roman].join(' ').toLowerCase();
+        show = haystack.includes(q);
+      }
+      card.style.display = show ? '' : 'none';
+    });
+  }
+
+  function toggleGod(id) {
+    const card = document.querySelector(`.god-card[data-id="${id}"]`);
+    if (!card) return;
+    if (openGodId && openGodId !== id) {
+      document.querySelector(`.god-card[data-id="${openGodId}"]`)?.classList.remove('open');
+    }
+    card.classList.toggle('open');
+    openGodId = card.classList.contains('open') ? id : null;
+    if (openGodId) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function toggleRune(aettIdx, runeIdx) {
+    const key = `${aettIdx}-${runeIdx}`;
+    const card = document.querySelector(`.rune-card[data-key="${key}"]`);
+    if (!card) return;
+    if (openRuneId && openRuneId !== key) {
+      document.querySelector(`.rune-card[data-key="${openRuneId}"]`)?.classList.remove('open');
+    }
+    card.classList.toggle('open');
+    openRuneId = card.classList.contains('open') ? key : null;
+    if (openRuneId) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function drawRune() {
+    const allRunes = AETTS.flatMap(a => a.runes);
+    const rune = allRunes[Math.floor(Math.random() * allRunes.length)];
+    const display = document.getElementById('drawn-rune-display');
+    display.classList.remove('visible');
+    setTimeout(() => {
+      document.getElementById('drawn-symbol').textContent = rune.glyph;
+      document.getElementById('drawn-name').textContent = rune.name + ' · ' + rune.trans;
+      document.getElementById('drawn-meaning').textContent = rune.short;
+      document.getElementById('drawn-message').textContent = rune.divination;
+      display.classList.add('visible');
+    }, 60);
+  }
+
+  function buildGods() {
+    const grid = document.getElementById('gods-grid');
+    grid.innerHTML = GODS.map(g => `
+      <div class="god-card" data-id="${g.id}" onclick="toggleGod('${g.id}')">
+        <div class="god-card-header">
+          <div class="god-emoji">${g.emoji}</div>
+          <div class="god-name-wrap">
+            <div class="god-name">${g.name}</div>
+            <div class="god-greek">${g.greek}</div>
+          </div>
+        </div>
+        <div class="god-title">${g.title}</div>
+        <div class="god-domains">${g.domains.map(d => `<span class="domain-tag">${d}</span>`).join('')}</div>
+        <div class="god-roman">Roman: ${g.roman}</div>
+        <div class="god-expand-hint">tap to explore ▾</div>
+        <div class="god-details">
+          <div class="god-section-label">Appearance</div>
+          <div class="god-appearance">${g.appearance}</div>
+          <div class="god-section-label">Sacred Symbols</div>
+          <div class="god-symbols">${g.symbols.map(s => `<span class="symbol-tag">${s}</span>`).join('')}</div>
+          <div class="god-section-label">Myths & Stories</div>
+          ${g.myths.map(m => `<div class="myth-block"><div class="myth-title">◆ ${m.title}</div><div class="myth-text">${m.text}</div></div>`).join('')}
+          <div class="god-section-label">Lesser-Known Facts</div>
+          <ul class="god-facts-list">${g.facts.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
+      </div>
+    `).join('');
+
+    const groupsSection = document.getElementById('groups-section');
+    groupsSection.style.display = 'none';
+    groupsSection.innerHTML = GROUPS.map(gr => `
+      <div class="group-card">
+        <div class="group-card-header">
+          <div class="group-emoji">${gr.emoji}</div>
+          <div>
+            <div class="group-name">${gr.name}</div>
+            <div class="group-subtitle">${gr.subtitle}</div>
+          </div>
+        </div>
+        <div class="group-members">
+          ${gr.members.map(m => `
+            <div class="member-item">
+              <div class="member-name">${m.name}</div>
+              <div class="member-role">${m.role}</div>
+              <div class="member-desc">${m.desc}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function buildRunes() {
+    const container = document.getElementById('runes-content');
+    container.innerHTML = AETTS.map((aett, ai) => `
+      <div class="aett-section">
+        <div class="aett-title">${aett.name}</div>
+        <div class="aett-subtitle">${aett.subtitle}</div>
+        <div class="runes-grid">
+          ${aett.runes.map((rune, ri) => `
+            <div class="rune-card" data-key="${ai}-${ri}" onclick="toggleRune(${ai},${ri})">
+              <div class="rune-glyph">${rune.glyph}</div>
+              <div class="rune-name">${rune.name}</div>
+              <div class="rune-trans">${rune.trans}</div>
+              <div class="rune-short-meaning">${rune.short}</div>
+              <div class="rune-full-detail">
+                <div class="rune-detail-grid">
+                  <div class="rune-detail-glyph-wrap">
+                    <div style="font-size:60px;color:#ff96c8;text-shadow:0 0 20px rgba(255,150,200,0.5)">${rune.glyph}</div>
+                  </div>
+                  <div class="rune-detail-content">
+                    <div class="rune-detail-name">${rune.name}</div>
+                    <div class="rune-detail-transliteration">Sound: /${rune.trans}/ · Elder Futhark</div>
+                    <div class="rune-detail-desc">${rune.desc}</div>
+                    <div class="god-section-label">Associations</div>
+                    <div class="rune-associations">${rune.associations.map(a => `<span class="rune-assoc-tag">${a}</span>`).join('')}</div>
+                    <div class="rune-divination">"${rune.divination}"</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ═══════════════════════════════ NORSE GODS DATA ═══════════════════════════════
+
+  const NORSE_GODS = [
+    {
+      id:"odin", name:"Odin", oldnorse:"Óðinn", title:"Allfather, Lord of Asgard",
+      category:"aesir", emoji:"🔵", tribe:"Æsir",
+      domains:["Wisdom","War","Death","Magic","Poetry","Prophecy","Victory","The Runes"],
+      symbols:["Gungnir (spear)","Huginn & Muninn (ravens)","Geri & Freki (wolves)","Sleipnir (horse)","Valknut","Eye Patch"],
+      appearance:"A tall, cloaked old man with a wide-brimmed hat pulled low over his face. One eye gleams with impossible depth — the other socket is empty, sacrificed for wisdom. Two ravens perch on his shoulders, whispering the news of all nine worlds into his ears. He carries the spear Gungnir, which never misses.",
+      myths:[
+        {title:"The Sacrifice on Yggdrasil",text:"Odin hung himself on Yggdrasil, the World Tree, for nine days and nine nights — wounded by his own spear, with no food or water, looking downward. He sacrificed himself to himself. On the ninth night, as he neared death, he glimpsed the runes in the waters below and seized them with a cry. He fell from the tree, having gained the knowledge of the runes — the deepest magic in all the nine worlds. No other being could have endured the price."},
+        {title:"The Eye of Mimir",text:"Beneath one of Yggdrasil's roots lay the Well of Mimir, whose waters held the wisdom of all creation. Odin came to Mimir and asked to drink. Mimir's price was one of Odin's eyes. Odin gouged out his own eye and dropped it into the well. He drank. The knowledge of all past, present, and future flooded into him. He still wears the wound as a badge of wisdom — and sees more with one eye than any other being sees with two."},
+        {title:"The Mead of Poetry",text:"The Mead of Poetry was brewed from the blood of the wisest being ever created, mixed with honey. Whoever drank it could speak perfect poetry and wisdom. A giant named Suttungr possessed it. Odin disguised himself as a farmhand, seduced the giant's daughter Gunnlöð (who guarded the mead for three days), and drank all three vats. He transformed into an eagle and flew back to Asgard, dripping mead into vessels below. That dripping mead became the gift of poetic inspiration to humanity."},
+        {title:"Gathering the Einherjar",text:"Odin sends his Valkyries — warrior women who ride through the slaughter of every battle — to select the bravest of the slain. These warriors, called the Einherjar, are taken to Valhalla, where they feast, fight, and die and are reborn every day, training for the final battle of Ragnarok. Odin hosts this army of the heroic dead not out of sentiment, but strategy: he needs every warrior he can gather for the day the Frost Giants come."}
+      ],
+      facts:["Wednesday is named for Odin — 'Wōden's day' in Old English. He is also called Wōden.","He has over 200 known names and epithets in Old Norse literature — more than any other deity.","Odin is associated with both battle and poetry because in Norse culture, skaldic verse was itself a form of power and weapon.","His ravens Huginn (Thought) and Muninn (Memory) fly across all nine worlds every day and return to whisper everything they have witnessed.","Odin knows he will die at Ragnarok — swallowed by the great wolf Fenrir. He prepares for this with full knowledge and still does not flinch."]
+    },
+    {
+      id:"thor", name:"Thor", oldnorse:"Þórr", title:"God of Thunder, Protector of Mankind",
+      category:"aesir", emoji:"⚡", tribe:"Æsir",
+      domains:["Thunder","Lightning","Storms","Strength","Protection","Oak Trees","Hallowing"],
+      symbols:["Mjolnir (hammer)","Belt of Strength (Megingjörð)","Iron Gloves (Járngreipr)","Red Beard","Chariot","Goats"],
+      appearance:"Enormous — the largest and strongest of all the Aesir. A great red beard and blazing eyes. His chariot is pulled by the goats Tanngrisnir and Tanngnjóstr, whose passage across the sky creates thunder. He wears a belt that doubles his already superhuman strength, and iron gloves to wield the hammer Mjolnir.",
+      myths:[
+        {title:"Thor and the World Serpent",text:"Thor went fishing with the giant Hymir. He rowed so far out to sea that Hymir was terrified — because they were over the coils of Jormungandr, the Midgard Serpent. Thor baited his hook with an entire ox's head, cast his line, and the Serpent bit. Thor hauled with such force that his feet crashed through the bottom of the boat. He and Jormungandr stared at each other across the water as Thor raised Mjolnir to strike — and Hymir, terrified, cut the line. The Serpent plunged back into the depths. Thor and Jormungandr will meet again at Ragnarok, and that time, neither will escape."},
+        {title:"The Theft of Mjolnir",text:"The giant king Thrym stole Mjolnir and demanded Freyja as payment for its return. Freyja refused in outrage. The gods devised a plan: Thor would dress as a bride — Freyja — with Loki as his bridesmaid. Thor was enormous, ate an entire ox, drank three barrels of mead, and had blazing eyes — but Loki explained each oddity to the delighted Thrym as bridal excitement. When Thrym brought out Mjolnir to hallow the bride with a ceremony, Thor seized it, killed Thrym, and slaughtered every giant in the hall. He then changed his dress."},
+        {title:"Utgard-Loki's Tests",text:"Thor, Loki, and companions visited the hall of the giant Utgard-Loki. Thor was challenged to three simple tests: drink a horn dry, lift a cat, and wrestle an old woman. He failed all three — he barely moved the cat, the old woman barely budged. Later, Utgard-Loki revealed the truth: the horn was connected to the ocean (Thor had lowered the sea level), the cat was Jormungandr itself (Thor had lifted the World Serpent), and the old woman was Old Age — no one defeats her. Utgard-Loki then banished them from his hall, afraid of what Thor would do if he knew the truth."},
+        {title:"The Building of Asgard's Walls",text:"A mysterious builder offered to construct walls around Asgard that no enemy could breach, asking only for the sun, moon, and the goddess Freyja as payment. The gods agreed — on condition he complete it in one winter with no human help. He used only a magical horse, Svadilfari, and was nearly finished by the last night. The gods, panicking, sent Loki to sabotage it. Loki transformed into a mare and lured Svadilfari away. The builder revealed himself as a giant in a rage — and Thor killed him with Mjolnir. Loki later gave birth to Sleipnir, Odin's eight-legged horse, by Svadilfari."}
+      ],
+      facts:["Thursday is named for Thor — 'Thor's day' in Old English.","The Mjolnir pendant is the most commonly found Norse religious symbol in archaeological sites — people wore it like a cross.","Thor was arguably the most widely worshipped Norse deity among common people, while Odin was more favored by nobles, poets, and warriors.","Despite his brute strength, Thor is depicted in the myths with genuine warmth, humor, and protective care for ordinary humans.","At Ragnarok, Thor and Jormungandr slay each other — Thor walks nine steps before falling to the Serpent's venom."]
+    },
+    {
+      id:"loki", name:"Loki", oldnorse:"Loki", title:"The Trickster, Father of Monsters",
+      category:"other", emoji:"🔴", tribe:"Jötunn (blood-brother of Odin)",
+      domains:["Trickery","Shape-shifting","Fire","Chaos","Cunning","Change"],
+      symbols:["Snake","Net","Fire","Mistletoe","Mask","Chains"],
+      appearance:"Handsome — dangerously so, with eyes that shift and a smile that means something different to everyone who sees it. He has taken the form of a mare, a salmon, a fly, a seal, an old woman, and countless other shapes. He always looks like he knows something you don't.",
+      myths:[
+        {title:"The Death of Baldur",text:"Loki discovered that the beloved god Baldur was invulnerable to everything — because his mother Frigg had made all things swear not to harm him. Everything except the young mistletoe, which she considered too insignificant. Loki fashioned a dart of mistletoe and guided the blind god Hod's hand to throw it at Baldur during the gods' game of hurling things at him. Baldur fell dead. It was the act that set Ragnarok in motion. Even the gods, who expected Loki's mischief, did not expect this."},
+        {title:"Loki's Monstrous Children",text:"With the giantess Angrboda, Loki fathered three offspring that Odin cast to the edges of the cosmos: Hel, whom he threw into the underworld to rule the dead; Jormungandr, the great serpent, whom he cast into the ocean where it grew to encircle the whole world; and Fenrir, the wolf, whom the gods kept in Asgard but could not control as he grew. Loki also gave birth (as a mare) to Sleipnir, the eight-legged horse he gave to Odin."},
+        {title:"The Punishment of Loki",text:"After the gods held him responsible for Baldur's death and the failure of his rescue, they hunted Loki. He had transformed into a salmon and was hiding in a waterfall — but Odin saw him from Hlidskjalf and sent the gods to catch him. They bound him in a cave with the entrails of his own son Narfi, transformed into chains of iron. A serpent was fastened above him dripping burning venom onto his face. His loyal wife Sigyn holds a bowl to catch the venom, but when she must empty it, the drops fall on his face. His writhing causes earthquakes on the surface of the earth. He will remain there until Ragnarok."},
+        {title:"The Master Thief",text:"Loki's most productive period came from necessity — after he cut off the golden hair of Thor's wife Sif (for a prank), Thor threatened to break every bone in his body. Loki went to the dwarves of Nidavellir and commissioned not only new golden hair for Sif but also Gungnir (Odin's spear) and Skidbladnir (the magical ship). Then he bet his own head against another group of dwarves, who created Mjolnir, the golden boar Gullinbursti, and the ring Draupnir. The dwarves won the bet — but Loki argued they could take his head but not touch his neck. They sewed his lips shut instead."}
+      ],
+      facts:["Loki is not inherently evil — he is chaos and consequence. Many of his tricks began as attempts to fix mistakes or satisfy his own curiosity.","He is technically a Jötunn (giant), not an Æsir, but became Odin's blood-brother and lived in Asgard.","Modern pop culture (including Marvel) dramatically simplified Loki's character — the original is far more complex, funny, and deeply tragic.","At Ragnarok, Loki will steer the ship Naglfar (built from the fingernails and toenails of the dead) to the final battle, commanding the forces that will end the gods.","Loki and Heimdall are destined to kill each other at Ragnarok — their enmity runs through the entire mythology."]
+    },
+    {
+      id:"freyja", name:"Freyja", oldnorse:"Freyja", title:"Goddess of Love, War, and Magic",
+      category:"vanir", emoji:"💗", tribe:"Vanir (lives with Æsir)",
+      domains:["Love","Beauty","War","Magic","Gold","Fertility","Death","Seidr"],
+      symbols:["Brisingamen necklace","Falcon cloak","Chariot pulled by cats","Boar Hildisvíni","Golden tears","Staff"],
+      appearance:"Breathtakingly beautiful and fierce in equal measure. She wears the legendary necklace Brisingamen, which radiates light. Her chariot is pulled by two great cats. She weeps golden tears when she grieves. She is both the most desired and the most formidable being in the nine worlds.",
+      myths:[
+        {title:"The Brisingamen",text:"Freyja traveled to Svartalfheim and encountered four master dwarven smiths — the Brisings — who had crafted a necklace of surpassing beauty. They would only trade it for one night each with Freyja. She agreed. Odin, when he heard, was furious and had Loki steal the necklace. Freyja was made to start a war between two kings that would never end (the warriors killed in the day would rise again at night) before Odin returned it. She accepted his terms."},
+        {title:"First Among the Valkyries",text:"Freyja receives half of all warriors slain in battle. She chooses first — before Odin. The warriors she selects go to her hall Sessrumnir in the realm of Folkvangr. Odin takes the other half to Valhalla. This means Freyja has the largest collection of elite warriors in the nine worlds and is, arguably, better prepared for Ragnarok than even Odin."},
+        {title:"Teaching Odin Seidr",text:"Seidr is the most powerful form of Norse magic — the ability to weave fate itself, to see and alter futures, to take on other forms. It was considered women's magic. Freyja was the greatest seidr practitioner who ever lived. She taught Odin the art. For a god of his standing to learn women's magic was considered deeply shameful — and he did it anyway, because the power was too great to ignore."},
+        {title:"The Search for Od",text:"Freyja's husband Od (sometimes equated with Odin himself) disappeared, wandering through the worlds. Freyja searched for him weeping golden tears, which fell into the sea as amber and into the earth as gold. She took different names in different lands, searching eternally. She never stopped looking."}
+      ],
+      facts:["Friday is named for Freyja — 'Freyja's day' in Old English.","She and Freyr are twins, children of the sea god Njord.","Freyja is the only deity in Norse mythology associated with cats — her chariot-cats are thought to be Norwegian Forest Cats.","She may share an origin with Frigg — many scholars believe they were once the same goddess, separated over time.","She is the archetypical Völva (seeress) — Norse women who practiced seidr were following in her divine tradition."]
+    },
+    {
+      id:"freyr", name:"Freyr", oldnorse:"Freyr", title:"Lord of Fertility and Sunshine",
+      category:"vanir", emoji:"🌱", tribe:"Vanir (lives with Æsir)",
+      domains:["Fertility","Prosperity","Sunshine","Fair Weather","Virility","Harvest"],
+      symbols:["Gullinbursti (golden boar)","Skidbladnir (magical ship)","Self-fighting Sword","Antler","Sunbeam"],
+      appearance:"Radiant and generous, with golden hair and a warmth that makes plants grow where he walks. More than any other Norse god, Freyr looks approachable — genuinely happy to be alive, genuinely joyful in the world.",
+      myths:[
+        {title:"The Love of Gerd",text:"Freyr sat on Odin's throne Hlidskjalf — which no one but Odin is permitted to use — and saw across all nine worlds. He saw the beautiful giantess Gerd, daughter of the frost giants, and her beauty was so great that light filled the sky from her arms. He fell immediately and completely in love, and began wasting away from longing. Eventually he sent his servant Skirnir with gifts and threats to woo her. To win her, Freyr gave away his magical self-fighting sword — the one that fights giants on its own. This is why, at Ragnarok, Freyr faces the fire giant Surtr without a weapon and is slain."},
+        {title:"The Ship Skidbladnir",text:"Freyr possesses Skidbladnir, the greatest ship ever built — crafted by the master dwarves. It always has a favorable wind when its sail is raised. It can hold all the gods with their weapons and armor. And when not in use, it can be folded up as small as a piece of cloth and put in a pocket. It is simultaneously the largest and smallest vessel in the nine worlds."}
+      ],
+      facts:["The first Aett of the Elder Futhark is named Freyr's Aett in his honor.","More sacrificial blots (ritual feasts) were held for Freyr than perhaps any other god — farmers and households prayed to him for good harvests and healthy children.","His name simply means 'Lord' — the male counterpart to Freyja ('Lady').","At Ragnarok, Freyr is one of the gods who dies. He is slain by Surtr because he gave away his sword for love. Many Norse scholars see this as a profound statement: choosing love over survival.","He was worshipped at the great temple at Uppsala in Sweden, one of the most important Norse religious sites."]
+    },
+    {
+      id:"baldur", name:"Baldur", oldnorse:"Baldr", title:"God of Light, Beauty, and Purity",
+      category:"aesir", emoji:"✨", tribe:"Æsir",
+      domains:["Light","Beauty","Purity","Summer","Joy","Peace"],
+      symbols:["White flowers","Mistletoe","Sunlight","Meadow flowers"],
+      appearance:"So luminous that light radiates from him. He is the most beautiful of all beings, loved by every god, giant, elf, and mortal who has ever seen him. His eyes are gentle. His smile is the feeling of finding warmth after being cold for too long.",
+      myths:[
+        {title:"The Oath of Protection",text:"Baldur began having dreams of his own death. His mother Frigg, consumed with love, traveled through all nine worlds and made every living thing, every mineral, every plant swear an oath not to harm him. Every thing agreed. Everything, except the mistletoe — she deemed it too young, too small to be a threat. The gods then entertained themselves by hurling things at the invulnerable Baldur, who laughed as spears and stones bounced harmlessly off him."},
+        {title:"The Death of Baldur",text:"Loki, having discovered the mistletoe's immunity, fashioned a dart from it. The blind god Hod was standing apart from the game, unable to participate. Loki offered to guide his hand. Hod threw the dart. It struck Baldur and he fell dead. Silence fell over Asgard and all the nine worlds. Every god, giant, elf, and creature began to weep — because with Baldur gone, all beauty and joy had left the world."},
+        {title:"The Failed Rescue",text:"Odin's son Hermod rode Sleipnir to the realm of Hel and begged for Baldur's return. Hel agreed on one condition: every being in the nine worlds must weep for him. Messengers went out. Everything wept — every god, every creature, every rock, every tree. Everything except one giantess named Thökk ('Thanks'), who said Baldur had never done anything for her. Thökk was Loki in disguise. Baldur remained in Hel. He will return only after Ragnarok, to rule a renewed world."}
+      ],
+      facts:["Baldur's death is the beginning of the end — the first act of Ragnarok's inevitable approach.","He will be reborn after Ragnarok to rule a world reborn — making him the only Norse god associated with resurrection and renewal.","Some scholars connect Baldur to Christ (born of a divine father, killed innocently, destined to return). Others strongly dispute this.","His brother Hod, who threw the mistletoe, was also punished — but Hod did not act knowingly, and after Ragnarok, he and Baldur are reconciled.","The grief at Baldur's death is described as the first time the gods wept — and the sound of all the nine worlds weeping is among the most haunting images in Norse literature."]
+    },
+    {
+      id:"frigg", name:"Frigg", oldnorse:"Frigg", title:"Queen of Asgard, Goddess of Foresight",
+      category:"aesir", emoji:"👑", tribe:"Æsir",
+      domains:["Marriage","Motherhood","Foresight","Wisdom","Clouds","Weaving","Fate"],
+      symbols:["Distaff","Keys","Heron","Clouds","The High Seat"],
+      appearance:"Regal and serene. Dressed in white and pale blue, the colors of clouds and sky. She sits at Odin's right hand and, unlike every other being, is permitted to sit on the throne Hlidskjalf to see across all nine worlds. She sees all fates — and speaks none.",
+      myths:[
+        {title:"The Death of Baldur",text:"Frigg saw Baldur's death in her visions and worked desperately to prevent it. She traveled through all nine worlds extracting oaths from every thing not to harm him. She skipped the mistletoe — it seemed too young. Her love was total and her effort was total. She failed through that one omission. When Baldur died, her grief was so complete it moved even Hel. She is the mother who saw the end coming and could not stop it."},
+        {title:"Frigg and Odin's Contest",text:"Frigg and Odin were watching a battle between two peoples — the Langobards (Long Beards) and the Vandals. Odin favored the Vandals; Frigg favored the Langobards. They made a bet. Odin arranged for the Vandals to see the Langobards first — whoever he saw first in morning light, he'd grant victory to. Frigg arranged for her people to face east at dawn. Odin woke, looked out, and saw the Langobards first. He called them by the name 'Long Beards.' They won. They took the name Langobards forever."}
+      ],
+      facts:["Friday is sometimes attributed to Frigg rather than Freyja — the Old English 'Frīgedæg' could honor either.","She and Freyja may have been the same goddess in origin, later split into two distinct beings.","She is the only being besides Odin permitted to sit on Hlidskjalf, the throne of all-seeing.","She knows all fates — including Odin's death at Ragnarok — but she never speaks of what she knows. The weight of that knowledge defines her.","She is the keeper of the keys of Asgard — a symbol both of domestic authority and of the gatekeeper of fate."]
+    },
+    {
+      id:"tyr", name:"Tyr", oldnorse:"Týr", title:"God of Justice and Honorable Sacrifice",
+      category:"aesir", emoji:"⚖️", tribe:"Æsir",
+      domains:["Justice","Law","War","Honor","Single Combat","Order"],
+      symbols:["One hand (sacrificed)","Sword","Scales","Spear"],
+      appearance:"A warrior of perfect bearing and complete honor. He lost his right hand to the wolf Fenrir and wears the absence as a mark of integrity rather than defeat. He is not the strongest of the gods — but he is the most just.",
+      myths:[
+        {title:"The Binding of Fenrir",text:"The great wolf Fenrir was growing at an alarming rate and the gods knew from prophecy that he would swallow Odin at Ragnarok. They needed to bind him. Three times they fettered him with seemingly unbreakable chains, and three times Fenrir burst free. The dwarves crafted Gleipnir — a ribbon of silk made from impossible things (the sound of a cat's step, the beard of a woman, the roots of a mountain, the sinews of a bear, the breath of a fish, the spittle of a bird). Fenrir suspected magic. He agreed to be bound only if one god put their hand in his mouth as a pledge. No god was willing — except Tyr. Fenrir found he could not break Gleipnir. In fury and betrayal, he bit off Tyr's hand at the wrist. Tyr accepted the loss, because the world needed Fenrir bound."},
+        {title:"Tyr at Ragnarok",text:"At the last battle, Tyr faces the great hound Garm, who guards the gates of Hel's realm. They slay each other. Tyr dies knowing he gave everything that justice required — including his life, as he gave his hand. He is the god who understands that some things are worth the cost."}
+      ],
+      facts:["Tuesday is named for Tyr — 'Tyr's day' in Old English.","He may be one of the oldest Germanic deities — in very early texts, he appears to have been the chief sky god before Odin rose to prominence.","The rune Tiwaz (ᛏ) is named for him and represents justice and victory through honorable sacrifice.","He is one of the few Norse gods defined not by power but by virtue — he is great because of what he chose, not what he could do.","In some traditions, Tyr is a son of the giant Hymir, not Odin — which would make his choice to protect the Aesir even more remarkable."]
+    },
+    {
+      id:"heimdall", name:"Heimdall", oldnorse:"Heimdallr", title:"Watchman of the Gods, Guardian of Bifrost",
+      category:"aesir", emoji:"🌈", tribe:"Æsir",
+      domains:["Vigilance","Protection","Light","Dawn","Rainbow Bridge","Foresight"],
+      symbols:["Gjallarhorn","Bifrost (Rainbow Bridge)","Golden Teeth","White Horse Gulltoppr"],
+      appearance:"Radiant and alert, with gleaming golden teeth that give him the byname 'Gold-Tooth.' He requires almost no sleep. His eyesight reaches to the ends of the nine worlds by night or day. His hearing is so acute he can hear grass growing in the field and wool growing on a sheep's back.",
+      myths:[
+        {title:"Guardian of the Rainbow Bridge",text:"Heimdall stands at the edge of the rainbow bridge Bifrost that connects Asgard to the other worlds, watching every approach every moment of every day and night. When Ragnarok begins, he will sound the Gjallarhorn — a horn so powerful its blast will be heard throughout all nine worlds, waking every being that exists. Then Heimdall will ride to battle."},
+        {title:"The Recovery of Brisingamen",text:"Loki stole Freyja's legendary necklace Brisingamen. Heimdall knew immediately and pursued him. Loki transformed into a seal and dove into the sea. Heimdall also became a seal. They wrestled in the cold water of the ocean for a long time — neither able to overcome the other — until Heimdall finally gained the upper hand and recovered the necklace."},
+        {title:"The Father of Human Classes",text:"Disguised as a wandering traveler named Rig, Heimdall visited three households. With each couple he slept for three nights. From the first household came the first thrall (serf class). From the second, the first farmer (Karl class). From the third, the first noble and warrior (Jarl class). Heimdall is, in Norse thought, the divine ancestor of all humanity."}
+      ],
+      facts:["He and Loki are destined to kill each other at Ragnarok.","He was born of nine mothers simultaneously — nine waves, the daughters of the sea.","His horn Gjallarhorn is one of the great treasures of Asgard. Its sound will end the age.","As the 'whitest of the gods' and the god of the dawn, he represents clarity and perfect awareness — everything that Loki's chaos is not.","Some scholars believe his nine mothers represent the nine worlds, making him a literally universal being."]
+    },
+    {
+      id:"hel", name:"Hel", oldnorse:"Hel", title:"Ruler of the Realm of the Dead",
+      category:"other", emoji:"💀", tribe:"Daughter of Loki",
+      domains:["Death","The Underworld","Cold","Silence","Fate of the Ordinary Dead"],
+      symbols:["Half-living/half-dead face","Cold","Darkness","Darkness"],
+      appearance:"Half her body is the color of living, warm flesh. The other half is blue-black — the color of a corpse that has been cold for days. She speaks seldom. Her expression is unreadable. She is neither cruel nor kind — she is simply inevitable.",
+      myths:[
+        {title:"Cast Into the Underworld",text:"When Loki's children were born, Odin had visions of the destruction they would cause. He cast each one to the far edges of the cosmos. Jormungandr was thrown into the ocean. Fenrir was brought to Asgard to be watched. Hel was thrown into Niflheim — the world of cold and mist — and given dominion over all who die of sickness, old age, or anything other than combat. She rules there with absolute quiet authority."},
+        {title:"Baldur in Hel's Realm",text:"When Baldur was slain, he came to Hel. When Hermod rode to negotiate his release, Hel received him with formal courtesy. She stated her terms without cruelty: every being in the nine worlds must weep for Baldur, and she would release him. When the one giantess Thökk (Loki disguised) refused to weep, Hel simply kept Baldur. She had not promised more than she could deliver. Her bargain was honest — the failure was not hers."}
+      ],
+      facts:["The Old English word 'hell' derives directly from her name.","She is not evil — she is neutral. In Norse thought, the realm of Hel is not a punishment; it is simply where most people go when they die.","She rules over a far larger population than Odin does in Valhalla — most people die in bed, not in battle.","Unlike many death deities, Hel is depicted as lonely rather than malicious — a solitary queen of a cold and quiet realm.","At Ragnarok, the dead of Hel's realm will march to the final battle on the ship Naglfar steered by Loki."]
+    },
+    {
+      id:"skadi", name:"Skadi", oldnorse:"Skaði", title:"Goddess of Winter and the Hunt",
+      category:"other", emoji:"❄️", tribe:"Jötunn (honorary Æsir)",
+      domains:["Winter","Skiing","Hunting","Mountains","Cold","Justice"],
+      symbols:["Skis","Bow","Mountains","Snowshoes","Spear"],
+      appearance:"A fierce and beautiful woman always in winter hunting gear, skiing through impossible mountain terrain with a bow across her back. She moves through deep winter with the ease of someone completely in their element.",
+      myths:[
+        {title:"Demanding Justice for Her Father",text:"When the Aesir killed her father Thiazi (a storm giant who had kidnapped the goddess Idun), Skadi came to Asgard in full armor, ready for war. The gods offered weregild (blood compensation). She demanded a husband from among the gods, chosen blind — she could only see their feet. She chose the most beautiful feet, expecting Baldur. She got Njord, the sea god. Their marriage was unhappy: she needed the mountains, he needed the sea. They eventually parted ways."},
+        {title:"The Laughing Contest",text:"As further weregild, Skadi demanded to be made to laugh. Loki tied one end of a rope to a goat and the other to his own genitals. The two pulled back and forth, each screaming, until Loki finally fell into Skadi's lap. Despite herself, she laughed. The gods also placed her father's eyes in the sky as stars, which genuinely moved her."},
+        {title:"Binding Loki",text:"After Loki arranged the death of Baldur, Skadi helped bind him in the cave. She personally fastened the serpent above his face that drips venom on him. It is said she never forgave him."}
+      ],
+      facts:["Some scholars believe the name 'Scandinavia' derives from Skadi's name — making her potentially the personification of the entire northern landscape.","She is one of the very few Jotnar (giants) to be honored as a divine figure by the Aesir.","She is the patron goddess of skiing, hunting, and winter — the protector of everyone who works or travels in mountain conditions.","After her marriage to Njord dissolved, she is sometimes described as living with Odin or with Ullr (another winter deity) — she remained connected to the divine world."]
+    },
+    {
+      id:"idun", name:"Idun", oldnorse:"Iðunn", title:"Keeper of the Golden Apples, Goddess of Youth",
+      category:"aesir", emoji:"🍎", tribe:"Æsir",
+      domains:["Youth","Spring","Rejuvenation","Immortality","Fertility"],
+      symbols:["Golden apples","Her carved box","Spring blossoms"],
+      appearance:"Perpetually young and bright — because she eats her own golden apples. Gentle and tending in nature, but far more important than she appears. She carries a carved box or basket of golden apples.",
+      myths:[
+        {title:"The Theft of Idun",text:"The giant Thiazi forced Loki to lure Idun out of Asgard's walls. Loki told her there were even more beautiful apples just outside the gates and she came to look. Thiazi, in eagle form, seized her and carried her to Jotunheim. Without her apples, the Aesir began to age immediately. Their hair went grey, their hands trembled, their eyes dimmed. They tracked the problem to Loki and threatened to torture and kill him if he didn't fix it. Loki borrowed Freyja's falcon cloak, flew to Jotunheim, transformed Idun into a hazelnut, and flew back at full speed. Thiazi pursued as an eagle, but the gods lit a great fire at Asgard's walls. Thiazi's feathers caught fire. He fell. Thor killed him."}
+      ],
+      facts:["Idun's apples are not metaphorical — they are the literal mechanism of the gods' immortality. Without her, every god in Asgard will age and die.","This means Idun may be the single most important deity in Asgard — more vital even than Odin or Thor.","The episode of her theft shows that the seemingly gentle, domestic goddess is actually the linchpin the entire divine order depends on.","She is described as the 'youngest of the Æsir' — which is perhaps because she gives youth, she embodies it."]
+    },
+    {
+      id:"njord", name:"Njord", oldnorse:"Njörðr", title:"God of the Sea, Wind, and Coastal Wealth",
+      category:"vanir", emoji:"🌊", tribe:"Vanir",
+      domains:["Sea","Wind","Fishing","Coastal Wealth","Maritime Trade","Summer"],
+      symbols:["Ship","Fish","Sea wind","Gull","Shore"],
+      appearance:"Calm and oceanic. His feet, Skadi noticed, were perfectly formed from walking on the shore — the sea had polished them. He smells of salt and open water and seems perpetually at ease.",
+      myths:[
+        {title:"The Unhappy Marriage",text:"Njord's marriage to Skadi is one of Norse mythology's most poignant mismatches. She loved the howling mountains and the silence of deep snow. He loved the sea's sound and the cries of gulls. They tried: nine nights at Thrymheim in the mountains, nine nights at Noatun by the sea. Each was miserable in the other's home. They parted — but without bitterness, only the sadness of two people who genuinely tried."}
+      ],
+      facts:["Njord and his children Freyr and Freyja were originally Vanir gods, sent to Asgard as hostages after the Aesir-Vanir War — part of a peace agreement.","He is the god sailors and fishermen prayed to for safe passage and good catches.","Despite his unhappy marriage to Skadi, Njord is depicted as one of the most benevolent and easygoing of Norse gods.","He is one of the few gods who is associated entirely with gentleness and abundance — no wars, no tricks, no catastrophes."]
+    },
+    {
+      id:"bragi", name:"Bragi", oldnorse:"Bragi", title:"God of Poetry and Eloquence",
+      category:"aesir", emoji:"📜", tribe:"Æsir",
+      domains:["Poetry","Music","Eloquence","Wisdom","Memory"],
+      symbols:["Harp","Runes on tongue","Scroll","Golden beard"],
+      appearance:"Long golden beard, a harp, and runes carved on his tongue that grant mastery of all verse. He speaks slowly and beautifully. His words have the weight of the best poems — each one chosen rather than assumed.",
+      myths:[
+        {title:"Greeting the Einherjar",text:"When great warriors arrive in Valhalla, it is Bragi who greets them with verse — telling them their own stories back to them in immortal form. He is the divine skald (court poet) and his welcome to the heroic dead is the highest honor the Norse world could imagine."},
+        {title:"Loki's Insults",text:"In the poem Lokasenna, Loki barges into a feast of the gods and insults every deity in turn with brutal, often accurate, accusations. He calls Bragi a coward who has never fought a battle. Bragi, unlike the other gods, does not have a sharp comeback — he is a poet, not a warrior, and says so honestly. His wife Idun tries to calm the situation."}
+      ],
+      facts:["The word 'brag' in English may derive from his name — although it now means boasting, in his tradition it meant honorable boasting of great deeds.","He is sometimes identified with the historical Norwegian skald Bragi Boddason, the first named Norse poet.","In Norse culture, the ability to compose verse was as honored as physical prowess — Bragi's divine status reflects this.","His wife is Idun, keeper of the golden apples. The marriage of poetry and immortality is one of the loveliest pairings in the mythology."]
+    }
+  ];
+
+  // ═══════════════════════════════ NORSE RENDER ═══════════════════════════════
+
+  let currentNorseCat = "all";
+  let openNorseId = null;
+
+  function setNorseCat(btn, cat) {
+    document.querySelectorAll('[data-ncat]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentNorseCat = cat;
+    filterNorse();
+  }
+
+  function filterNorse() {
+    const q = document.getElementById('norse-search').value.toLowerCase();
+    document.querySelectorAll('#norse-grid .god-card').forEach(card => {
+      const id = card.dataset.id;
+      const g = NORSE_GODS.find(x => x.id === id);
+      let show = true;
+      if (currentNorseCat !== 'all' && g.category !== currentNorseCat) show = false;
+      if (q && show) {
+        const hay = [g.name, g.oldnorse, g.title, ...g.domains, ...g.symbols, g.tribe].join(' ').toLowerCase();
+        show = hay.includes(q);
+      }
+      card.style.display = show ? '' : 'none';
+    });
+  }
+
+  function toggleNorse(id) {
+    const card = document.querySelector(`#norse-grid .god-card[data-id="${id}"]`);
+    if (!card) return;
+    if (openNorseId && openNorseId !== id) {
+      document.querySelector(`#norse-grid .god-card[data-id="${openNorseId}"]`)?.classList.remove('open');
+    }
+    card.classList.toggle('open');
+    openNorseId = card.classList.contains('open') ? id : null;
+    if (openNorseId) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function buildNorse() {
+    const grid = document.getElementById('norse-grid');
+    const tribeColors = { "Æsir": "#b496ff", "Vanir": "#96ffdc", "Jötunn (blood-brother of Odin)": "#ff96c8", "Daughter of Loki": "#ff6688", "Jötunn (honorary Æsir)": "#ffdc96", "Vanir (lives with Æsir)": "#96ffdc" };
+    grid.innerHTML = NORSE_GODS.map(g => {
+      const tribeColor = tribeColors[g.tribe] || "#b496ff";
+      return `
+      <div class="god-card" data-id="${g.id}" onclick="toggleNorse('${g.id}')">
+        <div class="god-card-header">
+          <div class="god-emoji">${g.emoji}</div>
+          <div class="god-name-wrap">
+            <div class="god-name">${g.name}</div>
+            <div class="god-greek">${g.oldnorse}</div>
+          </div>
+        </div>
+        <div class="god-title">${g.title}</div>
+        <div class="god-domains">${g.domains.map(d => `<span class="domain-tag">${d}</span>`).join('')}</div>
+        <div class="god-roman" style="color:${tribeColor}">Tribe: ${g.tribe}</div>
+        <div class="god-expand-hint">tap to explore ▾</div>
+        <div class="god-details">
+          <div class="god-section-label">Appearance</div>
+          <div class="god-appearance">${g.appearance}</div>
+          <div class="god-section-label">Sacred Symbols</div>
+          <div class="god-symbols">${g.symbols.map(s => `<span class="symbol-tag">${s}</span>`).join('')}</div>
+          <div class="god-section-label">Myths & Stories</div>
+          ${g.myths.map(m => `<div class="myth-block"><div class="myth-title">◆ ${m.title}</div><div class="myth-text">${m.text}</div></div>`).join('')}
+          <div class="god-section-label">Facts</div>
+          <ul class="god-facts-list">${g.facts.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ═══════════════════════════════ POEM ═══════════════════════════════
+
+  async function generatePoem() {
+    const subject = document.getElementById('poem-subject').value.trim();
+    if (!subject) {
+      document.getElementById('poem-subject').focus();
+      return;
+    }
+    const style = document.getElementById('poem-style').value;
+    const mood  = document.getElementById('poem-mood').value;
+    const theme = document.getElementById('poem-theme').value.trim();
+
+    const btn     = document.getElementById('poem-btn');
+    const loading = document.getElementById('poem-loading');
+    const result  = document.getElementById('poem-result');
+    const text    = document.getElementById('poem-text');
+
+    btn.disabled = true;
+    loading.classList.add('visible');
+    result.classList.remove('visible');
+
+    try {
+      const res = await fetch('/api/poem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject, style, mood, theme }),
+      });
+      const data = await res.json();
+      loading.classList.remove('visible');
+      result.classList.add('visible');
+      if (data.poem) {
+        text.className = 'poem-text';
+        text.textContent = data.poem;
+      } else {
+        text.className = 'poem-error';
+        text.textContent = data.error || 'The muse went quiet. Try again.';
+      }
+    } catch {
+      loading.classList.remove('visible');
+      result.classList.add('visible');
+      text.className = 'poem-error';
+      text.textContent = 'The poem got lost in the stars. Try again.';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // Init
+  buildGods();
+  buildNorse();
+  buildRunes();
+  </script>
+</body>
+</html>

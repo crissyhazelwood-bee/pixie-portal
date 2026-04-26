@@ -691,6 +691,57 @@
         /* Build cursor */
         #build-cursor { filter:drop-shadow(0 0 14px rgba(255,150,200,0.95)) drop-shadow(0 0 5px rgba(255,255,255,0.6)); }
 
+        /* Premium art-direction pass: denser shell, cleaner glass, less prototype HUD */
+        #ui {
+            top:10px; left:10px; right:10px;
+            padding:10px 12px;
+            border:1px solid rgba(255,255,255,0.12);
+            border-radius:18px;
+            background:
+                linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.03)),
+                linear-gradient(135deg,rgba(16,8,34,0.92),rgba(7,5,18,0.86));
+            box-shadow:0 18px 54px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.16);
+        }
+        #ui::after {
+            content:'';
+            position:absolute; left:18px; right:18px; bottom:-1px; height:1px;
+            background:linear-gradient(90deg,transparent,rgba(255,150,200,0.5),rgba(150,255,220,0.42),transparent);
+            pointer-events:none;
+        }
+        #ui > div:nth-child(2) {
+            min-width:220px;
+            padding:6px 14px;
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:14px;
+            background:rgba(255,255,255,0.035);
+        }
+        .back-btn,
+        .ui-btn,
+        .stat-pill {
+            border-radius:12px;
+            background:linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.025));
+            box-shadow:inset 0 1px 0 rgba(255,255,255,0.13);
+        }
+        .ui-btn-row {
+            padding:4px;
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:16px;
+            background:rgba(255,255,255,0.035);
+        }
+        #build-panel,
+        #garden-panel {
+            border-radius:18px 18px 0 0;
+            box-shadow:0 -24px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+        .pi,
+        .herb-slot,
+        .shop-item {
+            border-radius:12px;
+            background:
+                linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02)),
+                rgba(15,8,34,0.82);
+        }
+
     </style>
 </head>
 <body>
@@ -1318,26 +1369,39 @@ function tileWater(sx,sy,t,col,row){
 function tileFlowers(sx,sy,t,v){
     tileGrass(sx,sy,v);
     var cx=sx+HW,cy=sy+HH;
-    // Ground shadows under each flower — cast toward lower-right (top-left light source)
-    ctx.fillStyle='rgba(0,0,0,0.18)';
-    [[-HW*.32,-HH*.2],[HW*.18,HH*.32],[HW*.4,HH*.05],[-HW*.12,HH*.48],[-HW*.42,HH*.22]].forEach(function(fp){
-        ctx.beginPath(); ctx.ellipse(cx+fp[0]+HW*.10,cy+fp[1]+HH*.16,HH*.15,HH*.06,0,0,Math.PI*2); ctx.fill();
-    });
-    var bob=Math.sin(t*0.85+sx*.12)*1.5;
-    var sway=Math.sin(t*0.72+sx*.018+sy*.014)*2.0;
-    var flowers=[
-        [-HW*.32,-HH*.4,'#ff96c8','#fff8a0',.12],
-        [HW*.18,HH*.2,'#b496ff','#ffff80',.11],
-        [HW*.4,-HH*.15,'#ff7744','#ffff90',.10],
-        [-HW*.12,HH*.38,'#ffffff','#ffcc44',.09],
-        [-HW*.42,HH*.12,'#ffaadd','#ffffff',.10]
+    var hash=Math.abs(Math.sin((sx+13)*12.9898+(sy+7)*78.233))*43758.5453;
+    var variant=Math.floor(hash)%4;
+    var bob=Math.sin(t*0.72+sx*.09+variant)*1.1;
+    var sway=Math.sin(t*0.55+sx*.015+sy*.017)*1.5;
+    var palettes=[
+        [['#ff9bcf','#fff3a6'],['#9effdc','#f7ffba'],['#c9a8ff','#fff']],
+        [['#ffcf5d','#553014'],['#ff8aa6','#fff8d8'],['#ffffff','#ffd36a']],
+        [['#a985ff','#fff'],['#65e9d3','#ecfff6'],['#ff7edb','#fff2a6']],
+        [['#ffb36b','#4a270f'],['#f6f0ff','#ffd56a'],['#96ffdc','#1c4d44']]
     ];
+    var layouts=[
+        [[-HW*.34,-HH*.28,.11],[HW*.10,HH*.28,.09],[HW*.34,HH*.02,.075]],
+        [[-HW*.20,HH*.10,.12],[HW*.26,-HH*.20,.08]],
+        [[-HW*.38,HH*.16,.075],[-HW*.04,-HH*.28,.095],[HW*.34,HH*.20,.10],[HW*.18,-HH*.04,.07]],
+        [[-HW*.10,HH*.36,.10],[HW*.30,-HH*.12,.095]]
+    ];
+    var flowers=layouts[variant].map(function(pos,i){
+        var pal=palettes[variant][i%palettes[variant].length];
+        return [pos[0],pos[1],pal[0],pal[1],pos[2]];
+    });
+    ctx.fillStyle='rgba(0,0,0,0.14)';
+    flowers.forEach(function(f){
+        ctx.beginPath(); ctx.ellipse(cx+f[0]+HW*.10,cy+f[1]+HH*.16,HH*.13,HH*.05,0,0,Math.PI*2); ctx.fill();
+    });
     flowers.forEach(function(f){
         var fx=cx+f[0]+sway, fy=cy+f[1]+bob, pr=f[4]*TW_px;
+        ctx.strokeStyle='rgba(42,90,48,0.42)';
+        ctx.lineWidth=Math.max(1,pr*.16);
+        ctx.beginPath(); ctx.moveTo(fx,fy+pr*.6); ctx.quadraticCurveTo(fx-sway*.35,fy+HH*.28,fx-sway*.15,fy+HH*.52); ctx.stroke();
         ctx.fillStyle=f[2];
         for(var p=0;p<5;p++){
             var a=p/5*Math.PI*2;
-            ctx.beginPath(); ctx.arc(fx+Math.cos(a)*pr*1.3,fy+Math.sin(a)*pr*.75,pr*.7,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(fx+Math.cos(a)*pr*1.15,fy+Math.sin(a)*pr*.72,pr*.62,pr*.42,a,0,Math.PI*2); ctx.fill();
         }
         ctx.fillStyle=f[3];
         ctx.beginPath(); ctx.arc(fx,fy,pr*.5,0,Math.PI*2); ctx.fill();
@@ -1476,6 +1540,13 @@ function tileTree(sx,sy,v,t){
     ctx.beginPath(); ctx.arc(ccx+HW*.3*sc,top+TH_px*.08*sc,TW_px*.22*sc,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#74dc58';
     ctx.beginPath(); ctx.arc(ccx,top-TH_px*.32*sc,TW_px*.16*sc,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(8,22,7,0.34)';
+    ctx.lineWidth=Math.max(1,TW_px*.018*sc);
+    ctx.beginPath(); ctx.arc(ccx,top,TW_px*.43*sc,Math.PI*.12,Math.PI*1.1); ctx.stroke();
+    ctx.fillStyle='rgba(235,255,210,0.18)';
+    ctx.beginPath(); ctx.ellipse(ccx-HW*.18*sc,top-TH_px*.23*sc,TW_px*.13*sc,TW_px*.055*sc,-0.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(6,18,8,0.16)';
+    ctx.beginPath(); ctx.ellipse(ccx+HW*.20*sc,top+TH_px*.26*sc,TW_px*.22*sc,TW_px*.07*sc,0.2,0,Math.PI*2); ctx.fill();
 }
 
 function tileRock(sx,sy,v){
@@ -4886,6 +4957,9 @@ function drawPlayer(t){
     ctx.shadowColor=gc; ctx.shadowBlur=10;
     ctx.fillStyle=skinC;
     ctx.beginPath(); ctx.arc(pcx,headCY,headR,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(90,36,80,0.32)';
+    ctx.lineWidth=Math.max(1,headR*0.08);
+    ctx.stroke();
     ctx.shadowBlur=0;
     // Soft face highlight
     ctx.globalAlpha=0.2;
@@ -4907,6 +4981,12 @@ function drawPlayer(t){
     ctx.beginPath(); ctx.ellipse(pcx-headR*0.33,headCY-headR*0.04,headR*0.13,headR*0.14*blink,0,0,Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(pcx+headR*0.33,headCY-headR*0.04,headR*0.13,headR*0.14*blink,0,0,Math.PI*2); ctx.fill();
     if(blink>0.4){
+        ctx.fillStyle='rgba(120,70,160,0.28)';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.33,headCY-headR*0.03,headR*0.19,headR*0.19,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(pcx+headR*0.33,headCY-headR*0.03,headR*0.19,headR*0.19,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#1a0a2e';
+        ctx.beginPath(); ctx.ellipse(pcx-headR*0.33,headCY-headR*0.04,headR*0.11,headR*0.12,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(pcx+headR*0.33,headCY-headR*0.04,headR*0.11,headR*0.12,0,0,Math.PI*2); ctx.fill();
         ctx.fillStyle='#ffffff';
         ctx.beginPath(); ctx.arc(pcx-headR*0.29,headCY-headR*0.09,headR*0.048,0,Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(pcx+headR*0.37,headCY-headR*0.09,headR*0.048,0,Math.PI*2); ctx.fill();
@@ -6313,12 +6393,12 @@ function draw(t){
     }
     ctx.globalAlpha=1; ctx.shadowBlur=0;
 
-    var vg=ctx.createRadialGradient(SW/2,SH/2,SH*.2,SW/2,SH/2,SH*.88);
-    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(1,0,7,.65)');
+    var vg=ctx.createRadialGradient(SW/2,SH/2,SH*.32,SW/2,SH/2,SH*.95);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(0.72,'rgba(22,6,35,0.08)'); vg.addColorStop(1,'rgba(1,0,7,.42)');
     ctx.fillStyle=vg; ctx.fillRect(0,0,SW,SH);
     // World-edge mist — blue-white fog so the map fades into mystery rather than cutting off
-    var wm=ctx.createRadialGradient(SW/2,SH/2,SH*.3,SW/2,SH/2,SH*.97);
-    wm.addColorStop(0,'rgba(208,214,235,0)'); wm.addColorStop(1,'rgba(208,214,235,0.28)');
+    var wm=ctx.createRadialGradient(SW/2,SH/2,SH*.36,SW/2,SH/2,SH*.99);
+    wm.addColorStop(0,'rgba(208,214,235,0)'); wm.addColorStop(1,'rgba(208,214,235,0.18)');
     ctx.fillStyle=wm; ctx.fillRect(0,0,SW,SH);
 
     if(dayF>0){ ctx.globalAlpha=dayF*0.07; ctx.fillStyle='rgb(255,230,180)'; ctx.fillRect(0,0,SW,SH); }
