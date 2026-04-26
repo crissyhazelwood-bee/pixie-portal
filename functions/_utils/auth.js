@@ -67,9 +67,14 @@ export async function getSessionUserId(env, request) {
 // sessionVersion should be the current session_version value from the users table.
 // After a password reset/recovery, pass the newly incremented version so the
 // fresh cookie is valid while all old cookies are rejected.
-export async function createSessionCookie(env, userId, sessionVersion = 0) {
+export async function createSessionCookie(env, userId, sessionVersion = 0, request = null) {
   const signed = await sign(env, `${userId}:${sessionVersion}`);
-  return `${COOKIE_NAME}=${encodeURIComponent(signed)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${COOKIE_MAX_AGE}`;
+  let secure = true;
+  try {
+    const url = request ? new URL(request.url) : null;
+    secure = !url || url.protocol === "https:";
+  } catch(e) {}
+  return `${COOKIE_NAME}=${encodeURIComponent(signed)}; Path=/; HttpOnly; SameSite=Lax; ${secure ? "Secure; " : ""}Max-Age=${COOKIE_MAX_AGE}`;
 }
 
 export function clearSessionCookie() {

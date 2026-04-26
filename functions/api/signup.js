@@ -32,7 +32,7 @@ export async function onRequestPost({ request, env }) {
         ).run();
 
         const userId = res.meta.last_row_id;
-        const cookie = await createSessionCookie(env, userId, 0);
+        const cookie = await createSessionCookie(env, userId, 0, request);
         return new Response(JSON.stringify({
             success: true,
             recoveryCode,

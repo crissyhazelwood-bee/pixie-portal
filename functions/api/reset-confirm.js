@@ -80,7 +80,7 @@ export async function onRequestPost({ request, env }) {
 
         await env.DB.prepare("UPDATE password_reset_tokens SET used = 1 WHERE id = ?").bind(token.id).run();
 
-        const cookie = await createSessionCookie(env, user.id, newVersion);
+        const cookie = await createSessionCookie(env, user.id, newVersion, request);
         return new Response(JSON.stringify({
             success: true,
             recoveryCode: newRecoveryCode,

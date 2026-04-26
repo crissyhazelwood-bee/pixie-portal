@@ -181,6 +181,22 @@
         .video-failed { color: #ff6688; font-size: 13px; margin-top: 14px; }
         .entry-video-wrap { margin-top: 14px; }
         .dream-video { width: 100%; border-radius: 12px; max-height: 360px; display: block; }
+        .dream-local-animation { position: relative; height: 220px; margin-top: 14px; overflow: hidden; border-radius: 14px; border: 1px solid rgba(255,255,255,0.16); background: radial-gradient(circle at 50% 18%, rgba(255,230,150,0.22), transparent 22%), linear-gradient(180deg,#17123b 0%,#29164b 52%,#0f1f34 100%); box-shadow: inset 0 0 60px rgba(180,150,255,0.16); }
+        .dream-local-animation .dream-moon { position: absolute; top: 20px; right: 34px; width: 58px; height: 58px; border-radius: 50%; background: #fff2a8; box-shadow: 0 0 32px rgba(255,242,168,0.75); animation: dream-moon-drift 8s ease-in-out infinite; }
+        .dream-local-animation .dream-hills { position: absolute; left: -8%; right: -8%; bottom: -34px; height: 105px; background: radial-gradient(ellipse at 30% 100%, #385d58 0 34%, transparent 35%), radial-gradient(ellipse at 70% 100%, #263a5b 0 42%, transparent 43%); animation: dream-hills-sway 7s ease-in-out infinite; }
+        .dream-local-animation .dream-crystal { position: absolute; bottom: 44px; width: 28px; height: 72px; background: linear-gradient(135deg,#9fffe2,#b496ff 55%,#ff96c8); clip-path: polygon(50% 0,100% 35%,72% 100%,28% 100%,0 35%); box-shadow: 0 0 22px rgba(180,150,255,0.55); animation: dream-crystal-glow 2.8s ease-in-out infinite; }
+        .dream-local-animation .dream-crystal:nth-child(3) { left: 18%; transform: scale(0.8); animation-delay: 0.2s; }
+        .dream-local-animation .dream-crystal:nth-child(4) { left: 44%; animation-delay: 0.7s; }
+        .dream-local-animation .dream-crystal:nth-child(5) { left: 72%; transform: scale(0.68); animation-delay: 1.1s; }
+        .dream-local-animation .dream-orb { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px #fff; animation: dream-orb-rise 5.5s linear infinite; }
+        .dream-local-animation .dream-orb:nth-child(6) { left: 22%; bottom: 28px; animation-delay: 0s; }
+        .dream-local-animation .dream-orb:nth-child(7) { left: 48%; bottom: 22px; animation-delay: 1.5s; }
+        .dream-local-animation .dream-orb:nth-child(8) { left: 76%; bottom: 34px; animation-delay: 3s; }
+        .dream-local-caption { position: absolute; left: 16px; right: 16px; bottom: 14px; color: rgba(255,255,255,0.86); font-size: 12px; line-height: 1.35; text-shadow: 0 2px 12px rgba(0,0,0,0.65); }
+        @keyframes dream-moon-drift { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+        @keyframes dream-hills-sway { 0%,100%{transform:translateX(0)} 50%{transform:translateX(18px)} }
+        @keyframes dream-crystal-glow { 0%,100%{filter:brightness(0.85)} 50%{filter:brightness(1.35)} }
+        @keyframes dream-orb-rise { 0%{opacity:0;transform:translateY(0) scale(0.8)} 20%{opacity:1} 100%{opacity:0;transform:translateY(-145px) scale(1.45)} }
 
         /* Shop / credits */
         .journal-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
@@ -1710,6 +1726,7 @@
                     <span class="nav-dropdown-toggle">Lore ▾</span>
                     <div class="nav-dropdown-menu">
                         <a href="/odins_eye.html">Odin's Eye</a>
+                        <a href="/scribe_of_the_gods.html">Scribe of the Gods</a>
                     </div>
                 </div>
             </div>
@@ -4251,9 +4268,30 @@
             try {
                 const parsed = new URL(url);
                 if (parsed.protocol !== 'https:') return '';
-                if (!parsed.hostname.endsWith('.replicate.delivery') && parsed.hostname !== 'replicate.delivery') return '';
+                const allowed = parsed.hostname === 'replicate.delivery'
+                    || parsed.hostname === 'replicate.com'
+                    || parsed.hostname.endsWith('.replicate.delivery');
+                if (!allowed) return '';
                 return url.replace(/"/g, '%22');
             } catch(e) { return ''; }
+        }
+
+        function localDreamAnimationHtml(id, style = 'auto') {
+            const entry = document.querySelector(`.journal-entry[data-entry-id="${id}"]`);
+            const title = entry?.querySelector('.entry-title')?.textContent?.trim() || 'Dream preview';
+            const content = entry?.querySelector('.entry-content')?.textContent?.trim() || 'A glowing dream gathers itself into motion.';
+            const caption = `${title} — ${content}`.slice(0, 150);
+            return `<div class="dream-local-animation" data-style="${escHtml(style)}" aria-label="Local animated dream preview">
+                <div class="dream-moon"></div>
+                <div class="dream-hills"></div>
+                <div class="dream-crystal"></div>
+                <div class="dream-crystal"></div>
+                <div class="dream-crystal"></div>
+                <div class="dream-orb"></div>
+                <div class="dream-orb"></div>
+                <div class="dream-orb"></div>
+                <div class="dream-local-caption">${escHtml(caption)}</div>
+            </div>`;
         }
 
         async function animateDream(id) {
@@ -4261,11 +4299,16 @@
             if (!area) return;
             const style = document.getElementById('style-' + id)?.value || 'auto';
             area.innerHTML = '<div class="video-loading"><span class="video-spin">✦</span> Starting...</div>';
-            const res = await fetch(API + '/api/journal/' + id + '/animate', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ style }), credentials: 'include'
-            });
-            const data = await res.json();
+            let data;
+            try {
+                const res = await fetch(API + '/api/journal/' + id + '/animate', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ style }), credentials: 'include'
+                });
+                data = await res.json().catch(() => ({}));
+            } catch (err) {
+                data = { error: 'network_error' };
+            }
             if (data.status === 'processing') {
                 area.innerHTML = '<div class="video-loading"><span class="video-spin">✦</span> Generating your dream video...</div>';
                 startDreamPolling(id);
@@ -4275,7 +4318,11 @@
                     : "You've used your free animation today ✦";
                 area.innerHTML = `<div class="video-failed" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">${msg} <button class="btn btn-primary btn-small" onclick="openModal('shop')">Buy Credits ✦</button></div>`;
             } else {
-                area.innerHTML = '<div class="video-failed">Could not start generation ✦</div>' + animateButtonHtml(id);
+                if (data.error === 'missing_replicate_key') {
+                    area.innerHTML = localDreamAnimationHtml(id, style) + '<div class="video-loading">Local preview animation. Add REPLICATE_API_KEY for AI video generation.</div>';
+                } else {
+                    area.innerHTML = '<div class="video-failed">Could not start generation ✦</div>' + animateButtonHtml(id);
+                }
             }
         }
 
@@ -4285,12 +4332,21 @@
             window._dreamPollers[id] = setInterval(async () => {
                 const area = document.getElementById('animate-area-' + id);
                 if (!area) { clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id]; return; }
-                const res = await fetch(API + '/api/journal/' + id + '/animate', { credentials: 'include' });
-                const data = await res.json();
+                let data;
+                try {
+                    const res = await fetch(API + '/api/journal/' + id + '/animate', { credentials: 'include' });
+                    data = await res.json().catch(() => ({}));
+                } catch (err) {
+                    return;
+                }
                 if (data.status === 'done') {
                     clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id];
                     const u = safeVideoUrl(data.video_url);
-                    if (u) area.outerHTML = `<div class="entry-video-wrap"><video src="${u}" controls loop autoplay muted playsinline class="dream-video"></video></div>`;
+                    if (u) {
+                        area.outerHTML = `<div class="entry-video-wrap"><video src="${u}" controls loop autoplay muted playsinline class="dream-video"></video></div>`;
+                    } else {
+                        area.innerHTML = '<div class="video-failed">Generation finished, but the video URL was not usable &#10022;</div>' + animateButtonHtml(id);
+                    }
                 } else if (data.status === 'failed') {
                     clearInterval(window._dreamPollers[id]); delete window._dreamPollers[id];
                     area.innerHTML = '<div class="video-failed">Generation failed ✦</div>' + animateButtonHtml(id);

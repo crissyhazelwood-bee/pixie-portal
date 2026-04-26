@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scribe of the Gods — Pixie Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0614; color: #e8d8ff; font-family: 'Nunito', sans-serif; min-height: 100vh; }
+
+    /* ── TOPBAR ── */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: rgba(10,6,20,0.95); border-bottom: 1px solid rgba(180,150,255,0.15); position: sticky; top: 0; z-index: 100; }
+    .topbar-title { font-family: 'Pacifico', cursive; font-size: 22px; background: linear-gradient(135deg,#ff96c8,#b496ff,#96ffdc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .back-link { color: #b496ff; text-decoration: none; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; opacity: 0.7; transition: opacity 0.2s; }
+    .back-link:hover { opacity: 1; }
+
+    /* ── HERO ── */
+    .hero { text-align: center; padding: 48px 24px 32px; background: radial-gradient(ellipse at top, rgba(180,150,255,0.12) 0%, transparent 60%); }
+    .hero-emoji { font-size: 64px; display: block; margin-bottom: 12px; filter: drop-shadow(0 0 20px rgba(180,150,255,0.6)); }
+    .hero h1 { font-family: 'Pacifico', cursive; font-size: clamp(28px,6vw,52px); background: linear-gradient(135deg,#ffd700,#ff96c8,#b496ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .hero p { color: #9080b0; font-size: 15px; max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+    /* ── TABS ── */
+    .tab-bar { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; padding: 20px 16px 0; }
+    .tab-btn { padding: 9px 18px; border-radius: 999px; border: 1px solid rgba(180,150,255,0.25); background: transparent; color: rgba(200,180,255,0.6); font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; }
+    .tab-btn:hover { border-color: #b496ff; color: #b496ff; }
+    .tab-btn.active { background: linear-gradient(135deg,#b496ff,#ff96c8); border-color: transparent; color: #fff; }
+
+    .section { display: none; padding: 28px 16px 60px; max-width: 960px; margin: 0 auto; }
+    .section.active { display: block; }
+
+    /* ── SHARED CARD STYLES ── */
+    .card { background: linear-gradient(135deg,rgba(26,16,48,0.9),rgba(13,8,32,0.9)); border: 1px solid rgba(180,150,255,0.18); border-radius: 18px; padding: 22px; margin-bottom: 18px; }
+    .card h2 { font-family: 'Pacifico', cursive; color: #ffd700; font-size: 22px; margin-bottom: 12px; }
+    .card h3 { color: #ff96c8; font-size: 15px; font-weight: 800; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .card p, .card li { color: #c8b8e8; font-size: 14px; line-height: 1.75; }
+    .card ul { padding-left: 20px; margin-top: 6px; }
+    .card ul li { margin-bottom: 4px; }
+    .highlight { color: #96ffdc; font-weight: 800; }
+    .pink { color: #ff96c8; font-weight: 800; }
+    .gold { color: #ffd700; font-weight: 800; }
+    .purple { color: #b496ff; font-weight: 800; }
+
+    /* ── THOTH HERO CARD ── */
+    .thoth-hero { background: linear-gradient(135deg,rgba(40,20,80,0.95),rgba(13,8,32,0.95)); border: 1px solid rgba(255,215,0,0.3); border-radius: 22px; padding: 32px; margin-bottom: 24px; text-align: center; }
+    .thoth-hero .emoji-row { font-size: 48px; margin-bottom: 16px; }
+    .thoth-hero h1 { font-family: 'Pacifico', cursive; font-size: 36px; background: linear-gradient(135deg,#ffd700,#ff96c8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+    .thoth-hero .subtitle { color: #b496ff; font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .thoth-hero p { color: #c8b8e8; font-size: 14px; line-height: 1.8; max-width: 680px; margin: 0 auto; }
+
+    /* ── EPITHETS ── */
+    .epithet-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .epithet { background: rgba(180,150,255,0.1); border: 1px solid rgba(180,150,255,0.25); border-radius: 8px; padding: 5px 11px; font-size: 12px; color: #b496ff; font-style: italic; }
+
+    /* ── TWO-COL GRID ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:620px){ .two-col { grid-template-columns: 1fr; } }
+
+    /* ── FORM CARD (for icons/glyphs) ── */
+    .form-card { background: linear-gradient(135deg,rgba(26,16,48,0.9),rgba(13,8,32,0.9)); border: 1px solid rgba(255,215,0,0.2); border-radius: 14px; padding: 18px; }
+    .form-card .form-emoji { font-size: 36px; margin-bottom: 8px; }
+    .form-card h4 { color: #ffd700; font-weight: 900; font-size: 14px; margin-bottom: 6px; }
+    .form-card p { color: #9080b0; font-size: 13px; line-height: 1.7; }
+
+    /* ── GOD CARDS ── */
+    .god-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 14px; }
+    .god-card { background: linear-gradient(135deg,rgba(26,16,48,0.9),rgba(13,8,32,0.9)); border: 1px solid rgba(180,150,255,0.18); border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.2s; }
+    .god-card:hover { border-color: rgba(255,150,200,0.4); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(180,150,255,0.15); }
+    .god-card .g-emoji { font-size: 36px; margin-bottom: 8px; }
+    .god-card .g-name { color: #ffd700; font-weight: 900; font-size: 16px; }
+    .god-card .g-eg { color: rgba(180,150,255,0.6); font-size: 11px; font-style: italic; }
+    .god-card .g-title { color: #ff96c8; font-size: 12px; font-weight: 800; margin: 4px 0; }
+    .god-card .g-domains { color: #9080b0; font-size: 12px; line-height: 1.5; }
+    .god-detail { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(180,150,255,0.15); }
+    .god-detail p, .god-detail li { font-size: 13px; color: #c8b8e8; line-height: 1.7; margin-bottom: 6px; }
+    .god-detail ul { padding-left: 18px; }
+    .god-detail h5 { color: #96ffdc; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0 4px; }
+    .god-card.open { border-color: rgba(255,215,0,0.4); }
+    .god-card.open .god-detail { display: block; }
+
+    /* ── SECTION LABEL ── */
+    .section-label { color: #b496ff; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin: 28px 0 12px; padding-left: 2px; }
+
+    /* ── GLYPH TABLE ── */
+    .glyph-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 10px; margin-top: 12px; }
+    .glyph-tile { background: rgba(26,16,48,0.9); border: 1px solid rgba(180,150,255,0.2); border-radius: 10px; padding: 12px 8px; text-align: center; }
+    .glyph-tile .glyph-name { color: #ffd700; font-size: 11px; font-weight: 800; margin-bottom: 3px; }
+    .glyph-tile .glyph-trans { color: #ff96c8; font-size: 11px; font-style: italic; }
+    .glyph-tile .glyph-sound { color: #9080b0; font-size: 11px; }
+
+    /* ── PAPYRUS CARDS ── */
+    .papyrus-card { background: linear-gradient(135deg,rgba(30,15,10,0.95),rgba(13,8,5,0.95)); border: 1px solid rgba(210,140,50,0.3); border-radius: 16px; padding: 22px; margin-bottom: 18px; }
+    .papyrus-card h3 { color: #ffd700; font-weight: 900; font-size: 17px; margin-bottom: 4px; }
+    .papyrus-card .p-date { color: rgba(210,140,50,0.7); font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+    .papyrus-card p, .papyrus-card li { color: #c8b8e8; font-size: 14px; line-height: 1.75; }
+    .papyrus-card ul { padding-left: 20px; margin-top: 6px; }
+    .papyrus-card li { margin-bottom: 4px; }
+
+    /* ── MATH TABLE ── */
+    .num-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 10px; margin-top: 12px; }
+    .num-tile { background: rgba(26,16,48,0.9); border: 1px solid rgba(150,255,220,0.2); border-radius: 10px; padding: 12px; text-align: center; }
+    .num-tile .n-val { color: #96ffdc; font-size: 18px; font-weight: 900; }
+    .num-tile .n-sym { color: #ffd700; font-size: 12px; margin: 3px 0; }
+    .num-tile .n-desc { color: #9080b0; font-size: 11px; }
+
+    /* ── STAT BOX ── */
+    .stat-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+    .stat-box { background: rgba(150,255,220,0.05); border: 1px solid rgba(150,255,220,0.2); border-radius: 10px; padding: 12px 16px; flex: 1; min-width: 120px; text-align: center; }
+    .stat-box .s-val { color: #96ffdc; font-size: 22px; font-weight: 900; }
+    .stat-box .s-label { color: #9080b0; font-size: 11px; margin-top: 3px; }
+
+    /* ── MYTH BLOCK ── */
+    .myth { background: rgba(180,150,255,0.06); border-left: 3px solid #b496ff; border-radius: 0 10px 10px 0; padding: 14px 16px; margin: 10px 0; }
+    .myth .myth-title { color: #b496ff; font-weight: 900; font-size: 13px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .myth p { color: #c8b8e8; font-size: 14px; line-height: 1.75; }
+
+    /* ── DUAT SECTION ── */
+    .duat-card { background: linear-gradient(135deg,rgba(5,2,15,0.98),rgba(10,5,25,0.98)); border: 1px solid rgba(100,80,180,0.35); border-radius: 18px; padding: 24px; margin-top: 24px; }
+    .duat-card h2 { font-family: 'Pacifico', cursive; color: #b496ff; margin-bottom: 10px; }
+
+    /* ── COMPARISON TABLE ── */
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    .compare-table th { background: rgba(180,150,255,0.15); color: #b496ff; padding: 10px 12px; text-align: left; font-weight: 800; }
+    .compare-table td { padding: 9px 12px; border-top: 1px solid rgba(180,150,255,0.1); color: #c8b8e8; }
+    .compare-table tr:hover td { background: rgba(180,150,255,0.05); }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0a0614; } ::-webkit-scrollbar-thumb { background: rgba(180,150,255,0.3); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/index.html" class="back-link">← Pixie Portal</a>
+  <span class="topbar-title">Scribe of the Gods</span>
+  <span style="width:120px"></span>
+</div>
+
+<div class="hero">
+  <span class="hero-emoji">𓅃</span>
+  <h1>Scribe of the Gods</h1>
+  <p>Ancient Egypt's gods, writing, medicine, science, and mathematics — the full knowledge of a civilization that shaped the world.</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('thoth')">𓅃 Thoth</button>
+  <button class="tab-btn" onclick="switchTab('gods')">⚖ The Gods</button>
+  <button class="tab-btn" onclick="switchTab('glyphs')">𓂀 Hieroglyphs</button>
+  <button class="tab-btn" onclick="switchTab('medicine')">𓏺 Medicine & Science</button>
+  <button class="tab-btn" onclick="switchTab('math')">𓎆 Mathematics</button>
+</div>
+
+<!-- ═══════════ THOTH ═══════════ -->
+<div class="section active" id="section-thoth">
+
+  <div class="thoth-hero">
+    <div class="emoji-row">𓅃 🌙 𓂀</div>
+    <h1>Thoth — Djehuty</h1>
+    <div class="subtitle">Lord of Divine Words · Scribe of Ma'at · He Who Balances · Thrice-Great</div>
+    <p>Before the sun rose on the first morning, Thoth existed. He is the ibis-headed god of wisdom, writing, magic, and the moon — the divine scribe who records every truth, mediates every conflict, and keeps the universe from falling into chaos. Every pharaoh's reign was counted by his notched palm branch. Every soul's fate was written by his hand.</p>
+  </div>
+
+  <div class="card">
+    <h2>Names & Epithets</h2>
+    <p>His true Egyptian name was <span class="gold">ḏḥwtj</span> — reconstructed as <span class="highlight">Djehuty</span> or <span class="highlight">Djehuti</span> by modern scholars. "Thoth" is the Greek form. His name means literally <span class="pink">"He who is like the ibis"</span> — the ibis was the oldest known name for the bird before it became the name of the god.</p>
+    <h3>Other Names</h3>
+    <div class="epithet-grid">
+      <span class="epithet">Djehuty / Djehuti</span>
+      <span class="epithet">Tehuti / Tahuti</span>
+      <span class="epithet">A'an (as the baboon)</span>
+      <span class="epithet">A'ah-Djehuty</span>
+      <span class="epithet">Hermes Trismegistus</span>
+    </div>
+    <h3>His Titles</h3>
+    <div class="epithet-grid">
+      <span class="epithet">Lord of Divine Words</span>
+      <span class="epithet">Scribe of Ma'at</span>
+      <span class="epithet">He who Balances</span>
+      <span class="epithet">Master of the Balance</span>
+      <span class="epithet">Voice of Ra</span>
+      <span class="epithet">Secretary of Ra</span>
+      <span class="epithet">Reckoner of Time</span>
+      <span class="epithet">God Without a Mother</span>
+      <span class="epithet">Self-Created</span>
+      <span class="epithet">Just and Incorruptible Judge</span>
+      <span class="epithet">Scribe of the Underworld</span>
+      <span class="epithet">He who Made Calculations Concerning the Heavens</span>
+      <span class="epithet">The One who Measured out the Heavens and Planned the Earth</span>
+      <span class="epithet">Three Times Great, the Great, the Great</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>His Three Forms</h2>
+    <div class="two-col">
+      <div class="form-card">
+        <div class="form-emoji">𓅃</div>
+        <h4>The Ibis-Headed Man</h4>
+        <p>Most common. A human body topped by the sacred ibis head. He holds a writing palette, a notched palm branch to count the years of pharaohs' reigns, or a papyrus scroll.<br><br>Why the ibis: Its curved beak <strong style="color:#ffd700">resembles the crescent moon</strong>. The bird was considered deeply intelligent and methodical. Its beak resembles a writing pen. It probes deep mud for hidden sustenance — seeking hidden knowledge. Millions of ibises were mummified as offerings to him.</p>
+      </div>
+      <div class="form-card">
+        <div class="form-emoji">🐒</div>
+        <h4>The Hamadryas Baboon</h4>
+        <p>This form actually <strong style="color:#ffd700">predates the ibis form</strong> archaeologically. He sits with a crescent moon or full lunar disk atop his head. In this form he is called <strong style="color:#ff96c8">A'an</strong>, God of Equilibrium.<br><br>Why the baboon: Baboons are highly intelligent. They chatter aggressively at sunrise each morning — the Egyptians read this as prayer and worship of Ra. In the Hall of Two Truths, the baboon-Thoth watches the scales and reports when the balance is exactly even.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How Thoth Was Born</h2>
+    <p style="color:#9080b0;font-size:13px;margin-bottom:12px;">Egyptian mythology preserved multiple origins — they didn't choose between them.</p>
+    <div class="myth">
+      <div class="myth-title">Born from the Lips of Ra</div>
+      <p>Thoth was born from Ra's mouth at the moment of creation — he was the <span class="highlight">divine Word itself</span>, the utterance that set existence in motion. This made him "God Without a Mother," a self-created being brought forth by pure divine speech.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Self-Created from the Primordial Waters</div>
+      <p>In the Hermopolitan tradition, Thoth existed <span class="highlight">before all other gods</span>, emerging from the waters of Nun of his own will. In ibis form, he laid the great <span class="gold">Cosmic Egg</span> from which all creation hatched. He is the source of everything.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Born of the Divine Conflict</div>
+      <p>In the Contendings of Horus and Set, Thoth was born from Set's accidental swallowing of Horus's semen — making him literally a product of the divine conflict itself, and perfectly positioned to mediate it for all time.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Son of Ra</div>
+      <p>The simpler dynastic version: one of the divine children of Ra, his most trusted minister and scribe.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Scribe of the Gods</h2>
+    <p>The universe ran on <span class="pink">recorded truth</span> in Egyptian theology. For events to be real, permanent, and cosmically valid, they had to be written by an incorruptible hand. Thoth provided that hand.</p>
+    <ul>
+      <li>Recorded all decisions in the divine council — the institutional memory of the gods</li>
+      <li>Maintained the <span class="gold">notched palm branch</span> (<em>rnpt</em>) — the hieroglyphic sign for "year" — counting every pharaoh's reign</li>
+      <li>Tracked the lunar months, solar year, and all the seasons</li>
+      <li>As <span class="highlight">Voice of Ra</span>, announced Ra's divine decrees to gods and humans alike</li>
+      <li>Maintained the records of every human soul in the Duat</li>
+      <li>Was patron of all Egyptian scribes — before writing, scribes poured a drop of water as a libation to his memory</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>The Weighing of the Heart</h2>
+    <p>The most depicted scene in all of Egyptian religious art. Thoth is present and active in every version.</p>
+    <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:16px;margin:14px 0;">
+      <p style="text-align:center;color:#ffd700;font-weight:900;margin-bottom:12px;">⚖ The Hall of Two Truths</p>
+      <ol style="padding-left:20px;color:#c8b8e8;font-size:14px;line-height:2;">
+        <li>The dead soul enters, escorted by <span class="highlight">Anubis</span></li>
+        <li>Recites the <span class="gold">42 Negative Confessions</span> — denying one specific sin before each of 42 divine judges: <em>"I have not killed," "I have not stolen," "I have not lied"...</em></li>
+        <li>Anubis places the <span class="pink">heart</span> on one pan of the golden scale</li>
+        <li>The <span class="gold">feather of Ma'at</span> — truth itself — sits on the other pan</li>
+        <li><span class="purple">Thoth stands beside the scales</span>, palette and stylus ready</li>
+        <li>If heart ≤ feather: the soul lived in truth → <span class="highlight">Thoth records the verdict</span>. The soul enters the Field of Reeds.</li>
+        <li>If heart > feather: <span style="color:#ff4466;font-weight:800;">Ammut</span> (part crocodile, part lion, part hippo) devours the heart — the soul ceases to exist entirely. The second death.</li>
+      </ol>
+    </div>
+    <p style="margin-top:10px;">Thoth does not judge emotionally. He does not advocate. He records the objective cosmic fact of who the person truly was. His record is written in divine ink that can <span class="pink">never be revised</span>.</p>
+  </div>
+
+  <div class="card">
+    <h2>What Thoth Invented</h2>
+    <p style="margin-bottom:12px;">Egyptian tradition — and later the Greeks — credited Thoth with the invention of virtually all of civilization's foundational tools:</p>
+    <div class="two-col">
+      <ul>
+        <li><span class="gold">Hieroglyphic writing</span> — the sacred script <em>medu-necher</em>, "words of the gods"</li>
+        <li><span class="gold">Language itself</span> — to name a thing was to bring it into being; Thoth held the master key</li>
+        <li><span class="gold">Mathematics & geometry</span> — including the principles underlying pyramid construction</li>
+        <li><span class="gold">Astronomy</span> — calculated the heavens; tracked stars, planets, and the moon</li>
+      </ul>
+      <ul>
+        <li><span class="gold">The 365-day calendar</span> (see myth below)</li>
+        <li><span class="gold">Medicine & botany</span> — physicians invoked him before surgery</li>
+        <li><span class="gold">Magic (Heka)</span> — possessed the secret names of all gods and spells to command the universe</li>
+        <li><span class="gold">Civilized government, the arts, oratory</span> — the Greeks declared him inventor of every art and science worth having</li>
+      </ul>
+    </div>
+    <div class="myth" style="margin-top:14px;">
+      <div class="myth-title">The Calendar Myth</div>
+      <p>Ra decreed that Nut (sky goddess) could not give birth on any of the existing 360 days of the year. Thoth played a <span class="highlight">dice game against Khonsu</span>, the moon god, and won 1/72nd of moonlight — creating <span class="gold">five extra days</span> at the year's end. On those days, Nut gave birth to Osiris, Horus the Elder, Set, Isis, and Nephthys. This is why the moon is slightly dimmer than the sun — it lost light to Thoth.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The 42 Books of Thoth</h2>
+    <p>Clement of Alexandria (3rd century CE) described 42 sacred books carried in Egyptian religious processions, all attributed to Thoth:</p>
+    <ul style="margin-top:10px;">
+      <li><span class="pink">10 books</span> — Laws of Egypt, priestly duties, state organization, worship of the gods</li>
+      <li><span class="pink">10 books</span> — Sacred rites and rituals</li>
+      <li><span class="pink">10 books</span> — Theology, hymns, religious philosophy</li>
+      <li><span class="pink">4 books</span> — Astrology</li>
+      <li><span class="pink">2 books</span> — Music</li>
+      <li><span class="pink">6 books</span> — Medicine: the body, diseases of men, diseases of women, diseases of the eyes, surgical implements, and materia medica (drugs and herbs)</li>
+    </ul>
+    <p style="margin-top:12px;">No complete set is known to survive. The closest existing text: a <span class="gold">Demotic-script dialogue</span> from the Ptolemaic period, found in 40+ fragments, published in 2005 as <em>The Ancient Egyptian Book of Thoth</em> — a conversation between a seeker and Thoth covering scribal vocation, the Duat, sacred animals, and the nature of knowledge. Renaissance scholars spent centuries searching for the complete Books hidden beneath Egyptian temples.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Eye of Ra — Thoth's Greatest Mission</h2>
+    <div class="myth">
+      <div class="myth-title">The Rampaging Eye</div>
+      <p>Ra's divine Eye — a semi-autonomous goddess (sometimes Hathor, sometimes Tefnut) — grew angry with Ra and <span class="pink">fled to Nubia as a rampaging lioness</span>, devastating everything in her path. Without his Eye, Ra was diminished — his solar light incomplete.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Thoth's Approach</div>
+      <p>Ra chose Thoth. To approach a rampaging divine lioness without being destroyed, Thoth <span class="highlight">transformed himself into a baboon</span> — non-threatening, able to get close. His approach was not force but <span class="gold">persuasion</span>: stories, philosophical arguments, compliments, fables. He lectured her on cosmic order, described the wonders of Egypt, entertained her with parables.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">The Return</div>
+      <p>Gradually, her rage was soothed. The pacified Eye returned with Thoth to Egypt. Her return was celebrated with feasting, music, and dance. In some traditions, the returned goddess became Thoth's wife — <span class="purple">Nehemtawy</span>. <br><br><em>Significance: Thoth wins by wisdom and eloquence where force would fail. He is the proof that storytelling can tame even a divine destroyer.</em></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Moon — Why Thoth Carries It</h2>
+    <ul>
+      <li>The ibis's curved beak <span class="highlight">visually resembles the crescent moon</span></li>
+      <li>The moon was Egypt's primary measure of time — months were lunar. Tracking it required Thoth's mathematical precision.</li>
+      <li>Ra was the sun; when Ra descended into the Duat each night, <span class="pink">Thoth carried the moon as Ra's deputy light</span></li>
+      <li>In the Horus/Set conflict: Horus's <span class="gold">left eye = the moon</span>. Thoth restored it, giving him ownership of the moon symbol.</li>
+      <li>In the semen myth: Thoth fashioned Horus's semen into a <span class="gold">moon disk</span> — his direct lunar possession</li>
+      <li>The moon exists <span class="highlight">between light and dark</span> — perfectly mirroring Thoth's role as mediator between all opposing forces</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Hermes Trismegistus</h2>
+    <p>When Greeks came to Egypt during the Ptolemaic period (323–30 BCE), they identified Thoth with their own <span class="highlight">Hermes</span> — both were gods of writing, magic, soul-guiding, and divine messages. The composite deity: <span class="gold">Hermes Trismegistus</span> — "Hermes the Thrice-Great."</p>
+    <p style="margin-top:10px;">"Thrice-great" derives from the Egyptian temple inscription at Esna: <em>"Thoth the great, the great, the great."</em> Three = totality in Egyptian thought.</p>
+    <h3>The Hermetica</h3>
+    <p>Texts attributed to Hermes Trismegistus (written 1st–4th century CE in Greco-Roman Egypt) became the foundation of the entire Western esoteric tradition:</p>
+    <ul>
+      <li><span class="pink">Corpus Hermeticum</span> — 17 philosophical tractates on cosmology and the divine mind</li>
+      <li><span class="pink">Asclepius</span> — on the nature of the universe and humanity</li>
+      <li><span class="pink">Emerald Tablet</span> — contains <span class="gold">"as above, so below"</span> — foundational to alchemy, Kabbalah, and modern occultism</li>
+    </ul>
+    <p style="margin-top:10px;">When Marsilio Ficino translated the Corpus Hermeticum in <span class="highlight">1463</span>, Renaissance scholars believed they held Thoth's actual writings. They were wrong about the date — but the texts genuinely preserve elements of ancient Egyptian religion.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Ogdoad — Hermopolis Creation</h2>
+    <p>Thoth's city <span class="gold">Khmenu</span> (Greek: Hermopolis — "City of Hermes"; modern El-Ashmunein) was the center of the <span class="highlight">Ogdoad cosmology</span> — eight primordial beings representing pre-creation forces:</p>
+    <div style="overflow-x:auto;margin-top:12px;">
+      <table class="compare-table">
+        <tr><th>Male (frog-headed)</th><th>Female (serpent-headed)</th><th>Represents</th></tr>
+        <tr><td><span class="gold">Nun</span></td><td><span class="gold">Naunet</span></td><td>The primordial waters, the watery abyss</td></tr>
+        <tr><td><span class="gold">Heh</span></td><td><span class="gold">Hauhet</span></td><td>Infinity, boundlessness, formlessness</td></tr>
+        <tr><td><span class="gold">Kek</span></td><td><span class="gold">Kauket</span></td><td>Darkness, the lightless void</td></tr>
+        <tr><td><span class="gold">Amun</span></td><td><span class="gold">Amunet</span></td><td>The hidden, the invisible</td></tr>
+      </table>
+    </div>
+    <p style="margin-top:12px;">These eight swirled in chaos until a Cosmic Egg formed. In <span class="pink">Thoth's version of the myth</span>, <strong>Thoth in ibis form laid the Cosmic Egg</strong> — making him literally the source of all creation. The Ogdoad were sometimes called <span class="gold">"the souls of Thoth."</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Sacred Symbols & Numbers</h2>
+    <div class="two-col">
+      <div>
+        <h3>Sacred Animals</h3>
+        <ul>
+          <li>The <span class="gold">ibis</span> — primary; millions mummified as offerings</li>
+          <li>The <span class="gold">hamadryas baboon</span> — equally sacred; also mummified in large numbers</li>
+        </ul>
+        <h3>Sacred City</h3>
+        <ul><li><span class="highlight">Hermopolis Magna</span> (Khmenu) — "City of the Eight," Middle Egypt</li></ul>
+        <h3>Sacred Numbers</h3>
+        <ul>
+          <li><span class="gold">8</span> — the Ogdoad; Hermopolis means "city of eight"</li>
+          <li><span class="gold">42</span> — the Negative Confessions, the divine judges, the Books of Thoth</li>
+          <li><span class="gold">3</span> — magical completion; "thrice-great"</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Primary Symbols</h3>
+        <div class="epithet-grid">
+          <span class="epithet">The ibis</span>
+          <span class="epithet">The baboon</span>
+          <span class="epithet">The crescent moon</span>
+          <span class="epithet">The full moon disk</span>
+          <span class="epithet">Writing palette</span>
+          <span class="epithet">Reed pen / stylus</span>
+          <span class="epithet">Papyrus scroll</span>
+          <span class="epithet">Scales of justice</span>
+          <span class="epithet">Notched palm rib (rnpt)</span>
+          <span class="epithet">The caduceus (as Hermes)</span>
+          <span class="epithet">The ankh</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ THE GODS ═══════════ -->
+<div class="section" id="section-gods">
+
+  <div class="card" style="text-align:center;padding:20px;">
+    <p style="color:#9080b0;font-size:13px;">Click any deity card to expand their full story. Tap again to close.</p>
+  </div>
+
+  <div class="section-label">⚡ The Ennead of Heliopolis — The Nine Primordial Gods</div>
+  <div class="god-grid" id="ennead-grid"></div>
+
+  <div class="section-label">✦ The Greater Gods</div>
+  <div class="god-grid" id="greater-grid"></div>
+
+  <div class="section-label">🏠 Household & Protective Deities</div>
+  <div class="god-grid" id="household-grid"></div>
+
+  <div class="section-label">🌑 Forces of Chaos & the Cosmos</div>
+  <div class="god-grid" id="chaos-grid"></div>
+
+  <div class="duat-card">
+    <h2>𓂀 The Duat — The Egyptian Underworld</h2>
+    <p style="color:#9080b0;font-size:13px;margin-bottom:12px;">Not simply "below" — a parallel realm interpenetrating the world, accessible through deep water, the horizon, and sacred spaces.</p>
+    <h3 style="color:#b496ff;font-size:14px;font-weight:800;text-transform:uppercase;margin:12px 0 6px;">Structure</h3>
+    <p style="font-size:14px;line-height:1.75;color:#c8b8e8;">Described in the <span class="gold">Amduat</span> ("What Is in the Underworld"), the Duat has <span class="highlight">12 regions</span> corresponding to the 12 hours of night. Ra's solar barque traveled through each one, encountering gods, serpents, the dead, and Apophis. Victory in all 12 guaranteed the sunrise.</p>
+    <h3 style="color:#b496ff;font-size:14px;font-weight:800;text-transform:uppercase;margin:12px 0 6px;">Key Locations</h3>
+    <ul style="padding-left:20px;color:#c8b8e8;font-size:14px;line-height:2;">
+      <li><span class="gold">Hall of Two Truths (Maati)</span> — where the Weighing of the Heart took place</li>
+      <li><span class="gold">Field of Reeds (Aaru)</span> — Egyptian paradise; a lush Nile Valley mirror where the justified dead lived in abundance</li>
+      <li><span class="gold">Lake of Fire</span> — where enemies of Ra and unjust souls were tormented</li>
+      <li><span class="gold">Lake of Natron</span> — purification lake for the dead</li>
+    </ul>
+    <h3 style="color:#b496ff;font-size:14px;font-weight:800;text-transform:uppercase;margin:12px 0 6px;">The Soul's Components</h3>
+    <div class="two-col" style="margin-top:8px;">
+      <ul style="padding-left:20px;color:#c8b8e8;font-size:14px;line-height:2;">
+        <li><span class="gold">Ka</span> — the life force / double; needed food offerings</li>
+        <li><span class="gold">Ba</span> — personality / soul; depicted as a human-headed bird; could travel between tomb and living world</li>
+        <li><span class="gold">Akh</span> — the effective, transformed spirit; the blessed, immortal dead soul</li>
+      </ul>
+      <ul style="padding-left:20px;color:#c8b8e8;font-size:14px;line-height:2;">
+        <li><span class="gold">Ren</span> — the name; had to be preserved for eternal life (erasing a name = second death)</li>
+        <li><span class="gold">Sheut</span> — the shadow</li>
+        <li><span class="gold">Ib</span> — the heart; weighed at judgment</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ HIEROGLYPHS ═══════════ -->
+<div class="section" id="section-glyphs">
+
+  <div class="card">
+    <h2>𓂀 Words of the Gods</h2>
+    <p>The Egyptians called their script <span class="gold">mdw ntr</span> — <span class="pink">"words of the gods"</span> — a divine gift invented by Thoth. The Greeks called it <em>hieros glyphein</em> — "sacred carvings" — which became "hieroglyphics."</p>
+    <div class="stat-row" style="margin-top:16px;">
+      <div class="stat-box"><div class="s-val">3300</div><div class="s-label">BCE — Earliest known hieroglyphs</div></div>
+      <div class="stat-box"><div class="s-val">394</div><div class="s-label">CE — Last known inscription</div></div>
+      <div class="stat-box"><div class="s-val">1,400</div><div class="s-label">Years the script was unreadable</div></div>
+      <div class="stat-box"><div class="s-val">5,000+</div><div class="s-label">Signs in the Ptolemaic period</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Evolution of Egyptian Writing</h2>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>Script</th><th>Period</th><th>Purpose</th></tr>
+        <tr><td><span class="gold">Hieroglyphics</span></td><td>3300 BCE – 394 CE</td><td>Monumental and sacred inscriptions</td></tr>
+        <tr><td><span class="gold">Hieratic</span></td><td>3200 BCE – 400 CE</td><td>Cursive everyday writing — what scribes actually learned first</td></tr>
+        <tr><td><span class="gold">Demotic</span></td><td>650 BCE – 450 CE</td><td>Even faster cursive; administrative and literary texts</td></tr>
+        <tr><td><span class="gold">Coptic</span></td><td>200 CE – present</td><td>Egyptian written in Greek letters; still used in Christian liturgy today</td></tr>
+      </table>
+    </div>
+    <p style="margin-top:12px;font-size:13px;color:#9080b0;">The last hieroglyphic inscription: <span class="highlight">Graffito of Esmet-Akhom, Temple of Philae, August 24, 394 CE</span>. After that, no one on earth could read them for nearly 1,400 years — until 1822.</p>
+  </div>
+
+  <div class="card">
+    <h2>How Hieroglyphs Actually Work</h2>
+    <p style="margin-bottom:14px;">Three types of signs used simultaneously and interchangeably:</p>
+    <div class="form-card" style="margin-bottom:12px;">
+      <h4>1. Logograms (Ideograms)</h4>
+      <p>Signs that <em>are</em> the thing they depict. A sun disk = "sun." A seated man = "man." A vertical stroke beneath a sign signals it's being used logographically.</p>
+    </div>
+    <div class="form-card" style="margin-bottom:12px;">
+      <h4>2. Phonograms (Sound Signs)</h4>
+      <p><strong style="color:#ff96c8;">Uniliterals</strong> — 24 signs, one consonant each — the Egyptian "alphabet" (but never used alone as a pure alphabet).<br><strong style="color:#ff96c8;">Biliterals</strong> — signs representing two consonants.<br><strong style="color:#ff96c8;">Triliterals</strong> — signs representing three consonants (e.g., 𓄤 = <em>nfr</em> = "beautiful/good").<br><br><span style="color:#ffd700;">Critical:</span> Egyptian was an <strong>abjad</strong> — only consonants were written. <strong>No vowels.</strong> This is why the exact pronunciation of ancient Egyptian remains uncertain. Modern scholars insert a conventional "e" to make words speakable (e.g., "Ramesses").</p>
+    </div>
+    <div class="form-card">
+      <h4>3. Determinatives (Silent Classifiers)</h4>
+      <p>Signs placed at the end of a word to indicate its semantic category — <strong>never pronounced</strong>. They solved the fundamental problem: without vowels, many words looked identical in writing. The determinative told the reader which meaning was intended.<br><br>Examples: A seated man = words about men. A sun disk = concepts of time. A sparrow = small, bad, or weak things. A papyrus roll = abstract ideas, books, writing. Walking legs = motion.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The 24 Uniliteral Signs — The Hieroglyphic Alphabet</h2>
+    <p style="color:#9080b0;font-size:13px;margin-bottom:12px;">These 24 signs form the phonetic backbone of the script. The Egyptians never used them alone as a pure alphabet — they always combined them with biliterals, triliterals, and determinatives.</p>
+    <div class="glyph-grid" id="glyph-grid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Cartouches — The Royal Name Shield</h2>
+    <p>A <span class="gold">cartouche</span> is an oval enclosure with a horizontal base — a loop of rope tied at one end. It symbolizes <span class="pink">"all that the sun encircles"</span> — the entire world — and protected the royal name inside it from evil forces.</p>
+    <p style="margin-top:10px;">Used from the 4th Dynasty (Pharaoh Sneferu) onward. Every pharaoh had <span class="highlight">5 royal names</span>; two were written in cartouches: the <span class="gold">prenomen</span> (throne name, given at coronation) and the <span class="gold">nomen</span> (birth name).</p>
+    <p style="margin-top:10px;">The cartouche shape was instantly recognizable even before decipherment — which is precisely why it was crucial to both Young and Champollion when cracking the code.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Rosetta Stone</h2>
+    <div class="myth">
+      <div class="myth-title">Discovery — July 15, 1799</div>
+      <p>French soldiers digging foundations for Fort Julien near Rashid (Rosetta) in the Nile Delta struck a large stone slab. It was inscribed with the same text in three scripts: hieroglyphics (top, mostly missing), Demotic (middle), and ancient Greek (bottom, intact). The text: the <span class="gold">Decree of Memphis</span> (196 BCE), a priestly loyalty document for Ptolemy V. British forces took it to London in 1801. It has been in the British Museum since 1802.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Thomas Young (1773–1829)</div>
+      <p>British polymath. Key breakthrough: recognized that <span class="highlight">cartouches enclosed royal names</span> and identified the name "Ptolemy" in hieroglyphs. Published 1819. But he was stopped by a false assumption — he believed phonetic signs were only used for foreign names, not Egyptian words.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Jean-François Champollion (1790–1832)</div>
+      <p>French linguist with mastery of <span class="highlight">Coptic</span> — the living descendant of ancient Egyptian, still used in Egyptian Christian liturgy. He knew how the language actually sounded. Working with the Philae obelisk cartouche for "Cleopatra," he matched shared signs (p, t, o, l) with the Ptolemy cartouche.<br><br>His moment: two unknown cartouches that spelled — using his new phonetic system — <span class="gold">Ra-mes-ses</span> and <span class="gold">Thoth-mes</span>. Pharaohs he knew from Greek history. He reportedly exclaimed <em>"Je tiens l'affaire!"</em> ("I've got it!") and fainted.<br><br><span class="pink">September 27, 1822</span> — now celebrated as the birthday of Egyptology. Champollion proved hieroglyphs were a combined system of phonetics, logograms, and determinatives — not purely symbolic, not purely alphabetic.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Scribes — The Literate Elite</h2>
+    <p>Literacy in ancient Egypt: estimated at <span class="pink">1–10% of the population</span>. Scribes were a tiny privileged class.</p>
+    <h3>Training</h3>
+    <p>Began at <span class="gold">age 6–10</span> at schools attached to temples (<em>per-medjat</em> — "house of books") or government offices. Minimum 10–12 years to achieve basic scribal competency. Advanced training took place in the <span class="highlight">House of Life</span> (<em>per ankh</em>), attached to major temples — serving simultaneously as scriptorium, library, school, and research institute. The curriculum included astronomy, medicine, architecture, theology, and ritual.</p>
+    <p style="margin-top:8px;">Students practiced on <span class="gold">ostraca</span> — broken pottery shards or limestone flakes — before graduating to the expensive papyrus.</p>
+    <h3>Privileges</h3>
+    <ul>
+      <li>Exempt from manual labor and taxation</li>
+      <li>Did not serve in the military</li>
+      <li>Could rise to the highest political offices — many viziers were scribes</li>
+      <li>Celebrated in wisdom literature: <em>"Be a scribe! Your body will be sleek, your hand will be soft."</em></li>
+    </ul>
+    <h3>Tools</h3>
+    <ul>
+      <li><span class="gold">Palette</span> — flat wooden or stone board with two ink wells: black (carbon/soot) for main text, red (red ochre) for headings and emphasis</li>
+      <li><span class="gold">Reed pens</span> — hollow reeds ~20 cm long, cut diagonally, sometimes chewed to form a brush tip</li>
+      <li><span class="gold">Papyrus</span> — the writing surface made from Cyperus papyrus plant</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Papyrus — How It Was Made</h2>
+    <ol style="padding-left:20px;color:#c8b8e8;font-size:14px;line-height:2.2;margin-top:8px;">
+      <li>Harvest mature <em>Cyperus papyrus</em> stalks from Nile Delta marshes</li>
+      <li>Cut into 20–48 cm sections (determines sheet height)</li>
+      <li>Strip the outer green rind to expose the white-yellow pithy interior</li>
+      <li>Slice pith lengthwise into thin strips</li>
+      <li>Lay strips side-by-side with slight overlap; lay a second layer on top at right angles</li>
+      <li>Beat or press heavily — <span class="highlight">no glue needed</span>: the natural sugars fuse the layers chemically</li>
+      <li>Dry in the sun</li>
+      <li>Polish smooth with a rounded stone, shell, or ivory piece</li>
+    </ol>
+    <p style="margin-top:12px;">Individual sheets were glued end-to-end into rolls. The <span class="gold">Great Harris Papyrus</span> (reign of Ramesses III) is over <span class="pink">40 meters long</span>. Oldest known papyrus fragment: c. <span class="highlight">2900 BCE</span> (tomb of Hemaka at Saqqara).</p>
+  </div>
+
+  <div class="card">
+    <h2>The Great Sacred Texts</h2>
+    <div class="papyrus-card">
+      <h3>Pyramid Texts</h3>
+      <div class="p-date">c. 2400–2300 BCE — Oldest religious writings in the world</div>
+      <p>First inscribed on the walls of the burial chamber of King Unas at Saqqara (last pharaoh of the 5th Dynasty). 759 spells, called "utterances." Exclusively for royalty. Concerned with: protecting the royal body, the pharaoh transforming into a star, journeying to join the circumpolar stars and Ra, and resurrection as Osiris.</p>
+    </div>
+    <div class="papyrus-card">
+      <h3>Coffin Texts</h3>
+      <div class="p-date">c. 2100–1650 BCE — The democratic afterlife</div>
+      <p>Written on the interior surfaces of wooden coffins for non-royal elite individuals — a significant democratization. ~1,185 spells. Includes the <span class="gold">Book of Two Ways</span> — the earliest known map of the underworld showing two routes (by land, by water) to the Field of Offerings.</p>
+    </div>
+    <div class="papyrus-card">
+      <h3>Book of the Dead — <em>Pert em Hru</em></h3>
+      <div class="p-date">c. 1550 BCE onward — Coming Forth by Day</div>
+      <p>Written on papyrus and placed in the tomb. Available to anyone who could afford it. ~200 spells traceable to the Pyramid Texts and Coffin Texts. Most famous: <span class="highlight">Spell 125</span> — the Weighing of the Heart scene with Thoth, Anubis, and the 42 confessions. The <span class="gold">Papyrus of Ani</span> (c. 1250 BCE, British Museum), made for the scribe Ani of Thebes, is the most beautiful surviving copy.</p>
+    </div>
+    <div class="papyrus-card">
+      <h3>The Amduat</h3>
+      <div class="p-date">c. 1500 BCE — What Is in the Underworld</div>
+      <p>Describes Ra's journey through the 12 hours of the night. In each hour, Ra's solar barque travels through a different underworld realm. At the 12th hour, Ra is reborn as the morning sun. Found on the walls of royal tombs in the Valley of the Kings, beginning with Thutmose I.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ MEDICINE & SCIENCE ═══════════ -->
+<div class="section" id="section-medicine">
+
+  <div class="card">
+    <h2>Medicine of the Ancients</h2>
+    <p>Homer wrote: <span class="pink"><em>"In Egypt, the men are more skilled in medicine than any of human kind."</em></span></p>
+    <p style="margin-top:10px;">Egyptian medicine operated where the natural and supernatural were not distinct categories. Disease could be caused by <span class="highlight">physical means</span> (trauma, infection, parasites) <em>and</em> <span class="highlight">supernatural means</span> (divine wrath, demonic possession, curses). The best physician addressed both. The Edwin Smith Papyrus shows one of the most rational medical minds in the ancient world — yet most Egyptian texts freely combine herbal remedies with protective spells.</p>
+    <div class="stat-row" style="margin-top:16px;">
+      <div class="stat-box"><div class="s-val">1800</div><div class="s-label">BCE — Oldest Egyptian medical text</div></div>
+      <div class="stat-box"><div class="s-val">842</div><div class="s-label">Prescriptions in the Ebers Papyrus</div></div>
+      <div class="stat-box"><div class="s-val">48</div><div class="s-label">Surgical cases in the Edwin Smith</div></div>
+      <div class="stat-box"><div class="s-val">1,000+</div><div class="s-label">Years before Hippocrates</div></div>
+    </div>
+  </div>
+
+  <div class="papyrus-card">
+    <h3>Edwin Smith Papyrus</h3>
+    <div class="p-date">c. 1600 BCE (copying Old Kingdom text, possibly 2600–2400 BCE) · Purchased by Edwin Smith, Luxor, 1862</div>
+    <p><strong style="color:#96ffdc;">The world's oldest known surgical text</strong> and arguably the world's oldest scientific document. 4.68 meters long. 48 surgical trauma cases organized systematically from the <em>top of the body downward</em> — head, neck, shoulders, thorax, spine.</p>
+    <p style="margin-top:10px;">Each case follows a strict formula: <span class="gold">Examination → Diagnosis → Verdict (treat / contend / do not treat) → Treatment → Glosses</span></p>
+    <h3 style="color:#96ffdc;">World Firsts Documented Inside</h3>
+    <ul>
+      <li>First description of the <span class="gold">brain</span></li>
+      <li>First description of <span class="gold">cerebrospinal fluid</span> — <em>"a rippling under your fingers like a boiling pot of copper"</em></li>
+      <li>First description of the <span class="gold">meninges</span> (brain coverings) and cranial sutures</li>
+      <li>First description of <span class="gold">aphasia</span> (Case 20: patient "is speechless and cannot speak" after head injury)</li>
+      <li>Recognition that <span class="gold">spinal cord injury</span> caused paralysis — recommended immobilization (still correct today)</li>
+      <li>Use of <span class="gold">sutures</span> to close wounds</li>
+      <li>Use of <span class="gold">honey</span> as antiseptic dressing (genuine — honey contains hydrogen peroxide)</li>
+    </ul>
+    <p style="margin-top:12px;color:#96ffdc;font-weight:800;">Not a single invocation of magic in all 48 cases. Pure observation. Medical historians: <em>"Can still be regarded as the state-of-the-art reasoning for modern clinical practice."</em></p>
+  </div>
+
+  <div class="papyrus-card">
+    <h3>Ebers Papyrus</h3>
+    <div class="p-date">c. 1550 BCE · Purchased by Georg Ebers, Luxor, 1873 · Now at University of Leipzig</div>
+    <p>20 meters long. <span class="gold">842 prescriptions</span> organized by condition: eye diseases, skin conditions, gastrointestinal disorders, cardiovascular conditions, respiratory conditions, gynecology, dental problems, mental illness (depression and dementia-like conditions are described), and surgical conditions.</p>
+    <h3 style="color:#96ffdc;">The Heart and Circulation (§854)</h3>
+    <p><em>"The heart speaks to all the limbs. It is it which causes every member to act... There are vessels from the heart to every limb... when any physician lays his hands on the head, on the back of the head, on the hands, on the place of the stomach... he measures the heart, because all his limbs possess its vessels."</em></p>
+    <p style="margin-top:8px;">The first description of <span class="gold">pulse measurement as a diagnostic tool</span>. Conceptually correct: the heart is the center of circulation.</p>
+    <h3 style="color:#96ffdc;">Key Medicinal Plants</h3>
+    <ul>
+      <li><span class="gold">Willow bark</span> — pain and inflammation; contains salicin, precursor to aspirin</li>
+      <li><span class="gold">Garlic</span> — heart, infections, parasites; modern research confirms antimicrobial and cardiovascular properties</li>
+      <li><span class="gold">Opium</span> — pain relief, colic, quieting crying children</li>
+      <li><span class="gold">Cannabis</span> — topical anti-inflammatory, sedative</li>
+      <li><span class="gold">Honey</span> — antiseptic wound dressing (genuine antimicrobial)</li>
+      <li><span class="gold">Aloe vera</span> — burns and skin conditions</li>
+      <li><span class="gold">Castor oil</span> — laxative</li>
+      <li><span class="gold">Senna, poppy, henbane, mandrake</span> — sedatives and pain relief</li>
+    </ul>
+  </div>
+
+  <div class="papyrus-card">
+    <h3>Other Medical Papyri</h3>
+    <ul>
+      <li><span class="gold">Kahun Gynaecological Papyrus (c. 1800 BCE)</span> — <em>Oldest medical text in Egypt and oldest gynecological text in the world.</em> Fertility tests, contraception, childbirth, prolapse. Includes a pessary of crocodile dung + honey — likely effective as spermicide (crocodile dung is acidic).</li>
+      <li><span class="gold">Berlin Medical Papyrus (c. 1350 BCE)</span> — 204 prescriptions. Famous pregnancy test: urinate on wheat and emmer seeds — wheat grew = boy, emmer = girl, neither = not pregnant. Modern tests confirm pregnant women's urine <em>does</em> promote grain germination.</li>
+      <li><span class="gold">Chester Beatty Medical Papyrus (c. 1200 BCE)</span> — Primarily anorectal conditions: hemorrhoids, fistulas, constipation.</li>
+      <li><span class="gold">London Medical Papyrus (c. 1350 BCE)</span> — British Museum; 61 cases mixing rational and magical treatments.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>The Heart vs. Brain Debate</h2>
+    <div class="two-col">
+      <div class="form-card">
+        <h4 style="color:#ff96c8;">❤️ The Heart (ib / haty)</h4>
+        <p>Seat of intelligence, emotion, personality, and will — everything we attribute to the brain. The <em>only</em> major organ <strong style="color:#ffd700">NOT removed during mummification</strong>. Left in the body for the afterlife journey. In the Weighing of the Heart, it is the heart — not the brain — that is judged.</p>
+      </div>
+      <div class="form-card">
+        <h4 style="color:#9080b0;">🧠 The Brain (nis)</h4>
+        <p>Considered essentially <strong style="color:#ffd700">useless — packaging material for the skull</strong>. During mummification, the brain was dissolved and removed through the nostril with a hook. The only organ <em>discarded</em> rather than preserved.<br><br>Despite this — the Edwin Smith Papyrus describes the brain with remarkable accuracy: its surface, pulsations, fluid, sutures, and correctly links brain injury to paralysis and speech loss.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Famous Physicians</h2>
+    <div class="myth">
+      <div class="myth-title">Imhotep (c. 2667–2600 BCE)</div>
+      <p>Physician, architect, and astronomer under Pharaoh Djoser. Designed the <span class="gold">Step Pyramid at Saqqara</span> — the world's first large stone monument. His medical writings (lost) reportedly advocated observational medicine. Progressively deified after death; by the Ptolemaic period, he was the full god of medicine, wisdom, and healing. The Greeks identified him with Asclepius. His temple at Saqqara became a center of medical pilgrimage.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Hesy-Ra (c. 2650 BCE)</div>
+      <p>Chief Dentist and Physician to Pharaoh Djoser. <span class="highlight">Earliest named physician and earliest named dentist in recorded history.</span> His wooden tomb panels at Saqqara show him holding a scribal palette.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Merit-Ptah (c. 2700 BCE)</div>
+      <p>"Chief Physician" — <span class="highlight">earliest named female physician in recorded history</span> and earliest named woman in the history of science.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Peseshet (c. 2400 BCE)</div>
+      <p>"Lady Director of Lady Physicians" — supervised an entire medical staff of female practitioners, proving women held formal administrative medical positions in ancient Egypt.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Mummification & Anatomy</h2>
+    <p>Through mummification, Egyptians gained extensive direct knowledge of the human body. The <span class="gold">standard New Kingdom process</span>:</p>
+    <ol style="padding-left:20px;color:#c8b8e8;font-size:14px;line-height:2.2;margin-top:10px;">
+      <li>Wash the body with Nile water and natron solution</li>
+      <li><strong style="color:#ff96c8;">Brain removal</strong> — probe inserted through the left nostril, brain dissolved and drained</li>
+      <li><strong style="color:#ff96c8;">Abdominal incision</strong> — slit on the left side (the embalmer was ritually cursed for this cut)</li>
+      <li>Remove liver, lungs, stomach, and intestines — <strong style="color:#ffd700;">the heart was left in place</strong></li>
+      <li>Organs placed in <span class="gold">canopic jars</span> protected by the Four Sons of Horus: Imsety (liver), Hapy (lungs), Duamutef (stomach), Qebehsenuef (intestines)</li>
+      <li>Pack the body cavity with <span class="gold">natron</span> (naturally occurring salt — a powerful desiccant); cover exterior with natron too</li>
+      <li>Leave to dry for <span class="highlight">40 days</span></li>
+      <li>Remove natron; restuff cavity with linen, sawdust, spices, and resins</li>
+      <li>Wrap in hundreds of meters of linen bandages with amulets placed between layers</li>
+      <li>Perform the <span class="gold">Opening of the Mouth</span> ceremony — restoring the mummy's senses</li>
+    </ol>
+    <p style="margin-top:10px;">Total time: <span class="pink">70 days</span>.</p>
+  </div>
+
+  <div class="card">
+    <h2>Astronomy — Reading the Sky</h2>
+    <div class="myth">
+      <div class="myth-title">The 365-Day Calendar</div>
+      <p>The Egyptians created one of the world's first workable solar calendars: <span class="gold">12 months of 30 days = 360 days + 5 epagomenal days = 365</span>. Three seasons of 4 months each: <span class="highlight">Akhet</span> (Inundation), <span class="highlight">Peret</span> (Growing), <span class="highlight">Shemu</span> (Harvest). Days divided into 24 "hours" — the origin of our 24-hour day. Fatal flaw: no leap year provision; the calendar slipped 1 day every 4 years (the <span class="gold">Sothic cycle</span> of 1,461 years).</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Sirius (Sopdet) and the Nile Flood</div>
+      <p>The <span class="gold">heliacal rising of Sirius</span> — its first appearance just before dawn after a period of invisibility — coincided with the annual Nile flood and marked the Egyptian New Year (<em>Wepet-Renpet</em> — "Opening of the Year"). Sirius was personified as the goddess <span class="pink">Sopdet</span>, identified with Isis. She was called <em>"Mistress of the New Year"</em> and <em>"she who brings the Nile flood."</em></p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">The 36 Decans — Egypt's Star Clock</div>
+      <p>The sky was divided into <span class="gold">36 star groups (decans)</span>. Each rose heliacally at 10-day intervals throughout the year, serving as a celestial clock. <span class="highlight">Diagonal star tables</span> on coffin lids (earliest c. 2100 BCE) listed all 36, showing which decan marked each hour of the night for each period of the year. This is the direct origin of our 12-hour night.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Pyramid Alignments</div>
+      <p>The Great Pyramid of Khufu is aligned to true north with an error of only <span class="gold">3 minutes of arc</span>. Its northern shaft aligned with <span class="highlight">Thuban</span> (north pole star c. 2500 BCE); its southern shaft with <span class="highlight">Orion's Belt</span> (associated with Osiris).<br><br>The Karnak Temple's main axis aligns to <span class="gold">winter solstice sunrise</span> — on the solstice, the rising sun shines down the entire <span class="pink">1.5-km axis</span> and illuminates the central sanctuary.<br><br>Abu Simbel: twice a year, the sunrise penetrates <span class="gold">65 meters</span> into the mountain temple and illuminates three of four seated statues — leaving only Ptah (god of darkness) in shadow.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Egyptian Constellations</div>
+      <p><span class="gold">Meskheti</span> (Bull's Foreleg) = our Big Dipper. <span class="gold">Sahu</span> = Orion, associated with Osiris. <span class="gold">Sopdet</span> = Sirius, associated with Isis. The Egyptians also identified and named all five visible planets: Jupiter, Saturn, Mars, Mercury, and Venus.</p>
+    </div>
+    <div class="myth">
+      <div class="myth-title">Astronomical Instruments</div>
+      <p><span class="gold">The Merkhet</span> — a palm rib with a notch and a plumb bob; used in pairs to establish a true north-south meridian and read stellar hours. <span class="gold">Water clocks (Clepsydrae)</span> — stone vessels with holes near the base and graduated interior markings; sloping sides compensated for changing water pressure. Oldest known example: tomb of Amenhotep I, c. 1525 BCE. <span class="gold">Shadow clocks</span> — horizontal bars with graduated markings; direct precursors to the sundial.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ MATHEMATICS ═══════════ -->
+<div class="section" id="section-math">
+
+  <div class="card">
+    <h2>𓎆 Mathematics of the Builders</h2>
+    <p>Ancient Egyptian mathematics was <span class="highlight">decimal (base 10)</span> but <span class="pink">non-positional</span> — the value of a number came from which symbol was used, not where it was placed. Purely practical: no theorems, no abstract proofs — just powerful tools for building, taxing, feeding, and governing a civilization.</p>
+    <div class="stat-row" style="margin-top:16px;">
+      <div class="stat-box"><div class="s-val">3.16</div><div class="s-label">Egyptian approximation of π (0.6% error)</div></div>
+      <div class="stat-box"><div class="s-val">1850</div><div class="s-label">BCE — Moscow Papyrus; has the frustum formula</div></div>
+      <div class="stat-box"><div class="s-val">1500</div><div class="s-label">Years before Greeks proved the same formula</div></div>
+      <div class="stat-box"><div class="s-val">84</div><div class="s-label">Problems in the Rhind Papyrus</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Hieroglyphic Number System</h2>
+    <div class="num-grid">
+      <div class="num-tile"><div class="n-val">1</div><div class="n-sym">Vertical stroke</div><div class="n-desc">Single tally</div></div>
+      <div class="num-tile"><div class="n-val">10</div><div class="n-sym">Cattle hobble</div><div class="n-desc">Arch shape</div></div>
+      <div class="num-tile"><div class="n-val">100</div><div class="n-sym">Coiled rope</div><div class="n-desc">Spiral</div></div>
+      <div class="num-tile"><div class="n-val">1,000</div><div class="n-sym">Lotus flower</div><div class="n-desc">On a stalk</div></div>
+      <div class="num-tile"><div class="n-val">10,000</div><div class="n-sym">Pointing finger</div><div class="n-desc">Bent finger</div></div>
+      <div class="num-tile"><div class="n-val">100,000</div><div class="n-sym">Tadpole / frog</div><div class="n-desc">Aquatic frog</div></div>
+      <div class="num-tile"><div class="n-val">1,000,000</div><div class="n-sym">Man with raised arms</div><div class="n-desc">Figure of amazement</div></div>
+    </div>
+    <p style="margin-top:14px;font-size:13px;color:#9080b0;">Numbers were written by repeating symbols: 3,421 = three lotuses + four coiled ropes + two yokes + one stroke. For practical scribal work, <span class="highlight">Hieratic numerals</span> were far more efficient — single signs for each digit value allowed 9,999 in just 4 symbols instead of 36 hieroglyphic strokes.</p>
+  </div>
+
+  <div class="card">
+    <h2>Unit Fractions</h2>
+    <p>With the single exception of the special sign for <span class="gold">2/3</span>, all Egyptian fractions were expressed as <span class="pink">sums of distinct unit fractions</span> — fractions with numerator 1. Written by placing an elongated oval <em>(ro)</em> over the number: oval over "3" = 1/3.</p>
+    <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:16px;margin:12px 0;font-size:14px;color:#c8b8e8;line-height:2;">
+      <span class="gold">3/4</span> = 1/2 + 1/4 &nbsp;·&nbsp; <span class="gold">2/5</span> = 1/3 + 1/15 &nbsp;·&nbsp; <span class="gold">2/7</span> = 1/4 + 1/28 &nbsp;·&nbsp; <span class="gold">2/43</span> = 1/42 + 1/86 + 1/129 + 1/301
+    </div>
+    <p><strong>Why?</strong> Unit fractions map naturally onto physical division — when distributing bread loaves or grain, each unit fraction corresponds to an actual cut. No abstract notation required: 1/3 of a loaf is a real piece.</p>
+    <div class="myth" style="margin-top:14px;">
+      <div class="myth-title">Eye of Horus Fractions</div>
+      <p>For grain measures, each fragment of Horus's magically reassembled eye corresponded to a specific fraction: <span class="gold">1/2</span> (pupil) + <span class="gold">1/4</span> (eyebrow) + <span class="gold">1/8</span> (side) + <span class="gold">1/16</span> (upper corner) + <span class="gold">1/32</span> (curl) + <span class="gold">1/64</span> (tear) = <span class="highlight">63/64</span>. The missing 1/64 was <em>"made up by Thoth"</em> — a mythological acknowledgment that no mortal measurement is ever perfect.</p>
+    </div>
+  </div>
+
+  <div class="papyrus-card">
+    <h3>The Rhind Mathematical Papyrus</h3>
+    <div class="p-date">c. 1650 BCE — copying a text from c. 1850 BCE · Purchased by Alexander Henry Rhind, Luxor, 1858 · British Museum</div>
+    <p>Written by the scribe <span class="gold">Ahmes</span>. 5.25 meters long. The most important surviving mathematical document from ancient Egypt. <span class="highlight">84 problems</span> covering: fraction arithmetic, linear equations, arithmetic series, granary volumes, pyramid geometry, and practical calculations.</p>
+    <h3 style="color:#96ffdc;">Pi Approximation (Problem 48/50)</h3>
+    <p>Given a circle with diameter 9, area = (8/9 × 9)² = 8² = 64. The general formula: <span class="gold">Area = (8/9 × d)²</span>, implying <span class="pink">π ≈ 256/81 ≈ 3.16045</span> — an error of less than <span class="highlight">0.6%</span> from the true value. Remarkable.</p>
+    <h3 style="color:#96ffdc;">Multiplication by Doubling (Problems 7–20)</h3>
+    <p>No times tables. Instead: <span class="gold">repeated doubling and selection</span> — identical to modern binary multiplication as performed in computer processors. To multiply 13 × 17: double 17 repeatedly (17, 34, 68, 136); since 13 = 8+4+1, select 136+68+17 = <span class="highlight">221</span>.</p>
+    <h3 style="color:#96ffdc;">Linear Equations ("Aha" Problems)</h3>
+    <p>Solved by the <span class="gold">method of false position</span> — assume a convenient answer, calculate the result, then scale proportionally. E.g., Problem 24: <em>"A quantity and its 1/7 become 19. What is the quantity?"</em> Answer: 16.625.</p>
+    <h3 style="color:#96ffdc;">Arithmetic Series (Problems 39–40)</h3>
+    <p>The <span class="highlight">first known problems in arithmetic progressions</span> — distributing loaves among workers in arithmetic series.</p>
+  </div>
+
+  <div class="papyrus-card">
+    <h3>The Moscow Mathematical Papyrus</h3>
+    <div class="p-date">c. 1850 BCE · Acquired by Vladimir Golenishchev · Pushkin Museum of Fine Arts, Moscow</div>
+    <p>25 problems. Older than the Rhind Papyrus. Contains what many consider the <span class="highlight">most stunning achievement</span> in pre-Greek mathematics.</p>
+    <h3 style="color:#96ffdc;">Problem 14 — Volume of a Frustum (Truncated Pyramid)</h3>
+    <p>A pyramid cut partway up. Top = 2×2, base = 4×4, height = 6. Find the volume.</p>
+    <div style="background:rgba(0,0,0,0.4);border-radius:10px;padding:14px;margin:10px 0;font-size:14px;color:#96ffdc;text-align:center;line-height:2;">
+      V = h/3 × (a² + ab + b²)<br>
+      V = 6/3 × (4 + 8 + 16) = 2 × 28 = <strong>56 cubic units</strong> ✓
+    </div>
+    <p>This formula is <span class="gold">identical to the one in modern textbooks</span>. The Greeks, who are usually credited as first to prove it, came <span class="pink">1,500 years later</span>. How the Egyptians arrived at it is completely unknown — no derivation or proof survives.</p>
+    <h3 style="color:#96ffdc;">Problem 10 — Curved Surface Area</h3>
+    <p>Calculates the surface area of a curved surface consistent with the formula for a hemisphere or semi-cylinder — evidence that Egyptians could calculate curved surface areas over 1,500 years before the Greeks formalized it.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Seqed — Pyramid Slope Geometry</h2>
+    <p>The <span class="gold">seqed</span> (<em>sqd</em>) was defined as the horizontal displacement in <span class="pink">palms</span> per 1 cubit of vertical rise — the reciprocal of slope. It was the critical engineering parameter for pyramid construction, ensuring all faces met at the apex correctly.</p>
+    <div style="overflow-x:auto;margin-top:12px;">
+      <table class="compare-table">
+        <tr><th>Pyramid</th><th>Seqed</th><th>Slope Angle</th></tr>
+        <tr><td>Great Pyramid (Khufu)</td><td>5.5 palms / cubit</td><td>≈ 51.84°</td></tr>
+        <tr><td>Pyramid of Khafre</td><td>5.25 palms / cubit</td><td>≈ 53.13°</td></tr>
+        <tr><td>Bent Pyramid (lower)</td><td>≈ 5.5 palms / cubit</td><td>≈ 54°</td></tr>
+      </table>
+    </div>
+    <p style="margin-top:12px;">Rhind Papyrus Problems 56–60 are all seqed calculations — given any two of base, height, or seqed, find the third.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Harpedonaptai — Rope Stretchers</h2>
+    <p>Royal surveyors who re-established field boundaries after each annual Nile flood washed away the markers. Primary tool: a <span class="gold">knotted rope</span> divided into 12 equal segments.</p>
+    <p style="margin-top:10px;">A rope formed into a triangle with sides <span class="highlight">3, 4, and 5</span> — by the Pythagorean theorem (3² + 4² = 5² = 25) — creates a perfect right angle. This allowed surveyors to lay out perfect right angles and re-grid the field system every year. It was also used to align temple foundations.</p>
+    <p style="margin-top:10px;color:#9080b0;font-size:13px;">Whether Egyptians knew the Pythagorean theorem as a general mathematical principle is debated — no text explicitly states it — but their consistent, accurate use of the 3-4-5 triangle demonstrates empirical knowledge of the relationship centuries before Pythagoras.</p>
+  </div>
+
+  <div class="card">
+    <h2>Egyptian vs. Babylonian vs. Greek Math</h2>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th></th><th>Egyptian</th><th>Babylonian</th><th>Greek</th></tr>
+        <tr><td><span class="gold">Number System</span></td><td>Decimal, non-positional</td><td>Base 60, positional</td><td>Letter-based</td></tr>
+        <tr><td><span class="gold">Fractions</span></td><td>Unit fractions only</td><td>General fractions</td><td>General fractions</td></tr>
+        <tr><td><span class="gold">Algebra</span></td><td>Method of false position (linear)</td><td>Quadratic + cubic equations</td><td>Abstract algebra</td></tr>
+        <tr><td><span class="gold">Geometry</span></td><td>Empirical, highly applied</td><td>Applied</td><td>Deductive, proof-based</td></tr>
+        <tr><td><span class="gold">Key Achievement</span></td><td>Pi, frustum volume, seqed</td><td>Pythagorean triples (Plimpton 322, c. 1800 BCE)</td><td>Formal mathematical proof</td></tr>
+        <tr><td><span class="gold">Purpose</span></td><td>Purely practical</td><td>Practical + some theoretical</td><td>Truth for its own sake</td></tr>
+      </table>
+    </div>
+    <p style="margin-top:14px;color:#c8b8e8;font-size:14px;">Babylonian mathematics was more algebraically advanced. Greek mathematics introduced formal proof and changed the discipline permanently. But <span class="pink">both Babylonians and Greeks explicitly credit Egypt as the origin of geometry</span> — Thales, Pythagoras, Plato, and Eudoxus all reportedly studied in Egyptian temples.</p>
+  </div>
+
+</div>
+
+<script>
+  // ── TAB SWITCHING ──
+  function switchTab(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ── GOD CARDS ──
+  const GODS = {
+    ennead: [
+      { emoji:'🌅', name:'Atum', eg:'Itmu', title:'The Self-Created One', domains:'Creation, self-existence, the setting sun, completion, end of cycles', cult:'Heliopolis', appear:'Man wearing the Double Crown; elderly man; serpent in the underworld', symbols:'Double Crown, serpent, sun disk', myths:'First being to emerge from the primordial waters of Nun onto the first mound of creation. Created Shu and Tefnut — the first divine pair — through sneezing, spitting, or masturbation. Embodied the evening sun: wisdom accumulated over a full life, the sun returning to death. Some texts describe him ultimately dissolving back into Nun at the end of time.', afterlife:'Present in the Duat as an elder. The dead appealed to him for protection.' },
+      { emoji:'☀️', name:'Ra', eg:'Re', title:'The Solar King', domains:'The sun, light, creation, kingship, warmth, all energy and life', cult:'Heliopolis', appear:'Falcon-headed man with solar disk and uraeus; at night, a ram-headed man', symbols:'Solar disk, falcon, uraeus, the solar barque, ankh, was-scepter', myths:'Sailed the sky each day in the Mandjet (Day Barque); descended into the Duat each night in the Mesektet (Night Barque) through 12 hours. Faced Apophis the chaos serpent every night — Set stood at the prow and drove a spear through it. When humans plotted against aging Ra, he unleashed Hathor/Sekhmet to punish them. Isis tricked him into revealing his secret name by engineering a serpent bite.', afterlife:'The justified dead hoped to join Ra on his barque, reborn each dawn.' },
+      { emoji:'👑', name:'Amun', eg:'Amun', title:'The Hidden One', domains:'Air, hiddenness, the invisible world, creation, fertility, supreme kingship', cult:'Thebes (Karnak — largest religious structure ever built)', appear:'Man with flat-topped crown bearing two tall ostrich plumes; blue skin indicating cosmic invisibility; sacred animals: ram and goose', symbols:'Double-plumed crown, ankh, was-scepter, ram, goose', myths:'Name means "the hidden one" — present everywhere but seen nowhere. Rose from a minor Ogdoad deity to supreme state god when Theban dynasties unified Egypt. As Amun-Ra, combined cosmic solar authority with universal hiddenness. Pharaohs were considered his divine children — he visited queen mothers in the guise of their husbands to conceive heirs. The annual Opet Festival celebrated his union with the pharaoh, renewing divine kingship.', afterlife:'Invoked for protection of the dead throughout the Duat.' },
+      { emoji:'💨', name:'Shu', eg:'Shu', title:'God of Air', domains:'Air, light, wind, atmosphere, the space between earth and sky', cult:'Heliopolis; Leontopolis', appear:'Man wearing an ostrich feather; arms raised, holding up the sky above the earth', symbols:'Ostrich feather, the atmosphere, twin lions (with Tefnut)', myths:'Created by Atum. His children Nut (sky) and Geb (earth) were locked in eternal union — no space existed for life. Atum commanded Shu to separate them. Shu stepped between them, placing feet on Geb\'s back and arms lifting Nut into the sky — creating the atmosphere where all life could exist. Without Shu, earth and sky would crush together and nothing could live.', afterlife:'Invoked for the "air of life" — breath — in the afterlife.' },
+      { emoji:'🦁', name:'Tefnut', eg:'Tefnut', title:'Goddess of Moisture', domains:'Moisture, dew, rain, the water content of air; an Eye of Ra form', cult:'Heliopolis; Leontopolis', appear:'Lioness or woman with a lioness head; solar disk with uraeus', symbols:'Lioness, solar disk, lunar disk', myths:'Created alongside Shu by Atum — the first female deity. In one myth, Tefnut grew furious with Ra and fled to Nubia as a rampaging lioness (a version of the Eye of Ra myth). Only Thoth in baboon form could approach and soothe her with stories and arguments. The annual drought in Egypt was her absence; the flood season was her return.', afterlife:'Associated with the protective moisture that sustained the dead.' },
+      { emoji:'🌍', name:'Geb', eg:'Geb', title:'God of the Earth', domains:'Earth, soil, vegetation, fertility, earthquakes, all minerals and precious stones', cult:'Heliopolis', appear:'Man with green or black skin; vegetation growing from body; goose on head', symbols:'The goose, green/black skin, the earth itself', myths:'His laughter caused earthquakes. Crops grew from his body. As "the Great Cackler," he laid the Cosmic Egg as a divine goose — from which the sun was born. Father of all snakes (they live within his body). Served as judge in the Contendings of Horus and Set — as personification of the earth, his ruling in Horus\'s favor was considered binding.', afterlife:'The dead returned to Geb\'s body. "Received by the earth." Osiris rested within Geb.' },
+      { emoji:'🌌', name:'Nut', eg:'Nut', title:'The Sky Herself', domains:'The sky, stars, the cosmos, motherhood, night, death and rebirth', cult:'Heliopolis; painted inside virtually every sarcophagus in Egypt', appear:'Woman arching over the earth, body covered with stars; also a cosmic cow or sow', symbols:'Stars, the sky arch, the cow, the sow, celestial waters', myths:'Nut is not merely a goddess who rules the sky — she is the sky. Her arched body forms the vault of heaven. Each evening she swallowed Ra; he traveled through her body for 12 hours and was reborn from her womb at dawn. Her body separated the ordered cosmos below from the primordial chaos-waters above. The five epagomenal days were created so she could give birth to Osiris, Horus the Elder, Set, Isis, and Nephthys.', afterlife:'Ultimate protectress. Sarcophagus lids were painted with her image. She embraced every mummy inside its coffin. "Mother of the stars." "Mother of the gods."' },
+      { emoji:'🌾', name:'Osiris', eg:'Wsir', title:'Lord of the Dead', domains:'Death, resurrection, fertility, agriculture, the afterlife, divine kingship, the annual Nile flood', cult:'Abydos (holiest site in Egypt; his head was said to be buried there); Busiris', appear:'Mummified man, green or black skin, Atef crown, holding crook and flail', symbols:'The djed pillar (backbone = resurrection), crook and flail, Atef crown', myths:'First-born of Geb and Nut; first king of Egypt. Set murdered him by sealing him in a perfectly fitted chest and throwing it in the Nile. The chest drifted to Byblos and became encased in a palace pillar. Isis found and retrieved it. Set discovered the body, dismembered Osiris into 14 pieces, scattered them across Egypt. Isis and Nephthys recovered every piece except the phallus (eaten by a fish) — Isis made a replacement in gold. With Thoth\'s magical words and Anubis\'s embalming, Osiris was made whole again. Isis transformed into a kite and conceived Horus before Osiris descended to rule the underworld.', afterlife:'Presided over the Hall of Two Truths. From ~2000 BCE, every deceased Egyptian could become "an Osiris" — identified with him and sharing in his resurrection. The annual Raising of the Djed ceremony reenacted his resurrection.' },
+      { emoji:'⭐', name:'Isis', eg:'Iset', title:'Queen of Magic', domains:'Magic, healing, motherhood, protection, the throne, the afterlife; identified with Sirius', cult:'Philae — remained active as a pagan temple until the 6th century CE', appear:'Woman with throne headdress; cow horns enclosing solar disk; outspread wings; a kite bird', symbols:'Throne hieroglyph (iset), tyet knot, sistrum, cow horns with disk, kite, scorpions', myths:'Greatest sorcerer in the pantheon. Resurrected Osiris using every ounce of her magical power. Fled with infant Horus to the papyrus marshes, protected by the Seven Scorpions. Tricked Ra into revealing his secret name by having a serpent bite him — making her the most magically powerful being in creation. In the Roman period became Queen of the Universe, worshipped across Britain, Rome, Syria, and the entire Mediterranean.', afterlife:'Guided her husband\'s soul and was present at judgment. She and Nephthys flanked every coffin, protecting the mummy within.' },
+    ],
+    greater: [
+      { emoji:'🌩️', name:'Set', eg:'Sutekh', title:'Lord of Chaos', domains:'Deserts, storms, disorder, chaos, violence, foreigners, thunder — and paradoxically: protection of Ra against Apophis', cult:'Ombos; Avaris; Tanis', appear:'Man with the head of the "Set animal" — an unidentified creature with curved snout, squared ears, forked tail. Red skin.', symbols:'The was-scepter (Set animal\'s head), red, meteoritic iron ("bones of Set"), thunderstorms', myths:'Murdered and dismembered Osiris out of envy. Battled Horus for 80 years — blinded Horus in one eye during their physical fights. But Set was also Ra\'s champion: he stood at the prow of Ra\'s night barque and drove his spear into Apophis every single night. Without Set\'s violent power, Ra could not survive the journey. Ramesside pharaohs honored him greatly (Seti I, Seti II, Setnakht). Only demonized in the Late Period after Egypt\'s conquest by foreign powers.', afterlife:'Ambivalent — his power was needed against Apophis, but his chaos was dangerous to souls.' },
+      { emoji:'🌙', name:'Nephthys', eg:'Nebet-Het', title:'Lady of the House', domains:'Mourning, death, the threshold between life and death, protection of the dead, embalming, healing', cult:'Worshipped at most major sites alongside Isis', appear:'Woman wearing headdress spelling her name (basket + house hieroglyphs); almost identical to Isis; kite bird', symbols:'Her headdress, the kite bird, sycamore tree', myths:'Disguised herself as Isis and seduced Osiris — conceiving Anubis. Immediately abandoned Set after the murder and joined Isis in mourning. Her keening over Osiris\'s body with Isis was believed to have magical power to revive the dead. Guarded the east of every sarcophagus.', afterlife:'"Friend to the Dead" — believed to carry news of the deceased back to their mourning families on earth.' },
+      { emoji:'🐺', name:'Anubis', eg:'Inpu', title:'Guardian of the Dead', domains:'Mummification, funerary rites, protection of tombs, guide of souls, patron of embalmers. Before 2000 BCE: king of the dead.', cult:'Cynopolis ("Dog City"); Abydos', appear:'Black jackal or man with jackal head. Black is symbolic — not natural jackal tawny, but pure black representing embalmed bodies and the fertile black Nile soil (regeneration in death).', symbols:'The black jackal, the imy-wt (animal skin on a pole — his cult symbol), the flail', myths:'Invented mummification on Osiris\'s body. The first embalmers wore jackal masks to embody Anubis. In the Old Kingdom, held the supreme afterlife role — "First of the Westerners" — gradually subordinated to Osiris\'s rising cult. In the Hall of Two Truths, Anubis personally takes the soul by the hand, places the heart on the scales, and oversees the weighing.', afterlife:'Guides every soul to judgment. His protection was essential for safe passage.' },
+      { emoji:'🪶', name:'Ma\'at', eg:'Ma\'at', title:'Truth Itself', domains:'Truth, justice, cosmic order, balance, harmony, morality, law, natural cycles — both a goddess and a concept', cult:'Heliopolis; Karnak; adjacent to law courts', appear:'Woman wearing a single white ostrich feather; the feather alone is a complete representation of the concept', symbols:'The white ostrich feather, scales, ankh, was-scepter, wings', myths:'Ma\'at is less a mythological actor than a cosmic standard. Pharaohs ruled "in accordance with Ma\'at" — their primary obligation. Offering a small Ma\'at statue to the gods was the ritual pledge of just rule. The 42 Negative Confessions are the practical ethical code of Ma\'at: don\'t murder, steal, lie, corrupt justice, be arrogant, waste water, damage crops.', afterlife:'Her feather is the counterweight in the Weighing of the Heart. She is the entire standard by which souls are judged.' },
+      { emoji:'🐄', name:'Hathor', eg:'Hwt-Hr', title:'The Golden One', domains:'Love, beauty, music, dance, joy, sexuality, fertility, motherhood, gold, mining, drunkenness (sacred), and the transition to the afterlife', cult:'Dendera (one of Egypt\'s best-preserved temples)', appear:'Full cow; woman with cow ears; woman with cow horns enclosing solar disk; often with a sistrum', symbols:'Cow horns with solar disk, sistrum, menat necklace, turquoise, malachite, gold', myths:'In The Book of the Heavenly Cow, Ra released Hathor to punish rebellious humanity. She became Sekhmet as the killing escalated — stopped only by beer dyed blood-red, which she drank and fell asleep. Woke up as gentle Hathor. The Seven Hathors appeared at a person\'s birth to determine their fate — Egyptian destiny goddesses. Her annual "Beautiful Reunion" festival sent her statue by boat to meet Horus of Edfu for 14 days of sacred marriage.', afterlife:'Depicted inside tombs greeting the deceased with food, drink, and music. Sometimes emerges from the western mountain as a cow to receive the setting sun.' },
+      { emoji:'🦁', name:'Sekhmet', eg:'Skhmt', title:'The Powerful One', domains:'War, destruction, fire, plague — and healing, medicine, surgery (paradoxically)', cult:'Memphis; Amenhotep III erected over 700 statues of her at Karnak', appear:'Woman with a lioness head, solar disk with uraeus, blood-red', symbols:'Lioness head, solar disk, fire, arrows, red garments', myths:'Sekhmet is Hathor in her most uncontrolled violent aspect. Sent plagues as her "messengers" — her priests were therefore Egypt\'s primary physicians (preventing her wrath = preventive medicine). At each new year, Sekhmet could loose the Seven Arrows (seven plagues). A full year of rituals was aimed at keeping them unloosed.', afterlife:'Invoked for protection and healing even by the dead.' },
+      { emoji:'🐱', name:'Bastet', eg:'Bast', title:'Lady of the Flame', domains:'Cats, the home, women\'s secrets, fertility, birth, protection from evil and disease, music, dance, joy', cult:'Bubastis — Herodotus called its temple the most beautiful in Egypt; the annual festival drew hundreds of thousands of pilgrims', appear:'Originally lioness-headed (related to Sekhmet); evolved to domestic cat or cat-headed woman with sistrum and basket', symbols:'The cat, sistrum, basket, ankh, ceremonial collar', myths:'Bastet represents Sekhmet\'s power domesticated — the lioness made into a hearth cat. Protected Ra by cutting off Apophis\'s head in one myth. At Beni Hasan alone, a single cat cemetery contained an estimated 80,000 mummified cats as offerings.', afterlife:'Protector of households and families from evil spirits threatening the home and children.' },
+      { emoji:'🦅', name:'Horus', eg:'Hor', title:'The Living Falcon', domains:'The sky, kingship, divine rule, war, hunting, protection; as a child: protection against all danger', cult:'Edfu (where his great temple stands); Hierakonpolis', appear:'Falcon or man with falcon head; solar disk with uraeus; as Harpocrates (child Horus): a child with finger to lips and side-lock', symbols:'The falcon, the Wedjat (udjat) eye — the restored eye of Horus; the double crown', myths:'Son of Osiris and Isis. Battled Set for 80 years to claim Egypt\'s throne. Set blinded him in one eye; Thoth restored it as the powerful Wedjat (udjat). Every living pharaoh was Horus incarnate. Every dead pharaoh became Osiris. Ra-Horakhty (Horus of the Two Horizons) merged Horus with Ra as the supreme sky deity.', afterlife:'Every pharaoh\'s death was the transition from Horus to Osiris — from living king to divine dead ruler.' },
+      { emoji:'🐊', name:'Sobek', eg:'Sbk', title:'Lord of the Waters', domains:'Water, the Nile, crocodiles, military power, pharaonic authority, fertility', cult:'Crocodilopolis (Faiyum Oasis); Kom Ombo', appear:'Crocodile or man with crocodile head; sun disk and plumes', symbols:'The crocodile, the Nile, military insignia', myths:'Sometimes considered a son of Set. Credited with creating the Nile from his sweat. Crocodiles were kept in temple pools, adorned with gold jewelry, and mummified after death. Associated with both the pharaoh\'s conquering power and the dangerous forces of chaos.', afterlife:'Associated with the Nile waters of the underworld and the forces of fertility and renewal.' },
+      { emoji:'🐏', name:'Khnum', eg:'Khnm', title:'The Potter of Souls', domains:'The Nile flood, creation of human beings, the ka (life force), pottery', cult:'Elephantine (near modern Aswan); Esna', appear:'Ram-headed man at a potter\'s wheel', symbols:'The ram, the potter\'s wheel, the ankh, Nile water', myths:'Khnum fashioned every human being and their double (ka/life force) on his potter\'s wheel at birth, shaping them from Nile clay. He controlled the annual Nile inundation by regulating sluice gates in an underwater cavern at Elephantine. He was the craftsman who made the body and the divine force that animated it.', afterlife:'Invoked for the creation and renewal of the soul\'s body in the afterlife.' },
+      { emoji:'🪲', name:'Khepri', eg:'Khpri', title:'The Morning Sun', domains:'The dawn, the rising sun, creation, transformation, rebirth, spontaneous generation', cult:'Heliopolis; depicted on the prow of the solar barque', appear:'Scarab beetle or man with a scarab for a head; solar disk', symbols:'The scarab beetle, the solar disk, wings', myths:'The scarab beetle was observed rolling a ball of dung — interpreted as mirroring how the sun rolled across the sky. Scarab beetles seemed to hatch from nothing (they lay eggs in dung, unobserved) — representing spontaneous creation. Khepri is the sun at the exact moment of sunrise, the moment of first creation. His name comes from the verb kheper — "to transform" or "to come into being." The scarab amulet (khepresh) became the most common protective amulet in all of Egyptian culture.', afterlife:'Symbol of transformation and rebirth — placed on mummies by the millions.' },
+      { emoji:'🏹', name:'Neith', eg:'Nt', title:'The Ancient One', domains:'Hunting, warfare, weaving, wisdom, water, creation (primordial creator in Saite theology); funerary arts', cult:'Sais (one of the oldest religious centers in Egypt)', appear:'Woman wearing the Red Crown of Lower Egypt; crossed arrows and a bow; or a loom shuttle', symbols:'Crossed arrows, the bow, the Red Crown, a weaving shuttle, the ankh', myths:'In Saite theology, Neith was the primordial creator — she existed before all other gods, wove the world on her loom, and breathed life into it. The famous inscription at Sais: "I am all that has been, that is, and that will be; no mortal has yet been able to lift the veil which covers me." One of the divine jurors in the Contendings — she ruled in Horus\'s favor.', afterlife:'Guarded one side of the sarcophagus. Associated with the funerary arts and the protection of the dead.' },
+      { emoji:'🌸', name:'Mut', eg:'Mwt', title:'Mother of All', domains:'Motherhood, queenship, the sky, protective wrath (in leonine form)', cult:'Karnak (Precinct of Mut); contains a horseshoe-shaped sacred lake', appear:'Woman wearing the Double Crown; sometimes a vulture headdress; occasionally lioness-headed', symbols:'Double Crown, vulture, the sky', myths:'Divine consort of Amun — her son with Amun was Khonsu, forming the Theban Triad. As "Mother of All," she was a universal mother goddess. Queens of Egypt were identified with Mut as pharaohs were identified with Amun. In her leonine aspect she merged with Sekhmet and Tefnut.', afterlife:'Universal protectress and mother figure invoked for the dead.' },
+      { emoji:'🌙', name:'Khonsu', eg:'Khns', title:'The Wanderer', domains:'The moon, time, healing, childbirth, fertility, travelers, exorcism', cult:'Karnak (Precinct of Khonsu)', appear:'Young man in mummy wrappings; lunar disk and crescent crown; side-lock of youth', symbols:'Lunar disk and crescent, the mummy wrappings, the side-lock', myths:'Son of Amun and Mut — third of the Theban Triad. The famous Bentresh Stela tells of a Khonsu statue sent to cure a foreign princess of demonic possession — it worked. Thoth defeated Khonsu in the dice game to create the five extra days of the year.', afterlife:'His moon-healing power was invoked for protection and health in the afterlife.' },
+    ],
+    household: [
+      { emoji:'🦂', name:'Serqet', eg:'Srqt', title:'Lady of the Beautiful House', domains:'Scorpions, venomous creatures, healing from poisons and stings, protection of the dead, binding magic', cult:'Worshipped throughout Egypt; major center in the Delta', appear:'Woman with a scorpion on her head; the scorpion\'s tail raised and ready', symbols:'The scorpion, the ankh, magical binding knots', myths:'Commanded the Seven Scorpions that escorted Isis through the Delta with infant Horus. Her priests were trained scorpion doctors — specialists in treating stings and venom (a major Egyptian medical specialty). Guarded one side of every sarcophagus alongside Isis, Nephthys, and Neith.', afterlife:'Guarded the canopic jar containing the intestines.' },
+      { emoji:'🦅', name:'Nekhbet', eg:'Nkbt', title:'She of Nekhen', domains:'Upper Egypt, protection of the pharaoh, childbirth, motherhood', cult:'El-Kab (ancient Nekhen)', appear:'White vulture; woman with vulture headdress', symbols:'White vulture, the white crown of Upper Egypt', myths:'One of the Two Ladies — with Wadjet, she personified the unity of Egypt. Patron of pharaonic protection and childbirth. Her vulture spread its wings over the pharaoh on tomb ceilings.', afterlife:'Protective vulture spreading her wings over the dead pharaoh.' },
+      { emoji:'🐍', name:'Wadjet', eg:'Wꜣḏyt', title:'She of Papyrus', domains:'Lower Egypt, protection of the pharaoh, fire, the uraeus', cult:'Buto (Per-Wadjet) in the Nile Delta', appear:'Cobra rearing to strike; woman with cobra headdress', symbols:'The uraeus cobra, the Red Crown of Lower Egypt, fire', myths:'The uraeus on every pharaoh\'s crown was Wadjet herself — poised to spit fire at enemies. One of the Two Ladies; her pairing with Nekhbet represented the unified Two Lands. Her name means "the green one" or "she of the papyrus."', afterlife:'Her image as the uraeus protected the dead from harm.' },
+      { emoji:'🧿', name:'Bes', eg:'Bs', title:'Protector of the Home', domains:'Childbirth, sexuality, protection of households and children, fertility, sleep, fighting evil spirits', cult:'No temples — a household deity; painted on bedroom walls, in birthing rooms, on furniture', appear:'Grotesque dwarf with lion features, feathered crown, tongue sticking out — always shown from the front (almost unique; most Egyptian gods shown in profile)', symbols:'His frightening face, the sa (protection symbol), feathered crown, drums', myths:'Unlike most Egyptian gods, Bes was not worshipped in grand temples but in homes. His terrifying appearance was believed to scare evil spirits away. Shown front-facing specifically so his repulsive face would confront every viewer and drive off harm.', afterlife:'Protected the sleeping dead from nighttime evil spirits.' },
+      { emoji:'🦛', name:'Taweret', eg:'Twrt', title:'The Great One', domains:'Childbirth, pregnancy, fertility, protection of mothers and infants during labor', cult:'Worshipped in homes; Akhetaten (where many household Taweret figures were found)', appear:'Pregnant hippopotamus standing upright with crocodile back, lion paws, heavy sagging breasts; holding an ankh or sa (protection symbol)', symbols:'The sa (protection knot), the ankh, hippo and crocodile elements', myths:'A beloved household deity like Bes. Hippos were known to be ferociously protective of their young — Taweret embodied that protection for human mothers. Her terrifying composite appearance (combining the three most dangerous animals in Egypt) was intended to frighten evil away from laboring mothers and newborns.', afterlife:'Invoked at death as a protective mother figure.' },
+    ],
+    chaos: [
+      { emoji:'🐍', name:'Apophis', eg:'Ꜣpp', title:'The Chaos Serpent', domains:'Chaos, darkness, destruction, the void — the eternal enemy of all creation and cosmic order', cult:'No temples — he was an anti-god, the enemy to be defeated', appear:'Enormous serpent of the deep void; sometimes described as miles long; lurking in the darkness beyond creation', symbols:'The coiled serpent, darkness, the roar of thunder, eclipses', myths:'Apophis existed outside creation — an eternal force of anti-creation. Every single night, Ra\'s solar barque faced Apophis in the Duat. He attempted to swallow the barque and halt the sunrise forever. Set speared him; other gods cut his coils; Thoth recited 77 curses against him. He was defeated every night but could never be permanently killed. Egyptian priests performed daily rituals to help Ra: burning effigies of Apophis, spitting on his image, and reciting from the Book of Apophis — a manual of ways to destroy him.', afterlife:'The ultimate threat to every soul in the Duat — his defeat each night was the precondition for the sunrise that awaited the justified dead.' },
+      { emoji:'🌊', name:'Nun', eg:'Nwn', title:'The Primordial Waters', domains:'The primeval ocean, the chaos before creation, the waters surrounding the cosmos, the deep', cult:'No major temples — too primordial; addressed in creation cosmologies', appear:'A man with arms raised, holding up the solar barque; sometimes shown as a blue or dark figure', symbols:'Water, the primordial darkness, the chaos before all things', myths:'Nun is the undifferentiated ocean that existed before creation — the watery void from which Atum emerged onto the first mound. Nun is not evil: he is the raw material of existence. After creation, the Nun continued to surround the cosmos on all sides. At the end of time, according to some texts, everything will return to Nun. Ra himself grows old each day and, some texts say, will dissolve back into the primeval waters.', afterlife:'The ultimate origin and final destination — the waters of the deep underworld.' },
+    ]
+  };
+
+  function buildGods() {
+    Object.entries(GODS).forEach(([group, gods]) => {
+      const grid = document.getElementById(group + '-grid');
+      if (!grid) return;
+      gods.forEach(g => {
+        const div = document.createElement('div');
+        div.className = 'god-card';
+        div.innerHTML = `
+          <div class="g-emoji">${g.emoji}</div>
+          <div class="g-name">${g.name}</div>
+          <div class="g-eg">${g.eg}</div>
+          <div class="g-title">${g.title}</div>
+          <div class="g-domains">${g.domains}</div>
+          <div class="god-detail">
+            <h5>Appearance</h5><p>${g.appear}</p>
+            <h5>Symbols</h5><p>${g.symbols}</p>
+            <h5>Cult Center</h5><p>${g.cult}</p>
+            <h5>Myths</h5><p>${g.myths}</p>
+            <h5>Role in Afterlife</h5><p>${g.afterlife}</p>
+          </div>`;
+        div.addEventListener('click', () => {
+          const wasOpen = div.classList.contains('open');
+          div.classList.toggle('open', !wasOpen);
+        });
+        grid.appendChild(div);
+      });
+    });
+  }
+
+  // ── GLYPH GRID ──
+  const GLYPHS = [
+    {name:'Egyptian Vulture',trans:'ꜣ',sound:'glottal stop'},
+    {name:'Flowering Reed',trans:'ỉ',sound:'y-sound'},
+    {name:'Two Reeds',trans:'y',sound:'consonantal y'},
+    {name:'Forearm',trans:'ꜥ (ayin)',sound:'pharyngeal'},
+    {name:'Quail Chick',trans:'w',sound:'w'},
+    {name:'Foot',trans:'b',sound:'b'},
+    {name:'Horned Viper',trans:'f',sound:'f'},
+    {name:'Owl',trans:'m',sound:'m'},
+    {name:'Water Ripple',trans:'n',sound:'n'},
+    {name:'Mouth',trans:'r',sound:'r'},
+    {name:'Reed Shelter',trans:'ḥ',sound:'soft h'},
+    {name:'Twisted Flax',trans:'ḫ',sound:'loch (kh)'},
+    {name:'Placenta',trans:'ẖ',sound:'emphatic kh'},
+    {name:'Animal Belly',trans:'ẖ',sound:'ch (German)'},
+    {name:'Bolt',trans:'z/s',sound:'z or s'},
+    {name:'Folded Cloth',trans:'s',sound:'s'},
+    {name:'Pool',trans:'š',sound:'sh'},
+    {name:'Slope',trans:'q',sound:'q (back throat)'},
+    {name:'Basket',trans:'k',sound:'k'},
+    {name:'Stand',trans:'g',sound:'g'},
+    {name:'Bread Loaf',trans:'t',sound:'t'},
+    {name:'Tethering Rope',trans:'ṯ',sound:'tch'},
+    {name:'Hand',trans:'d',sound:'d'},
+    {name:'Snake',trans:'ḏ',sound:'dj'},
+  ];
+
+  function buildGlyphs() {
+    const grid = document.getElementById('glyph-grid');
+    GLYPHS.forEach(g => {
+      const div = document.createElement('div');
+      div.className = 'glyph-tile';
+      div.innerHTML = `<div class="glyph-name">${g.name}</div><div class="glyph-trans">${g.trans}</div><div class="glyph-sound">${g.sound}</div>`;
+      grid.appendChild(div);
+    });
+  }
+
+  buildGods();
+  buildGlyphs();
+</script>
+</body>
+</html>

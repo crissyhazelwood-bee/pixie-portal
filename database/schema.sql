@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS users (
   avatar_emoji TEXT,
   fairy_purchased INTEGER DEFAULT 0,
   animation_credits INTEGER DEFAULT 3,
+  first_purchase_done INTEGER DEFAULT 0,
+  appearance TEXT,
+  is_admin INTEGER DEFAULT 0,
+  poem_date TEXT,
   session_version INTEGER NOT NULL DEFAULT 0,
   last_free_animation_at REAL,
   created_at REAL
@@ -27,6 +31,7 @@ CREATE TABLE IF NOT EXISTS journal_entries (
   video_url TEXT,
   video_status TEXT DEFAULT 'idle',
   video_started_at REAL,
+  is_public INTEGER DEFAULT 0,
   created_at REAL
 );
 

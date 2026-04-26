@@ -11,9 +11,33 @@ const STYLE_PREFIXES = {
 
 const EXEMPT_USER_IDS = [1, 8]; // Crissy (thatbee), Rhet (rhetfurreal) — unlimited
 
+export function normalizeReplicateVideoUrl(output) {
+    if (!output) return "";
+    if (typeof output === "string") return output;
+    if (Array.isArray(output)) {
+        for (const item of output) {
+            const normalized = normalizeReplicateVideoUrl(item);
+            if (normalized) return normalized;
+        }
+        return "";
+    }
+    if (typeof output === "object") {
+        return output.url || output.uri || output.href || output.path || "";
+    }
+    return "";
+}
+
+function refundCredits(env, userId, creditCost, creditPreDeducted) {
+    if (!creditPreDeducted) return Promise.resolve();
+    return env.DB.prepare(
+        "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
+    ).bind(creditCost, userId).run();
+}
+
 export async function onRequestPost({ params, request, env }) {
     const userId = await getSessionUserId(env, request);
     if (!userId) return resp({ error: "Unauthorized" }, 401);
+    if (!env.REPLICATE_API_KEY) return resp({ error: "missing_replicate_key" }, 500);
 
     const { style = "auto", prompt_override = null } = await request.json().catch(() => ({}));
 
@@ -63,11 +87,7 @@ export async function onRequestPost({ params, request, env }) {
 
     if (!results[0]) {
         // Refund pre-deducted credits on not-found
-        if (creditPreDeducted) {
-            await env.DB.prepare(
-                "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
-            ).bind(creditCost, userId).run();
-        }
+        await refundCredits(env, userId, creditCost, creditPreDeducted);
         return resp({ error: "Not found" }, 404);
     }
 
@@ -130,15 +150,18 @@ export async function onRequestPost({ params, request, env }) {
         );
     }
 
-    const prediction = await replicateRes.json();
+    const prediction = await replicateRes.json().catch(() => ({}));
+    if (!replicateRes.ok) {
+        await refundCredits(env, userId, creditCost, creditPreDeducted);
+        return resp({
+            error: "replicate_start_failed",
+            detail: prediction.detail || prediction.error || `Replicate returned ${replicateRes.status}`,
+        }, 502);
+    }
     if (!prediction.id) {
         // Replicate failed — refund pre-deducted credits (not the daily slot)
-        if (creditPreDeducted) {
-            await env.DB.prepare(
-                "UPDATE users SET animation_credits = animation_credits + ? WHERE id = ?"
-            ).bind(creditCost, userId).run();
-        }
-        return resp({ error: "Failed to start generation" }, 500);
+        await refundCredits(env, userId, creditCost, creditPreDeducted);
+        return resp({ error: "replicate_missing_prediction_id", detail: prediction.error || prediction.detail || "" }, 502);
     }
 
     const now = Date.now() / 1000;
@@ -152,6 +175,7 @@ export async function onRequestPost({ params, request, env }) {
 export async function onRequestGet({ params, request, env }) {
     const userId = await getSessionUserId(env, request);
     if (!userId) return resp({ error: "Unauthorized" }, 401);
+    if (!env.REPLICATE_API_KEY) return resp({ error: "missing_replicate_key" }, 500);
 
     const { results } = await env.DB.prepare(
         "SELECT id, video_url, video_prediction_id, video_status FROM journal_entries WHERE id = ? AND user_id = ?"
@@ -168,10 +192,24 @@ export async function onRequestGet({ params, request, env }) {
     const pollRes = await fetch(`https://api.replicate.com/v1/predictions/${entry.video_prediction_id}`, {
         headers: { "Authorization": `Bearer ${env.REPLICATE_API_KEY}` }
     });
-    const prediction = await pollRes.json();
+    const prediction = await pollRes.json().catch(() => ({}));
+
+    if (!pollRes.ok) {
+        return resp({
+            status: "processing",
+            warning: "replicate_poll_failed",
+            detail: prediction.detail || prediction.error || `Replicate returned ${pollRes.status}`,
+        });
+    }
 
     if (prediction.status === "succeeded") {
-        const videoUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+        const videoUrl = normalizeReplicateVideoUrl(prediction.output);
+        if (!videoUrl) {
+            await env.DB.prepare(
+                "UPDATE journal_entries SET video_status = 'failed' WHERE id = ? AND user_id = ?"
+            ).bind(params.id, userId).run();
+            return resp({ status: "failed", error: "missing_video_url" });
+        }
         await env.DB.prepare(
             "UPDATE journal_entries SET video_url = ?, video_status = 'done' WHERE id = ? AND user_id = ?"
         ).bind(videoUrl, params.id, userId).run();

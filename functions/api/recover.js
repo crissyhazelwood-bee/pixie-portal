@@ -45,7 +45,7 @@ export async function onRequestPost({ request, env }) {
             "UPDATE users SET password_hash = ?, recovery_code_hash = ?, session_version = ? WHERE id = ?"
         ).bind(newHash, newRecoveryHash, newVersion, user.id).run();
 
-        const cookie = await createSessionCookie(env, user.id, newVersion);
+        const cookie = await createSessionCookie(env, user.id, newVersion, request);
         return new Response(JSON.stringify({
             success: true,
             recoveryCode: newRecoveryCode,
