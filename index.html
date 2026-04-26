@@ -870,6 +870,17 @@
             font-weight: 800;
         }
 
+        .filter-tab {
+            cursor: pointer;
+            transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .filter-tab:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 179, 243, 0.35);
+            box-shadow: 0 0 18px rgba(255, 79, 216, 0.12);
+        }
+
         .filter-tab.active,
         .spread-tab.active {
             color: #18051f;
@@ -880,6 +891,41 @@
             color: #ffe6ff;
             border-color: rgba(255, 179, 243, 0.24);
             background: rgba(255, 79, 216, 0.12);
+        }
+
+        .daily-chest-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .daily-chest-button.claimed {
+            color: #fff5ff;
+            background: linear-gradient(135deg, rgba(89, 255, 212, 0.18), rgba(255, 179, 243, 0.22));
+        }
+
+        .progress-track {
+            position: relative;
+            overflow: hidden;
+            height: 12px;
+            margin: 16px 0 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .progress-fill {
+            width: 56%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #ff4fd8, #ffb3f3, #79f7ff);
+            box-shadow: 0 0 22px rgba(255, 79, 216, 0.28);
+            transition: width 0.45s ease;
+        }
+
+        .game-card-hidden {
+            display: none !important;
         }
 
         .portal-feature {
@@ -1136,6 +1182,11 @@
             opacity: 0.62;
         }
 
+        .charm-tile.earned {
+            border-color: rgba(121, 247, 255, 0.28);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 34px rgba(121, 247, 255, 0.08);
+        }
+
         .charm-tile.locked .charm-glyph {
             color: transparent;
             border: 1px dashed rgba(255,255,255,0.2);
@@ -1371,14 +1422,15 @@
             <p class="section-subtitle reveal">claim a tiny ritual, then go play for sparkles</p>
             <div class="games-shell reveal">
                 <div class="portal-hub-grid">
-                    <div class="portal-hub-card">
+                    <div class="portal-hub-card" id="daily-reward-card">
                         <div class="hub-kicker">Daily reward</div>
-                        <div class="hub-title">Open the sparkle chest</div>
-                        <div class="hub-copy">Today's chest previews +10 sparkles, a streak glow, and a chance at a rare charm when the collection system goes live.</div>
+                        <div class="hub-title" id="daily-reward-title">Open the sparkle chest</div>
+                        <div class="hub-copy" id="daily-reward-copy">Today's chest gives +10 sparkles, a streak glow, and a chance at a rare charm preview.</div>
                         <div class="reward-row">
-                            <span class="reward-pill">+10 sparkles</span>
-                            <span class="reward-pill">Streak: day 1</span>
-                            <span class="reward-pill locked-badge">Rare charm chance</span>
+                            <button class="btn btn-primary btn-small daily-chest-button" id="daily-chest-button" onclick="claimDailyReward()">Open Chest</button>
+                            <span class="reward-pill" id="daily-sparkle-pill">+10 sparkles</span>
+                            <span class="reward-pill" id="daily-streak-pill">Streak: day 1</span>
+                            <span class="reward-pill locked-badge" id="daily-charm-pill">Rare charm chance</span>
                         </div>
                     </div>
                     <div class="portal-hub-card">
@@ -1392,11 +1444,12 @@
                     </div>
                     <div class="portal-hub-card wide">
                         <div class="hub-kicker">Progress preview</div>
-                        <div class="hub-title">Level 3 Portal Seeker</div>
-                        <div class="hub-copy">280 / 500 sparkles toward the next portal title. Charms, streaks, and premium rituals will feed this loop as the world grows.</div>
+                        <div class="hub-title" id="portal-level-title">Level 3 Portal Seeker</div>
+                        <div class="progress-track"><div class="progress-fill" id="portal-progress-fill"></div></div>
+                        <div class="hub-copy" id="portal-progress-copy">280 / 500 sparkles toward the next portal title. Charms, streaks, and premium rituals will feed this loop as the world grows.</div>
                         <div class="reward-row">
-                            <span class="reward-pill">Petal Charm unlocked</span>
-                            <span class="reward-pill">Moon Moth locked</span>
+                            <span class="reward-pill" id="portal-petal-pill">Petal Charm unlocked</span>
+                            <span class="reward-pill" id="portal-moon-pill">Moon Moth locked</span>
                             <span class="reward-pill">Vault realm locked</span>
                             <button class="btn btn-ghost btn-small" onclick="showPage('charms')">View Charms</button>
                         </div>
@@ -1559,89 +1612,89 @@
             <h2 class="section-title">Games</h2>
             <p class="section-subtitle">click to play ✦ scores save to your profile</p>
             <div class="games-shell">
-            <div class="filter-tabs">
-                <span class="filter-tab active">All</span>
-                <span class="filter-tab">Daily</span>
-                <span class="filter-tab">Cozy</span>
-                <span class="filter-tab">Arcade</span>
-                <span class="filter-tab">Puzzle</span>
-                <span class="filter-tab">Ritual</span>
-                <span class="filter-tab locked-badge">Premium</span>
+            <div class="filter-tabs" id="game-filter-tabs">
+                <span class="filter-tab active" data-filter="all" onclick="filterGames('all')">All</span>
+                <span class="filter-tab" data-filter="daily" onclick="filterGames('daily')">Daily</span>
+                <span class="filter-tab" data-filter="cozy" onclick="filterGames('cozy')">Cozy</span>
+                <span class="filter-tab" data-filter="arcade" onclick="filterGames('arcade')">Arcade</span>
+                <span class="filter-tab" data-filter="puzzle" onclick="filterGames('puzzle')">Puzzle</span>
+                <span class="filter-tab" data-filter="ritual" onclick="filterGames('ritual')">Ritual</span>
+                <span class="filter-tab locked-badge" data-filter="premium" onclick="filterGames('premium')">Premium</span>
             </div>
             <div class="cards">
-                <div class="card" onclick="window.location.href='/the_portal.html'">
+                <div class="card game-tile" data-tags="daily cozy ritual" onclick="window.location.href='/the_portal.html'">
                     <span class="card-icon">🌀</span>
                     <div class="card-title">The Portal</div>
                     <div class="card-desc">A living fairy world to explore. Wander meadows, discover the lake, dance on the fairy ring. Phase 1 — more coming soon.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/wishing_well.html'">
+                <div class="card game-tile" data-tags="daily arcade" onclick="window.location.href='/wishing_well.html'">
                     <span class="card-icon">🪙</span>
                     <div class="card-title">Wishing Well</div>
                     <div class="card-desc">Toss glowing coins into a moving well. Aim for the center for a wish. Three wishes in a row unlocks a bonus round!</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/petal_puzzle.html'">
+                <div class="card game-tile" data-tags="daily cozy puzzle" onclick="window.location.href='/petal_puzzle.html'">
                     <span class="card-icon">🌸</span>
                     <div class="card-title">Petal Puzzle</div>
                     <div class="card-desc">Drop colored petals into a spinning mandala. Fill a ring to clear it. Match all one color for a rainbow bonus!</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/fairy_garden.html'">
+                <div class="card game-tile" data-tags="daily cozy" onclick="window.location.href='/fairy_garden.html'">
                     <span class="card-icon">🌸</span>
                     <div class="card-title">Fairy Garden</div>
                     <div class="card-desc">Plant flowers, water them, collect sparkles from butterflies.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/spellbook.html'">
+                <div class="card game-tile" data-tags="ritual" onclick="window.location.href='/spellbook.html'">
                     <span class="card-icon">✨</span>
                     <div class="card-title">Spellbook</div>
                     <div class="card-desc">7 magical spells. Paint the screen with particles and light.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/frog_box.html'">
+                <div class="card game-tile" data-tags="arcade" onclick="window.location.href='/frog_box.html'">
                     <span class="card-icon">🐸</span>
                     <div class="card-title">Frog Box</div>
                     <div class="card-desc">Hop across mushrooms, dodge magic boxes, reach the fairy garden.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/fairy_flight.html'">
+                <div class="card game-tile" data-tags="arcade" onclick="window.location.href='/fairy_flight.html'">
                     <span class="card-icon">🧚</span>
                     <div class="card-title">Fairy Flight</div>
                     <div class="card-desc">Endless fairy flyer. Dodge thorns, collect gems, survive the enchanted sky.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/constellation.html'">
+                <div class="card game-tile" data-tags="daily puzzle ritual" onclick="window.location.href='/constellation.html'">
                     <span class="card-icon">✦</span>
                     <div class="card-title">Starweave</div>
                     <div class="card-desc">Connect numbered stars to reveal fairy constellations. 10 shapes to discover.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/firefly_chase.html'">
+                <div class="card game-tile" data-tags="arcade" onclick="window.location.href='/firefly_chase.html'">
                     <span class="card-icon">🌟</span>
                     <div class="card-title">Firefly Chase</div>
                     <div class="card-desc">Guide a glowing firefly through the dark forest. Dodge branches and spiders, collect orbs.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/mushroom_match.html'">
+                <div class="card game-tile" data-tags="puzzle arcade" onclick="window.location.href='/mushroom_match.html'">
                     <span class="card-icon">🍄</span>
                     <div class="card-title">Mushroom Match</div>
                     <div class="card-desc">Swap mushrooms, bees, fairies, and tarot tiles to match 3 or more. Chain combos, hit the score goal.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <div class="card" onclick="window.location.href='/dragon_dash.html'">
+                <div class="card game-tile" data-tags="arcade" onclick="window.location.href='/dragon_dash.html'">
                     <span class="card-icon">🐉</span>
                     <div class="card-title">Dragon Dash</div>
                     <div class="card-desc">Flap through an enchanted crystal cave, collect gems, and breathe fire to smash obstacles.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <a class="card" href="https://aiit-threshold.com/game" target="_blank" rel="noopener" style="text-decoration:none;">
+                <a class="card game-tile" data-tags="arcade" href="https://aiit-threshold.com/game" target="_blank" rel="noopener" style="text-decoration:none;">
                     <span class="card-icon">🫘</span>
                     <div class="card-title">Them Beans Though</div>
                     <div class="card-desc">You are a coherence particle. Dodge meteors. Collect beans. Find the ring before decoherence wins. Built by Rhet.</div>
                     <span class="card-tag tag-game">LIVE</span>
                 </a>
-                <a class="card" href="https://aiit-threshold.com/dailygrind" target="_blank" rel="noopener" style="text-decoration:none;">
+                <a class="card game-tile" data-tags="daily arcade" href="https://aiit-threshold.com/dailygrind" target="_blank" rel="noopener" style="text-decoration:none;">
                     <span class="card-icon">😁</span>
                     <div class="card-title">Dailygrind</div>
                     <div class="card-desc">You vs the bad vibes. Hop through a tunnel of 😠😢😭🤬 and see how far you get. Leaderboard live. Built by Rhet.</div>
@@ -1651,70 +1704,70 @@
             </div>
 
             <div class="cards" style="margin-top:18px;">
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="daily puzzle premium" onclick="showPage('vault')">
                     <span class="card-icon">&#9790;</span>
                     <div class="card-title">Moon Moth Maze</div>
                     <div class="card-desc">Guide a glowing moth through moonlit turns, collect dust, and reach the lantern.</div>
                     <div class="card-meta"><span>Reward: Moon Moth Charms</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="cozy puzzle premium" onclick="showPage('vault')">
                     <span class="card-icon">&#10022;</span>
                     <div class="card-title">Crystal Cauldron</div>
                     <div class="card-desc">Drop crystals and herbs in rhythm to unlock potion recipes.</div>
                     <div class="card-meta"><span>Reward: Potion Pages</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="daily arcade premium" onclick="showPage('vault')">
                     <span class="card-icon">&#10023;</span>
                     <div class="card-title">Starfall Catcher</div>
                     <div class="card-desc">Catch falling stars, dodge cursed comets, and build constellations.</div>
                     <div class="card-meta"><span>Reward: Star Shards</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="cozy puzzle ritual premium" onclick="showPage('vault')">
                     <span class="card-icon">&#9675;</span>
                     <div class="card-title">Fairy Ring Builder</div>
                     <div class="card-desc">Place mushrooms, flowers, stones, and candles into ritual patterns.</div>
                     <div class="card-meta"><span>Reward: Ring Tiles</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="ritual puzzle premium" onclick="showPage('vault')">
                     <span class="card-icon">&#9884;</span>
                     <div class="card-title">Spell Rune Trace</div>
                     <div class="card-desc">Trace glowing runes before they fade and unlock spellbook pages.</div>
                     <div class="card-meta"><span>Reward: Rune Ink</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="daily arcade premium" onclick="showPage('vault')">
                     <span class="card-icon">&#9679;</span>
                     <div class="card-title">Dream Bubble Pop</div>
                     <div class="card-desc">Pop matching dream symbols before they drift out of the moonlight.</div>
                     <div class="card-meta"><span>Reward: Dream Symbols</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="cozy puzzle premium" onclick="showPage('vault')">
                     <span class="card-icon">&#9670;</span>
                     <div class="card-title">Gem Sprite Merge</div>
                     <div class="card-desc">Merge tiny gem sprites into rarer magical families.</div>
                     <div class="card-meta"><span>Reward: Gem Sprites</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="arcade premium" onclick="showPage('vault')">
                     <span class="card-icon">&#9879;</span>
                     <div class="card-title">Potion Shop Rush</div>
                     <div class="card-desc">Serve magical customers the right potion before time runs out.</div>
                     <div class="card-meta"><span>Reward: Gold Petals</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="daily puzzle ritual premium" onclick="showPage('vault')">
                     <span class="card-icon">&#10038;</span>
                     <div class="card-title">Constellation Weaver</div>
                     <div class="card-desc">Connect stars in order to reveal creatures, signs, and secret objects.</div>
                     <div class="card-meta"><span>Reward: Constellation Cards</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
                 </div>
-                <div class="card" onclick="showPage('vault')">
+                <div class="card game-tile" data-tags="daily cozy premium" onclick="showPage('vault')">
                     <span class="card-icon">&#9673;</span>
                     <div class="card-title">Portal Hatchery</div>
                     <div class="card-desc">Hatch magical eggs by completing tiny daily rituals and games.</div>
@@ -1884,18 +1937,19 @@
                 <div class="portal-hub-grid">
                     <div class="portal-hub-card">
                         <div class="hub-kicker">Profile level</div>
-                        <div class="hub-title">Level 3 Portal Seeker</div>
-                        <div class="hub-copy">280 / 500 sparkles. Keep playing daily games to grow into Star Reader, Portal Keeper, and Fae Oracle.</div>
+                        <div class="hub-title" id="charms-level-title">Level 3 Portal Seeker</div>
+                        <div class="progress-track"><div class="progress-fill" id="charms-progress-fill"></div></div>
+                        <div class="hub-copy" id="charms-progress-copy">280 / 500 sparkles. Keep playing daily games to grow into Star Reader, Portal Keeper, and Fae Oracle.</div>
                     </div>
                     <div class="portal-hub-card">
                         <div class="hub-kicker">Daily loop</div>
-                        <div class="hub-title">Streak: 1 day</div>
-                        <div class="hub-copy">Claim the chest, play a featured game, pull a reading, and build your collection.</div>
+                        <div class="hub-title" id="charms-streak-title">Streak: 1 day</div>
+                        <div class="hub-copy" id="charms-streak-copy">Claim the chest, play a featured game, pull a reading, and build your collection.</div>
                     </div>
                 </div>
                 <div class="charms-grid">
-                    <div class="charm-tile"><div class="charm-glyph">&#10048;</div><div class="tile-kicker">Unlocked</div><div class="hub-title" style="font-size:18px;">Petal Charm</div><div class="tile-copy">Fairy Garden reward.</div></div>
-                    <div class="charm-tile"><div class="charm-glyph">&#10023;</div><div class="tile-kicker">Preview</div><div class="hub-title" style="font-size:18px;">Star Shard</div><div class="tile-copy">Starfall Catcher reward.</div></div>
+                    <div class="charm-tile earned" id="charm-petal"><div class="charm-glyph">&#10048;</div><div class="tile-kicker" id="charm-petal-state">Unlocked</div><div class="hub-title" style="font-size:18px;">Petal Charm</div><div class="tile-copy">Fairy Garden reward.</div></div>
+                    <div class="charm-tile" id="charm-star"><div class="charm-glyph">&#10023;</div><div class="tile-kicker" id="charm-star-state">Preview</div><div class="hub-title" style="font-size:18px;">Star Shard</div><div class="tile-copy">Daily chest reward.</div></div>
                     <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Moon Moth</div><div class="tile-copy">Maze reward silhouette.</div></div>
                     <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Rune Ink</div><div class="tile-copy">Spell tracing reward.</div></div>
                     <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Dream Symbol</div><div class="tile-copy">Dream bubble reward.</div></div>
@@ -4094,6 +4148,133 @@
         });
 
         // ============================================
+        // PORTAL PROGRESSION
+        // ============================================
+        const PORTAL_PROGRESS_KEY = 'pixiePortalProgress';
+        const PORTAL_LEVELS = [
+            { level: 1, title: 'New Pixie', min: 0, next: 100 },
+            { level: 2, title: 'Garden Guest', min: 100, next: 250 },
+            { level: 3, title: 'Portal Seeker', min: 250, next: 500 },
+            { level: 4, title: 'Charm Seeker', min: 500, next: 900 },
+            { level: 5, title: 'Star Reader', min: 900, next: 1400 },
+            { level: 10, title: 'Moonlit Adept', min: 1400, next: 2200 },
+            { level: 20, title: 'Fae Oracle', min: 2200, next: 3200 }
+        ];
+
+        function todayKey() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        function addDays(dateKey, days) {
+            const d = new Date(dateKey + 'T00:00:00');
+            d.setDate(d.getDate() + days);
+            return d.toISOString().slice(0, 10);
+        }
+
+        function getPortalProgress() {
+            const fallback = {
+                sparkles: 280,
+                streak: 1,
+                lastClaim: '',
+                charms: { petal: true, star: false }
+            };
+            try {
+                return { ...fallback, ...JSON.parse(localStorage.getItem(PORTAL_PROGRESS_KEY) || '{}') };
+            } catch(e) {
+                return fallback;
+            }
+        }
+
+        function savePortalProgress(progress) {
+            localStorage.setItem(PORTAL_PROGRESS_KEY, JSON.stringify(progress));
+        }
+
+        function getPortalLevel(sparkles) {
+            let current = PORTAL_LEVELS[0];
+            PORTAL_LEVELS.forEach(level => {
+                if (sparkles >= level.min) current = level;
+            });
+            return current;
+        }
+
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+
+        function setProgressFill(id, sparkles, level) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const span = Math.max(1, level.next - level.min);
+            const pct = Math.max(4, Math.min(100, ((sparkles - level.min) / span) * 100));
+            el.style.width = pct + '%';
+        }
+
+        function renderPortalProgress() {
+            const progress = getPortalProgress();
+            const level = getPortalLevel(progress.sparkles);
+            const claimed = progress.lastClaim === todayKey();
+            const rareReady = progress.charms && progress.charms.star;
+            const levelLabel = 'Level ' + level.level + ' ' + level.title;
+            const progressText = progress.sparkles + ' / ' + level.next + ' sparkles toward the next portal title.';
+
+            setText('portal-level-title', levelLabel);
+            setText('portal-progress-copy', progressText + ' Claim daily chests and play featured games to feed the loop.');
+            setText('charms-level-title', levelLabel);
+            setText('charms-progress-copy', progressText + ' Keep playing daily games to grow into Star Reader, Portal Keeper, and Fae Oracle.');
+            setText('charms-streak-title', 'Streak: ' + progress.streak + (progress.streak === 1 ? ' day' : ' days'));
+            setText('charms-streak-copy', claimed ? 'Chest claimed today. Pull tarot or play a featured game to keep the ritual warm.' : 'Claim the chest, play a featured game, pull a reading, and build your collection.');
+            setText('daily-streak-pill', 'Streak: day ' + progress.streak);
+            setText('daily-charm-pill', rareReady ? 'Star Shard found' : 'Rare charm chance');
+            setText('portal-petal-pill', 'Petal Charm unlocked');
+            setText('portal-moon-pill', rareReady ? 'Star Shard unlocked' : 'Moon Moth locked');
+
+            setProgressFill('portal-progress-fill', progress.sparkles, level);
+            setProgressFill('charms-progress-fill', progress.sparkles, level);
+
+            const chestBtn = document.getElementById('daily-chest-button');
+            if (chestBtn) {
+                chestBtn.textContent = claimed ? 'Claimed Today' : 'Open Chest';
+                chestBtn.disabled = claimed;
+                chestBtn.classList.toggle('claimed', claimed);
+            }
+            setText('daily-reward-title', claimed ? 'Sparkle chest opened' : 'Open the sparkle chest');
+            setText('daily-reward-copy', claimed ? 'Your +10 sparkles are tucked into the collection. Come back tomorrow to keep the streak glowing.' : 'Today\'s chest gives +10 sparkles, a streak glow, and a chance at a rare charm preview.');
+            setText('daily-sparkle-pill', claimed ? progress.sparkles + ' sparkles held' : '+10 sparkles');
+
+            const star = document.getElementById('charm-star');
+            if (star) {
+                star.classList.toggle('earned', rareReady);
+                star.classList.toggle('locked', !rareReady);
+            }
+            setText('charm-star-state', rareReady ? 'Unlocked' : 'Preview');
+        }
+
+        function claimDailyReward() {
+            const progress = getPortalProgress();
+            const today = todayKey();
+            if (progress.lastClaim === today) return;
+            progress.streak = progress.lastClaim && addDays(progress.lastClaim, 1) === today ? progress.streak + 1 : 1;
+            progress.lastClaim = today;
+            progress.sparkles += 10;
+            progress.charms = progress.charms || {};
+            if (progress.streak >= 3 || progress.sparkles >= 320) progress.charms.star = true;
+            savePortalProgress(progress);
+            renderPortalProgress();
+            toast(progress.charms.star ? 'Chest opened: +10 sparkles and Star Shard unlocked!' : 'Chest opened: +10 sparkles added.');
+        }
+
+        function filterGames(filter) {
+            document.querySelectorAll('#game-filter-tabs .filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+            document.querySelectorAll('#page-games .game-tile').forEach(card => {
+                const tags = (card.dataset.tags || '').split(/\s+/);
+                card.classList.toggle('game-card-hidden', filter !== 'all' && !tags.includes(filter));
+            });
+        }
+
+        // ============================================
         // HELPERS
         // ============================================
         function toast(msg) {
@@ -4119,6 +4300,8 @@
             });
         }
         observeReveals();
+        renderPortalProgress();
+        filterGames('all');
 
         // Close notification panel when clicking outside
         document.addEventListener('click', e => {
