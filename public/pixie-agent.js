@@ -29,8 +29,8 @@
     const style = document.createElement("style");
     style.id = STYLE_ID;
     style.textContent = `
-      #${ROOT_ID}{position:fixed;right:18px;bottom:18px;z-index:9998;font-family:Quicksand,Arial,sans-serif;color:#f0d0ff}
-      .loki-pixie-toggle{display:flex;align-items:center;gap:10px;max-width:300px;padding:10px 13px;border-radius:22px;border:1px solid rgba(255,150,200,.35);background:linear-gradient(135deg,rgba(26,16,48,.96),rgba(13,8,32,.96));box-shadow:0 10px 35px rgba(180,100,255,.22);cursor:pointer;color:#f0d0ff;text-align:left}
+      #${ROOT_ID}{position:fixed;right:18px;bottom:18px;z-index:9998;font-family:Quicksand,Arial,sans-serif;color:#f0d0ff;transform:scale(.9);transform-origin:bottom right}
+      .loki-pixie-toggle{display:flex;align-items:center;gap:10px;max-width:282px;padding:9px 12px;border-radius:20px;border:1px solid rgba(255,150,200,.32);background:linear-gradient(135deg,rgba(26,16,48,.92),rgba(13,8,32,.92));box-shadow:0 10px 35px rgba(180,100,255,.18);cursor:pointer;color:#f0d0ff;text-align:left}
       .loki-pixie-toggle:hover{border-color:#ff96c8;box-shadow:0 10px 45px rgba(255,150,200,.28)}
       .loki-pixie-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%,#96ffdc,#b496ff 55%,#ff96c8);box-shadow:0 0 20px rgba(150,255,220,.35);font-size:24px;flex:0 0 auto}
       .loki-pixie-title{display:block;color:#ff96c8;font-size:13px;font-weight:700;letter-spacing:1px}
@@ -51,7 +51,7 @@
       .loki-pixie-input:focus{border-color:#ff96c8}
       .loki-pixie-send{border:0;border-radius:18px;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-weight:700;padding:0 14px;cursor:pointer;font:12px Quicksand,Arial,sans-serif;letter-spacing:1px;text-transform:uppercase}
       .loki-pixie-send:disabled{opacity:.45;cursor:not-allowed}
-      @media (max-width:520px){#${ROOT_ID}{right:12px;bottom:48px}.loki-pixie-panel{width:calc(100vw - 24px)}}
+      @media (max-width:520px){#${ROOT_ID}{right:12px;bottom:16px;transform:none}.loki-pixie-toggle{max-width:calc(100vw - 24px)}.loki-pixie-panel{width:calc(100vw - 24px)}}
     `;
     document.head.appendChild(style);
   }
