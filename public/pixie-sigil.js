@@ -1,10 +1,9 @@
-// pixie-sigil.js — The Fae Mark
-// A recurring symbol that lives across Pixie Portal.
-// No explanation. No tutorial. It just appears.
+// pixie-sigil.js — The Fae Mark v2
+// A recurring symbol. No explanation. No tutorial. It just appears.
 // The more you find it, the more it responds.
+// Single source of truth: all sigilClicks go through PortalMemory.recordSigil()
 
 (function () {
-    // The mark: a ringed asterisk — circle, 4 spokes, 4 cardinal dots
     const SVG = [
         '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">',
         '<circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.7"/>',
@@ -31,13 +30,13 @@
         'keep looking.',
     ];
 
-    function getMem() {
-        try { return JSON.parse(localStorage.getItem('ppMem') || '{}'); }
-        catch (e) { return {}; }
-    }
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function saveMem(m) {
-        try { localStorage.setItem('ppMem', JSON.stringify(m)); } catch (e) {}
+    function getClicks() {
+        // Read from PortalMemory if available, else fall back to raw storage
+        if (window.PortalMemory) return window.PortalMemory.get().sigilClicks || 0;
+        try { return JSON.parse(localStorage.getItem('ppMem') || '{}').sigilClicks || 0; }
+        catch (e) { return 0; }
     }
 
     function showMessage(text) {
@@ -48,37 +47,37 @@
         el.id = 'sigil-msg';
         el.textContent = text;
         el.style.cssText = [
-            'position:fixed',
-            'bottom:72px',
-            'left:22px',
-            'color:#b496ff',
-            'font-family:Quicksand,sans-serif',
-            'font-size:10px',
-            'letter-spacing:2.5px',
-            'line-height:1.6',
-            'max-width:180px',
-            'opacity:0',
-            'transition:opacity 0.7s ease',
-            'z-index:9998',
-            'pointer-events:none',
+            'position:fixed', 'bottom:66px', 'left:22px',
+            'color:#b496ff', 'font-family:Quicksand,sans-serif',
+            'font-size:10px', 'letter-spacing:2.5px',
+            'line-height:1.6', 'max-width:180px',
+            prefersReduced ? 'opacity:0.5' : 'opacity:0',
+            prefersReduced ? '' : 'transition:opacity 0.7s ease',
+            'z-index:9998', 'pointer-events:none',
         ].join(';');
         document.body.appendChild(el);
 
-        requestAnimationFrame(() => {
-            el.style.opacity = '0.55';
-            setTimeout(() => {
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 800);
-            }, 3200);
-        });
+        if (!prefersReduced) {
+            requestAnimationFrame(() => {
+                el.style.opacity = '0.55';
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    setTimeout(() => el.remove(), 800);
+                }, 3200);
+            });
+        } else {
+            setTimeout(() => el.remove(), 4000);
+        }
     }
 
     function init() {
-        const mem    = getMem();
-        const clicks = mem.sigilClicks || 0;
-
-        // Base opacity climbs slowly with discovery
+        const clicks      = getClicks();
         const baseOpacity = Math.min(0.035 + clicks * 0.007, 0.2);
+
+        // Mobile safety: on very small screens, nudge up to avoid overlapping
+        // the pixie-agent chat button (bottom-right) — sigil is bottom-left, fine.
+        // But if screen is narrow and another element is near bottom-left, shift up.
+        const bottomOffset = window.innerHeight < 600 ? 56 : 24;
 
         const wrap = document.createElement('div');
         wrap.id = 'pixie-sigil';
@@ -86,15 +85,13 @@
         wrap.setAttribute('aria-hidden', 'true');
         wrap.style.cssText = [
             'position:fixed',
-            'bottom:24px',
+            `bottom:${bottomOffset}px`,
             'left:24px',
-            'width:32px',
-            'height:32px',
+            'width:32px', 'height:32px',
             'color:#b496ff',
             `opacity:${baseOpacity}`,
-            'cursor:pointer',
-            'z-index:9997',
-            'transition:opacity 1.6s ease, transform 1.6s ease',
+            'cursor:pointer', 'z-index:9997',
+            prefersReduced ? '' : 'transition:opacity 1.6s ease, transform 1.6s ease',
             'pointer-events:auto',
             '-webkit-tap-highlight-color:transparent',
             'user-select:none',
@@ -102,8 +99,8 @@
 
         document.body.appendChild(wrap);
 
-        // Random activation on load — 1-in-15 chance the sigil "wakes"
-        if (Math.random() < 0.067) {
+        // Random activation on load — 1-in-15 chance
+        if (!prefersReduced && Math.random() < 0.067) {
             const delay = 1200 + Math.random() * 4000;
             setTimeout(() => {
                 wrap.style.opacity = Math.min(0.4 + clicks * 0.025, 0.7).toString();
@@ -116,41 +113,47 @@
         }
 
         // Autonomous pulse after 3+ clicks
-        if (clicks >= 3) {
+        if (clicks >= 3 && !prefersReduced) {
             setInterval(() => {
                 if (Math.random() < 0.25) {
-                    const current = parseFloat(wrap.style.opacity);
-                    wrap.style.opacity = Math.min(current + 0.14, 0.5).toString();
+                    const cur = parseFloat(wrap.style.opacity);
+                    wrap.style.opacity = Math.min(cur + 0.14, 0.5).toString();
                     setTimeout(() => { wrap.style.opacity = baseOpacity.toString(); }, 1600);
                 }
             }, 9000);
         }
 
-        // Click handler
+        // Click handler — PortalMemory.recordSigil() is the ONLY place clicks are counted
         wrap.addEventListener('click', function (e) {
             e.stopPropagation();
 
-            const m = getMem();
-            const n = (m.sigilClicks || 0) + 1;
-            m.sigilClicks = n;
-            saveMem(m);
-
-            // Also update PortalMemory if it's loaded
-            if (window.PortalMemory && window.PortalMemory.recordSigil) {
-                window.PortalMemory.recordSigil();
+            // Single source of truth
+            let newClicks;
+            if (window.PortalMemory) {
+                newClicks = window.PortalMemory.recordSigil();
+            } else {
+                // PortalMemory not loaded yet — shouldn't happen but handle gracefully
+                try {
+                    const m = JSON.parse(localStorage.getItem('ppMem') || '{}');
+                    m.sigilClicks = (m.sigilClicks || 0) + 1;
+                    newClicks = m.sigilClicks;
+                    localStorage.setItem('ppMem', JSON.stringify(m));
+                } catch (e) { newClicks = 1; }
             }
 
-            // Visual response — spin and flare
-            wrap.style.opacity = '0.75';
-            wrap.style.transform = 'rotate(180deg) scale(1.35)';
-            setTimeout(() => {
-                wrap.style.opacity = baseOpacity.toString();
-                wrap.style.transform = '';
-            }, 900);
+            // Visual response
+            if (!prefersReduced) {
+                wrap.style.opacity = '0.75';
+                wrap.style.transform = 'rotate(180deg) scale(1.35)';
+                setTimeout(() => {
+                    wrap.style.opacity = baseOpacity.toString();
+                    wrap.style.transform = '';
+                }, 900);
+            }
 
-            // Messages unlock after 7 clicks, cycle through them
-            if (n >= 7) {
-                showMessage(MESSAGES[(n - 7) % MESSAGES.length]);
+            // Messages unlock at 7 clicks
+            if (newClicks >= 7) {
+                showMessage(MESSAGES[(newClicks - 7) % MESSAGES.length]);
             }
         });
     }
