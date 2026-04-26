@@ -1236,6 +1236,204 @@
             padding-left: 18px;
         }
 
+        .herbology-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+            gap: 18px;
+            align-items: start;
+            margin-top: 24px;
+        }
+
+        .herb-control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 18px 0;
+        }
+
+        .herb-search {
+            flex: 1 1 260px;
+            min-height: 44px;
+            border: 1px solid rgba(255, 143, 235, 0.22);
+            border-radius: 999px;
+            padding: 0 16px;
+            color: #fff5ff;
+            background: rgba(12, 4, 22, 0.72);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .herb-search:focus {
+            border-color: rgba(121, 247, 255, 0.38);
+            box-shadow: 0 0 0 3px rgba(121, 247, 255, 0.08);
+        }
+
+        .herb-filter {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 999px;
+            padding: 10px 13px;
+            color: #f7ddff;
+            background: rgba(255,255,255,0.05);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+        }
+
+        .herb-filter:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 179, 243, 0.35);
+        }
+
+        .herb-filter.active {
+            color: #18051f;
+            background: linear-gradient(135deg, #ffb3f3, #79f7ff);
+        }
+
+        .herb-card-list {
+            display: grid;
+            gap: 10px;
+            max-height: 640px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .herb-card {
+            width: 100%;
+            text-align: left;
+            border: 1px solid rgba(255, 143, 235, 0.16);
+            border-radius: 10px;
+            padding: 14px;
+            color: #d0b9de;
+            background:
+                radial-gradient(circle at 14% 0%, rgba(121, 247, 255, 0.09), transparent 9rem),
+                rgba(255,255,255,0.04);
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .herb-card:hover,
+        .herb-card.active {
+            transform: translateY(-2px);
+            border-color: rgba(121, 247, 255, 0.34);
+            box-shadow: 0 16px 42px rgba(0,0,0,0.18), 0 0 28px rgba(121, 247, 255, 0.08);
+        }
+
+        .herb-card-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .herb-name {
+            color: #fff5ff;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .herb-latin {
+            margin-top: 3px;
+            color: #a996bb;
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        .herb-risk {
+            flex: 0 0 auto;
+            border-radius: 999px;
+            padding: 6px 9px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .risk-gentle { color: #baffef; background: rgba(121, 247, 255, 0.12); border: 1px solid rgba(121, 247, 255, 0.24); }
+        .risk-caution { color: #fff0b3; background: rgba(255, 210, 92, 0.12); border: 1px solid rgba(255, 210, 92, 0.24); }
+        .risk-high { color: #ffc0d2; background: rgba(255, 80, 120, 0.14); border: 1px solid rgba(255, 80, 120, 0.28); }
+
+        .herb-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .herb-tags span,
+        .herb-source-links a {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            padding: 6px 9px;
+            color: #f7ddff;
+            background: rgba(255,255,255,0.04);
+            font-size: 11px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .herb-detail {
+            min-height: 640px;
+            padding: 24px;
+        }
+
+        .herb-detail h3 {
+            margin: 0 0 6px;
+            color: #fff5ff;
+            font-size: 28px;
+        }
+
+        .herb-detail-section {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .herb-detail-section strong {
+            display: block;
+            margin-bottom: 7px;
+            color: #ffb3f3;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .herb-detail-section p,
+        .herb-detail-section li {
+            color: #d0b9de;
+            line-height: 1.62;
+            font-size: 14px;
+        }
+
+        .herb-detail-section ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .herb-redline {
+            margin-top: 18px;
+            padding: 16px;
+            border: 1px solid rgba(255, 80, 120, 0.28);
+            border-radius: 10px;
+            background: rgba(65, 8, 30, 0.42);
+        }
+
+        .herb-source-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .herb-source-links a:hover {
+            border-color: rgba(121, 247, 255, 0.32);
+            color: #baffef;
+        }
+
         .charms-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -1463,8 +1661,17 @@
             }
 
             .portal-hub-grid,
-            .cosmic-weather {
+            .cosmic-weather,
+            .herbology-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .herb-card-list {
+                max-height: none;
+            }
+
+            .herb-detail {
+                min-height: auto;
             }
 
             .nav-primary {
@@ -1495,6 +1702,7 @@
                 <a class="nav-tab" data-page="tarot" onclick="showPage('tarot')">Tarot</a>
                 <a class="nav-tab" data-page="horoscope" onclick="showPage('horoscope')">Stars</a>
                 <a class="nav-tab" data-page="journal-page" onclick="showPage('journal-page')">Dreams</a>
+                <a class="nav-tab" data-page="herbs" onclick="showPage('herbs')">Herbs</a>
                 <a class="nav-tab" data-page="charms" onclick="showPage('charms')">Charms</a>
                 <a class="nav-tab" data-page="my-pixie" onclick="showPage('my-pixie')">My Pixie</a>
                 <a class="nav-tab" data-page="vault" onclick="showPage('vault')">Vault</a>
@@ -2141,6 +2349,47 @@
                     <div class="charm-tile"><div class="charm-glyph">&#127756;</div><div class="tile-kicker">50 credits</div><div class="hub-title" style="font-size:18px;">Realm Background</div><div class="tile-copy">Portal skies, seasons, and scene concepts.</div></div>
                     <div class="charm-tile locked"><div class="charm-glyph">&#127916;</div><div class="tile-kicker">100 credits</div><div class="hub-title" style="font-size:18px;">Dream Video</div><div class="tile-copy">Turn journal symbols into a magical memory.</div></div>
                     <div class="charm-tile locked"><div class="charm-glyph">&#127183;</div><div class="tile-kicker">80 credits</div><div class="hub-title" style="font-size:18px;">Tarot Skin</div><div class="tile-copy">Deck backs and saved card concepts.</div></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ HERBS PAGE ============ -->
+    <div class="page" id="page-herbs">
+        <section>
+            <h2 class="section-title">Herbology</h2>
+            <p class="section-subtitle">wellness literacy, safety warnings, and gentle rituals - no plant ID, no diagnosis</p>
+            <div class="games-shell">
+                <div class="portal-hub-grid">
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Safety first</div>
+                        <div class="hub-title">Natural does not mean harmless.</div>
+                        <div class="hub-copy">Plants and extracts can interact with medicines, affect surgery risk, irritate skin, stress the liver, or be unsafe in pregnancy. This page teaches what to check before using an herb.</div>
+                    </div>
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Pixie lane</div>
+                        <div class="hub-title">Education, not plant identification.</div>
+                        <div class="hub-copy">Pixie Portal should not tell people to ingest wild plants. The useful product is clear wellness info: evidence notes, common forms, interactions, and who should avoid each herb.</div>
+                    </div>
+                </div>
+
+                <div class="safety-support-panel">
+                    <strong>Before using an herb or supplement</strong>
+                    <p>Check the plant identity, plant part, preparation, dose/duration, medication interactions, pregnancy/breastfeeding status, liver/kidney conditions, upcoming surgery, and product quality. For exposures or suspected poisoning in the U.S., call Poison Control at 1-800-222-1222.</p>
+                </div>
+
+                <div class="herb-control-row" aria-label="Herb filters">
+                    <input class="herb-search" id="herb-search" type="search" placeholder="Search herbs, uses, warnings..." oninput="renderHerbology()" aria-label="Search herbology cards">
+                    <button class="herb-filter active" data-herb-filter="all" onclick="setHerbFilter('all')">All</button>
+                    <button class="herb-filter" data-herb-filter="sleep" onclick="setHerbFilter('sleep')">Calm/Sleep</button>
+                    <button class="herb-filter" data-herb-filter="digestion" onclick="setHerbFilter('digestion')">Digestion</button>
+                    <button class="herb-filter" data-herb-filter="immune" onclick="setHerbFilter('immune')">Seasonal</button>
+                    <button class="herb-filter" data-herb-filter="high-risk" onclick="setHerbFilter('high-risk')">High Risk</button>
+                </div>
+
+                <div class="herbology-grid">
+                    <div class="herb-card-list" id="herb-card-list" aria-live="polite"></div>
+                    <article class="portal-hub-card herb-detail" id="herb-detail"></article>
                 </div>
             </div>
         </section>
@@ -2920,6 +3169,7 @@
             if (id === 'messages') loadMessages();
             if (id === 'admin') loadAdminReports('open');
             if (id === 'my-pixie' || id === 'vault') renderPixieMemory();
+            if (id === 'herbs') renderHerbology();
         }
 
         function toggleMobileNav() {
@@ -2927,6 +3177,242 @@
             const btn = document.getElementById('nav-hamburger');
             const isOpen = links.classList.toggle('open');
             btn.textContent = isOpen ? '✕' : '☰';
+        }
+
+        // ============================================
+        // HERBOLOGY WELLNESS CODEX
+        // ============================================
+        const HERB_SOURCES = [
+            { label: 'NCCIH Herbs at a Glance', url: 'https://www.nccih.nih.gov/health/herbsataglance' },
+            { label: 'NCCIH Herb-Drug Interactions', url: 'https://www.nccih.nih.gov/health/providers/digest/herb-drug-interactions-science' },
+            { label: 'MSK About Herbs', url: 'https://www.mskcc.org/cancer-care/diagnosis-treatment/symptom-management/integrative-medicine/herbs' },
+            { label: 'FDA Dietary Supplements', url: 'https://www.fda.gov/food/dietary-supplements' }
+        ];
+
+        const HERB_LIBRARY = [
+            {
+                id: 'chamomile',
+                name: 'Chamomile',
+                latin: 'Matricaria recutita / Chamaemelum nobile',
+                categories: ['sleep', 'digestion'],
+                risk: 'caution',
+                summary: 'Commonly used as tea for calm routines, sleep support, and mild digestive comfort.',
+                evidence: 'Research suggests possible mild benefits for anxiety or sleep support, but it is not a treatment replacement for anxiety disorders, insomnia, or digestive disease.',
+                forms: ['Tea', 'Capsules', 'Topical preparations'],
+                cautions: ['Avoid or ask first if allergic to ragweed, daisies, marigolds, or related plants.', 'Use caution with blood thinners, sedatives, pregnancy, or before surgery.', 'Topical products can irritate sensitive skin.'],
+                avoid: 'People with serious allergies to the daisy family, people on anticoagulants without clinician guidance, and anyone with a previous reaction.',
+                ritual: 'A low-risk ritual is scent and journaling: brew tea if personally appropriate, dim lights, and write one thing your body needs tomorrow.'
+            },
+            {
+                id: 'peppermint',
+                name: 'Peppermint',
+                latin: 'Mentha x piperita',
+                categories: ['digestion'],
+                risk: 'caution',
+                summary: 'Often used for digestive comfort; enteric-coated peppermint oil has been studied for irritable bowel syndrome symptoms.',
+                evidence: 'Evidence is strongest for certain peppermint oil preparations in IBS symptom relief. Tea is gentler but not the same as concentrated oil.',
+                forms: ['Tea', 'Enteric-coated oil capsules', 'Aromatherapy products'],
+                cautions: ['Can worsen reflux or heartburn.', 'Peppermint oil can be toxic if misused and should not be given to young children.', 'Use caution with gallbladder disease and medication interactions.'],
+                avoid: 'People with significant reflux, young children, and anyone using concentrated oil without professional guidance.',
+                ritual: 'Use scent as a reset cue: inhale peppermint aroma from a safe product, then take three slow breaths before meals.'
+            },
+            {
+                id: 'ginger',
+                name: 'Ginger',
+                latin: 'Zingiber officinale',
+                categories: ['digestion', 'immune'],
+                risk: 'caution',
+                summary: 'Traditionally used for nausea, digestion, and seasonal comfort.',
+                evidence: 'Ginger has evidence for some nausea contexts, but medical causes of persistent nausea need care.',
+                forms: ['Tea', 'Food spice', 'Capsules', 'Candied ginger'],
+                cautions: ['Can cause heartburn or stomach upset.', 'Use caution with blood thinners, bleeding disorders, surgery, pregnancy, or high-dose extracts.', 'May affect blood sugar or blood pressure in some people.'],
+                avoid: 'People with bleeding risk or upcoming surgery should ask a clinician before supplement doses.',
+                ritual: 'Make a food-first ritual: add culinary ginger to a warm meal and log how your stomach feels afterward.'
+            },
+            {
+                id: 'lavender',
+                name: 'Lavender',
+                latin: 'Lavandula angustifolia',
+                categories: ['sleep'],
+                risk: 'caution',
+                summary: 'Used in scent rituals for relaxation and sleep routines.',
+                evidence: 'Some lavender preparations have been studied for anxiety symptoms, but products vary widely and essential oils are concentrated.',
+                forms: ['Aromatherapy', 'Tea blends', 'Topicals', 'Standardized oral products'],
+                cautions: ['Essential oils should not be swallowed unless directed by a qualified clinician.', 'Topical use can irritate skin.', 'Use caution with sedatives, pregnancy, children, and hormone-sensitive concerns.'],
+                avoid: 'Avoid oral essential oil use and avoid use after any rash, breathing symptoms, or allergic reaction.',
+                ritual: 'Place a safe lavender sachet near your bed and pair the scent with a no-screen wind-down timer.'
+            },
+            {
+                id: 'echinacea',
+                name: 'Echinacea',
+                latin: 'Echinacea species',
+                categories: ['immune'],
+                risk: 'caution',
+                summary: 'Commonly marketed for colds and immune support.',
+                evidence: 'Study results for colds are mixed and depend on species, plant part, extraction, and product quality.',
+                forms: ['Capsules', 'Tinctures', 'Tea', 'Lozenges'],
+                cautions: ['Can trigger allergic reactions, especially in people sensitive to daisy-family plants.', 'Use caution with autoimmune disease, immunosuppressant medicines, pregnancy, or chronic illness.', 'Product quality varies.'],
+                avoid: 'People with autoimmune conditions or transplant/immunosuppressant therapy should ask their care team first.',
+                ritual: 'Use the non-medical version: create a seasonal care checklist for sleep, hydration, handwashing, and rest.'
+            },
+            {
+                id: 'turmeric',
+                name: 'Turmeric / Curcumin',
+                latin: 'Curcuma longa',
+                categories: ['digestion'],
+                risk: 'caution',
+                summary: 'A culinary spice and supplement ingredient associated with inflammation research.',
+                evidence: 'Curcumin has been studied for inflammatory conditions, but supplement absorption, dose, and formulation matter. Food use is different from concentrated extracts.',
+                forms: ['Food spice', 'Capsules', 'Extracts', 'Golden milk'],
+                cautions: ['Use caution with blood thinners, gallbladder disease, kidney stones, reflux, pregnancy, surgery, and chemotherapy interactions.', 'High-dose extracts can cause digestive upset.'],
+                avoid: 'People on anticoagulants or cancer treatment should ask their clinician before supplement extracts.',
+                ritual: 'Keep it culinary: add a small food amount to soup or rice, then save the recipe to your dreambook.'
+            },
+            {
+                id: 'st-johns-wort',
+                name: "St. John's Wort",
+                latin: 'Hypericum perforatum',
+                categories: ['high-risk'],
+                risk: 'high',
+                summary: 'Historically used for mood, but it is one of the highest-interaction herbs.',
+                evidence: 'Some evidence exists for mild to moderate depression in certain preparations, but interaction risk is major and depression needs professional care.',
+                forms: ['Capsules', 'Tablets', 'Teas', 'Tinctures'],
+                cautions: ['Can interact with antidepressants, birth control, HIV medicines, transplant medicines, blood thinners, digoxin, cancer therapies, and many others.', 'Can cause photosensitivity and may worsen bipolar/mania risk.', 'Do not combine with prescription mood medicines unless supervised.'],
+                avoid: 'Avoid if taking prescription medicines unless a clinician/pharmacist clears it. Avoid in pregnancy, bipolar disorder, or serious mental health symptoms without care.',
+                ritual: 'Use symbolism only: write a sunshine note to your future self instead of self-treating mood symptoms.'
+            },
+            {
+                id: 'kava',
+                name: 'Kava',
+                latin: 'Piper methysticum',
+                categories: ['sleep', 'high-risk'],
+                risk: 'high',
+                summary: 'Used traditionally and marketed for relaxation, but liver safety and interaction concerns are serious.',
+                evidence: 'Some studies suggest anxiety-related effects, but safety concerns make casual use a bad product fit.',
+                forms: ['Extracts', 'Drinks', 'Capsules'],
+                cautions: ['Linked to serious liver injury.', 'Avoid alcohol and sedatives.', 'Can impair driving or coordination and interact with many medicines.'],
+                avoid: 'Avoid with liver disease, alcohol use, sedatives, pregnancy, breastfeeding, Parkinson disease, or any liver-affecting medication unless medically supervised.',
+                ritual: 'Use a safer relaxation ritual: music, breathwork, warm non-kava tea, and a five-minute body scan.'
+            },
+            {
+                id: 'comfrey',
+                name: 'Comfrey',
+                latin: 'Symphytum species',
+                categories: ['high-risk'],
+                risk: 'high',
+                summary: 'Historically used topically, but internal use is unsafe because of liver-toxic pyrrolizidine alkaloids.',
+                evidence: 'Some topical preparations have been studied, but product processing matters and internal use is not safe.',
+                forms: ['Topical creams', 'Salves'],
+                cautions: ['Do not ingest comfrey.', 'Avoid use on broken skin or long-term use.', 'Liver toxicity risk is the central concern.'],
+                avoid: 'Avoid oral products entirely. Avoid topical use in pregnancy, breastfeeding, children, liver disease, or broken skin unless guided by a clinician.',
+                ritual: 'Keep this as a lore-only plant in Pixie Portal: a locked safety card that teaches why not every traditional herb belongs in a wellness routine.'
+            },
+            {
+                id: 'goldenseal',
+                name: 'Goldenseal',
+                latin: 'Hydrastis canadensis',
+                categories: ['immune', 'high-risk'],
+                risk: 'high',
+                summary: 'Marketed for colds and cleansing myths, but interaction risk and sustainability concerns are real.',
+                evidence: 'Evidence for common wellness claims is limited; berberine-containing products can affect drug metabolism.',
+                forms: ['Capsules', 'Tinctures', 'Teas'],
+                cautions: ['May affect how the body processes medicines, including some diabetes drugs.', 'Avoid during pregnancy and breastfeeding.', 'Can be risky for newborns and may worsen jaundice concerns.', 'Wild populations have sustainability pressure.'],
+                avoid: 'Avoid with prescription medicines unless cleared by a pharmacist or clinician; avoid in pregnancy/breastfeeding and for infants.',
+                ritual: 'Use the conservation lesson: choose cultivated, transparent products when using any botanical, and never treat rare plants as disposable.'
+            }
+        ];
+
+        let herbFilter = 'all';
+        let selectedHerbId = 'chamomile';
+
+        function setHerbFilter(filter) {
+            herbFilter = filter;
+            document.querySelectorAll('.herb-filter').forEach(btn => btn.classList.toggle('active', btn.dataset.herbFilter === filter));
+            renderHerbology();
+        }
+
+        function selectHerb(id) {
+            selectedHerbId = id;
+            renderHerbology();
+        }
+
+        function getHerbRiskClass(risk) {
+            if (risk === 'high') return 'risk-high';
+            if (risk === 'caution') return 'risk-caution';
+            return 'risk-gentle';
+        }
+
+        function renderHerbology() {
+            const list = document.getElementById('herb-card-list');
+            const detail = document.getElementById('herb-detail');
+            if (!list || !detail) return;
+
+            const q = (document.getElementById('herb-search')?.value || '').trim().toLowerCase();
+            const filtered = HERB_LIBRARY.filter(herb => {
+                const matchesFilter = herbFilter === 'all' || herb.categories.includes(herbFilter);
+                const haystack = [herb.name, herb.latin, herb.summary, herb.evidence, herb.avoid, herb.forms.join(' '), herb.cautions.join(' ')].join(' ').toLowerCase();
+                return matchesFilter && (!q || haystack.includes(q));
+            });
+
+            if (!filtered.some(herb => herb.id === selectedHerbId) && filtered[0]) {
+                selectedHerbId = filtered[0].id;
+            }
+
+            list.innerHTML = filtered.length ? filtered.map(herb => `
+                <button class="herb-card ${herb.id === selectedHerbId ? 'active' : ''}" onclick="selectHerb('${herb.id}')">
+                    <div class="herb-card-top">
+                        <div>
+                            <div class="herb-name">${escHtml(herb.name)}</div>
+                            <div class="herb-latin">${escHtml(herb.latin)}</div>
+                        </div>
+                        <span class="herb-risk ${getHerbRiskClass(herb.risk)}">${herb.risk === 'high' ? 'High Risk' : herb.risk}</span>
+                    </div>
+                    <div class="hub-copy" style="margin-top:10px;">${escHtml(herb.summary)}</div>
+                    <div class="herb-tags">${herb.categories.map(tag => `<span>${escHtml(tag)}</span>`).join('')}</div>
+                </button>
+            `).join('') : '<div class="empty"><span class="empty-icon">&#9888;</span><div class="empty-text">No herb cards match that search.</div></div>';
+
+            const selected = HERB_LIBRARY.find(herb => herb.id === selectedHerbId) || filtered[0] || HERB_LIBRARY[0];
+            detail.innerHTML = `
+                <div class="hub-kicker">Wellness card</div>
+                <h3>${escHtml(selected.name)}</h3>
+                <div class="herb-latin">${escHtml(selected.latin)}</div>
+                <div class="herb-tags">
+                    <span class="herb-risk ${getHerbRiskClass(selected.risk)}">${selected.risk === 'high' ? 'High Risk' : selected.risk}</span>
+                    ${selected.categories.map(tag => `<span>${escHtml(tag)}</span>`).join('')}
+                </div>
+                <div class="herb-detail-section">
+                    <strong>Common wellness use</strong>
+                    <p>${escHtml(selected.summary)}</p>
+                </div>
+                <div class="herb-detail-section">
+                    <strong>Evidence note</strong>
+                    <p>${escHtml(selected.evidence)}</p>
+                </div>
+                <div class="herb-detail-section">
+                    <strong>Common forms</strong>
+                    <ul>${selected.forms.map(item => `<li>${escHtml(item)}</li>`).join('')}</ul>
+                </div>
+                <div class="herb-detail-section herb-redline">
+                    <strong>Risks / interactions</strong>
+                    <ul>${selected.cautions.map(item => `<li>${escHtml(item)}</li>`).join('')}</ul>
+                </div>
+                <div class="herb-detail-section">
+                    <strong>Avoid / ask first</strong>
+                    <p>${escHtml(selected.avoid)}</p>
+                </div>
+                <div class="herb-detail-section">
+                    <strong>Pixie-safe ritual idea</strong>
+                    <p>${escHtml(selected.ritual)}</p>
+                </div>
+                <div class="safety-support-panel">
+                    <strong>Not medical advice</strong>
+                    <p>This page is educational. Do not replace prescribed care, self-treat serious symptoms, or ingest unknown wild plants. Ask a qualified clinician or pharmacist about medications, pregnancy, chronic illness, cancer care, liver/kidney disease, or surgery.</p>
+                </div>
+                <div class="herb-source-links">
+                    ${HERB_SOURCES.map(source => `<a href="${source.url}" target="_blank" rel="noopener">${source.label}</a>`).join('')}
+                </div>
+            `;
         }
 
         // ============================================
