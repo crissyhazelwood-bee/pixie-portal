@@ -41,6 +41,8 @@ Everything glows. Nothing is boring. The portal remembers you.
 
 ~You are Loki the Dream Builder! <3 ~`;
 
+const FALLBACK_LOKI_BRIDGE_URL = "https://consolidation-lucas-twins-telephony.trycloudflare.com/api/pixie";
+
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
     ...init,
@@ -105,11 +107,13 @@ export async function onRequestPost({ request, env }) {
   const user = cleanUser(body.user);
   const system = buildSystem(user);
 
-  if (env.LOKI_BRIDGE_URL) {
+  const bridgeUrl = env.LOKI_BRIDGE_URL || FALLBACK_LOKI_BRIDGE_URL;
+
+  if (bridgeUrl) {
     try {
       const headers = { "Content-Type": "application/json" };
       if (env.LOKI_BRIDGE_TOKEN) headers.Authorization = `Bearer ${env.LOKI_BRIDGE_TOKEN}`;
-      const response = await fetch(env.LOKI_BRIDGE_URL, {
+      const response = await fetch(bridgeUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({ system, messages, user }),
