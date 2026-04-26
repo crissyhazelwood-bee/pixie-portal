@@ -622,6 +622,31 @@
             letter-spacing: 0.12em;
         }
 
+        .nav-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            background: rgba(20, 8, 32, 0.58);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        nav .links .nav-tab {
+            padding: 10px 14px;
+            border-radius: 999px;
+            color: rgba(245, 218, 255, 0.74);
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        nav .links .nav-tab.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(255, 107, 231, 0.35), rgba(151, 95, 255, 0.28));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 0 22px rgba(255, 91, 231, 0.25);
+        }
+
         .btn {
             border-radius: 999px;
             min-height: 38px;
@@ -771,6 +796,92 @@
             padding: 14px;
         }
 
+        .portal-hub-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .portal-hub-card,
+        .vault-tier,
+        .charm-tile,
+        .cosmic-weather-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 143, 235, 0.2);
+            border-radius: 10px;
+            background:
+                radial-gradient(circle at 18% 0%, rgba(255, 79, 216, 0.18), transparent 12rem),
+                linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+                rgba(17, 6, 28, 0.78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 50px rgba(0,0,0,0.18);
+        }
+
+        .portal-hub-card {
+            min-height: 190px;
+            padding: 22px;
+        }
+
+        .portal-hub-card.wide {
+            grid-column: 1 / -1;
+        }
+
+        .hub-kicker,
+        .tile-kicker {
+            color: #ffb3f3;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .hub-title {
+            margin: 8px 0 8px;
+            color: #fff5ff;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .hub-copy,
+        .tile-copy {
+            color: #d0b9de;
+            line-height: 1.55;
+        }
+
+        .reward-row,
+        .filter-tabs,
+        .spread-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .reward-pill,
+        .filter-tab,
+        .spread-tab {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 999px;
+            padding: 8px 12px;
+            color: #f7ddff;
+            background: rgba(255,255,255,0.05);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .filter-tab.active,
+        .spread-tab.active {
+            color: #18051f;
+            background: linear-gradient(135deg, #ffb3f3, #8d55ff);
+        }
+
+        .locked-badge {
+            color: #ffe6ff;
+            border-color: rgba(255, 179, 243, 0.24);
+            background: rgba(255, 79, 216, 0.12);
+        }
+
         .portal-feature {
             display: grid;
             gap: 6px;
@@ -791,6 +902,24 @@
             color: #cdb4df;
             font-size: 12px;
             line-height: 1.4;
+        }
+
+        .card-meta {
+            display: grid;
+            gap: 8px;
+            margin: 12px 0 16px;
+            color: #f4d9ff;
+            font-size: 12px;
+        }
+
+        .card-meta span {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.04);
         }
 
         .card,
@@ -977,6 +1106,73 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 24px 70px rgba(0,0,0,0.26);
         }
 
+        .charms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .charm-tile {
+            min-height: 170px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .charm-glyph {
+            display: grid;
+            place-items: center;
+            width: 62px;
+            height: 62px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            color: #fff5ff;
+            font-size: 28px;
+            background: radial-gradient(circle, rgba(255, 179, 243, 0.28), rgba(141, 85, 255, 0.16));
+            box-shadow: 0 0 28px rgba(255, 79, 216, 0.2);
+        }
+
+        .charm-tile.locked {
+            opacity: 0.62;
+        }
+
+        .charm-tile.locked .charm-glyph {
+            color: transparent;
+            border: 1px dashed rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .vault-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-top: 24px;
+        }
+
+        .vault-tier {
+            padding: 24px;
+        }
+
+        .vault-tier ul {
+            margin: 18px 0 22px;
+            padding-left: 18px;
+            color: #d0b9de;
+            line-height: 1.8;
+        }
+
+        .cosmic-weather {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin: 0 auto 24px;
+            max-width: 900px;
+        }
+
+        .cosmic-weather-card {
+            padding: 16px;
+            text-align: center;
+        }
+
         .star-gate-panel::before,
         .sealed-journal-panel::before {
             content: '';
@@ -1049,6 +1245,17 @@
                 grid-template-columns: 1fr;
             }
 
+            .portal-hub-grid,
+            .cosmic-weather {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-primary {
+                width: 100%;
+                overflow-x: auto;
+                justify-content: flex-start;
+            }
+
             .games-shell,
             .spell-panel {
                 padding: 16px;
@@ -1064,11 +1271,15 @@
     <nav>
         <div class="logo" onclick="showPage('home')"><img class="nav-logo-mark" src="/pixie-portal-icon.png" alt="">Pixie Portal</div>
         <div class="links" id="nav-links">
-            <a onclick="showPage('home')">Home</a>
-            <a onclick="showPage('games')">Games</a>
-            <a onclick="showPage('horoscope')">Horoscope</a>
-            <a onclick="showPage('tarot')">Tarot</a>
-            <a onclick="showPage('journal-page')">Journal</a>
+            <div class="nav-primary">
+                <a class="nav-tab active" data-page="home" onclick="showPage('home')">Portal</a>
+                <a class="nav-tab" data-page="games" onclick="showPage('games')">Games</a>
+                <a class="nav-tab" data-page="horoscope" onclick="showPage('horoscope')">Stars</a>
+                <a class="nav-tab" data-page="tarot" onclick="showPage('tarot')">Tarot</a>
+                <a class="nav-tab" data-page="journal-page" onclick="showPage('journal-page')">Dreams</a>
+                <a class="nav-tab" data-page="charms" onclick="showPage('charms')">Charms</a>
+                <a class="nav-tab" data-page="vault" onclick="showPage('vault')">Vault</a>
+            </div>
             <a onclick="showPage('social')">Community</a>
             <a onclick="showPage('messages')" id="nav-messages-link">Messages<span class="msg-notif" id="msg-notif"></span></a>
             <a class="notif-bell" onclick="toggleNotifPanel()" id="nav-notif-bell">🔔<span class="notif-badge" id="notif-badge"></span></a>
@@ -1151,6 +1362,45 @@
                 <div class="portal-feature">
                     <strong>Save dreams & magic</strong>
                     <span>Keep private entries, symbols, moods, and recurring dream threads.</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="daily-portal">
+            <h2 class="section-title reveal">Today's Portal Energy</h2>
+            <p class="section-subtitle reveal">claim a tiny ritual, then go play for sparkles</p>
+            <div class="games-shell reveal">
+                <div class="portal-hub-grid">
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Daily reward</div>
+                        <div class="hub-title">Open the sparkle chest</div>
+                        <div class="hub-copy">Today's chest previews +10 sparkles, a streak glow, and a chance at a rare charm when the collection system goes live.</div>
+                        <div class="reward-row">
+                            <span class="reward-pill">+10 sparkles</span>
+                            <span class="reward-pill">Streak: day 1</span>
+                            <span class="reward-pill locked-badge">Rare charm chance</span>
+                        </div>
+                    </div>
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Featured game</div>
+                        <div class="hub-title">Fairy Garden</div>
+                        <div class="hub-copy">Grow flowers, attract butterflies, and harvest petal charms in the calm corner of the portal.</div>
+                        <div class="reward-row">
+                            <button class="btn btn-primary btn-small" onclick="window.location.href='/fairy_garden.html'">Play</button>
+                            <span class="reward-pill">Reward: Petal Charms</span>
+                        </div>
+                    </div>
+                    <div class="portal-hub-card wide">
+                        <div class="hub-kicker">Progress preview</div>
+                        <div class="hub-title">Level 3 Portal Seeker</div>
+                        <div class="hub-copy">280 / 500 sparkles toward the next portal title. Charms, streaks, and premium rituals will feed this loop as the world grows.</div>
+                        <div class="reward-row">
+                            <span class="reward-pill">Petal Charm unlocked</span>
+                            <span class="reward-pill">Moon Moth locked</span>
+                            <span class="reward-pill">Vault realm locked</span>
+                            <button class="btn btn-ghost btn-small" onclick="showPage('charms')">View Charms</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1257,6 +1507,37 @@
             </div>
         </section>
 
+        <section id="home-collection">
+            <h2 class="section-title reveal">Charm Collection</h2>
+            <p class="section-subtitle reveal">locked silhouettes make the portal itch in the best way</p>
+            <div class="games-shell reveal">
+                <div class="charms-grid">
+                    <div class="charm-tile">
+                        <div class="charm-glyph">&#10048;</div>
+                        <div class="tile-kicker">Unlocked</div>
+                        <div class="hub-title" style="font-size:18px;">Petal Charm</div>
+                        <div class="tile-copy">Earned from cozy garden play.</div>
+                    </div>
+                    <div class="charm-tile locked">
+                        <div class="charm-glyph">?</div>
+                        <div class="tile-kicker">Locked</div>
+                        <div class="hub-title" style="font-size:18px;">Moon Moth</div>
+                        <div class="tile-copy">Hidden inside a future daily maze.</div>
+                    </div>
+                    <div class="charm-tile locked">
+                        <div class="charm-glyph">?</div>
+                        <div class="tile-kicker">Premium</div>
+                        <div class="hub-title" style="font-size:18px;">Oracle Wing</div>
+                        <div class="tile-copy">A deeper-portal collectible.</div>
+                    </div>
+                </div>
+                <div class="reward-row" style="justify-content:center;">
+                    <button class="btn btn-primary" onclick="showPage('charms')">Open Charms</button>
+                    <button class="btn btn-ghost" onclick="showPage('vault')">Peek at the Vault</button>
+                </div>
+            </div>
+        </section>
+
         <section id="home-about">
             <h2 class="section-title reveal">About</h2>
             <div class="about-content reveal">
@@ -1278,6 +1559,15 @@
             <h2 class="section-title">Games</h2>
             <p class="section-subtitle">click to play ✦ scores save to your profile</p>
             <div class="games-shell">
+            <div class="filter-tabs">
+                <span class="filter-tab active">All</span>
+                <span class="filter-tab">Daily</span>
+                <span class="filter-tab">Cozy</span>
+                <span class="filter-tab">Arcade</span>
+                <span class="filter-tab">Puzzle</span>
+                <span class="filter-tab">Ritual</span>
+                <span class="filter-tab locked-badge">Premium</span>
+            </div>
             <div class="cards">
                 <div class="card" onclick="window.location.href='/the_portal.html'">
                     <span class="card-icon">🌀</span>
@@ -1360,6 +1650,79 @@
             </div>
             </div>
 
+            <div class="cards" style="margin-top:18px;">
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#9790;</span>
+                    <div class="card-title">Moon Moth Maze</div>
+                    <div class="card-desc">Guide a glowing moth through moonlit turns, collect dust, and reach the lantern.</div>
+                    <div class="card-meta"><span>Reward: Moon Moth Charms</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#10022;</span>
+                    <div class="card-title">Crystal Cauldron</div>
+                    <div class="card-desc">Drop crystals and herbs in rhythm to unlock potion recipes.</div>
+                    <div class="card-meta"><span>Reward: Potion Pages</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#10023;</span>
+                    <div class="card-title">Starfall Catcher</div>
+                    <div class="card-desc">Catch falling stars, dodge cursed comets, and build constellations.</div>
+                    <div class="card-meta"><span>Reward: Star Shards</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#9675;</span>
+                    <div class="card-title">Fairy Ring Builder</div>
+                    <div class="card-desc">Place mushrooms, flowers, stones, and candles into ritual patterns.</div>
+                    <div class="card-meta"><span>Reward: Ring Tiles</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#9884;</span>
+                    <div class="card-title">Spell Rune Trace</div>
+                    <div class="card-desc">Trace glowing runes before they fade and unlock spellbook pages.</div>
+                    <div class="card-meta"><span>Reward: Rune Ink</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#9679;</span>
+                    <div class="card-title">Dream Bubble Pop</div>
+                    <div class="card-desc">Pop matching dream symbols before they drift out of the moonlight.</div>
+                    <div class="card-meta"><span>Reward: Dream Symbols</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#9670;</span>
+                    <div class="card-title">Gem Sprite Merge</div>
+                    <div class="card-desc">Merge tiny gem sprites into rarer magical families.</div>
+                    <div class="card-meta"><span>Reward: Gem Sprites</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#9879;</span>
+                    <div class="card-title">Potion Shop Rush</div>
+                    <div class="card-desc">Serve magical customers the right potion before time runs out.</div>
+                    <div class="card-meta"><span>Reward: Gold Petals</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#10038;</span>
+                    <div class="card-title">Constellation Weaver</div>
+                    <div class="card-desc">Connect stars in order to reveal creatures, signs, and secret objects.</div>
+                    <div class="card-meta"><span>Reward: Constellation Cards</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+                <div class="card" onclick="showPage('vault')">
+                    <span class="card-icon">&#9673;</span>
+                    <div class="card-title">Portal Hatchery</div>
+                    <div class="card-desc">Hatch magical eggs by completing tiny daily rituals and games.</div>
+                    <div class="card-meta"><span>Reward: Pixie Pets</span><span>Status: Coming soon</span></div>
+                    <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+            </div>
+
             <h2 class="section-title" style="margin-top:60px;">Leaderboard</h2>
             <p class="section-subtitle">top scores across all players</p>
             <div id="leaderboard-area">
@@ -1376,6 +1739,13 @@
         <section>
             <h2 class="section-title">Daily Horoscope</h2>
             <p class="section-subtitle">pick your sign ✦ read your stars</p>
+
+            <div class="cosmic-weather">
+                <div class="cosmic-weather-card"><div class="tile-kicker">Moon</div><div class="hub-title" style="font-size:18px;">Waxing Crescent</div></div>
+                <div class="cosmic-weather-card"><div class="tile-kicker">Portal mood</div><div class="hub-title" style="font-size:18px;">Electric Rose</div></div>
+                <div class="cosmic-weather-card"><div class="tile-kicker">Lucky charm</div><div class="hub-title" style="font-size:18px;">Amethyst Wing</div></div>
+                <div class="cosmic-weather-card"><div class="tile-kicker">Premium</div><div class="hub-title" style="font-size:18px;">Weekly Forecast</div></div>
+            </div>
 
             <div class="zodiac-picker" id="zodiac-picker">
                 <div class="zodiac-btn" data-sign="aries" onclick="selectZodiac(this)"><span class="zodiac-icon">♈</span><span class="zodiac-label">Aries</span></div>
@@ -1423,6 +1793,15 @@
         <section>
             <h2 class="section-title">Fairy Tarot</h2>
             <p class="section-subtitle">three cards from the fairy realm ✦ a new spread each day</p>
+
+            <div class="spread-tabs" style="justify-content:center;">
+                <span class="spread-tab active">Daily 3-card</span>
+                <span class="spread-tab locked-badge">Love</span>
+                <span class="spread-tab locked-badge">Money</span>
+                <span class="spread-tab locked-badge">Shadow</span>
+                <span class="spread-tab locked-badge">Full Moon</span>
+                <span class="spread-tab locked-badge">Celtic Cross</span>
+            </div>
 
             <button class="tarot-draw-btn" id="tarot-draw-btn" onclick="drawTarot()">Draw Your Cards</button>
 
@@ -1492,6 +1871,72 @@
                     </div>
                 </div>
                 <div id="journal-entries"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ CHARMS PAGE ============ -->
+    <div class="page" id="page-charms">
+        <section>
+            <h2 class="section-title">Charms</h2>
+            <p class="section-subtitle">collect sparkles, unlock silhouettes, complete magical sets</p>
+            <div class="games-shell">
+                <div class="portal-hub-grid">
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Profile level</div>
+                        <div class="hub-title">Level 3 Portal Seeker</div>
+                        <div class="hub-copy">280 / 500 sparkles. Keep playing daily games to grow into Star Reader, Portal Keeper, and Fae Oracle.</div>
+                    </div>
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Daily loop</div>
+                        <div class="hub-title">Streak: 1 day</div>
+                        <div class="hub-copy">Claim the chest, play a featured game, pull a reading, and build your collection.</div>
+                    </div>
+                </div>
+                <div class="charms-grid">
+                    <div class="charm-tile"><div class="charm-glyph">&#10048;</div><div class="tile-kicker">Unlocked</div><div class="hub-title" style="font-size:18px;">Petal Charm</div><div class="tile-copy">Fairy Garden reward.</div></div>
+                    <div class="charm-tile"><div class="charm-glyph">&#10023;</div><div class="tile-kicker">Preview</div><div class="hub-title" style="font-size:18px;">Star Shard</div><div class="tile-copy">Starfall Catcher reward.</div></div>
+                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Moon Moth</div><div class="tile-copy">Maze reward silhouette.</div></div>
+                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Rune Ink</div><div class="tile-copy">Spell tracing reward.</div></div>
+                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Dream Symbol</div><div class="tile-copy">Dream bubble reward.</div></div>
+                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Premium</div><div class="hub-title" style="font-size:18px;">Oracle Wing</div><div class="tile-copy">Vault collectible.</div></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ VAULT PAGE ============ -->
+    <div class="page" id="page-vault">
+        <section>
+            <h2 class="section-title">The Vault</h2>
+            <p class="section-subtitle">unlock the deeper portal, prettier rituals, and rarer magic</p>
+            <div class="vault-grid">
+                <div class="vault-tier">
+                    <div class="hub-kicker">Free portal</div>
+                    <div class="hub-title">Daily ritual</div>
+                    <div class="hub-copy">A delightful daily path through games, stars, tarot, dreams, and charms.</div>
+                    <ul>
+                        <li>Daily sparkle chest</li>
+                        <li>Featured games</li>
+                        <li>Daily 3-card tarot</li>
+                        <li>Basic horoscope</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="showPage('games')">Play Today</button>
+                </div>
+                <div class="vault-tier">
+                    <div class="hub-kicker">Pixie Plus</div>
+                    <div class="hub-title">$4.99 / month</div>
+                    <div class="hub-copy">Not pay-to-win. Pay for deeper readings, rarer collectibles, and prettier portal layers.</div>
+                    <ul>
+                        <li>Unlimited tarot pulls</li>
+                        <li>Premium spreads</li>
+                        <li>AI dream interpretation</li>
+                        <li>Expanded horoscopes</li>
+                        <li>Rare charms and themes</li>
+                        <li>No daily limits</li>
+                    </ul>
+                    <button class="btn btn-ghost">Coming Soon</button>
+                </div>
             </div>
         </section>
     </div>
@@ -2043,6 +2488,9 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const page = document.getElementById('page-' + id);
             if (page) page.classList.add('active');
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.page === id);
+            });
             window.scrollTo(0, 0);
             observeReveals();
 
