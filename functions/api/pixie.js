@@ -56,10 +56,10 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Ask the pixie something first." }, { status: 400 });
   }
 
-  if (!env.ANTHROPIC_API_KEY) {
+  if (!env.LOKI_BRIDGE_URL) {
     return json({
       reply:
-        "My sparkle brain is not connected yet, but I can still help: try The Portal, play a game, open the spellbook, or make a journal entry.",
+        "My local Loki brain is not connected to the portal yet, but I can still help: try The Portal, play a game, open the spellbook, or make a journal entry.",
     });
   }
 
@@ -70,30 +70,28 @@ Do not claim to have powers outside the website. Do not invent account data.
 ${SITE_CONTEXT}`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch(env.LOKI_BRIDGE_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        ...(env.LOKI_BRIDGE_TOKEN
+          ? { Authorization: `Bearer ${env.LOKI_BRIDGE_TOKEN}` }
+          : {}),
       },
       body: JSON.stringify({
-        model: env.PIXIE_AGENT_MODEL || "claude-3-5-haiku-20241022",
-        max_tokens: 450,
         system,
         messages,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Anthropic returned ${response.status}`);
+      throw new Error(`Loki bridge returned ${response.status}`);
     }
 
     const data = await response.json();
-    const textBlock = data.content?.find((block) => block.type === "text");
     return json({
       reply:
-        textBlock?.text?.trim() ||
+        data.reply?.trim() ||
         "The portal shimmered, but I lost the thread. Ask me again?",
     });
   } catch {
