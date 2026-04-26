@@ -3342,15 +3342,19 @@
             return 'risk-gentle';
         }
 
+        function normalizeHerbText(value) {
+            return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        }
+
         function renderHerbology() {
             const list = document.getElementById('herb-card-list');
             const detail = document.getElementById('herb-detail');
             if (!list || !detail) return;
 
-            const q = (document.getElementById('herb-search')?.value || '').trim().toLowerCase();
+            const q = normalizeHerbText(document.getElementById('herb-search')?.value || '');
             const filtered = HERB_LIBRARY.filter(herb => {
                 const matchesFilter = herbFilter === 'all' || herb.categories.includes(herbFilter);
-                const haystack = [herb.name, herb.latin, herb.summary, herb.evidence, herb.avoid, herb.forms.join(' '), herb.cautions.join(' ')].join(' ').toLowerCase();
+                const haystack = normalizeHerbText([herb.name, herb.latin, herb.summary, herb.evidence, herb.avoid, herb.forms.join(' '), herb.cautions.join(' ')].join(' '));
                 return matchesFilter && (!q || haystack.includes(q));
             });
 
