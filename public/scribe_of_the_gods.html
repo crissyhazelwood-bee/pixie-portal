@@ -83,11 +83,13 @@
     .section-label { color: #b496ff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 28px 0 12px; padding-left: 2px; }
 
     /* ── GLYPH TABLE ── */
-    .glyph-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 10px; margin-top: 12px; }
-    .glyph-tile { background: rgba(26,16,48,0.9); border: 1px solid rgba(180,150,255,0.2); border-radius: 10px; padding: 12px 8px; text-align: center; }
-    .glyph-tile .glyph-name { color: #d4aaff; font-size: 11px; font-weight: 700; margin-bottom: 3px; }
-    .glyph-tile .glyph-trans { color: #ff96c8; font-size: 11px; font-style: italic; }
-    .glyph-tile .glyph-sound { color: #9080b0; font-size: 11px; }
+    .glyph-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; margin-top: 12px; }
+    .glyph-tile { background: radial-gradient(circle at 50% 0%, rgba(255,215,0,0.13), transparent 42%), rgba(26,16,48,0.9); border: 1px solid rgba(180,150,255,0.2); border-radius: 12px; padding: 14px 10px; text-align: center; }
+    .glyph-tile .glyph-symbol { font-family: 'Noto Sans Egyptian Hieroglyphs','Segoe UI Historic','Aegyptus',serif; color: #ffe28a; font-size: 44px; line-height: 1; min-height: 50px; margin-bottom: 8px; text-shadow: 0 0 18px rgba(255,215,0,0.22); }
+    .glyph-tile .glyph-name { color: #d4aaff; font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+    .glyph-tile .glyph-code { color: #96ffdc; font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .glyph-tile .glyph-trans { color: #ff96c8; font-size: 12px; font-style: italic; }
+    .glyph-tile .glyph-sound { color: #9080b0; font-size: 11px; line-height: 1.35; margin-top: 4px; }
 
     /* ── PAPYRUS CARDS ── */
     .papyrus-card { background: linear-gradient(135deg,rgba(30,15,10,0.95),rgba(13,8,5,0.95)); border: 1px solid rgba(210,140,50,0.3); border-radius: 16px; padding: 22px; margin-bottom: 18px; }
@@ -595,6 +597,7 @@
     <h2>The 24 Uniliteral Signs — The Hieroglyphic Alphabet</h2>
     <p style="color:#9080b0;font-size:13px;margin-bottom:12px;">These 24 signs form the phonetic backbone of the script. The Egyptians never used them alone as a pure alphabet — they always combined them with biliterals, triliterals, and determinatives.</p>
     <div class="glyph-grid" id="glyph-grid"></div>
+    <p style="color:#9080b0;font-size:11px;line-height:1.6;margin-top:12px;">Note: Egyptian wrote consonants, not vowels. Signs such as aleph, ayin, dotted h, kh, sh, tj, and dj are scholarly transliteration conventions, not English alphabet letters.</p>
   </div>
 
   <div class="card">
@@ -1044,12 +1047,41 @@
     {name:'Snake',trans:'ḏ',sound:'dj'},
   ];
 
+  const GLYPHS_FIXED = [
+    {cp:0x1313F, code:'G1', name:'Egyptian vulture', trans:'aleph', sound:'glottal stop'},
+    {cp:0x131CB, code:'M17', name:'Flowering reed', trans:'j / i', sound:'y or i-like consonant'},
+    {cp:0x131CC, code:'M17A', name:'Double reed', trans:'y', sound:'consonantal y'},
+    {cp:0x1309D, code:'D36', name:'Forearm', trans:'ayin', sound:'voiced pharyngeal'},
+    {cp:0x13171, code:'G43', name:'Quail chick', trans:'w', sound:'w / u'},
+    {cp:0x130C0, code:'D58', name:'Lower leg', trans:'b', sound:'b'},
+    {cp:0x132AA, code:'Q3', name:'Stool / reed mat', trans:'p', sound:'p'},
+    {cp:0x13191, code:'I9', name:'Horned viper', trans:'f', sound:'f'},
+    {cp:0x13153, code:'G17', name:'Owl', trans:'m', sound:'m'},
+    {cp:0x13216, code:'N35', name:'Water ripple', trans:'n', sound:'n'},
+    {cp:0x1308B, code:'D21', name:'Mouth', trans:'r', sound:'r'},
+    {cp:0x13254, code:'O4', name:'Reed shelter', trans:'h', sound:'h'},
+    {cp:0x1339B, code:'V28', name:'Twisted wick', trans:'h-dot', sound:'strong pharyngeal h'},
+    {cp:0x1340D, code:'Aa1', name:'Placenta', trans:'kh', sound:'kh as in loch'},
+    {cp:0x13121, code:'F32', name:'Animal belly with tail', trans:'kh-underbar', sound:'softer kh'},
+    {cp:0x132F4, code:'S29', name:'Folded cloth', trans:'s', sound:'s'},
+    {cp:0x13219, code:'N37', name:'Garden pool', trans:'sh', sound:'sh'},
+    {cp:0x1320E, code:'N29', name:'Hill slope', trans:'q', sound:'emphatic k / q'},
+    {cp:0x133A1, code:'V31', name:'Basket with handle', trans:'k', sound:'k'},
+    {cp:0x133BC, code:'W11', name:'Jar stand', trans:'g', sound:'g'},
+    {cp:0x133CF, code:'X1', name:'Bread loaf', trans:'t', sound:'t'},
+    {cp:0x1337F, code:'V13', name:'Tethering rope', trans:'tj', sound:'ch / tj'},
+    {cp:0x130A7, code:'D46', name:'Hand', trans:'d', sound:'d'},
+    {cp:0x13193, code:'I10', name:'Cobra', trans:'dj', sound:'j as in judge'},
+  ];
+
   function buildGlyphs() {
     const grid = document.getElementById('glyph-grid');
-    GLYPHS.forEach(g => {
+    if (!grid) return;
+    grid.innerHTML = '';
+    GLYPHS_FIXED.forEach(g => {
       const div = document.createElement('div');
       div.className = 'glyph-tile';
-      div.innerHTML = `<div class="glyph-name">${g.name}</div><div class="glyph-trans">${g.trans}</div><div class="glyph-sound">${g.sound}</div>`;
+      div.innerHTML = `<div class="glyph-symbol">${String.fromCodePoint(g.cp)}</div><div class="glyph-name">${g.name}</div><div class="glyph-code">${g.code}</div><div class="glyph-trans">${g.trans}</div><div class="glyph-sound">${g.sound}</div>`;
       grid.appendChild(div);
     });
   }
