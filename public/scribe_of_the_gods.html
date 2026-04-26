@@ -12,18 +12,18 @@
     /* ── TOPBAR ── */
     .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: rgba(10,6,20,0.95); border-bottom: 1px solid rgba(180,150,255,0.15); position: sticky; top: 0; z-index: 100; }
     .topbar-title { font-family: 'Pacifico', cursive; font-size: 22px; background: linear-gradient(135deg,#ff96c8,#b496ff,#96ffdc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .back-link { color: #b496ff; text-decoration: none; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; opacity: 0.7; transition: opacity 0.2s; }
+    .back-link { color: #b496ff; text-decoration: none; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; opacity: 0.7; transition: opacity 0.2s; }
     .back-link:hover { opacity: 1; }
 
     /* ── HERO ── */
     .hero { text-align: center; padding: 48px 24px 32px; background: radial-gradient(ellipse at top, rgba(180,150,255,0.12) 0%, transparent 60%); }
     .hero-emoji { font-size: 64px; display: block; margin-bottom: 12px; filter: drop-shadow(0 0 20px rgba(180,150,255,0.6)); }
-    .hero h1 { font-family: 'Pacifico', cursive; font-size: clamp(28px,6vw,52px); background: linear-gradient(135deg,#ffd700,#ff96c8,#b496ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .hero h1 { font-family: 'Pacifico', cursive; font-size: clamp(28px,6vw,52px); background: linear-gradient(135deg,#d4aaff,#ff96c8,#b496ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
     .hero p { color: #9080b0; font-size: 15px; max-width: 600px; margin: 0 auto; line-height: 1.7; }
 
     /* ── TABS ── */
     .tab-bar { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; padding: 20px 16px 0; }
-    .tab-btn { padding: 9px 18px; border-radius: 999px; border: 1px solid rgba(180,150,255,0.25); background: transparent; color: rgba(200,180,255,0.6); font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; }
+    .tab-btn { padding: 9px 18px; border-radius: 999px; border: 1px solid rgba(180,150,255,0.25); background: transparent; color: rgba(200,180,255,0.6); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; }
     .tab-btn:hover { border-color: #b496ff; color: #b496ff; }
     .tab-btn.active { background: linear-gradient(135deg,#b496ff,#ff96c8); border-color: transparent; color: #fff; }
 
@@ -32,21 +32,21 @@
 
     /* ── SHARED CARD STYLES ── */
     .card { background: linear-gradient(135deg,rgba(26,16,48,0.9),rgba(13,8,32,0.9)); border: 1px solid rgba(180,150,255,0.18); border-radius: 18px; padding: 22px; margin-bottom: 18px; }
-    .card h2 { font-family: 'Pacifico', cursive; color: #ffd700; font-size: 22px; margin-bottom: 12px; }
-    .card h3 { color: #ff96c8; font-size: 15px; font-weight: 800; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .card h2 { font-family: 'Pacifico', cursive; color: #d4aaff; font-size: 22px; margin-bottom: 12px; }
+    .card h3 { color: #ff96c8; font-size: 15px; font-weight: 700; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
     .card p, .card li { color: #c8b8e8; font-size: 14px; line-height: 1.75; }
     .card ul { padding-left: 20px; margin-top: 6px; }
     .card ul li { margin-bottom: 4px; }
-    .highlight { color: #96ffdc; font-weight: 800; }
-    .pink { color: #ff96c8; font-weight: 800; }
-    .gold { color: #ffd700; font-weight: 800; }
-    .purple { color: #b496ff; font-weight: 800; }
+    .highlight { color: #96ffdc; font-weight: 700; }
+    .pink { color: #ff96c8; font-weight: 700; }
+    .gold { color: #d4aaff; font-weight: 700; }
+    .purple { color: #b496ff; font-weight: 700; }
 
     /* ── THOTH HERO CARD ── */
-    .thoth-hero { background: linear-gradient(135deg,rgba(40,20,80,0.95),rgba(13,8,32,0.95)); border: 1px solid rgba(255,215,0,0.3); border-radius: 22px; padding: 32px; margin-bottom: 24px; text-align: center; }
+    .thoth-hero { background: linear-gradient(135deg,rgba(40,20,80,0.95),rgba(13,8,32,0.95)); border: 1px solid rgba(180,150,255,0.3); border-radius: 22px; padding: 32px; margin-bottom: 24px; text-align: center; }
     .thoth-hero .emoji-row { font-size: 48px; margin-bottom: 16px; }
-    .thoth-hero h1 { font-family: 'Pacifico', cursive; font-size: 36px; background: linear-gradient(135deg,#ffd700,#ff96c8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
-    .thoth-hero .subtitle { color: #b496ff; font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .thoth-hero h1 { font-family: 'Pacifico', cursive; font-size: 36px; background: linear-gradient(135deg,#d4aaff,#ff96c8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+    .thoth-hero .subtitle { color: #b496ff; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
     .thoth-hero p { color: #c8b8e8; font-size: 14px; line-height: 1.8; max-width: 680px; margin: 0 auto; }
 
     /* ── EPITHETS ── */
@@ -58,9 +58,9 @@
     @media(max-width:620px){ .two-col { grid-template-columns: 1fr; } }
 
     /* ── FORM CARD (for icons/glyphs) ── */
-    .form-card { background: linear-gradient(135deg,rgba(26,16,48,0.9),rgba(13,8,32,0.9)); border: 1px solid rgba(255,215,0,0.2); border-radius: 14px; padding: 18px; }
+    .form-card { background: linear-gradient(135deg,rgba(26,16,48,0.9),rgba(13,8,32,0.9)); border: 1px solid rgba(180,150,255,0.2); border-radius: 14px; padding: 18px; }
     .form-card .form-emoji { font-size: 36px; margin-bottom: 8px; }
-    .form-card h4 { color: #ffd700; font-weight: 900; font-size: 14px; margin-bottom: 6px; }
+    .form-card h4 { color: #d4aaff; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
     .form-card p { color: #9080b0; font-size: 13px; line-height: 1.7; }
 
     /* ── GOD CARDS ── */
@@ -68,31 +68,31 @@
     .god-card { background: linear-gradient(135deg,rgba(26,16,48,0.9),rgba(13,8,32,0.9)); border: 1px solid rgba(180,150,255,0.18); border-radius: 16px; padding: 18px; cursor: pointer; transition: all 0.2s; }
     .god-card:hover { border-color: rgba(255,150,200,0.4); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(180,150,255,0.15); }
     .god-card .g-emoji { font-size: 36px; margin-bottom: 8px; }
-    .god-card .g-name { color: #ffd700; font-weight: 900; font-size: 16px; }
+    .god-card .g-name { color: #d4aaff; font-weight: 700; font-size: 16px; }
     .god-card .g-eg { color: rgba(180,150,255,0.6); font-size: 11px; font-style: italic; }
-    .god-card .g-title { color: #ff96c8; font-size: 12px; font-weight: 800; margin: 4px 0; }
+    .god-card .g-title { color: #ff96c8; font-size: 12px; font-weight: 700; margin: 4px 0; }
     .god-card .g-domains { color: #9080b0; font-size: 12px; line-height: 1.5; }
     .god-detail { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(180,150,255,0.15); }
     .god-detail p, .god-detail li { font-size: 13px; color: #c8b8e8; line-height: 1.7; margin-bottom: 6px; }
     .god-detail ul { padding-left: 18px; }
-    .god-detail h5 { color: #96ffdc; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0 4px; }
-    .god-card.open { border-color: rgba(255,215,0,0.4); }
+    .god-detail h5 { color: #96ffdc; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0 4px; }
+    .god-card.open { border-color: rgba(180,150,255,0.4); }
     .god-card.open .god-detail { display: block; }
 
     /* ── SECTION LABEL ── */
-    .section-label { color: #b496ff; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin: 28px 0 12px; padding-left: 2px; }
+    .section-label { color: #b496ff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 28px 0 12px; padding-left: 2px; }
 
     /* ── GLYPH TABLE ── */
     .glyph-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 10px; margin-top: 12px; }
     .glyph-tile { background: rgba(26,16,48,0.9); border: 1px solid rgba(180,150,255,0.2); border-radius: 10px; padding: 12px 8px; text-align: center; }
-    .glyph-tile .glyph-name { color: #ffd700; font-size: 11px; font-weight: 800; margin-bottom: 3px; }
+    .glyph-tile .glyph-name { color: #d4aaff; font-size: 11px; font-weight: 700; margin-bottom: 3px; }
     .glyph-tile .glyph-trans { color: #ff96c8; font-size: 11px; font-style: italic; }
     .glyph-tile .glyph-sound { color: #9080b0; font-size: 11px; }
 
     /* ── PAPYRUS CARDS ── */
     .papyrus-card { background: linear-gradient(135deg,rgba(30,15,10,0.95),rgba(13,8,5,0.95)); border: 1px solid rgba(210,140,50,0.3); border-radius: 16px; padding: 22px; margin-bottom: 18px; }
-    .papyrus-card h3 { color: #ffd700; font-weight: 900; font-size: 17px; margin-bottom: 4px; }
-    .papyrus-card .p-date { color: rgba(210,140,50,0.7); font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+    .papyrus-card h3 { color: #d4aaff; font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+    .papyrus-card .p-date { color: rgba(210,140,50,0.7); font-size: 12px; font-weight: 700; margin-bottom: 10px; }
     .papyrus-card p, .papyrus-card li { color: #c8b8e8; font-size: 14px; line-height: 1.75; }
     .papyrus-card ul { padding-left: 20px; margin-top: 6px; }
     .papyrus-card li { margin-bottom: 4px; }
@@ -100,19 +100,19 @@
     /* ── MATH TABLE ── */
     .num-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 10px; margin-top: 12px; }
     .num-tile { background: rgba(26,16,48,0.9); border: 1px solid rgba(150,255,220,0.2); border-radius: 10px; padding: 12px; text-align: center; }
-    .num-tile .n-val { color: #96ffdc; font-size: 18px; font-weight: 900; }
-    .num-tile .n-sym { color: #ffd700; font-size: 12px; margin: 3px 0; }
+    .num-tile .n-val { color: #96ffdc; font-size: 18px; font-weight: 700; }
+    .num-tile .n-sym { color: #d4aaff; font-size: 12px; margin: 3px 0; }
     .num-tile .n-desc { color: #9080b0; font-size: 11px; }
 
     /* ── STAT BOX ── */
     .stat-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
     .stat-box { background: rgba(150,255,220,0.05); border: 1px solid rgba(150,255,220,0.2); border-radius: 10px; padding: 12px 16px; flex: 1; min-width: 120px; text-align: center; }
-    .stat-box .s-val { color: #96ffdc; font-size: 22px; font-weight: 900; }
+    .stat-box .s-val { color: #96ffdc; font-size: 22px; font-weight: 700; }
     .stat-box .s-label { color: #9080b0; font-size: 11px; margin-top: 3px; }
 
     /* ── MYTH BLOCK ── */
     .myth { background: rgba(180,150,255,0.06); border-left: 3px solid #b496ff; border-radius: 0 10px 10px 0; padding: 14px 16px; margin: 10px 0; }
-    .myth .myth-title { color: #b496ff; font-weight: 900; font-size: 13px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .myth .myth-title { color: #b496ff; font-weight: 700; font-size: 13px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
     .myth p { color: #c8b8e8; font-size: 14px; line-height: 1.75; }
 
     /* ── DUAT SECTION ── */
@@ -121,7 +121,7 @@
 
     /* ── COMPARISON TABLE ── */
     .compare-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
-    .compare-table th { background: rgba(180,150,255,0.15); color: #b496ff; padding: 10px 12px; text-align: left; font-weight: 800; }
+    .compare-table th { background: rgba(180,150,255,0.15); color: #b496ff; padding: 10px 12px; text-align: left; font-weight: 700; }
     .compare-table td { padding: 9px 12px; border-top: 1px solid rgba(180,150,255,0.1); color: #c8b8e8; }
     .compare-table tr:hover td { background: rgba(180,150,255,0.05); }
 
@@ -197,12 +197,12 @@
       <div class="form-card">
         <div class="form-emoji">𓅃</div>
         <h4>The Ibis-Headed Man</h4>
-        <p>Most common. A human body topped by the sacred ibis head. He holds a writing palette, a notched palm branch to count the years of pharaohs' reigns, or a papyrus scroll.<br><br>Why the ibis: Its curved beak <strong style="color:#ffd700">resembles the crescent moon</strong>. The bird was considered deeply intelligent and methodical. Its beak resembles a writing pen. It probes deep mud for hidden sustenance — seeking hidden knowledge. Millions of ibises were mummified as offerings to him.</p>
+        <p>Most common. A human body topped by the sacred ibis head. He holds a writing palette, a notched palm branch to count the years of pharaohs' reigns, or a papyrus scroll.<br><br>Why the ibis: Its curved beak <strong style="color:#d4aaff">resembles the crescent moon</strong>. The bird was considered deeply intelligent and methodical. Its beak resembles a writing pen. It probes deep mud for hidden sustenance — seeking hidden knowledge. Millions of ibises were mummified as offerings to him.</p>
       </div>
       <div class="form-card">
         <div class="form-emoji">🐒</div>
         <h4>The Hamadryas Baboon</h4>
-        <p>This form actually <strong style="color:#ffd700">predates the ibis form</strong> archaeologically. He sits with a crescent moon or full lunar disk atop his head. In this form he is called <strong style="color:#ff96c8">A'an</strong>, God of Equilibrium.<br><br>Why the baboon: Baboons are highly intelligent. They chatter aggressively at sunrise each morning — the Egyptians read this as prayer and worship of Ra. In the Hall of Two Truths, the baboon-Thoth watches the scales and reports when the balance is exactly even.</p>
+        <p>This form actually <strong style="color:#d4aaff">predates the ibis form</strong> archaeologically. He sits with a crescent moon or full lunar disk atop his head. In this form he is called <strong style="color:#ff96c8">A'an</strong>, God of Equilibrium.<br><br>Why the baboon: Baboons are highly intelligent. They chatter aggressively at sunrise each morning — the Egyptians read this as prayer and worship of Ra. In the Hall of Two Truths, the baboon-Thoth watches the scales and reports when the balance is exactly even.</p>
       </div>
     </div>
   </div>
@@ -245,7 +245,7 @@
     <h2>The Weighing of the Heart</h2>
     <p>The most depicted scene in all of Egyptian religious art. Thoth is present and active in every version.</p>
     <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:16px;margin:14px 0;">
-      <p style="text-align:center;color:#ffd700;font-weight:900;margin-bottom:12px;">⚖ The Hall of Two Truths</p>
+      <p style="text-align:center;color:#d4aaff;font-weight:700;margin-bottom:12px;">⚖ The Hall of Two Truths</p>
       <ol style="padding-left:20px;color:#c8b8e8;font-size:14px;line-height:2;">
         <li>The dead soul enters, escorted by <span class="highlight">Anubis</span></li>
         <li>Recites the <span class="gold">42 Negative Confessions</span> — denying one specific sin before each of 42 divine judges: <em>"I have not killed," "I have not stolen," "I have not lied"...</em></li>
@@ -477,7 +477,7 @@
     </div>
     <div class="form-card" style="margin-bottom:12px;">
       <h4>2. Phonograms (Sound Signs)</h4>
-      <p><strong style="color:#ff96c8;">Uniliterals</strong> — 24 signs, one consonant each — the Egyptian "alphabet" (but never used alone as a pure alphabet).<br><strong style="color:#ff96c8;">Biliterals</strong> — signs representing two consonants.<br><strong style="color:#ff96c8;">Triliterals</strong> — signs representing three consonants (e.g., 𓄤 = <em>nfr</em> = "beautiful/good").<br><br><span style="color:#ffd700;">Critical:</span> Egyptian was an <strong>abjad</strong> — only consonants were written. <strong>No vowels.</strong> This is why the exact pronunciation of ancient Egyptian remains uncertain. Modern scholars insert a conventional "e" to make words speakable (e.g., "Ramesses").</p>
+      <p><strong style="color:#ff96c8;">Uniliterals</strong> — 24 signs, one consonant each — the Egyptian "alphabet" (but never used alone as a pure alphabet).<br><strong style="color:#ff96c8;">Biliterals</strong> — signs representing two consonants.<br><strong style="color:#ff96c8;">Triliterals</strong> — signs representing three consonants (e.g., 𓄤 = <em>nfr</em> = "beautiful/good").<br><br><span style="color:#d4aaff;">Critical:</span> Egyptian was an <strong>abjad</strong> — only consonants were written. <strong>No vowels.</strong> This is why the exact pronunciation of ancient Egyptian remains uncertain. Modern scholars insert a conventional "e" to make words speakable (e.g., "Ramesses").</p>
     </div>
     <div class="form-card">
       <h4>3. Determinatives (Silent Classifiers)</h4>
@@ -644,11 +644,11 @@
     <div class="two-col">
       <div class="form-card">
         <h4 style="color:#ff96c8;">❤️ The Heart (ib / haty)</h4>
-        <p>Seat of intelligence, emotion, personality, and will — everything we attribute to the brain. The <em>only</em> major organ <strong style="color:#ffd700">NOT removed during mummification</strong>. Left in the body for the afterlife journey. In the Weighing of the Heart, it is the heart — not the brain — that is judged.</p>
+        <p>Seat of intelligence, emotion, personality, and will — everything we attribute to the brain. The <em>only</em> major organ <strong style="color:#d4aaff">NOT removed during mummification</strong>. Left in the body for the afterlife journey. In the Weighing of the Heart, it is the heart — not the brain — that is judged.</p>
       </div>
       <div class="form-card">
         <h4 style="color:#9080b0;">🧠 The Brain (nis)</h4>
-        <p>Considered essentially <strong style="color:#ffd700">useless — packaging material for the skull</strong>. During mummification, the brain was dissolved and removed through the nostril with a hook. The only organ <em>discarded</em> rather than preserved.<br><br>Despite this — the Edwin Smith Papyrus describes the brain with remarkable accuracy: its surface, pulsations, fluid, sutures, and correctly links brain injury to paralysis and speech loss.</p>
+        <p>Considered essentially <strong style="color:#d4aaff">useless — packaging material for the skull</strong>. During mummification, the brain was dissolved and removed through the nostril with a hook. The only organ <em>discarded</em> rather than preserved.<br><br>Despite this — the Edwin Smith Papyrus describes the brain with remarkable accuracy: its surface, pulsations, fluid, sutures, and correctly links brain injury to paralysis and speech loss.</p>
       </div>
     </div>
   </div>
@@ -680,7 +680,7 @@
       <li>Wash the body with Nile water and natron solution</li>
       <li><strong style="color:#ff96c8;">Brain removal</strong> — probe inserted through the left nostril, brain dissolved and drained</li>
       <li><strong style="color:#ff96c8;">Abdominal incision</strong> — slit on the left side (the embalmer was ritually cursed for this cut)</li>
-      <li>Remove liver, lungs, stomach, and intestines — <strong style="color:#ffd700;">the heart was left in place</strong></li>
+      <li>Remove liver, lungs, stomach, and intestines — <strong style="color:#d4aaff;">the heart was left in place</strong></li>
       <li>Organs placed in <span class="gold">canopic jars</span> protected by the Four Sons of Horus: Imsety (liver), Hapy (lungs), Duamutef (stomach), Qebehsenuef (intestines)</li>
       <li>Pack the body cavity with <span class="gold">natron</span> (naturally occurring salt — a powerful desiccant); cover exterior with natron too</li>
       <li>Leave to dry for <span class="highlight">40 days</span></li>
