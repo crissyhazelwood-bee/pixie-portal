@@ -1,0 +1,13 @@
+{
+  "appId": "com.crissyhazelwood.pixieportal",
+  "appName": "Pixie Portal",
+  "webDir": "public",
+  "server": {
+    "url": "https://pixie-portal.com",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true
+  }
+}

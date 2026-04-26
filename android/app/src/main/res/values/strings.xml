@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Pixie Portal</string>
+    <string name="title_activity_main">Pixie Portal</string>
+    <string name="package_name">com.crissyhazelwood.pixieportal</string>
+    <string name="custom_url_scheme">com.crissyhazelwood.pixieportal</string>
+</resources>

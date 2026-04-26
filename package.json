@@ -2,7 +2,16 @@
   "name": "pixie-portal",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "mobile:add:android": "cap add android",
+    "mobile:sync": "cap sync android",
+    "mobile:open": "cap open android",
+    "mobile:run": "cap run android --target ZA2233HZ9F"
+  },
   "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
     "bcryptjs": "^2.4.3",
     "puppeteer": "^24.42.0"
   }
