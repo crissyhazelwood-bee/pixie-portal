@@ -12,6 +12,16 @@
   let open = false;
   let loading = false;
 
+  function getUserContext() {
+    if (typeof currentUser === "undefined" || !currentUser) return null;
+    return {
+      displayName: currentUser.display_name || "",
+      username: currentUser.username || "",
+      avatar: currentUser.avatar_emoji || "",
+      bio: currentUser.bio || "",
+    };
+  }
+
   function esc(text) {
     return String(text).replace(/[&<>"']/g, function (char) {
       return {
@@ -34,7 +44,7 @@
       .loki-pixie-toggle:hover{border-color:#ff96c8;box-shadow:0 10px 45px rgba(255,150,200,.28)}
       .loki-pixie-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%,#96ffdc,#b496ff 55%,#ff96c8);box-shadow:0 0 20px rgba(150,255,220,.35);font-size:24px;flex:0 0 auto}
       .loki-pixie-title{display:block;color:#ff96c8;font-size:13px;font-weight:700;letter-spacing:1px}
-      .loki-pixie-sub{display:block;color:#9080b0;font-size:11px;line-height:1.35;margin-top:2px}
+      .loki-pixie-sub{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#9080b0;font-size:11px;line-height:1.35;margin-top:2px}
       .loki-pixie-panel{width:350px;max-width:calc(100vw - 36px);border-radius:22px;overflow:hidden;border:1px solid rgba(180,150,255,.25);background:linear-gradient(135deg,#1a1030,#0d0820);box-shadow:0 16px 55px rgba(0,0,0,.45)}
       .loki-pixie-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(180,150,255,.16);background:rgba(20,12,35,.72)}
       .loki-pixie-name{display:flex;align-items:center;gap:10px}
@@ -51,7 +61,7 @@
       .loki-pixie-input:focus{border-color:#ff96c8}
       .loki-pixie-send{border:0;border-radius:18px;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-weight:700;padding:0 14px;cursor:pointer;font:12px Quicksand,Arial,sans-serif;letter-spacing:1px;text-transform:uppercase}
       .loki-pixie-send:disabled{opacity:.45;cursor:not-allowed}
-      @media (max-width:520px){#${ROOT_ID}{right:12px;bottom:16px;transform:none}.loki-pixie-toggle{max-width:calc(100vw - 24px)}.loki-pixie-panel{width:calc(100vw - 24px)}}
+      @media (max-width:520px){#${ROOT_ID}{right:14px;bottom:18px;transform:none}.loki-pixie-toggle{width:62px;height:62px;padding:0;border-radius:50%;justify-content:center}.loki-pixie-toggle>span{display:none}.loki-pixie-toggle .loki-pixie-avatar{width:54px;height:54px;font-size:27px}.loki-pixie-panel{width:calc(100vw - 24px);max-height:62vh}.loki-pixie-log{max-height:calc(62vh - 132px)}.loki-pixie-msg{font-size:12px}.loki-pixie-msg.assistant{margin-right:10px}.loki-pixie-msg.user{margin-left:10px}}
     `;
     document.head.appendChild(style);
   }
@@ -65,10 +75,12 @@
     if (!root) return;
     if (!open) {
       const latest = messages[messages.length - 1]?.content || "Ask me about the portal.";
+      const user = getUserContext();
+      const title = user?.displayName ? `Ask Loki, ${user.displayName}` : "Ask Loki Pixie";
       root.innerHTML = `
         <button class="loki-pixie-toggle" type="button" aria-label="Open Loki Pixie chat">
           ${avatar()}
-          <span><span class="loki-pixie-title">Ask Loki Pixie</span><span class="loki-pixie-sub">${esc(latest)}</span></span>
+          <span><span class="loki-pixie-title">${esc(title)}</span><span class="loki-pixie-sub">${esc(latest)}</span></span>
         </button>`;
       root.querySelector("button").onclick = function () {
         open = true;
@@ -121,7 +133,7 @@
       const response = await fetch("/api/pixie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages, user: getUserContext() }),
       });
       const data = await response.json();
       messages.push({
@@ -145,6 +157,7 @@
     const root = document.createElement("div");
     root.id = ROOT_ID;
     document.body.appendChild(root);
+    window.updateLokiPixieUser = render;
     render();
   }
 

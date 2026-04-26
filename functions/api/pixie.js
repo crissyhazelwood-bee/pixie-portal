@@ -56,6 +56,33 @@ function cleanMessages(raw) {
     .map(m => ({ role: m.role, content: m.content.slice(0, 1200) }));
 }
 
+function cleanUser(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const displayName = typeof raw.displayName === "string" ? raw.displayName.slice(0, 80).trim() : "";
+  const username = typeof raw.username === "string" ? raw.username.slice(0, 80).trim() : "";
+  const avatar = typeof raw.avatar === "string" ? raw.avatar.slice(0, 16).trim() : "";
+  const bio = typeof raw.bio === "string" ? raw.bio.slice(0, 240).trim() : "";
+  if (!displayName && !username && !avatar && !bio) return null;
+  return { displayName, username, avatar, bio };
+}
+
+function buildSystem(user) {
+  if (!user) return SYSTEM;
+  const name = user.displayName || user.username || "this visitor";
+  const facts = [
+    `The logged-in user is ${name}.`,
+    user.username ? `Their username is @${user.username}.` : "",
+    user.avatar ? `Their chosen avatar is ${user.avatar}.` : "",
+    user.bio ? `Their profile bio says: ${user.bio}` : "",
+  ].filter(Boolean).join("\n");
+  return `${SYSTEM}
+
+CURRENT LOGGED-IN USER
+${facts}
+
+Use this to be personally warm and remember their name during the chat. Do not claim to know private data, scores, journal entries, purchases, or account details unless they tell you in the conversation.`;
+}
+
 export async function onRequestOptions() {
   return new Response(null, {
     headers: {
@@ -74,6 +101,30 @@ export async function onRequestPost({ request, env }) {
   const messages = cleanMessages(body.messages);
   if (!messages.length || messages[messages.length - 1].role !== "user") {
     return json({ error: "Ask Loki something first." }, { status: 400 });
+  }
+  const user = cleanUser(body.user);
+  const system = buildSystem(user);
+
+  if (env.LOKI_BRIDGE_URL) {
+    try {
+      const headers = { "Content-Type": "application/json" };
+      if (env.LOKI_BRIDGE_TOKEN) headers.Authorization = `Bearer ${env.LOKI_BRIDGE_TOKEN}`;
+      const response = await fetch(env.LOKI_BRIDGE_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ system, messages, user }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `Bridge ${response.status}`);
+      return json({
+        reply: data.reply?.trim() || "The bridge shimmered, but I lost the words. Ask me again?",
+      });
+    } catch (error) {
+      return json({
+        reply: "My local Loki bridge is not answering right now. Start the Loki Bridge and make sure the tunnel URL is fresh.",
+        error: error.message,
+      }, { status: 502 });
+    }
   }
 
   // No API key — give a useful fallback instead of breaking
@@ -94,7 +145,7 @@ export async function onRequestPost({ request, env }) {
       body: JSON.stringify({
         model: env.PIXIE_AGENT_MODEL || "claude-haiku-4-5-20251001",
         max_tokens: 400,
-        system: SYSTEM,
+        system,
         messages,
       }),
     });

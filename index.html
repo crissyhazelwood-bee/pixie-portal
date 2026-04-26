@@ -2736,6 +2736,7 @@
             document.getElementById('journal-logged-out').style.display = 'none';
             document.getElementById('journal-logged-in').style.display = 'block';
             document.getElementById('nav-admin-link').style.display = currentUser.is_admin ? 'inline' : 'none';
+            if (window.updateLokiPixieUser) window.updateLokiPixieUser();
             loadNotifications();
             if (window._notifInterval) clearInterval(window._notifInterval);
             window._notifInterval = setInterval(loadNotifications, 30000);
@@ -2816,6 +2817,7 @@
             notifPanelOpen = false;
             const panel = document.getElementById('notif-panel');
             if (panel) panel.style.display = 'none';
+            if (window.updateLokiPixieUser) window.updateLokiPixieUser();
         }
 
         // ============================================
