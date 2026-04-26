@@ -2991,28 +2991,38 @@
         }
 
         async function doLogin() {
+            const errEl = document.getElementById('login-error');
+            errEl.textContent = 'Logging in...';
             const data = {
                 username: document.getElementById('login-user').value,
                 password: document.getElementById('login-pass').value,
             };
-            // BUG-20 fix: catch network errors so the UI doesn't die silently
+            let res, json;
             try {
-                const res = await fetch(API + '/api/login', {
+                res = await fetch(API + '/api/login', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data), credentials: 'include'
                 });
-                const json = await res.json();
-                if (json.error) {
-                    document.getElementById('login-error').textContent = json.error;
-                } else {
-                    currentUser = json.user;
-                    onLogin();
-                    closeModals();
-                    toast('Welcome back, ' + currentUser.display_name + '! ✦');
-                }
             } catch(e) {
-                console.error('Login error:', e);
-                document.getElementById('login-error').textContent = 'Connection error: ' + (e && e.message ? e.message : String(e));
+                console.error('Login fetch failed:', e);
+                errEl.textContent = 'Network error: ' + (e && e.message ? e.message : String(e));
+                return;
+            }
+            try {
+                json = await res.json();
+            } catch(e) {
+                console.error('Login JSON parse failed:', e, res.status);
+                errEl.textContent = 'Server error (status ' + res.status + ')';
+                return;
+            }
+            if (json.error) {
+                errEl.textContent = json.error;
+            } else {
+                errEl.textContent = '';
+                currentUser = json.user;
+                try { onLogin(); } catch(e) { console.error('onLogin error:', e); }
+                closeModals();
+                toast('Welcome back, ' + (currentUser.display_name || currentUser.username) + '! ✦');
             }
         }
 
