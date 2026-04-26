@@ -184,6 +184,7 @@ function fillQueue(){
 function currentColor(){ return queue[0]; }
 
 function startGame(){
+        if(window.PortalMemory) PortalMemory.recordGame('petal_puzzle');
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('ui').style.display = 'flex';
     initGame();
@@ -593,5 +594,7 @@ canvas.addEventListener('pointerdown', function(e){
 
 canvas.addEventListener('pointerleave', function(){ hoverSec = -1; });
 </script>
+    <script src="portal-memory.js"></script>
+    <script src="pixie-sigil.js"></script>
 </body>
 </html>

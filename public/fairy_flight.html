@@ -279,6 +279,7 @@ function initBgStars() {
 }
 
 function startGame() {
+        if(window.PortalMemory) PortalMemory.recordGame('fairy_flight');
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('game-over').classList.remove('active');
     document.getElementById('ui').style.display = 'flex';
@@ -658,5 +659,7 @@ requestAnimationFrame(loop);
     <button onclick="(function(){var d=document.getElementById('bug-desc').value.trim();if(!d)return;var b='Page: '+window.location.pathname+'\n\n'+d;window.location.href='mailto:crissy@pixieportalgames.com?subject='+encodeURIComponent('Pixie Portal Bug Report')+'&body='+encodeURIComponent(b);document.getElementById('bug-modal').style.display='none';document.getElementById('bug-desc').value='';})();" style="margin-top:12px;width:100%;padding:10px;border-radius:20px;border:none;background:linear-gradient(135deg,#ff96c8,#b496ff);color:#0a0614;font-family:Quicksand,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Send Bug Report &#x2726;</button>
   </div>
 </div>
+    <script src="portal-memory.js"></script>
+    <script src="pixie-sigil.js"></script>
 </body>
 </html>

@@ -6181,6 +6181,7 @@ function loop(ts){
 }
 
 function enterPortal(){
+        if(window.PortalMemory) PortalMemory.recordGame('the_portal');
     if(started) return;
     document.getElementById('start-screen').style.display='none';
     document.getElementById('ui').style.display='flex';
@@ -7364,5 +7365,7 @@ function goHome() {
     showGameToast('Welcome home! \u2728', '', 2000);
 }
 </script>
+    <script src="portal-memory.js"></script>
+    <script src="pixie-sigil.js"></script>
 </body>
 </html>

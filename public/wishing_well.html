@@ -431,6 +431,7 @@ var resultFlash=null; // {text,color,timer}
 var lastTs=0, rafId=null;
 
 function startGame(){
+        if(window.PortalMemory) PortalMemory.recordGame('wishing_well');
     document.getElementById('start-screen').style.display='none';
     document.getElementById('ui').style.display='flex';
     initGame();
@@ -496,7 +497,7 @@ function checkWellHit(cx, cy){
     if(dist<=1.0){
         // Hit!
         var pts, label, color;
-        if(dist<=0.25){ pts=15; label='✨ WISH!'; color='#ffd700'; wishStreak++; wishTotal++; triggerWishFlash(); }
+        if(dist<=0.25){ pts=15; label='✨ WISH!'; color='#ffd700'; wishStreak++; wishTotal++; triggerWishFlash(); if(window.PortalMemory) PortalMemory.recordWish(); }
         else if(dist<=0.55){ pts=8; label='💫 Lucky!'; color='#ffee88'; wishStreak=0; }
         else { pts=3; label='🌀 Rim!'; color='#96ffdc'; wishStreak=0; }
         score+=pts;
@@ -721,5 +722,7 @@ canvas.addEventListener('pointerleave', function(){
     aimX=-1; aimY=-1;
 });
 </script>
+    <script src="portal-memory.js"></script>
+    <script src="pixie-sigil.js"></script>
 </body>
 </html>
