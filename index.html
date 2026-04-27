@@ -638,6 +638,34 @@
         .altar-board.cabinet-mode.theme-moon .altar-obj-crystal-ball .ball { background: radial-gradient(circle at 34% 24%, #ffffff 0 8%, #dce8ff 18%, #7088ff 48%, rgba(22,32,72,0.94) 100%); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 30px rgba(154,185,255,0.46); }
         .altar-board.cabinet-mode.theme-forest .altar-obj-crystal-ball .ball { background: radial-gradient(circle at 34% 24%, #f7fff4 0 8%, #bfffd0 18%, #46bd88 48%, rgba(15,55,47,0.94) 100%); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 30px rgba(106,255,165,0.34); }
         .altar-board.cabinet-mode.theme-sun .altar-obj-crystal-ball .ball { background: radial-gradient(circle at 34% 24%, #fff8df 0 8%, #ffe1a1 18%, #ff9d55 48%, rgba(90,35,28,0.94) 100%); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 30px rgba(255,190,92,0.42); }
+        .altar-board.edit-mode .altar-cabinet { cursor: crosshair; }
+        .altar-board.edit-mode .altar-physical-object { cursor: grab; touch-action: none; }
+        .altar-board.edit-mode .altar-physical-object:active { cursor: grabbing; }
+        .altar-board.edit-mode .altar-cabinet::after { box-shadow: inset 0 0 80px rgba(0,0,0,0.66), inset 0 0 0 1px rgba(255,214,139,0.10); }
+        .altar-edit-surface { display: none; position: absolute; left: 9%; right: 9%; height: 58px; border-radius: 24px; border: 1px dashed rgba(255,214,139,0.18); background: rgba(255,255,255,0.025); z-index: 6; pointer-events: none; }
+        .altar-board.edit-mode .altar-edit-surface { display: block; }
+        .altar-edit-surface.backWall { inset: 72px 12% auto; height: 34%; }
+        .altar-edit-surface.topShelf { top: 32%; }
+        .altar-edit-surface.middleShelf { top: 58%; }
+        .altar-edit-surface.lowerShelf { top: 80%; }
+        .altar-edit-surface.foreground { bottom: 42px; height: 78px; }
+        .altar-editor-drawer { margin-top: 18px; width: min(100%, 980px); border-radius: 26px; padding: 16px; background: radial-gradient(circle at 16% 18%, rgba(255,214,139,0.12), transparent 34%), rgba(11,6,19,0.86); border: 1px solid rgba(255,214,139,0.18); box-shadow: 0 18px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08); color: #f7e8ff; }
+        .altar-drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .altar-drawer-title { color: #fff1c7; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-size: 12px; }
+        .altar-drawer-tabs, .altar-drawer-cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .altar-drawer-tab, .altar-drawer-cat { border: 1px solid rgba(255,214,139,0.18); border-radius: 999px; padding: 8px 11px; color: rgba(245,226,255,0.78); background: rgba(255,255,255,0.05); font-size: 11px; font-weight: 900; cursor: pointer; }
+        .altar-drawer-tab.active, .altar-drawer-cat.active { color: #16091e; background: linear-gradient(135deg, #ffe1a5, #ff9edb); box-shadow: 0 0 18px rgba(255,126,224,0.20); }
+        .altar-shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 10px; max-height: 300px; overflow: auto; padding-right: 4px; }
+        .altar-shop-item { border: 1px solid rgba(255,214,139,0.16); border-radius: 18px; padding: 12px; background: rgba(18,8,30,0.82); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); display: grid; gap: 7px; align-content: start; }
+        .altar-shop-icon { height: 70px; border-radius: 16px; display: grid; place-items: center; font-size: 28px; background: radial-gradient(circle at 50% 15%, rgba(255,214,139,0.14), transparent 50%), rgba(255,255,255,0.045); overflow: hidden; }
+        .altar-shop-name { color: #fff1c7; font-weight: 900; font-size: 12px; line-height: 1.2; }
+        .altar-shop-meta { display: flex; justify-content: space-between; gap: 6px; color: rgba(230,214,255,0.70); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; }
+        .altar-shop-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .altar-shop-actions button, .altar-selected-controls button, .altar-mode-actions button { border: 1px solid rgba(255,214,139,0.18); border-radius: 999px; padding: 7px 10px; color: #f8eaff; background: rgba(255,255,255,0.07); font-size: 10px; font-weight: 900; cursor: pointer; }
+        .altar-shop-actions .primary, .altar-selected-controls .primary, .altar-mode-actions .primary { color: #17091e; background: linear-gradient(135deg, #ff93dc, #ffe1a5); }
+        .altar-selected-controls { position: absolute; left: 50%; bottom: 86px; transform: translateX(-50%); z-index: 60; display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; max-width: min(92%, 680px); padding: 9px; border-radius: 999px; background: rgba(9,5,14,0.86); border: 1px solid rgba(255,214,139,0.22); box-shadow: 0 14px 36px rgba(0,0,0,0.36); }
+        .altar-mode-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .altar-physical-object.is-selected::after { content: ""; position: absolute; inset: -10px; border: 1px solid rgba(255,214,139,0.76); border-radius: 24px; box-shadow: 0 0 28px rgba(255,126,224,0.28); pointer-events: none; }
         .altar-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
         .altar-summary-chip { padding: 10px; border-radius: 14px; background: rgba(8,5,18,0.42); border: 1px solid rgba(255,214,139,0.10); }
         .altar-summary-chip small { display: block; color: rgba(255,232,190,0.58); font-size: 9px; font-weight: 900; letter-spacing: 0.9px; text-transform: uppercase; }
@@ -3624,7 +3652,7 @@
                         </div>
                         <div class="altar-summary-grid" id="altar-summary-grid"></div>
                         <div class="altar-actions">
-                            <button class="btn btn-primary btn-small" onclick="switchTab('altar-tab')">Customize Altar</button>
+                            <button class="btn btn-primary btn-small" onclick="setAltarEditMode(true);switchTab('altar-tab')">Customize Altar</button>
                             <button class="btn btn-ghost btn-small" onclick="openAIGeneratedSelfOffer()">AI Self Portrait</button>
                             <button class="btn btn-ghost btn-small" onclick="openModal('edit-profile')">Edit Words</button>
                         </div>
@@ -6495,9 +6523,35 @@
             { id:'tarot-star', type:'tarot', label:'The Star', icon:'&#10022;', text:'hope and return' },
             { id:'dream-key', type:'dream', label:'Dream Key', icon:'&#9906;', category:'keys' }
         ];
+        const ALTAR_DECOR_CATALOG = [
+            { id:'centerpiece-symbol', name:'Patron Shrine', type:'deity', category:'Frames', rarity:'Rare', price:0, currency:'owned', source:'owned' },
+            { id:'crystal-ball', name:'Crystal Ball', type:'crystalBall', category:'Crystals', rarity:'Rare', price:0, currency:'owned', source:'owned' },
+            { id:'candle-pair', name:'Rose Candle', type:'candle', category:'Candles', rarity:'Common', price:0, currency:'owned', source:'owned' },
+            { id:'familiar-cat', name:'Familiar', type:'cat', category:'Pets/Familiars', rarity:'Rare', price:0, currency:'owned', source:'owned' },
+            { id:'herb-bundle', name:'Herb Bundle', type:'herbs', category:'Herbs', rarity:'Common', price:0, currency:'owned', source:'owned' },
+            { id:'mini-bottles', name:'Tiny Bottles', type:'miniBottles', category:'Bottles', rarity:'Common', price:60, currency:'sparkles', source:'shop' },
+            { id:'flower-spray', name:'Flower Spray', type:'flowers', category:'Herbs', rarity:'Uncommon', price:80, currency:'sparkles', source:'shop' },
+            { id:'bio-books', name:'Book Stack', type:'books', category:'Books', rarity:'Common', price:0, currency:'owned', source:'owned' },
+            { id:'rose-crystal', name:'Rose Crystals', type:'crystals', category:'Crystals', rarity:'Uncommon', price:0, currency:'owned', source:'owned' },
+            { id:'moon-bottle', name:'Moon Bottle', type:'bottle', category:'Bottles', rarity:'Uncommon', price:90, currency:'sparkles', source:'shop' },
+            { id:'ritual-tool', name:'Ritual Wand', type:'tool', category:'Stickers', rarity:'Rare', price:12, currency:'gems', source:'shop' },
+            { id:'bio-card', name:'Bio Note', type:'noteBio', category:'Notes', rarity:'Common', price:0, currency:'owned', source:'owned' },
+            { id:'open-book', name:'Open Poem Book', type:'openBook', category:'Books', rarity:'Rare', price:0, currency:'owned', source:'owned' },
+            { id:'tarot-star', name:'Tarot Card', type:'tarot', category:'Tarot', rarity:'Uncommon', price:0, currency:'owned', source:'owned' },
+            { id:'goal-card', name:'Goal Note', type:'noteGoal', category:'Notes', rarity:'Common', price:0, currency:'owned', source:'owned' },
+            { id:'poem-scroll', name:'Poem Scroll', type:'scroll', category:'Notes', rarity:'Uncommon', price:70, currency:'sparkles', source:'shop' },
+            { id:'incense-bowl', name:'Incense Bowl', type:'incense', category:'Bottles', rarity:'Uncommon', price:0, currency:'owned', source:'owned' },
+            { id:'moon-sticker', name:'Moon Sticker', type:'stickerMoon', category:'Stickers', rarity:'Common', price:30, currency:'sparkles', source:'shop' },
+            { id:'gold-mirror', name:'Animated Mirror Frame', type:'portrait', category:'Frames', rarity:'Premium', price:3, currency:'credits', source:'premium', premium:true }
+        ];
         const ALTAR_QUOTES = ['soft life, strong magic', 'built from dreams, receipts, and moonlight', 'do not disturb: becoming legendary', 'my altar, my myth, my rules', 'the portal remembers what I choose to keep'];
         let altarDirty = false;
         let altarViewState = { view:'altar', selectedPieceId:'', selectedSlotId:'', savedScrollY:0 };
+        let altarEditMode = false;
+        let altarLibraryTab = 'Owned';
+        let altarLibraryCategory = 'All';
+        let altarSelectedPlacementId = '';
+        let altarDragState = null;
         let grokPortraitStartedAt = 0;
         let grokTimerHandle = null;
         function escAttr(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -6531,6 +6585,10 @@
                     notes:'Thank you for being here.'
                 },
                 library: ALTAR_LIBRARY_SEED,
+                currencies:{ sparkles: 420, gems: 24, credits: 1 },
+                ownedDecor: ['centerpiece-symbol','crystal-ball','candle-pair','familiar-cat','herb-bundle','bio-books','rose-crystal','bio-card','open-book','tarot-star','goal-card','incense-bowl'],
+                aiDecor: [],
+                placedDecor: [],
                 shelves:[
                     { id:'top', slots:[
                         { slot:'top-left', itemId:'candle-pair' },
@@ -6586,6 +6644,22 @@
                 };
             });
             altar.selectedSlot = altar.selectedSlot && altar.selectedSlot.shelf && altar.selectedSlot.slot ? altar.selectedSlot : base.selectedSlot;
+            altar.currencies = { ...base.currencies, ...(altar.currencies || {}) };
+            altar.ownedDecor = Array.isArray(altar.ownedDecor) ? [...new Set([...base.ownedDecor, ...altar.ownedDecor])] : [...base.ownedDecor];
+            altar.aiDecor = Array.isArray(altar.aiDecor) ? altar.aiDecor : [];
+            if (!Array.isArray(altar.placedDecor) || altar.placedDecor.length === 0) altar.placedDecor = getStarterPlacedDecor();
+            altar.placedDecor = altar.placedDecor.map((p, index) => ({
+                placementId: p.placementId || ('decor-' + Date.now() + '-' + index),
+                decorId: p.decorId || 'moon-sticker',
+                surfaceId: p.surfaceId || 'middleShelf',
+                x: Number.isFinite(+p.x) ? +p.x : 50,
+                y: Number.isFinite(+p.y) ? +p.y : 50,
+                scale: Number.isFinite(+p.scale) ? +p.scale : 1,
+                rotation: Number.isFinite(+p.rotation) ? +p.rotation : 0,
+                zIndex: Number.isFinite(+p.zIndex) ? +p.zIndex : 20,
+                source: p.source || 'starter',
+                visibility: p.visibility || 'public'
+            }));
             return altar;
         }
         function getAltarProfile() {
@@ -6680,6 +6754,62 @@
             }
             return { shelf:fallbackShelf || 'middle', slot:fallbackSlot || 'middle-center' };
         }
+        function getStarterPlacedDecor() {
+            return [
+                { placementId:'starter-moon-left', decorId:'moon-sticker', surfaceId:'frame', x:14, y:13, scale:.92, rotation:-10, zIndex:14, source:'starter', visibility:'public' },
+                { placementId:'starter-star-right', decorId:'tarot-star', surfaceId:'frame', x:86, y:13, scale:.82, rotation:8, zIndex:14, source:'starter', visibility:'public' },
+                { placementId:'starter-crystal-ball', decorId:'crystal-ball', surfaceId:'topShelf', x:27, y:31, scale:1, rotation:-2, zIndex:20, source:'starter', visibility:'public' },
+                { placementId:'starter-candle', decorId:'candle-pair', surfaceId:'topShelf', x:45, y:30, scale:1, rotation:0, zIndex:21, source:'starter', visibility:'public' },
+                { placementId:'starter-cat', decorId:'familiar-cat', surfaceId:'topShelf', x:69, y:32, scale:1, rotation:0, zIndex:22, source:'starter', visibility:'public' },
+                { placementId:'starter-herbs', decorId:'herb-bundle', surfaceId:'topShelf', x:80, y:36, scale:.95, rotation:4, zIndex:19, source:'starter', visibility:'public' },
+                { placementId:'starter-bottles', decorId:'mini-bottles', surfaceId:'topShelf', x:58, y:34, scale:.82, rotation:-4, zIndex:18, source:'starter', visibility:'public' },
+                { placementId:'starter-flowers', decorId:'flower-spray', surfaceId:'topShelf', x:87, y:32, scale:.82, rotation:8, zIndex:20, source:'starter', visibility:'public' },
+                { placementId:'starter-books', decorId:'bio-books', surfaceId:'middleShelf', x:24, y:58, scale:1, rotation:-1, zIndex:23, source:'starter', visibility:'public' },
+                { placementId:'starter-crystals', decorId:'rose-crystal', surfaceId:'middleShelf', x:47, y:60, scale:1, rotation:0, zIndex:24, source:'starter', visibility:'public' },
+                { placementId:'starter-bottle', decorId:'moon-bottle', surfaceId:'middleShelf', x:66, y:58, scale:.95, rotation:4, zIndex:23, source:'starter', visibility:'public' },
+                { placementId:'starter-tool', decorId:'ritual-tool', surfaceId:'middleShelf', x:58, y:65, scale:1, rotation:-8, zIndex:25, source:'starter', visibility:'public' },
+                { placementId:'starter-shrine', decorId:'centerpiece-symbol', surfaceId:'middleShelf', x:50, y:51, scale:1.03, rotation:0, zIndex:28, source:'starter', visibility:'public' },
+                { placementId:'starter-bio', decorId:'bio-card', surfaceId:'backWall', x:16, y:75, scale:.86, rotation:-8, zIndex:18, source:'starter', visibility:'public' },
+                { placementId:'starter-book-open', decorId:'open-book', surfaceId:'lowerShelf', x:36, y:80, scale:1.06, rotation:-3, zIndex:30, source:'starter', visibility:'public' },
+                { placementId:'starter-tarot', decorId:'tarot-star', surfaceId:'lowerShelf', x:65, y:82, scale:1, rotation:8, zIndex:27, source:'starter', visibility:'public' },
+                { placementId:'starter-goal', decorId:'goal-card', surfaceId:'backWall', x:84, y:72, scale:.82, rotation:7, zIndex:18, source:'starter', visibility:'public' },
+                { placementId:'starter-scroll', decorId:'poem-scroll', surfaceId:'lowerShelf', x:52, y:83, scale:.78, rotation:4, zIndex:24, source:'starter', visibility:'public' },
+                { placementId:'starter-incense', decorId:'incense-bowl', surfaceId:'lowerShelf', x:78, y:85, scale:1, rotation:0, zIndex:27, source:'starter', visibility:'public' }
+            ];
+        }
+        function getDecorDefinition(altar, decorId) {
+            return [...ALTAR_DECOR_CATALOG, ...(altar.aiDecor || [])].find(item => item.id === decorId) || ALTAR_DECOR_CATALOG.find(item => item.id === 'moon-sticker');
+        }
+        function renderDecorHtml(decor, altar) {
+            const words = altar.words || {};
+            const patron = getAltarPatron(altar);
+            const bio = (words.bio || 'Creator of Pixie Portal').slice(0, 58);
+            const goal = (words.goal || 'Build the living portal').slice(0, 54);
+            const poem = (words.poem || 'soft life, strong magic').slice(0, 50);
+            const map = {
+                deity:'<div class="altar-obj-deity-shrine">' + (patron.icon || '&#10022;') + '</div>',
+                crystalBall:'<div class="altar-obj-crystal-ball"><div class="ball"></div><div class="stand"></div><span class="altar-obj-shadow"></span></div>',
+                candle:'<div class="altar-obj-candle"><div class="flame"></div><div class="wax"></div><span class="altar-obj-shadow"></span></div>',
+                cat:'<div class="altar-obj-cat"><div class="body"></div><div class="head"></div><div class="eyes">••</div><span class="altar-obj-shadow"></span></div>',
+                herbs:'<div class="altar-obj-herbs"><span class="sprig"></span><span class="sprig"></span><span class="sprig"></span><span class="altar-obj-shadow"></span></div>',
+                miniBottles:'<div class="altar-obj-mini-bottles"><span></span><span></span><span class="altar-obj-shadow"></span></div>',
+                flowers:'<div class="altar-obj-flowers"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>',
+                books:'<div class="altar-obj-books"><span style="height:68px;--book:#23131f"></span><span style="height:62px;--book:#e8c5d8"></span><span style="height:72px;--book:#cfa8ff"></span><span style="height:58px;--book:#ffd1a6"></span><span class="altar-obj-shadow"></span></div>',
+                crystals:'<div class="altar-obj-crystals"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>',
+                bottle:'<div class="altar-obj-bottle"><div class="neck"></div><div class="jar">MOON</div><span class="altar-obj-shadow"></span></div>',
+                tool:'<div class="altar-obj-tool"><span class="altar-obj-shadow"></span></div>',
+                noteBio:'<div class="altar-obj-note">' + escHtml(bio) + '</div>',
+                openBook:'<div class="altar-obj-open-book"><div class="page left"><span class="line"></span><span class="line"></span><span class="line"></span></div><div class="page right"><span class="line"></span><span class="line"></span><span class="line"></span></div><span class="altar-obj-shadow"></span></div>',
+                tarot:'<div class="altar-obj-tarot">✦</div>',
+                noteGoal:'<div class="altar-obj-note">' + escHtml(goal) + '</div>',
+                scroll:'<div class="altar-obj-scroll">' + escHtml(decor.text || poem) + '</div>',
+                incense:'<div class="altar-obj-incense"><div class="smoke"></div><div class="bowl"></div><span class="altar-obj-shadow"></span></div>',
+                stickerMoon:'<div class="altar-obj-sticker">☾</div>',
+                sticker:'<div class="altar-obj-sticker">' + (decor.icon || '✦') + '</div>',
+                portrait:'<div class="altar-obj-portrait">' + renderSelfPortraitMini(altar) + '</div>'
+            };
+            return map[decor.type] || map.sticker;
+        }
         function cabinetSceneObjects(altar) {
             const words = altar.words || {};
             const bio = (words.bio || 'Creator of Pixie Portal').slice(0, 58);
@@ -6712,6 +6842,36 @@
             const selected = altar.selectedSlot?.shelf === slot.shelf && altar.selectedSlot?.slot === slot.slot;
             return '<button class="altar-physical-object ' + (selected ? 'selected' : '') + '" style="left:' + obj.x + '%;top:' + obj.y + '%;--scale:' + obj.scale + ';--rot:' + obj.rot + 'deg;z-index:' + obj.z + '" onclick="openAltarPiece(&quot;' + escAttr(slot.shelf) + '&quot;,&quot;' + escAttr(slot.slot) + '&quot;)" title="Open shrine piece">' + obj.html + '</button>';
         }
+        function renderPlacedDecor(placement, altar) {
+            const decor = getDecorDefinition(altar, placement.decorId);
+            const selected = altarSelectedPlacementId === placement.placementId;
+            return '<button class="altar-physical-object free-decor ' + (selected ? 'is-selected' : '') + '" data-placement-id="' + escAttr(placement.placementId) + '" data-surface="' + escAttr(placement.surfaceId) + '" style="left:' + placement.x + '%;top:' + placement.y + '%;--scale:' + placement.scale + ';--rot:' + placement.rotation + 'deg;z-index:' + placement.zIndex + '" onpointerdown="startAltarDecorDrag(event,&quot;' + escAttr(placement.placementId) + '&quot;)" onclick="selectPlacedDecor(event,&quot;' + escAttr(placement.placementId) + '&quot;)" title="' + escAttr(decor.name || decor.id) + '">' + renderDecorHtml(decor, altar) + '</button>';
+        }
+        function renderAltarSelectedControls() {
+            if (!altarEditMode || !altarSelectedPlacementId) return '';
+            return '<div class="altar-selected-controls"><button onclick="adjustSelectedDecor(&quot;rotate&quot;,-8)">Rotate left</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,8)">Rotate right</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,-0.08)">Smaller</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,0.08)">Larger</button><button onclick="adjustSelectedDecor(&quot;z&quot;,1)">Forward</button><button onclick="adjustSelectedDecor(&quot;z&quot;,-1)">Backward</button><button onclick="duplicateSelectedDecor()">Duplicate</button><button onclick="removeSelectedDecor()">Remove</button><button class="primary" onclick="saveAltarToProfile()">Save</button></div>';
+        }
+        function renderAltarEditorDrawer(altar) {
+            if (!altarEditMode) return '';
+            const tabs = ['Owned','Shop','AI Generated','Premium'];
+            const cats = ['All','Candles','Crystals','Books','Tarot','Bottles','Herbs','Frames','Stickers','Notes','Pets/Familiars','Premium'];
+            let items = [...ALTAR_DECOR_CATALOG, ...(altar.aiDecor || [])];
+            items = items.filter(item => {
+                const owned = (altar.ownedDecor || []).includes(item.id) || item.price === 0;
+                if (altarLibraryTab === 'Owned' && !owned) return false;
+                if (altarLibraryTab === 'Shop' && (owned || item.premium || item.source === 'premium')) return false;
+                if (altarLibraryTab === 'AI Generated' && item.source !== 'ai') return false;
+                if (altarLibraryTab === 'Premium' && !item.premium) return false;
+                if (altarLibraryCategory !== 'All' && item.category !== altarLibraryCategory && !(altarLibraryCategory === 'Premium' && item.premium)) return false;
+                return true;
+            });
+            const itemCards = items.map(item => {
+                const owned = (altar.ownedDecor || []).includes(item.id) || item.price === 0;
+                const price = owned ? 'Owned' : (item.price + ' ' + item.currency);
+                return '<div class="altar-shop-item"><div class="altar-shop-icon">' + renderDecorHtml(item, altar) + '</div><div class="altar-shop-name">' + escHtml(item.name || item.id) + '</div><div class="altar-shop-meta"><span>' + escHtml(item.rarity || 'Common') + '</span><span>' + escHtml(price) + '</span></div><div class="altar-shop-actions">' + (owned ? '<button class="primary" onclick="placeDecorFromLibrary(&quot;' + escAttr(item.id) + '&quot;)">Place</button>' : '<button class="primary" onclick="buyAltarDecor(&quot;' + escAttr(item.id) + '&quot;)">Buy</button>') + (item.premium ? '<button onclick="showPage(&quot;vault&quot;)">Vault</button>' : '') + '</div></div>';
+            }).join('') || '<div class="altar-shop-item"><div class="altar-shop-name">Nothing here yet</div><div class="altar-shop-meta"><span>Try another tab</span></div></div>';
+            return '<div class="altar-editor-drawer"><div class="altar-drawer-head"><div><div class="altar-drawer-title">Decor Library & Shop</div><div class="altar-shop-meta"><span>' + (altar.currencies?.sparkles || 0) + ' sparkles</span><span>' + (altar.currencies?.gems || 0) + ' gems</span><span>' + (altar.currencies?.credits || 0) + ' credits</span></div></div><div class="altar-mode-actions"><button onclick="generateAltarItem(&quot;sticker&quot;)">Generate Sticker</button><button onclick="generateAltarItem(&quot;poem&quot;)">Generate Poem</button><button onclick="openAIGeneratedSelfOffer()">Generate Self Portrait</button><button class="primary" onclick="setAltarEditMode(false)">View Mode</button></div></div><div class="altar-drawer-tabs">' + tabs.map(t => '<button class="altar-drawer-tab ' + (altarLibraryTab === t ? 'active' : '') + '" onclick="setAltarLibraryTab(&quot;' + t + '&quot;)">' + t + '</button>').join('') + '</div><div class="altar-drawer-cats">' + cats.map(c => '<button class="altar-drawer-cat ' + (altarLibraryCategory === c ? 'active' : '') + '" onclick="setAltarLibraryCategory(&quot;' + c + '&quot;)">' + c + '</button>').join('') + '</div><div class="altar-shop-grid">' + itemCards + '</div></div>';
+        }
         function openAltarPiece(shelfId, slotId) {
             const altar = getAltarProfile();
             const shelf = altar.shelves.find(s => s.id === shelfId);
@@ -6738,18 +6898,20 @@
         function renderAltarBoard(altar) {
             const board = document.getElementById('profile-altar-board');
             if (!board) return;
-            board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose');
-            const objects = cabinetSceneObjects(altar).map(obj => renderCabinetObject(obj, altar)).join('');
+            board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose') + (altarEditMode ? ' edit-mode' : ' view-mode');
+            const objects = (altar.placedDecor || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(obj => renderPlacedDecor(obj, altar)).join('');
             board.innerHTML = '<div class="altar-cabinet" aria-label="Decorated personal altar cabinet">' +
                 '<div class="altar-cabinet-spire left"></div><div class="altar-cabinet-spire right"></div>' +
                 '<div class="altar-cabinet-moon m1">☾</div><div class="altar-cabinet-moon m2">☽</div><div class="altar-cabinet-moon m3">✦</div><div class="altar-cabinet-moon m4">✦</div>' +
                 '<div class="altar-cabinet-back-pattern"></div><div class="altar-cabinet-crest"></div><div class="altar-cabinet-corner tl"></div><div class="altar-cabinet-corner tr"></div><div class="altar-cabinet-corner bl"></div><div class="altar-cabinet-corner br"></div>' +
                 '<div class="altar-cabinet-vine left"></div><div class="altar-cabinet-vine right"></div>' +
+                '<div class="altar-edit-surface backWall"></div><div class="altar-edit-surface topShelf"></div><div class="altar-edit-surface middleShelf"></div><div class="altar-edit-surface lowerShelf"></div><div class="altar-edit-surface foreground"></div>' +
                 '<div class="altar-cabinet-shelf top"></div><div class="altar-cabinet-shelf middle"></div><div class="altar-cabinet-shelf lower"></div>' +
                 '<div class="altar-shelf-cloth middle"></div><div class="altar-shelf-cloth lower"></div>' +
                 objects +
+                renderAltarSelectedControls() +
                 '<div class="altar-mantra-plaque cabinet-plaque">"' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>' +
-                '</div>';
+                '</div>' + renderAltarEditorDrawer(altar);
             return;
             board.className = 'altar-board theme-' + (altar.theme || 'rose');
             board.innerHTML = '<div class="altar-preview-label">Your altar</div><div class="altar-room-arch"></div><h3 class="altar-preview-title">Your Altar</h3><div class="altar-preview-subtitle">Click any shrine piece to go deeper</div><div class="altar-moon-phases">○ ◐ ● ◑ ○</div><div class="altar-shelves">' +
@@ -6968,6 +7130,114 @@
             }, 6200);
         }
         function updateAltarSaveState() { const el = document.getElementById('altar-save-state'); if (el) el.textContent = altarDirty ? 'Unsaved changes' : 'Saved'; }
+        function setAltarEditMode(value) { altarEditMode = !!value; if (!altarEditMode) altarSelectedPlacementId = ''; renderAltarProfile(); }
+        function setAltarLibraryTab(tab) { altarLibraryTab = tab; renderAltarProfile(); }
+        function setAltarLibraryCategory(cat) { altarLibraryCategory = cat; renderAltarProfile(); }
+        function selectPlacedDecor(event, placementId) { if (event) event.stopPropagation(); if (!altarEditMode) return; altarSelectedPlacementId = placementId; renderAltarProfile(); }
+        function getAltarSurfaceFromPoint(board, x, y) {
+            const rect = board.getBoundingClientRect();
+            const px = ((x - rect.left) / rect.width) * 100;
+            const py = ((y - rect.top) / rect.height) * 100;
+            if (py < 42) return 'topShelf';
+            if (py < 68) return 'middleShelf';
+            if (py < 90) return 'lowerShelf';
+            return px < 10 || px > 90 ? 'frame' : 'foreground';
+        }
+        function startAltarDecorDrag(event, placementId) {
+            if (!altarEditMode) return;
+            event.preventDefault();
+            event.stopPropagation();
+            altarSelectedPlacementId = placementId;
+            const board = document.getElementById('profile-altar-board');
+            const rect = board.getBoundingClientRect();
+            altarDragState = { placementId, rect };
+            try { event.currentTarget.setPointerCapture(event.pointerId); } catch(e) {}
+            window.addEventListener('pointermove', moveAltarDecorDrag);
+            window.addEventListener('pointerup', endAltarDecorDrag, { once:true });
+        }
+        function moveAltarDecorDrag(event) {
+            if (!altarDragState) return;
+            const altar = getAltarProfile();
+            const p = altar.placedDecor.find(item => item.placementId === altarDragState.placementId);
+            if (!p) return;
+            p.x = Math.max(5, Math.min(95, ((event.clientX - altarDragState.rect.left) / altarDragState.rect.width) * 100));
+            p.y = Math.max(8, Math.min(94, ((event.clientY - altarDragState.rect.top) / altarDragState.rect.height) * 100));
+            p.surfaceId = getAltarSurfaceFromPoint(document.getElementById('profile-altar-board'), event.clientX, event.clientY);
+            saveAltarProfile(altar, false);
+            renderAltarBoard(altar);
+        }
+        function endAltarDecorDrag() {
+            if (!altarDragState) return;
+            altarDragState = null;
+            window.removeEventListener('pointermove', moveAltarDecorDrag);
+            saveAltarToProfile();
+        }
+        function adjustSelectedDecor(kind, amount) {
+            const altar = getAltarProfile();
+            const p = altar.placedDecor.find(item => item.placementId === altarSelectedPlacementId);
+            if (!p) return;
+            if (kind === 'rotate') p.rotation = (p.rotation || 0) + amount;
+            if (kind === 'scale') p.scale = Math.max(.35, Math.min(2.4, (p.scale || 1) + amount));
+            if (kind === 'z') p.zIndex = Math.max(1, Math.min(99, (p.zIndex || 20) + amount));
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+        }
+        function removeSelectedDecor() {
+            const altar = getAltarProfile();
+            altar.placedDecor = (altar.placedDecor || []).filter(item => item.placementId !== altarSelectedPlacementId);
+            altarSelectedPlacementId = '';
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+        }
+        function duplicateSelectedDecor() {
+            const altar = getAltarProfile();
+            const p = altar.placedDecor.find(item => item.placementId === altarSelectedPlacementId);
+            if (!p) return;
+            const copy = { ...p, placementId:'decor-' + Date.now(), x:Math.min(95, p.x + 5), y:Math.min(94, p.y + 5), zIndex:(p.zIndex || 20) + 1 };
+            altar.placedDecor.push(copy);
+            altarSelectedPlacementId = copy.placementId;
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+        }
+        function placeDecorFromLibrary(decorId) {
+            const altar = getAltarProfile();
+            const placement = { placementId:'decor-' + Date.now(), decorId, surfaceId:'middleShelf', x:50, y:58, scale:1, rotation:0, zIndex:Math.max(30, ...(altar.placedDecor || []).map(p => p.zIndex || 0)) + 1, source:'library', visibility:'public' };
+            altar.placedDecor.push(placement);
+            altarSelectedPlacementId = placement.placementId;
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+            toast('Placed decor. Drag it anywhere on the altar.');
+        }
+        function buyAltarDecor(decorId) {
+            const altar = getAltarProfile();
+            const item = getDecorDefinition(altar, decorId);
+            if (item.premium) { showPage('vault'); return; }
+            const currency = item.currency || 'sparkles';
+            const price = item.price || 0;
+            if ((altar.currencies?.[currency] || 0) < price) { toast('Need more ' + currency); return; }
+            altar.currencies[currency] -= price;
+            altar.ownedDecor = [...new Set([...(altar.ownedDecor || []), decorId])];
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+            toast((item.name || 'Decor') + ' unlocked');
+        }
+        document.addEventListener('keydown', (event) => {
+            if (!altarEditMode || !altarSelectedPlacementId || !document.body.classList.contains('pixie-profile-page')) return;
+            if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+            const altar = getAltarProfile();
+            const p = altar.placedDecor.find(item => item.placementId === altarSelectedPlacementId);
+            if (!p) return;
+            const nudge = event.shiftKey ? 3 : 1;
+            if (event.key === 'Delete' || event.key === 'Backspace') { event.preventDefault(); removeSelectedDecor(); return; }
+            if (event.key === 'ArrowLeft') { p.x = Math.max(5, p.x - nudge); }
+            else if (event.key === 'ArrowRight') { p.x = Math.min(95, p.x + nudge); }
+            else if (event.key === 'ArrowUp') { p.y = Math.max(8, p.y - nudge); }
+            else if (event.key === 'ArrowDown') { p.y = Math.min(94, p.y + nudge); }
+            else return;
+            event.preventDefault();
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+        });
         function chooseAltarPatron(id) { const altar = getAltarProfile(); altar.patron = id; altar.generatedSelf = false; saveAltarProfile(normalizeAltarProfile(altar), false); renderAltarProfile(); }
         function setAltarTheme(id) { const altar = getAltarProfile(); altar.theme = id; saveAltarProfile(altar, false); renderAltarProfile(); }
         function setAltarQuote(quote) { const altar = getAltarProfile(); altar.quote = quote; altar.note = ''; saveAltarProfile(altar, false); renderAltarProfile(); }
@@ -7052,7 +7322,7 @@
                 setTimeout(() => el.remove(), 260);
             }, 5200);
         }
-        function removeSelectedAltarItem() { placeAltarItem(''); }
+        function removeSelectedAltarItem() { removeSelectedDecor(); }
         function setAltarWord(kind, value) {
             const altar = getAltarProfile();
             altar.words = { ...(altar.words || {}), [kind]: value.slice(0, kind === 'bio' ? 260 : 180) };
@@ -7081,25 +7351,28 @@
         }
         function clearAltarLayout() {
             const altar = getAltarProfile();
-            altar.shelves.forEach(shelf => shelf.slots.forEach(slot => slot.itemId = ''));
+            altar.placedDecor = [];
+            altarSelectedPlacementId = '';
             saveAltarProfile(altar, false);
             renderAltarProfile();
-            toast('Shelves cleared');
+            toast('Altar decor cleared');
         }
         function generateAltarItem(type) {
             const altar = getAltarProfile();
             const stamp = Date.now().toString(36);
             const templates = {
-                sticker:{ type:'sticker', label:'AI Star Sticker', icon:'&#10022;', text:'generated sticker', premium:true },
-                poem:{ type:'poem', label:'Generated Poem', icon:'&#10048;', text:altar.words?.poem || 'moonlight keeps the receipt', premium:true },
-                goal:{ type:'goal', label:'Goal Card', icon:'&#10036;', text:'grow the portal daily', premium:false }
+                sticker:{ name:'AI Star Sticker', type:'sticker', icon:'✦', category:'Stickers', rarity:'AI', text:'generated sticker' },
+                poem:{ name:'Generated Poem Scroll', type:'scroll', icon:'✤', category:'Notes', rarity:'AI', text:altar.words?.poem || 'moonlight keeps the receipt' },
+                goal:{ name:'Generated Goal Note', type:'noteGoal', icon:'✴', category:'Notes', rarity:'AI', text:'grow the portal daily' }
             };
             // TODO: route this through Pixie credits and the generation API when the altar generator is live.
-            const item = { id:'generated-' + type + '-' + stamp, ...(templates[type] || templates.sticker) };
-            altar.library = [...(altar.library || []), item].slice(0, 60);
+            const item = { id:'generated-' + type + '-' + stamp, source:'ai', price:0, currency:'owned', ...(templates[type] || templates.sticker) };
+            altar.aiDecor = [...(altar.aiDecor || []), item].slice(-40);
+            altar.ownedDecor = [...new Set([...(altar.ownedDecor || []), item.id])];
+            altarLibraryTab = 'AI Generated';
             saveAltarProfile(altar, false);
-            quickPlaceAltarItem(item.id);
-            toast(item.label + ' added to altar library');
+            placeDecorFromLibrary(item.id);
+            toast(item.name + ' added to AI Generated');
         }
         function rewriteBioMagically() {
             const altar = getAltarProfile();
