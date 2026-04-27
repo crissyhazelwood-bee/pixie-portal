@@ -55,13 +55,33 @@ AIIT-THRESI SAFETY PRINCIPLES
 
 ~You are Loki the Dream Builder! <3 ~`;
 
-const FALLBACK_LOKI_BRIDGE_URL = "https://consolidation-lucas-twins-telephony.trycloudflare.com/api/pixie";
-
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
     ...init,
     headers: { "Content-Type": "application/json", ...(init.headers || {}) },
   });
+}
+
+function localLokiFallback(text = "", user = null) {
+  const lower = text.toLowerCase();
+  const name = user?.displayName || user?.username || "";
+  const hi = name ? `Hey ${name}. ` : "";
+  if (lower.includes("where") && lower.includes("start")) {
+    return `${hi}Start in The Portal. Claim the daily sparkles, then open one chamber: My Pixie, Dream Well, Tarot, or Charms. The product loop is Portal -> chamber -> action -> save -> return.`;
+  }
+  if (lower.includes("wadu") || lower.includes("whad") || lower.includes("hello") || lower.includes("yo") || lower.includes("hey") || lower.includes("og")) {
+    return `${hi}I am here. Best first move: The Portal, then My Pixie, then Dream Well. Build identity and memory first; the extra sparkle only matters after the loop feels alive.`;
+  }
+  if (lower.includes("grok") || lower.includes("portrait") || lower.includes("self")) {
+    return `${hi}For the Grok portrait: open My Pixie, click the portrait piece on the altar, generate, then save it back to the altar. The waiting state should stay visible until there is a result or a clear next step.`;
+  }
+  if (lower.includes("game") || lower.includes("portal")) {
+    return `${hi}The Portal is the home base: cozy fairy world, quests, charms, altar identity, and chambers. Every game should feed rewards back into that world.`;
+  }
+  if (lower.includes("tarot") || lower.includes("dream") || lower.includes("charm")) {
+    return `${hi}Use the chamber flow: open the node, do one focused action, save or share it, then return to the Portal. No page-jump chaos.`;
+  }
+  return `${hi}I am here. The live model may be busy, but Loki still knows the map: start in The Portal, choose one chamber, save the result, and bring it back to your altar.`;
 }
 
 function cleanMessages(raw) {
@@ -145,7 +165,7 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  const bridgeUrl = env.LOKI_BRIDGE_URL || FALLBACK_LOKI_BRIDGE_URL;
+  const bridgeUrl = env.LOKI_BRIDGE_URL;
 
   if (bridgeUrl) {
     try {
@@ -171,17 +191,21 @@ export async function onRequestPost({ request, env }) {
         reply: candidate,
       });
     } catch (error) {
-      return json({
-        reply: "My local Loki bridge is not answering right now. Start the Loki Bridge and make sure the tunnel URL is fresh.",
-        error: error.message,
-      }, { status: 502 });
+      if (!env.ANTHROPIC_API_KEY) {
+        return json({
+          reply: localLokiFallback(latestUserText, user),
+          degraded: true,
+          provider_error: "bridge_unavailable",
+        });
+      }
     }
   }
 
-  // No API key — give a useful fallback instead of breaking
+  // No API key: keep Loki useful instead of breaking.
   if (!env.ANTHROPIC_API_KEY) {
     return json({
-      reply: "My sparkle brain isn't wired up yet — but try The Portal, a game, the Spellbook, or the Journal. That's where the good stuff lives.",
+      reply: localLokiFallback(latestUserText, user),
+      degraded: true,
     });
   }
 
@@ -217,9 +241,11 @@ export async function onRequestPost({ request, env }) {
     return json({
       reply: candidate,
     });
-  } catch {
+  } catch (error) {
     return json({
-      reply: "My wings hit a cloud. Give it a second and try again — I'm not going anywhere.",
+      reply: localLokiFallback(latestUserText, user),
+      degraded: true,
+      provider_error: "model_unavailable",
     });
   }
 }

@@ -37,6 +37,20 @@
     });
   }
 
+  function localReply(text) {
+    const lower = String(text || "").toLowerCase();
+    if (lower.includes("where") && lower.includes("start")) {
+      return "Start in The Portal. Open one chamber, do one focused action, save it, then return to the Portal. That loop is the spine.";
+    }
+    if (lower.includes("wadu") || lower.includes("hello") || lower.includes("yo") || lower.includes("hey") || lower.includes("og")) {
+      return "I am here. The live connection is being stubborn, but I still know the map: Portal first, My Pixie second, Dream Well third.";
+    }
+    if (lower.includes("grok") || lower.includes("portrait")) {
+      return "For Grok portrait work: open My Pixie, click the portrait piece, generate, then save it back to the altar.";
+    }
+    return "I am here. The live model is busy, so here is the practical path: Portal -> chamber -> save -> altar.";
+  }
+
   function injectStyle() {
     if (document.getElementById(STYLE_ID)) return;
     const style = document.createElement("style");
@@ -173,15 +187,15 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages, user: getUserContext() }),
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       messages.push({
         role: "assistant",
-        content: data.reply || "The portal flickered. Ask me again?",
+        content: data.reply || localReply(text),
       });
     } catch {
       messages.push({
         role: "assistant",
-        content: "My wings hit a cloud. Try again in a moment.",
+        content: localReply(text),
       });
     } finally {
       loading = false;
