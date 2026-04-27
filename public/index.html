@@ -315,11 +315,11 @@
             background: rgba(14, 8, 28, 0.68);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
-        .altar-identity-panel { padding: 24px; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+        .altar-identity-panel { padding: 24px; display: flex; flex-direction: column; gap: 14px; justify-content: flex-start; }
         .altar-kicker { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255, 214, 139, 0.72); font-weight: 800; }
         .altar-title { font-family: 'Pacifico', cursive; color: #ffe1f4; -webkit-text-fill-color: #ffe1f4; font-size: clamp(30px, 5vw, 48px); margin: 0; line-height: 1.1; text-shadow: 0 0 22px rgba(255, 120, 220, 0.25); }
         .altar-copy { color: rgba(230, 214, 255, 0.82); font-size: 14px; line-height: 1.7; margin: 0; }
-        .altar-patron-row { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.06); }
+        .altar-patron-row { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 20px; background: radial-gradient(circle at 12% 18%, rgba(255,214,139,0.13), transparent 40%), rgba(255,255,255,0.045); border: 1px solid rgba(255,214,139,0.14); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 32px rgba(0,0,0,0.18); }
         .altar-patron-icon { width: 62px; height: 62px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 34px; background: linear-gradient(135deg, rgba(255,150,200,0.24), rgba(180,150,255,0.20)); box-shadow: 0 0 28px rgba(255,150,200,0.15); }
         .altar-patron-name { color: #fff1c7; font-size: 18px; font-weight: 800; }
         .altar-patron-domain { color: #9f8fbd; font-size: 12px; margin-top: 3px; }
@@ -358,26 +358,40 @@
             inset: 0;
             background:
                 radial-gradient(circle at 50% 16%, rgba(255,220,150,0.16), transparent 18%),
+                radial-gradient(ellipse at 50% 48%, rgba(255,150,225,0.14), transparent 44%),
                 linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px),
                 linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
             background-size: auto, 44px 44px, 44px 44px;
             opacity: 0.72;
             z-index: 0;
         }
-        .altar-room-arch { position: absolute; left: 50%; top: 26px; transform: translateX(-50%); width: min(54%, 390px); height: 78%; border-radius: 999px 999px 30px 30px; border: 1px solid rgba(255,230,170,0.14); background: radial-gradient(circle at 50% 18%, rgba(255,220,150,0.16), transparent 24%), rgba(255,255,255,0.025); box-shadow: inset 0 0 70px rgba(255,120,220,0.08); z-index: 1; }
+        .altar-room-arch { position: absolute; left: 50%; top: 26px; transform: translateX(-50%); width: min(62%, 440px); height: 80%; border-radius: 999px 999px 30px 30px; border: 1px solid rgba(255,230,170,0.16); background: radial-gradient(circle at 50% 18%, rgba(255,220,150,0.18), transparent 24%), linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)); box-shadow: inset 0 0 90px rgba(255,120,220,0.10), 0 0 70px rgba(140,90,255,0.10); z-index: 1; }
+        .altar-room-arch::before, .altar-room-arch::after { content: ""; position: absolute; top: 12%; bottom: 4%; width: 12px; border-radius: 999px; background: linear-gradient(180deg, rgba(255,225,176,0.20), rgba(124,70,150,0.20)); box-shadow: 0 0 16px rgba(255,180,230,0.12); }
+        .altar-room-arch::before { left: 7%; }
+        .altar-room-arch::after { right: 7%; }
         .altar-moon-phases { position: relative; z-index: 3; display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; color: rgba(255,236,190,0.72); font-size: 13px; letter-spacing: 4px; }
-        .altar-shelves { position: relative; z-index: 3; display: grid; gap: clamp(12px, 2vh, 18px); }
-        .altar-shelf { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 1.4vw, 14px); min-height: 96px; padding: 12px 16px 18px; border-radius: 22px 22px 16px 16px; background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(9,5,18,0.28)); border: 1px solid rgba(255,214,139,0.14); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 32px rgba(0,0,0,0.20); }
-        .altar-shelf::after { content: ""; position: absolute; left: 3%; right: 3%; bottom: 7px; height: 11px; border-radius: 999px; background: linear-gradient(90deg, rgba(255,190,220,0.30), rgba(255,230,170,0.40), rgba(170,140,255,0.26)); box-shadow: 0 7px 18px rgba(0,0,0,0.34), 0 0 18px rgba(255,170,230,0.14); }
+        .altar-shelves { position: relative; z-index: 3; display: grid; gap: clamp(14px, 2.3vh, 22px); }
+        .altar-shelf { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 1.4vw, 14px); min-height: 102px; padding: 10px 18px 26px; border-radius: 22px 22px 18px 18px; background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(9,5,18,0.13)); border: 1px solid rgba(255,214,139,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+        .altar-shelf::before { content: ""; position: absolute; left: 7%; right: 7%; bottom: 18px; height: 18px; border-radius: 999px 999px 10px 10px; background: linear-gradient(180deg, rgba(255,220,245,0.20), rgba(80,38,100,0.42)); border: 1px solid rgba(255,190,240,0.28); box-shadow: 0 8px 22px rgba(0,0,0,0.35), 0 0 18px rgba(255,120,230,0.12); }
+        .altar-shelf::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 8px; height: 9px; border-radius: 999px; background: linear-gradient(90deg, rgba(255,190,220,0.32), rgba(255,230,170,0.46), rgba(170,140,255,0.28)); box-shadow: 0 8px 18px rgba(0,0,0,0.42), 0 0 18px rgba(255,170,230,0.16); }
         .altar-shelf-label { position: absolute; top: -8px; left: 16px; padding: 3px 8px; border-radius: 999px; background: rgba(10,6,20,0.86); border: 1px solid rgba(255,214,139,0.16); color: rgba(255,232,190,0.72); font-size: 9px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
-        .altar-slot { position: relative; z-index: 2; min-height: 76px; border: 1px dashed rgba(255,214,139,0.14); border-radius: 18px; background: rgba(9,5,18,0.24); color: inherit; cursor: pointer; transition: all 0.2s ease; font-family: 'Quicksand', sans-serif; }
-        .altar-slot:hover, .altar-slot.selected { border-color: rgba(255,140,230,0.62); background: rgba(255,120,220,0.08); box-shadow: 0 0 20px rgba(255,120,220,0.14), inset 0 1px 0 rgba(255,255,255,0.10); }
-        .altar-slot.empty::before { content: "+"; color: rgba(255,232,190,0.58); font-size: 26px; font-weight: 700; }
-        .altar-item { height: 100%; min-height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; color: #f8eaff; text-align: center; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.34)); }
-        .altar-item-icon { position: relative; width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: radial-gradient(circle at 50% 15%, rgba(255,236,190,0.28), rgba(255,140,220,0.10) 58%, rgba(12,6,24,0.66)); border: 1px solid rgba(255,230,170,0.20); box-shadow: 0 0 22px rgba(255,160,225,0.18); }
+        .altar-slot { position: relative; z-index: 2; min-height: 78px; border: 1px solid transparent; border-radius: 18px; background: transparent; color: inherit; cursor: pointer; transition: all 0.2s ease; font-family: 'Quicksand', sans-serif; padding: 0; }
+        .altar-slot:hover, .altar-slot.selected { border-color: rgba(255,160,235,0.42); background: rgba(255,255,255,0.035); box-shadow: 0 0 22px rgba(255,120,230,0.16), inset 0 1px 0 rgba(255,255,255,0.10); }
+        .altar-slot.empty { opacity: 0.28; border: 1px dashed rgba(255,200,245,0.20); background: rgba(255,255,255,0.03); }
+        .altar-slot.empty:hover, .altar-slot.empty.selected { opacity: 0.88; border-color: rgba(255,160,235,0.55); }
+        .altar-slot.empty::before { content: "+"; color: rgba(255,232,190,0.64); font-size: 24px; font-weight: 700; }
+        .altar-slot.empty::after { content: "Add item"; position: absolute; left: 50%; top: calc(50% + 20px); transform: translateX(-50%); color: rgba(255,232,190,0.62); font-size: 9px; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+        .altar-slot.empty:hover::after, .altar-slot.empty.selected::after { opacity: 1; }
+        .altar-item { height: 100%; min-height: 78px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; padding: 8px 6px 10px; color: #f8eaff; text-align: center; filter: drop-shadow(0 10px 16px rgba(0,0,0,0.36)); }
+        .altar-item::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 8px; height: 9px; border-radius: 50%; background: rgba(0,0,0,0.28); filter: blur(5px); z-index: -1; }
+        .altar-item-icon { position: relative; width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: radial-gradient(circle at 50% 0%, rgba(255,190,245,0.18), transparent 55%), rgba(22,10,34,0.74); border: 1px solid rgba(255,230,170,0.20); box-shadow: 0 10px 24px rgba(0,0,0,0.30), 0 0 16px rgba(255,130,230,0.14); }
         .altar-item-label { max-width: 100%; color: rgba(248,234,255,0.86); font-size: 10px; font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
         .altar-item-text { max-width: 100%; color: rgba(240,220,255,0.72); font-size: 9px; line-height: 1.15; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .altar-item.type-bio .altar-item-icon, .altar-item.type-goal .altar-item-icon, .altar-item.type-poem .altar-item-icon { width: 54px; border-radius: 10px; font-size: 18px; background: linear-gradient(145deg, rgba(255,235,190,0.24), rgba(255,150,220,0.09)); }
+        .altar-item.type-sticker .altar-item-icon { border-radius: 50% 50% 18px 18px; }
+        .altar-item.type-charm .altar-item-icon, .altar-item.type-dream .altar-item-icon, .altar-item.type-tarot .altar-item-icon { border-radius: 50%; box-shadow: 0 10px 24px rgba(0,0,0,0.30), 0 0 18px rgba(255,214,139,0.18); }
+        .altar-item.type-poem .altar-item-icon { width: 62px; height: 38px; border-radius: 10px; }
+        .altar-item.type-bio .altar-item-icon, .altar-item.type-goal .altar-item-icon { width: 58px; height: 42px; transform: rotate(-2deg); }
         .altar-item.type-portrait .altar-item-icon { width: 58px; height: 58px; border-radius: 18px; font-size: 12px; font-weight: 900; letter-spacing: 0.8px; background: linear-gradient(145deg, rgba(255,214,126,0.22), rgba(110,240,255,0.14)); }
         .altar-self-portrait { width: 100%; height: 100%; border-radius: inherit; display: flex; align-items: center; justify-content: center; color: #fff7d8; font-size: 14px; font-weight: 900; letter-spacing: 1px; border: 2px solid rgba(255,226,170,0.62); box-shadow: inset 0 0 24px rgba(255,255,255,0.10), 0 0 18px rgba(255,180,230,0.22); background: radial-gradient(circle at 50% 28%, rgba(255,245,210,0.38) 0 12%, rgba(255,142,218,0.34) 13% 24%, rgba(132,88,255,0.22) 25% 44%, rgba(18,8,34,0.88) 45% 100%); }
         .altar-self-portrait.style-moon-oracle { background: radial-gradient(circle at 50% 26%, rgba(232,240,255,0.42) 0 12%, rgba(176,194,255,0.34) 13% 25%, rgba(92,72,180,0.30) 26% 46%, rgba(8,10,34,0.92) 47% 100%); }
@@ -396,8 +410,12 @@
         }
         .altar-generated-self { background-image: linear-gradient(135deg, rgba(255,214,126,0.18), rgba(110,240,255,0.12)); }
         .altar-generated-self::after { content: "AI SELF"; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); padding: 4px 10px; border-radius: 999px; background: rgba(10,6,20,0.92); border: 1px solid rgba(255,214,126,0.24); color: #ffe0a8; font-size: 10px; letter-spacing: 1px; font-weight: 800; }
-        .altar-item.premium .altar-item-icon::after { content: "PLUS"; position: absolute; transform: translate(24px, -22px); padding: 2px 5px; border-radius: 999px; background: rgba(255,214,139,0.92); color: #2a1238; font-size: 8px; font-weight: 900; }
-        .altar-mantra-plaque { position: relative; z-index: 3; margin: 16px auto 0; max-width: 760px; padding: 13px 16px; border-radius: 18px; color: #fff1c7; background: linear-gradient(135deg, rgba(9,5,18,0.78), rgba(62,28,74,0.70)); border: 1px solid rgba(255,214,139,0.24); backdrop-filter: blur(10px); font-size: 14px; line-height: 1.55; text-align: center; box-shadow: 0 16px 34px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.09); }
+        .altar-item.premium .altar-item-icon::after { content: "Premium"; position: absolute; right: -12px; top: -9px; padding: 2px 6px; border-radius: 999px; background: linear-gradient(135deg, rgba(255,226,170,0.95), rgba(255,150,220,0.92)); color: #2a1238; font-size: 7px; font-weight: 900; letter-spacing: 0.5px; }
+        .altar-mantra-plaque { position: relative; z-index: 3; margin: 16px auto 0; max-width: 760px; padding: 14px 18px; border-radius: 16px; color: #fff1c7; background: linear-gradient(180deg, rgba(255,232,184,0.13), rgba(55,24,62,0.72)); border: 1px solid rgba(255,214,139,0.30); backdrop-filter: blur(10px); font-size: 14px; line-height: 1.55; text-align: center; box-shadow: 0 16px 34px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.13), inset 0 -1px 0 rgba(0,0,0,0.25); text-shadow: 0 1px 0 rgba(0,0,0,0.34); }
+        .altar-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .altar-summary-chip { padding: 10px; border-radius: 14px; background: rgba(8,5,18,0.42); border: 1px solid rgba(255,214,139,0.10); }
+        .altar-summary-chip small { display: block; color: rgba(255,232,190,0.58); font-size: 9px; font-weight: 900; letter-spacing: 0.9px; text-transform: uppercase; }
+        .altar-summary-chip strong { display: block; margin-top: 3px; color: rgba(248,234,255,0.88); font-size: 12px; }
         .altar-library-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 8px; }
         .altar-word-grid { display: grid; gap: 8px; }
         .altar-word-grid label { color: rgba(245,220,255,0.72); font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; }
@@ -423,7 +441,9 @@
         body.pixie-profile-page #loki-pixie-agent,
         body.my-pixie-page-active #loki-pixie-agent,
         body.pixie-profile-page #pixie-sigil,
-        body.my-pixie-page-active #pixie-sigil { display: none !important; }
+        body.my-pixie-page-active #pixie-sigil,
+        body.pixie-profile-page #bug-btn,
+        body.my-pixie-page-active #bug-btn { display: none !important; }
 
         /* Empty state */
         .empty { text-align: center; padding: 60px 20px; color: #706080; }
@@ -2808,6 +2828,7 @@
                                 <div class="altar-patron-domain" id="altar-patron-domain">Build a page that feels like yours.</div>
                             </div>
                         </div>
+                        <div class="altar-summary-grid" id="altar-summary-grid"></div>
                         <div class="altar-actions">
                             <button class="btn btn-primary btn-small" onclick="switchTab('altar-tab')">Customize Altar</button>
                             <button class="btn btn-ghost btn-small" onclick="openAIGeneratedSelfOffer()">AI Self Portrait</button>
@@ -5408,6 +5429,7 @@
         let altarDirty = false;
         function escAttr(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
         function getAltarStorageKey() { return 'pixieAltarProfile:' + (currentUser?.id || 'guest'); }
+        function getAltarSavedStorageKey() { return getAltarStorageKey() + ':saved'; }
         function getDefaultAltarProfile() {
             return {
                 patron:'freyja',
@@ -5501,6 +5523,7 @@
             if (!currentUser) return;
             currentUser.appearance = { ...(currentUser.appearance || {}), altar };
             if (syncServer) {
+                localStorage.setItem(getAltarSavedStorageKey(), JSON.stringify(altar));
                 fetch(API + '/api/profile', {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
@@ -5557,6 +5580,15 @@
             }
             setText('altar-patron-name', altar.generatedSelf ? 'AI mirror of ' + (currentUser.display_name || 'you') : patron.name);
             setText('altar-patron-domain', altar.generatedSelf ? 'A paid generated self altar portrait can live here.' : patron.domain);
+            const placedCount = (altar.shelves || []).reduce((sum, shelf) => sum + (shelf.slots || []).filter(slot => slot.itemId).length, 0);
+            const summary = document.getElementById('altar-summary-grid');
+            if (summary) {
+                const theme = ALTAR_THEMES.find(t => t.id === altar.theme)?.name || 'Rose Portal';
+                summary.innerHTML = '<div class="altar-summary-chip"><small>Theme</small><strong>' + escHtml(theme) + '</strong></div>' +
+                    '<div class="altar-summary-chip"><small>Centerpiece</small><strong>' + escHtml(altar.generatedSelf ? 'Self Portrait' : patron.name) + '</strong></div>' +
+                    '<div class="altar-summary-chip"><small>Placed</small><strong>' + placedCount + ' / 12 items</strong></div>' +
+                    '<div class="altar-summary-chip"><small>Visibility</small><strong>' + escHtml(altar.visibility === 'private' ? 'Private' : 'Public') + '</strong></div>';
+            }
             renderAltarBoard(altar);
             renderAltarControls();
         }
@@ -5568,7 +5600,7 @@
             const word = altar.words || {};
             const libraryButtons = (altar.library || []).map(item => '<button class="altar-option" onclick="quickPlaceAltarItem(&quot;' + escAttr(item.id) + '&quot;)"><span>' + (item.type === 'portrait' ? 'SELF' : (item.icon || '&#10022;')) + '</span>' + escHtml(item.label || item.id) + (item.premium ? '<br><small class="altar-premium-badge">Premium</small>' : '') + '</button>').join('');
             const charmButtons = (altar.library || []).filter(item => ['charm','tarot','dream','deity','portrait'].includes(item.type)).map(item => '<button class="altar-option" onclick="quickPlaceAltarItem(&quot;' + escAttr(item.id) + '&quot;)"><span>' + (item.type === 'portrait' ? 'SELF' : (item.icon || '&#10022;')) + '</span>' + escHtml(item.label || item.id) + '</button>').join('');
-            host.innerHTML = '<div class="altar-command-bar"><div><div class="altar-kicker">Altar editor</div><div class="altar-save-state" id="altar-save-state">Saved</div><div class="altar-select-row">Selected slot: <strong>' + escHtml(selectedText) + '</strong></div></div><div class="altar-command-actions"><button class="btn btn-primary btn-small" onclick="saveAltarToProfile()">Save Altar</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate Sticker</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;poem&quot;)">Generate Poem</button><button class="btn btn-ghost btn-small" onclick="openAIGeneratedSelfOffer()">Generate Self Portrait</button><button class="btn btn-ghost btn-small" onclick="resetAltarProfile()">Reset</button><button class="btn btn-ghost btn-small" onclick="previewPublicProfile()">Preview Public Altar</button><button class="btn btn-ghost btn-small" onclick="shareAltarProfile()">Share Altar</button></div></div><div class="altar-controls-grid">' +
+            host.innerHTML = '<div class="altar-command-bar"><div><div class="altar-kicker">Altar editor</div><div class="altar-save-state" id="altar-save-state">Saved</div><div class="altar-select-row">Select a shelf slot, then choose or generate an item to place. Selected: <strong>' + escHtml(selectedText) + '</strong></div></div><div class="altar-command-actions"><button class="btn btn-primary btn-small" onclick="saveAltarToProfile()">Save Altar</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate Sticker</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;poem&quot;)">Generate Poem</button><button class="btn btn-ghost btn-small" onclick="openAIGeneratedSelfOffer()">Generate Self Portrait</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;bio-card&quot;)">Add Bio Card</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;goal-1&quot;)">Add Goal Card</button><button class="btn btn-ghost btn-small" onclick="resetAltarProfile()">Reset</button><button class="btn btn-ghost btn-small" onclick="previewPublicProfile()">Preview Public Altar</button><button class="btn btn-ghost btn-small" onclick="shareAltarProfile()">Share Altar</button></div></div><div class="altar-controls-grid">' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Altar theme</div><p class="altar-control-help">Set the room mood behind the shelves.</p><div class="altar-option-grid">' +
                 ALTAR_THEMES.map(t => '<button class="altar-option ' + (altar.theme === t.id ? 'active' : '') + '" onclick="setAltarTheme(&quot;' + t.id + '&quot;)">' + escHtml(t.name) + '</button>').join('') +
                 '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">Pixie credits</strong><span class="altar-premium-badge">Premium</span><br>AI self portraits, custom stickers, and animated altar items can be unlocked with Pixie credits.</div></div>' +
@@ -5704,7 +5736,17 @@
             toast('Bio rewritten for the altar');
         }
         function saveAltarToProfile() { const altar = getAltarProfile(); saveAltarProfile(altar, true); renderAltarProfile(); toast('Altar saved'); }
-        function resetAltarProfile() { const altar = getDefaultAltarProfile(); saveAltarProfile(altar, false); renderAltarProfile(); toast('Altar reset preview'); }
+        function resetAltarProfile() {
+            let altar = null;
+            try { altar = JSON.parse(localStorage.getItem(getAltarSavedStorageKey()) || 'null'); } catch(e) {}
+            if (!altar && currentUser?.appearance?.altar) altar = currentUser.appearance.altar;
+            altar = normalizeAltarProfile(altar || getDefaultAltarProfile());
+            localStorage.setItem(getAltarStorageKey(), JSON.stringify(altar));
+            if (currentUser) currentUser.appearance = { ...(currentUser.appearance || {}), altar };
+            altarDirty = false;
+            renderAltarProfile();
+            toast('Altar restored to last saved');
+        }
         function previewPublicProfile() { if (currentUser?.username) viewPublicProfile(currentUser.username); else toast('Log in to preview public profile'); }
         function shareAltarProfile() {
             const url = location.origin + '/index.html#profile-' + (currentUser?.username || 'pixie');
