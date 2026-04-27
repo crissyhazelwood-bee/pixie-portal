@@ -414,6 +414,166 @@
       line-height: 1.6;
     }
 
+    /* Year Wheel */
+    .wheel-wrap {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(280px, 1.1fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .year-wheel-panel {
+      background: radial-gradient(circle at 50% 42%, rgba(255,150,200,0.09), transparent 34%),
+                  linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.93));
+      border: 1px solid rgba(180,150,255,0.18);
+      border-radius: 24px;
+      padding: 22px;
+      position: sticky;
+      top: 82px;
+      overflow: hidden;
+    }
+    .year-wheel-panel::before {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .wheel-title {
+      font-family: 'Pacifico', cursive;
+      color: #ff96c8;
+      font-size: 26px;
+      text-align: center;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .wheel-subtitle {
+      color: #9080b0;
+      font-size: 13px;
+      line-height: 1.55;
+      text-align: center;
+      margin: 0 auto 18px;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+    }
+    .wheel-orbit {
+      position: relative;
+      width: min(100%, 420px);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      border-radius: 50%;
+      background:
+        conic-gradient(from -90deg,
+          rgba(110,170,255,0.22), rgba(150,255,220,0.20),
+          rgba(255,220,120,0.22), rgba(255,150,200,0.18),
+          rgba(180,150,255,0.22), rgba(110,170,255,0.22));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 42px rgba(0,0,0,0.45), 0 0 38px rgba(180,150,255,0.12);
+    }
+    .wheel-orbit::after {
+      content: 'ᚨ';
+      position: absolute;
+      inset: 34%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(10,6,20,0.86);
+      border: 1px solid rgba(255,215,120,0.26);
+      color: #ffd980;
+      font-size: 44px;
+      text-shadow: 0 0 18px rgba(255,215,120,0.35);
+    }
+    .wheel-node {
+      --angle: 0deg;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 76px;
+      min-height: 76px;
+      transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-155px) rotate(calc(-1 * var(--angle)));
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(15,8,32,0.84);
+      color: #f0d0ff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 7px;
+      font-family: 'Quicksand', sans-serif;
+      transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s, background 0.22s;
+      text-align: center;
+    }
+    .wheel-node:hover, .wheel-node.active {
+      border-color: rgba(255,150,200,0.56);
+      background: rgba(35,16,62,0.94);
+      box-shadow: 0 0 26px rgba(255,150,200,0.22);
+    }
+    .wheel-node .wheel-node-icon { font-size: 22px; line-height: 1; }
+    .wheel-node .wheel-node-name { font-size: 10px; font-weight: 800; line-height: 1.1; }
+    .wheel-node .wheel-node-date { font-size: 9px; color: #9080b0; line-height: 1.1; }
+    .wheel-detail {
+      background: linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.92));
+      border: 1px solid rgba(180,150,255,0.18);
+      border-radius: 24px;
+      padding: 24px;
+      min-height: 420px;
+    }
+    .wheel-detail-kicker {
+      color: #96ffdc;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .wheel-detail h2 {
+      font-family: 'Pacifico', cursive;
+      color: #ff96c8;
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+    .wheel-date-line { color: #b496ff; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+    .wheel-detail p { color: #b8a0c8; font-size: 14px; line-height: 1.7; margin-bottom: 14px; }
+    .wheel-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .wheel-info-box {
+      border: 1px solid rgba(180,150,255,0.15);
+      background: rgba(180,150,255,0.06);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .wheel-info-box strong {
+      display: block;
+      color: #ffd980;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .wheel-info-box span { color: #a892bd; font-size: 12px; line-height: 1.5; }
+    .wheel-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .wheel-tags span {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(150,255,220,0.08);
+      border: 1px solid rgba(150,255,220,0.15);
+      color: #96ffdc;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .wheel-source-note {
+      margin-top: 18px;
+      color: #7c688f;
+      font-size: 12px;
+      line-height: 1.6;
+      border-top: 1px solid rgba(180,150,255,0.12);
+      padding-top: 14px;
+    }
+
     /* â”€â”€â”€â”€â”€â”€â”€â”€â”€ POEM WEAVER â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .poem-weaver {
       max-width: 640px;
@@ -539,6 +699,17 @@
       .gods-grid { grid-template-columns: 1fr; }
       .runes-grid { grid-template-columns: repeat(4, 1fr); }
       .rune-detail-grid { grid-template-columns: 1fr; }
+      .tabs { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+      .tab-btn { flex: 0 0 auto; }
+      .wheel-wrap { grid-template-columns: 1fr; }
+      .year-wheel-panel { position: relative; top: auto; padding: 16px; }
+      .wheel-node { width: 62px; min-height: 62px; border-radius: 14px; }
+      .wheel-node { transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-124px) rotate(calc(-1 * var(--angle))); }
+      .wheel-node .wheel-node-icon { font-size: 18px; }
+      .wheel-node .wheel-node-name { font-size: 9px; }
+      .wheel-node .wheel-node-date { display: none; }
+      .wheel-detail { padding: 18px; min-height: auto; }
+      .wheel-detail-grid { grid-template-columns: 1fr; }
     }
   </style>
   <link rel="stylesheet" href="/odins-eye-machine.css">
@@ -561,6 +732,7 @@
       <button class="tab-btn active" onclick="switchTab('gods')">âœ¦ Greek Gods</button>
       <button class="tab-btn" onclick="switchTab('norse')">âš”ï¸ Norse Gods</button>
       <button class="tab-btn" onclick="switchTab('runes')">ᚱ Norse Runes</button>
+      <button class="tab-btn" onclick="switchTab('year')">ᛃ Year Wheel</button>
       <button class="tab-btn" onclick="switchTab('poem')">âœ Poem Weaver</button>
     </div>
 
@@ -621,6 +793,23 @@
 
       <div id="runes-content"></div>
 
+    </div>
+
+    <!-- Year Wheel -->
+    <div class="section" id="section-year">
+      <div class="runes-intro">
+        <strong>The Wheel of the Year</strong> below is a clear learning tool, not a claim that Vikings used the modern eight-sabbat Wiccan calendar. The solstices and equinoxes are real solar anchors; Yule, Winter Nights, Dísablót, Álfablót, and Sigrblót are Norse/Germanic seasonal traditions with uneven evidence and regionally variable timing.
+        <br><br>
+        Tap a spoke to see what is historical, what is modern reconstruction, and what kind of ritual or reflection fits the season.
+      </div>
+      <div class="wheel-wrap">
+        <div class="year-wheel-panel">
+          <div class="wheel-title">Odin's Year Wheel</div>
+          <p class="wheel-subtitle">Solar stations, seasonal thresholds, and Norse-attested feast names kept separate so the magic stays honest.</p>
+          <div class="wheel-orbit" id="year-wheel-orbit"></div>
+        </div>
+        <article class="wheel-detail" id="year-wheel-detail" aria-live="polite"></article>
+      </div>
     </div>
 
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• POEM WEAVER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
@@ -1349,6 +1538,106 @@
   let currentCat = "all";
   let openGodId = null;
   let openRuneId = null;
+  let activeWheelIndex = 0;
+
+  const YEAR_WHEEL = [
+    {
+      id: 'yule',
+      name: 'Yule',
+      icon: 'ᛇ',
+      date: 'Winter solstice / midwinter',
+      status: 'Historically attested Germanic winter festival; exact older timing varies by source and region.',
+      modern: 'Modern wheels place Yule at the winter solstice around Dec 21.',
+      norse: 'Old Norse jól / Yule is one of the strongest Germanic seasonal anchors and later merged with Christmas traditions during Christianization.',
+      ritual: 'Honor endurance, kinship, fire, and the return of light. Good night for ancestor names, winter stores, and promises kept.',
+      tags: ['winter', 'ancestors', 'fire', 'returning light'],
+      angle: 0
+    },
+    {
+      id: 'disablot',
+      name: 'Dísablót',
+      icon: 'ᛒ',
+      date: 'Late winter / regional timing',
+      status: 'Attested in Old Norse sources, but not fixed to the modern Feb 1 cross-quarter everywhere.',
+      modern: 'Modern practitioners sometimes map it near Imbolc/Candlemas as a late-winter spoke.',
+      norse: 'A blót honoring the dísir, female ancestral or fate-linked powers. Swedish Disting traditions are often discussed with it.',
+      ritual: 'Ask what must be protected until spring. Honor women of the line, household luck, and quiet survival.',
+      tags: ['dísir', 'household', 'late winter', 'protection'],
+      angle: 45
+    },
+    {
+      id: 'spring-equinox',
+      name: 'Spring Equinox',
+      icon: 'ᛏ',
+      date: 'Around Mar 20',
+      status: 'Astronomical solar station; not specifically an old Norse named feast in the same way as Yule.',
+      modern: 'Modern wheels often call this Ostara, a name tied to later Germanic/English spring goddess discussions and modern practice.',
+      norse: 'Use this as the balance point: day and night nearly equal, winter loosening, travel and work returning.',
+      ritual: 'Balance the scales. Choose what gets planted, what gets repaired, and what deserves daylight.',
+      tags: ['equinox', 'balance', 'spring', 'beginnings'],
+      angle: 90
+    },
+    {
+      id: 'sigrblot',
+      name: 'Sigrblót',
+      icon: 'ᛋ',
+      date: 'Spring / beginning of summer in Old Norse reckoning',
+      status: 'Attested as a victory sacrifice, but exact modern calendar placement is reconstructed.',
+      modern: 'Often mapped near late April or May Day on modern Norse-inspired wheels.',
+      norse: 'A seasonal rite for victory and success as campaigning, travel, and outward work resume.',
+      ritual: 'Name the battle honestly. Ask for discipline, courage, and clean victory rather than noise.',
+      tags: ['victory', 'summer opening', 'courage', 'Tyr'],
+      angle: 135
+    },
+    {
+      id: 'midsummer',
+      name: 'Midsummer',
+      icon: 'ᛊ',
+      date: 'Summer solstice / around Jun 20-24',
+      status: 'Strong northern seasonal festival complex; specific pagan-era details vary.',
+      modern: 'Modern wheels place Litha/Midsummer at the summer solstice.',
+      norse: 'The long light belongs to blessing, protection, travel, fertility, and public celebration.',
+      ritual: 'Stand in visible truth. Bless tools, homes, fields, projects, and the body that carries you.',
+      tags: ['solstice', 'sun', 'blessing', 'growth'],
+      angle: 180
+    },
+    {
+      id: 'harvest',
+      name: 'First Harvest',
+      icon: 'ᚠ',
+      date: 'Late summer / harvest opening',
+      status: 'The modern Aug 1 spoke is Celtic/modern Wiccan in name; Norse harvest timing was local and agricultural.',
+      modern: 'Often called Lammas/Lughnasadh in the eightfold Wheel, not an old Norse name.',
+      norse: 'For Odin’s Eye, read this as the first accounting: what has value, what must be shared, what must not be wasted.',
+      ritual: 'Count resources. Give thanks without pretending the work is finished.',
+      tags: ['harvest', 'Fehu', 'resources', 'gratitude'],
+      angle: 225
+    },
+    {
+      id: 'autumn-equinox',
+      name: 'Autumn Equinox',
+      icon: 'ᛃ',
+      date: 'Around Sep 22',
+      status: 'Astronomical solar station; modern Mabon name is not ancient Norse.',
+      modern: 'Modern wheels often call this Mabon, a 20th-century naming choice from Welsh mythology.',
+      norse: 'Use this as the second balance point: harvest measured, debts noticed, winter preparations begin.',
+      ritual: 'Reconcile the ledger. Finish what can be finished; return what was borrowed.',
+      tags: ['equinox', 'Jera', 'harvest', 'accounting'],
+      angle: 270
+    },
+    {
+      id: 'winter-nights',
+      name: 'Winter Nights',
+      icon: 'ᛟ',
+      date: 'Autumn / opening of winter',
+      status: 'Attested Old Norse seasonal festival; timing varied, often around the beginning of winter.',
+      modern: 'Sometimes mapped near Samhain/Halloween, but it is not identical to the Celtic festival.',
+      norse: 'Vetrnætr / Winter Nights marks the turn into winter. Álfablót and ancestral rites are often discussed in this seasonal cluster.',
+      ritual: 'Close the gates. Honor the dead, secure the home, and decide what deserves to cross into winter with you.',
+      tags: ['ancestors', 'winter opening', 'home', 'Othala'],
+      angle: 315
+    }
+  ];
 
   function switchTab(tab) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1426,6 +1715,46 @@
       document.getElementById('drawn-message').textContent = rune.divination;
       display.classList.add('visible');
     }, 60);
+  }
+
+  function buildYearWheel() {
+    const orbit = document.getElementById('year-wheel-orbit');
+    const detail = document.getElementById('year-wheel-detail');
+    if (!orbit || !detail) return;
+
+    orbit.innerHTML = YEAR_WHEEL.map((item, index) => `
+      <button class="wheel-node${index === activeWheelIndex ? ' active' : ''}" style="--angle:${item.angle}deg" type="button" onclick="selectWheelSpoke(${index})">
+        <span class="wheel-node-icon">${item.icon}</span>
+        <span class="wheel-node-name">${item.name}</span>
+        <span class="wheel-node-date">${item.date.split('/')[0].trim()}</span>
+      </button>
+    `).join('');
+    renderWheelDetail(activeWheelIndex);
+  }
+
+  function selectWheelSpoke(index) {
+    activeWheelIndex = index;
+    document.querySelectorAll('.wheel-node').forEach((node, i) => node.classList.toggle('active', i === index));
+    renderWheelDetail(index);
+  }
+
+  function renderWheelDetail(index) {
+    const detail = document.getElementById('year-wheel-detail');
+    const item = YEAR_WHEEL[index];
+    if (!detail || !item) return;
+    detail.innerHTML = `
+      <div class="wheel-detail-kicker">Seasonal spoke ${index + 1} of 8</div>
+      <h2>${item.name}</h2>
+      <div class="wheel-date-line">${item.date}</div>
+      <p>${item.norse}</p>
+      <div class="wheel-detail-grid">
+        <div class="wheel-info-box"><strong>History Check</strong><span>${item.status}</span></div>
+        <div class="wheel-info-box"><strong>Modern Wheel</strong><span>${item.modern}</span></div>
+      </div>
+      <div class="wheel-info-box"><strong>Odin's Eye Prompt</strong><span>${item.ritual}</span></div>
+      <div class="wheel-tags">${item.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
+      <div class="wheel-source-note">Fact boundary: the eight-spoke wheel is a modern teaching frame. The Norse/Germanic record is stronger for some seasonal rites, especially Yule, Sigrblót, Dísablót, and Winter Nights, but exact dates and practices varied by place, period, and source.</div>
+    `;
   }
 
   function buildGods() {
@@ -1819,6 +2148,7 @@
   buildGods();
   buildNorse();
   buildRunes();
+  buildYearWheel();
   </script>
   <script src="/odins-share-card.js" defer></script>`r`n  <script src="/odins-eye-machine.js" defer></script>`r`n</body>
 </html>
