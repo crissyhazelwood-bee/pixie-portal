@@ -11,6 +11,7 @@
   let messages = starters.slice();
   let open = false;
   let loading = false;
+  let lokiMode = "live";
 
   function getUserContext() {
     if (typeof currentUser === "undefined" || !currentUser) return null;
@@ -65,6 +66,10 @@
       .loki-pixie-name{display:flex;align-items:center;gap:10px}
       .loki-pixie-name strong{display:block;color:#ff96c8;font-size:14px}
       .loki-pixie-name span{display:block;color:#96ffdc;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+      .loki-pixie-status{display:inline-flex;align-items:center;gap:5px;margin-top:3px;color:#96ffdc;font-size:10px;font-style:normal;letter-spacing:1px;text-transform:uppercase}
+      .loki-pixie-status::before{content:"";width:6px;height:6px;border-radius:50%;background:#96ffdc;box-shadow:0 0 10px rgba(150,255,220,.7)}
+      .loki-pixie-status.quiet{color:#ffd88a}
+      .loki-pixie-status.quiet::before{background:#ffd88a;box-shadow:0 0 10px rgba(255,216,138,.65)}
       .loki-pixie-close{border:0;background:transparent;color:#9080b0;font-size:20px;cursor:pointer;padding:4px 8px}
       .loki-pixie-close:hover{color:#ff96c8}
       .loki-pixie-log{max-height:310px;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:9px}
@@ -107,7 +112,7 @@
     root.innerHTML = `
       <section class="loki-pixie-panel" aria-label="Loki Pixie chat">
         <div class="loki-pixie-head">
-          <div class="loki-pixie-name">${avatar()}<div><strong>Loki Pixie</strong><span>live portal guide</span></div></div>
+          <div class="loki-pixie-name">${avatar()}<div><strong>Loki Pixie</strong><span>portal guide</span><em class="loki-pixie-status ${lokiMode === "quiet" ? "quiet" : ""}">${lokiMode === "quiet" ? "quiet mode" : "live"}</em></div></div>
           <button class="loki-pixie-close" type="button" aria-label="Close chat">&times;</button>
         </div>
         <div class="loki-pixie-log">
@@ -151,11 +156,13 @@
         body: JSON.stringify({ messages, user: getUserContext() }),
       });
       const data = await response.json().catch(() => ({}));
+      lokiMode = data.degraded ? "quiet" : "live";
       messages.push({
         role: "assistant",
         content: data.reply || localReply(text),
       });
     } catch {
+      lokiMode = "quiet";
       messages.push({
         role: "assistant",
         content: localReply(text),

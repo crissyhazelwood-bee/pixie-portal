@@ -3,6 +3,7 @@
 // Local dev: set PIXIE_AGENT_PROVIDER=ollama to hit localhost:11434 instead.
 
 import { analyzeSafety, containsManipulativeAttachment, safeAssistantRedirect } from "../_utils/filter.js";
+import { logPixieEvent } from "../_utils/state.js";
 
 const SYSTEM = `~You are Loki the Dream Builder! <3 ~
 
@@ -119,6 +120,104 @@ ${facts}
 Use this to be personally warm and remember their name during the chat. Do not claim to know private data, scores, journal entries, purchases, or account details unless they tell you in the conversation.`;
 }
 
+async function logLoki(env, eventType, payload = {}) {
+  try {
+    if (env.DB) await logPixieEvent(env, null, eventType, payload, "loki");
+  } catch (_) {}
+}
+
+function sanitizeModelReply(candidate) {
+  const reply = candidate?.trim();
+  if (!reply) return null;
+  const outputSafety = analyzeSafety(reply);
+  if (outputSafety.flagged || containsManipulativeAttachment(reply)) {
+    const fallbackSafety = outputSafety.flagged ? outputSafety : { flagged: true, crisis: false, categories: ["dependency"] };
+    return { safety: fallbackSafety, reply: safeAssistantRedirect(fallbackSafety) };
+  }
+  return { reply };
+}
+
+async function askXai(env, system, messages) {
+  if (!env.XAI_API_KEY) return null;
+  const response = await fetch("https://api.x.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${env.XAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: env.XAI_LOKI_MODEL || env.PIXIE_AGENT_XAI_MODEL || "grok-3-mini",
+      messages: [{ role: "system", content: system }, ...messages],
+      max_tokens: 420,
+      temperature: 0.75,
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error?.message || `xAI ${response.status}`);
+  return sanitizeModelReply(data.choices?.[0]?.message?.content || "");
+}
+
+async function askAnthropic(env, system, messages) {
+  if (!env.ANTHROPIC_API_KEY) return null;
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": env.ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: env.PIXIE_AGENT_MODEL || "claude-haiku-4-5-20251001",
+      max_tokens: 400,
+      system,
+      messages,
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error?.message || `Anthropic ${response.status}`);
+  const block = data.content?.find(b => b.type === "text");
+  return sanitizeModelReply(block?.text || "");
+}
+
+async function askBridge(env, system, messages, user) {
+  if (!env.LOKI_BRIDGE_URL) return null;
+  const headers = { "Content-Type": "application/json" };
+  if (env.LOKI_BRIDGE_TOKEN) headers.Authorization = `Bearer ${env.LOKI_BRIDGE_TOKEN}`;
+  const response = await fetch(env.LOKI_BRIDGE_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ system, messages, user }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || `Bridge ${response.status}`);
+  return sanitizeModelReply(data.reply || "");
+}
+
+function providerOrder(env) {
+  const primary = String(env.PIXIE_AGENT_PRIMARY || "xai").toLowerCase();
+  const order = primary === "anthropic" ? ["anthropic", "xai", "bridge"] : primary === "bridge" ? ["bridge", "xai", "anthropic"] : ["xai", "anthropic", "bridge"];
+  return [...new Set(order)];
+}
+
+async function askLiveProvider(env, system, messages, user) {
+  const failures = [];
+  for (const provider of providerOrder(env)) {
+    try {
+      let result = null;
+      if (provider === "xai") result = await askXai(env, system, messages);
+      if (provider === "anthropic") result = await askAnthropic(env, system, messages);
+      if (provider === "bridge") result = await askBridge(env, system, messages, user);
+      if (!result) continue;
+      if (result.safety) return { ...result, provider, failures };
+      return { reply: result.reply, provider, failures };
+    } catch (error) {
+      failures.push({ provider, error: String(error.message || error).slice(0, 220) });
+      await logLoki(env, "loki_provider_failed", { provider, error: String(error.message || error).slice(0, 220) });
+    }
+  }
+  return { failures };
+}
+
 export async function onRequestOptions() {
   return new Response(null, {
     headers: {
@@ -165,87 +264,22 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  const bridgeUrl = env.LOKI_BRIDGE_URL;
-
-  if (bridgeUrl) {
-    try {
-      const headers = { "Content-Type": "application/json" };
-      if (env.LOKI_BRIDGE_TOKEN) headers.Authorization = `Bearer ${env.LOKI_BRIDGE_TOKEN}`;
-      const response = await fetch(bridgeUrl, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ system, messages, user }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || `Bridge ${response.status}`);
-      const candidate = data.reply?.trim() || "The bridge shimmered, but I lost the words. Ask me again?";
-      const outputSafety = analyzeSafety(candidate);
-      if (outputSafety.flagged || containsManipulativeAttachment(candidate)) {
-        const fallbackSafety = outputSafety.flagged ? outputSafety : { flagged: true, crisis: false, categories: ["dependency"] };
-        return json({
-          reply: safeAssistantRedirect(fallbackSafety),
-          safety: fallbackSafety,
-        });
-      }
-      return json({
-        reply: candidate,
-      });
-    } catch (error) {
-      if (!env.ANTHROPIC_API_KEY) {
-        return json({
-          reply: localLokiFallback(latestUserText, user),
-          degraded: true,
-          provider_error: "bridge_unavailable",
-        });
-      }
-    }
-  }
-
-  // No API key: keep Loki useful instead of breaking.
-  if (!env.ANTHROPIC_API_KEY) {
+  const live = await askLiveProvider(env, system, messages, user);
+  if (live.reply) {
     return json({
-      reply: localLokiFallback(latestUserText, user),
-      degraded: true,
+      reply: live.reply,
+      provider: live.provider,
+      degraded: live.failures?.length ? true : false,
+      failures: live.failures?.length ? live.failures : undefined,
+      safety: live.safety,
     });
   }
 
-  try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: env.PIXIE_AGENT_MODEL || "claude-haiku-4-5-20251001",
-        max_tokens: 400,
-        system,
-        messages,
-      }),
-    });
-
-    if (!response.ok) throw new Error(`Anthropic ${response.status}`);
-
-    const data = await response.json();
-    const block = data.content?.find(b => b.type === "text");
-    const candidate = block?.text?.trim() || "The portal shimmered and I lost the thread. Ask me again?";
-    const outputSafety = analyzeSafety(candidate);
-    if (outputSafety.flagged || containsManipulativeAttachment(candidate)) {
-      const fallbackSafety = outputSafety.flagged ? outputSafety : { flagged: true, crisis: false, categories: ["dependency"] };
-      return json({
-        reply: safeAssistantRedirect(fallbackSafety),
-        safety: fallbackSafety,
-      });
-    }
-    return json({
-      reply: candidate,
-    });
-  } catch (error) {
-    return json({
-      reply: localLokiFallback(latestUserText, user),
-      degraded: true,
-      provider_error: "model_unavailable",
-    });
-  }
+  await logLoki(env, "loki_degraded_mode", { failures: live.failures || [] });
+  return json({
+    reply: localLokiFallback(latestUserText, user),
+    degraded: true,
+    provider: "local_fallback",
+    failures: live.failures || [],
+  });
 }

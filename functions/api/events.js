@@ -17,6 +17,9 @@ const ALLOWED = new Set([
   "vault_upgrade_clicked",
   "generation_started",
   "generation_completed",
+  "loki_provider_failed",
+  "loki_degraded_mode",
+  "loki_recovered",
   "memory_viewed",
   "memory_exported",
   "memory_disabled"
