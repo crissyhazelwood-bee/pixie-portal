@@ -378,7 +378,7 @@
         .altar-item-label { max-width: 100%; color: rgba(248,234,255,0.86); font-size: 10px; font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
         .altar-item-text { max-width: 100%; color: rgba(240,220,255,0.72); font-size: 9px; line-height: 1.15; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .altar-item.type-bio .altar-item-icon, .altar-item.type-goal .altar-item-icon, .altar-item.type-poem .altar-item-icon { width: 54px; border-radius: 10px; font-size: 18px; background: linear-gradient(145deg, rgba(255,235,190,0.24), rgba(255,150,220,0.09)); }
-        .altar-item.type-portrait .altar-item-icon { width: 58px; height: 58px; border-radius: 18px; font-size: 30px; background: linear-gradient(145deg, rgba(255,214,126,0.22), rgba(110,240,255,0.14)); }
+        .altar-item.type-portrait .altar-item-icon { width: 58px; height: 58px; border-radius: 18px; font-size: 12px; font-weight: 900; letter-spacing: 0.8px; background: linear-gradient(145deg, rgba(255,214,126,0.22), rgba(110,240,255,0.14)); }
         .altar-generated-self { background-image: linear-gradient(135deg, rgba(255,214,126,0.18), rgba(110,240,255,0.12)); }
         .altar-generated-self::after { content: "AI SELF"; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); padding: 4px 10px; border-radius: 999px; background: rgba(10,6,20,0.92); border: 1px solid rgba(255,214,126,0.24); color: #ffe0a8; font-size: 10px; letter-spacing: 1px; font-weight: 800; }
         .altar-item.premium .altar-item-icon::after { content: "PLUS"; position: absolute; transform: translate(24px, -22px); padding: 2px 5px; border-radius: 999px; background: rgba(255,214,139,0.92); color: #2a1238; font-size: 8px; font-weight: 900; }
@@ -387,6 +387,7 @@
         .altar-word-grid { display: grid; gap: 8px; }
         .altar-word-grid label { color: rgba(245,220,255,0.72); font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; }
         .altar-select-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; color: rgba(255,232,190,0.72); font-size: 12px; }
+        .altar-select { width: 100%; border-radius: 14px; border: 1px solid rgba(180,150,255,0.18); background: rgba(8,5,18,0.72); color: #f3dcff; padding: 11px 12px; font-family: 'Quicksand', sans-serif; outline: none; }
         .altar-command-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 16px; padding: 12px 14px; border-radius: 20px; background: rgba(18,8,32,0.68); border: 1px solid rgba(255,170,240,0.13); }
         .altar-save-state { color: #9f8fbd; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
         .altar-command-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -5368,6 +5369,9 @@
             { id: 'anubis', name: 'Anubis', icon: '&#9878;', domain: 'passage, memory, guardianship' }
         ];
         const ALTAR_THEMES = [{id:'rose',name:'Rose Portal'}, {id:'moon',name:'Moon Room'}, {id:'forest',name:'Forest Shrine'}, {id:'sun',name:'Gold Temple'}];
+        const ALTAR_SELF_STYLES = ['Glossy Pixie', 'Temple Icon', 'Moon Oracle', 'Forest Fae', 'Gold Goddess', 'Cyber Fairy'];
+        const ALTAR_SELF_MOODS = ['soft and divine', 'powerful and radiant', 'mysterious and lunar', 'sweet and chaotic', 'ancient and scholarly'];
+        const ALTAR_SELF_FRAMES = ['Rose Gold Frame', 'Moon Pearl Frame', 'Crystal Shrine Frame', 'Papyrus Gold Frame'];
         const ALTAR_SHELF_META = [
             { id:'top', label:'Top shelf', slots:['top-left','top-center','top-right','top-corner'] },
             { id:'middle', label:'Middle shelf', slots:['middle-left','middle-center','middle-right','middle-corner'] },
@@ -5377,7 +5381,7 @@
             { id:'centerpiece-symbol', type:'deity', label:'Centerpiece', icon:'&#10022;', text:'chosen patron' },
             { id:'candle-pair', type:'sticker', label:'Candles', icon:'&#10073;', category:'lights' },
             { id:'rose-crystal', type:'charm', label:'Rose Crystal', icon:'&#9671;', category:'crystals' },
-            { id:'ai-self', type:'portrait', label:'AI Self Portrait', icon:'&#128444;', text:'premium portrait', premium:true },
+            { id:'ai-self', type:'portrait', label:'AI Self Portrait', icon:'SELF', text:'customize in studio', premium:true },
             { id:'poem-1', type:'poem', label:'Poem Plaque', icon:'&#10048;', text:'soft life, strong magic' },
             { id:'moon-charm', type:'charm', label:'Moon Charm', icon:'&#9789;', category:'moons' },
             { id:'bio-card', type:'bio', label:'Bio Card', icon:'&#9998;', text:'creator of Pixie Portal' },
@@ -5398,6 +5402,13 @@
                 visibility:'public',
                 selectedSlot:{ shelf:'middle', slot:'middle-center' },
                 generatedSelf:false,
+                selfPortrait:{
+                    style:'Glossy Pixie',
+                    mood:'soft and divine',
+                    frame:'Rose Gold Frame',
+                    prompt:'',
+                    generated:false
+                },
                 words:{
                     bio:'I am the creator of Pixie Portal. If you have ideas, problems, questions, or magic to share, please reach out.',
                     poem:'soft life, strong magic',
@@ -5435,11 +5446,19 @@
             altar.theme = altar.theme || 'rose';
             altar.quote = altar.quote || ALTAR_QUOTES[0];
             altar.words = { ...base.words, ...(altar.words || {}) };
+            altar.selfPortrait = { ...base.selfPortrait, ...(altar.selfPortrait || {}) };
             if (altar.note && !altar.words.affirmation) altar.words.affirmation = altar.note;
             const libraryMap = new Map([...base.library, ...((Array.isArray(altar.library) ? altar.library : []))].map(item => [item.id, { ...item }]));
             const patron = ALTAR_DEITIES.find(d => d.id === altar.patron) || ALTAR_DEITIES[0];
             libraryMap.set('centerpiece-symbol', { id:'centerpiece-symbol', type:'deity', label:patron.name, icon:patron.icon, text:patron.domain });
-            if (altar.generatedSelf) libraryMap.set('ai-self', { id:'ai-self', type:'portrait', label:'AI Self Portrait', icon:escHtml(currentUser?.avatar_emoji || '*'), text:'generated self portrait', premium:true });
+            if (altar.generatedSelf) libraryMap.set('ai-self', {
+                id:'ai-self',
+                type:'portrait',
+                label:'AI Self Portrait',
+                icon:'SELF',
+                text:(altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic'),
+                premium:true
+            });
             altar.library = [...libraryMap.values()].slice(0, 60);
             if (!Array.isArray(altar.shelves)) altar.shelves = base.shelves;
             altar.shelves = ALTAR_SHELF_META.map(meta => {
@@ -5509,7 +5528,7 @@
             const patron = getAltarPatron(altar);
             const avatar = document.getElementById('profile-avatar');
             if (avatar) {
-                avatar.innerHTML = altar.generatedSelf ? escHtml(currentUser.avatar_emoji || '*') : patron.icon;
+                avatar.innerHTML = altar.generatedSelf ? 'SELF' : patron.icon;
                 avatar.classList.toggle('altar-generated-self', !!altar.generatedSelf);
             }
             setText('altar-patron-name', altar.generatedSelf ? 'AI mirror of ' + (currentUser.display_name || 'you') : patron.name);
@@ -5532,6 +5551,12 @@
                 '<div class="altar-control-panel"><div class="altar-control-title">Centerpiece</div><p class="altar-control-help">Choose the deity, goddess, guide, or self portrait at the heart of the shrine.</p><div class="altar-option-grid">' +
                 ALTAR_DEITIES.map(d => '<button class="altar-option ' + (altar.patron === d.id && !altar.generatedSelf ? 'active' : '') + '" onclick="chooseAltarPatron(&quot;' + d.id + '&quot;)"><span>' + d.icon + '</span>' + escHtml(d.name) + '</button>').join('') +
                 '</div></div>' +
+                '<div class="altar-control-panel"><div class="altar-control-title">Self portrait studio</div><p class="altar-control-help">Customize the paid portrait before placing it. This is the image prompt path, not an emoji.</p><div class="altar-word-grid">' +
+                '<label>Portrait style</label><select class="altar-select" onchange="setSelfPortraitField(&quot;style&quot;, this.value)">' + ALTAR_SELF_STYLES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.style === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
+                '<label>Mood</label><select class="altar-select" onchange="setSelfPortraitField(&quot;mood&quot;, this.value)">' + ALTAR_SELF_MOODS.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.mood === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
+                '<label>Frame</label><select class="altar-select" onchange="setSelfPortraitField(&quot;frame&quot;, this.value)">' + ALTAR_SELF_FRAMES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.frame === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
+                '<label>Custom prompt notes</label><textarea class="altar-note-input" oninput="setSelfPortraitField(&quot;prompt&quot;, this.value)" placeholder="pink hair, temple gold, moonlit wings, favorite colors...">' + escHtml(altar.selfPortrait?.prompt || '') + '</textarea>' +
+                '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="openAIGeneratedSelfOffer()">Generate Self Portrait</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;ai-self&quot;)">Place Portrait</button></div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">AI stickers & library</div><p class="altar-control-help">Click a shelf slot, then place stickers, generated art, poems, charms, or notes.</p><div class="altar-library-grid">' + libraryButtons + '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate AI Sticker</button><button class="btn btn-ghost btn-small" onclick="removeSelectedAltarItem()">Remove Slot Item</button></div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Words</div><p class="altar-control-help">Bio, poem, goals, affirmations, notes, and the bottom mantra plaque.</p><div class="altar-word-grid">' +
                 '<label>Bio</label><textarea class="altar-note-input" oninput="setAltarWord(&quot;bio&quot;, this.value)" placeholder="Bio card">' + escHtml(word.bio || '') + '</textarea>' +
@@ -5579,6 +5604,18 @@
             renderAltarBoard(altar);
         }
         function setAltarVisibility(value) { const altar = getAltarProfile(); altar.visibility = value === 'private' ? 'private' : 'public'; saveAltarProfile(altar, false); renderAltarProfile(); }
+        function setSelfPortraitField(field, value) {
+            const altar = getAltarProfile();
+            altar.selfPortrait = { ...(altar.selfPortrait || {}), [field]: String(value || '').slice(0, field === 'prompt' ? 260 : 80) };
+            const item = altar.library.find(i => i.id === 'ai-self');
+            if (item) {
+                item.icon = 'SELF';
+                item.label = 'AI Self Portrait';
+                item.text = (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic');
+            }
+            saveAltarProfile(altar, false);
+            renderAltarBoard(altar);
+        }
         function clearAltarLayout() {
             const altar = getAltarProfile();
             altar.shelves.forEach(shelf => shelf.slots.forEach(slot => slot.itemId = ''));
@@ -5617,16 +5654,19 @@
         function openAIGeneratedSelfOffer() {
             const altar = getAltarProfile();
             altar.generatedSelf = true;
+            altar.selfPortrait = { ...(altar.selfPortrait || {}), generated:true };
             const item = altar.library.find(i => i.id === 'ai-self');
             if (item) {
-                item.icon = escHtml(currentUser?.avatar_emoji || '*');
+                item.icon = 'SELF';
                 item.label = 'AI Self Portrait';
-                item.text = 'generated self portrait';
+                item.text = (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic');
+                item.frame = altar.selfPortrait.frame || 'Rose Gold Frame';
+                item.prompt = altar.selfPortrait.prompt || '';
             }
             altar.selectedSlot = { shelf:'middle', slot:'middle-center' };
             saveAltarProfile(altar, false);
             placeAltarItem('ai-self');
-            toast('AI self portrait unlocked for preview');
+            toast('Self portrait studio preview placed');
         }
 
         async function loadProfile() {

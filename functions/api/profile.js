@@ -52,6 +52,13 @@ export async function onRequestPut({ request, env }) {
           affirmation: String(altar.words.affirmation || "").slice(0, 180),
           notes: String(altar.words.notes || "").slice(0, 180)
         } : undefined,
+        selfPortrait: altar.selfPortrait && typeof altar.selfPortrait === "object" ? {
+          style: String(altar.selfPortrait.style || "").slice(0, 80),
+          mood: String(altar.selfPortrait.mood || "").slice(0, 80),
+          frame: String(altar.selfPortrait.frame || "").slice(0, 80),
+          prompt: String(altar.selfPortrait.prompt || "").slice(0, 260),
+          generated: !!altar.selfPortrait.generated
+        } : undefined,
         library: Array.isArray(altar.library) ? altar.library.slice(0, 60).map(safeAltarItem) : [],
         shelves: safeAltarShelves,
         stickers: Array.isArray(altar.stickers) ? altar.stickers.slice(0, 12).map(s => String(s).slice(0, 40)) : [],
