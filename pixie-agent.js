@@ -40,6 +40,8 @@
     style.id = STYLE_ID;
     style.textContent = `
       #${ROOT_ID}{position:fixed;right:18px;bottom:18px;z-index:9998;font-family:Quicksand,Arial,sans-serif;color:#f0d0ff;transform:scale(.9);transform-origin:bottom right}
+      body.pixie-profile-page #${ROOT_ID}{transform:scale(.68);opacity:.72}
+      body.pixie-profile-page #${ROOT_ID}:hover{transform:scale(.86);opacity:1}
       .loki-pixie-toggle{display:flex;align-items:center;gap:10px;max-width:282px;padding:9px 12px;border-radius:20px;border:1px solid rgba(255,150,200,.32);background:linear-gradient(135deg,rgba(26,16,48,.92),rgba(13,8,32,.92));box-shadow:0 10px 35px rgba(180,100,255,.18);cursor:pointer;color:#f0d0ff;text-align:left}
       .loki-pixie-toggle:hover{border-color:#ff96c8;box-shadow:0 10px 45px rgba(255,150,200,.28)}
       .loki-pixie-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%,#96ffdc,#b496ff 55%,#ff96c8);box-shadow:0 0 20px rgba(150,255,220,.35);font-size:24px;flex:0 0 auto}

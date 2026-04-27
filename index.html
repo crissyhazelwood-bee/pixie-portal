@@ -262,24 +262,29 @@
         .profile-avatar { font-size: 60px; width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #ff96c8, #b496ff); display: flex; align-items: center; justify-content: center; }
         .profile-info h2 { font-family: 'Pacifico', cursive; color: #ff96c8; font-size: 32px; }
         .profile-info p { color: #9080b0; font-size: 14px; }
-        .profile-tabs { display: flex; gap: 5px; margin-bottom: 30px; }
-        .profile-tab { padding: 10px 22px; border-radius: 25px; border: 1px solid rgba(180,150,255,0.15); background: transparent; color: #b496ff; font-family: 'Quicksand', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .profile-tab.active { background: linear-gradient(135deg, rgba(255,150,200,0.2), rgba(180,150,255,0.2)); border-color: #ff96c8; color: #ff96c8; }
+        .profile-tabs { max-width: 1360px; margin: 14px auto 18px; display: flex; gap: 8px; overflow-x: auto; flex-wrap: nowrap; padding: 4px; border-radius: 999px; background: rgba(18,8,32,0.42); border: 1px solid rgba(205,150,255,0.10); }
+        .profile-tab { white-space: nowrap; padding: 11px 18px; border-radius: 999px; border: 1px solid rgba(205,150,255,0.22); background: rgba(18,8,32,0.58); color: rgba(236,213,255,0.82); font-family: 'Quicksand', sans-serif; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.06em; }
+        .profile-tab.active { background: linear-gradient(135deg, rgba(255,104,226,0.32), rgba(151,94,255,0.30)); border-color: rgba(255,150,200,0.48); color: white; box-shadow: 0 0 22px rgba(255,104,226,0.22); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        .my-pixie-page {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 24px clamp(16px, 4vw, 40px) 90px;
+        }
         .altar-profile-shell {
             position: relative;
             overflow: hidden;
             border-radius: 28px;
-            padding: clamp(18px, 4vw, 34px);
-            margin-bottom: 28px;
+            padding: clamp(18px, 3vw, 28px);
+            margin: 0 auto 18px;
             background:
                 radial-gradient(circle at 18% 16%, rgba(255, 210, 126, 0.16), transparent 34%),
                 radial-gradient(circle at 82% 12%, rgba(255, 120, 220, 0.18), transparent 34%),
                 linear-gradient(145deg, rgba(23, 10, 38, 0.90), rgba(10, 6, 20, 0.94));
             border: 1px solid rgba(255, 214, 139, 0.22);
-            box-shadow: 0 0 44px rgba(180, 96, 255, 0.18), inset 0 1px 0 rgba(255,255,255,0.10);
+            box-shadow: 0 28px 90px rgba(0,0,0,0.38), 0 0 44px rgba(180, 96, 255, 0.18), inset 0 1px 0 rgba(255,255,255,0.10);
         }
         .altar-profile-shell::before {
             content: "";
@@ -297,7 +302,7 @@
             position: relative;
             z-index: 1;
             display: grid;
-            grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.35fr);
+            grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
             gap: 24px;
             align-items: stretch;
         }
@@ -309,7 +314,7 @@
             background: rgba(14, 8, 28, 0.68);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
-        .altar-identity-panel { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .altar-identity-panel { padding: 24px; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
         .altar-kicker { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255, 214, 139, 0.72); font-weight: 800; }
         .altar-title { font-family: 'Pacifico', cursive; color: #ffe1f4; -webkit-text-fill-color: #ffe1f4; font-size: clamp(30px, 5vw, 48px); margin: 0; line-height: 1.1; text-shadow: 0 0 22px rgba(255, 120, 220, 0.25); }
         .altar-copy { color: rgba(230, 214, 255, 0.82); font-size: 14px; line-height: 1.7; margin: 0; }
@@ -319,10 +324,26 @@
         .altar-patron-domain { color: #9f8fbd; font-size: 12px; margin-top: 3px; }
         .altar-actions { display: flex; flex-wrap: wrap; gap: 10px; }
         .altar-board {
-            min-height: 360px;
+            min-height: 340px;
             overflow: hidden;
             padding: 22px;
             isolation: isolate;
+        }
+        .altar-preview-label {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 5;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(10,6,20,0.62);
+            border: 1px solid rgba(255,214,139,0.18);
+            color: rgba(255,239,197,0.78);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+            backdrop-filter: blur(10px);
         }
         .altar-board.theme-rose { background: radial-gradient(circle at 50% 20%, rgba(255,150,200,0.20), transparent 38%), linear-gradient(160deg, rgba(40,14,48,0.86), rgba(11,7,22,0.92)); }
         .altar-board.theme-moon { background: radial-gradient(circle at 80% 20%, rgba(210,225,255,0.18), transparent 34%), linear-gradient(160deg, rgba(12,22,48,0.86), rgba(8,6,22,0.94)); }
@@ -341,10 +362,10 @@
             box-shadow: 0 -12px 50px rgba(255,190,120,0.10);
             z-index: 0;
         }
-        .altar-center-icon { position: absolute; top: 38px; left: 50%; transform: translateX(-50%); width: 118px; height: 118px; border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 62px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,230,170,0.22); box-shadow: 0 0 42px rgba(255,150,220,0.18); z-index: 2; }
+        .altar-center-icon { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); width: 118px; height: 118px; border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 62px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,230,170,0.22); box-shadow: 0 0 42px rgba(255,150,220,0.18); z-index: 2; }
         .altar-generated-self { background-image: linear-gradient(135deg, rgba(255,214,126,0.18), rgba(110,240,255,0.12)); }
         .altar-generated-self::after { content: "AI SELF"; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); padding: 4px 10px; border-radius: 999px; background: rgba(10,6,20,0.92); border: 1px solid rgba(255,214,126,0.24); color: #ffe0a8; font-size: 10px; letter-spacing: 1px; font-weight: 800; }
-        .altar-quote-card { position: absolute; left: 22px; right: 22px; bottom: 20px; z-index: 3; padding: 14px 16px; border-radius: 18px; color: #f8eaff; background: rgba(9,5,18,0.68); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(10px); font-size: 14px; line-height: 1.6; }
+        .altar-quote-card { position: absolute; left: 32px; right: 32px; bottom: 24px; z-index: 3; padding: 14px 16px; border-radius: 18px; color: #f8eaff; background: rgba(9,5,18,0.70); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(10px); font-size: 14px; line-height: 1.6; text-align: center; box-shadow: 0 12px 28px rgba(0,0,0,0.24); }
         .altar-sticker {
             position: absolute;
             z-index: 4;
@@ -355,18 +376,23 @@
             filter: drop-shadow(0 7px 16px rgba(0,0,0,0.42));
             user-select: none;
         }
-        .altar-controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 20px; }
-        .altar-control-panel { border-radius: 20px; padding: 18px; background: rgba(24, 12, 42, 0.74); border: 1px solid rgba(180,150,255,0.14); }
-        .altar-control-title { color: #ffb7e8; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+        .altar-command-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 16px; padding: 12px 14px; border-radius: 20px; background: rgba(18,8,32,0.68); border: 1px solid rgba(255,170,240,0.13); }
+        .altar-save-state { color: #9f8fbd; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .altar-command-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .altar-controls-grid { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 20px; margin-top: 0; }
+        .altar-control-panel { border-radius: 22px; padding: 18px; background: linear-gradient(145deg, rgba(33,16,48,0.82), rgba(12,7,24,0.88)); border: 1px solid rgba(255,170,240,0.16); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 45px rgba(0,0,0,0.24); }
+        .altar-control-title { color: #ffb7e8; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+        .altar-control-help { color: #8f7fa9; font-size: 12px; line-height: 1.45; margin: 0 0 12px; }
         .altar-option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
-        .altar-option { border: 1px solid rgba(180,150,255,0.16); background: rgba(10,6,20,0.50); color: #d8c8f0; border-radius: 14px; padding: 10px 8px; cursor: pointer; font-family: 'Quicksand', sans-serif; transition: all 0.2s; text-align: center; min-height: 58px; }
-        .altar-option:hover, .altar-option.active { border-color: rgba(255,150,200,0.52); color: #fff; background: rgba(255,150,200,0.10); box-shadow: 0 0 18px rgba(255,150,200,0.12); }
+        .altar-option { border: 1px solid rgba(255,170,240,0.18); background: rgba(15,8,28,0.68); color: #d8c8f0; border-radius: 16px; padding: 10px 8px; cursor: pointer; font-family: 'Quicksand', sans-serif; transition: all 0.2s; text-align: center; min-height: 72px; position: relative; }
+        .altar-option:hover, .altar-option.active { border-color: rgba(255,130,232,0.72); color: #fff; background: radial-gradient(circle at 50% 0%, rgba(255,120,230,0.20), transparent 55%), rgba(54,20,62,0.78); box-shadow: 0 0 24px rgba(255,104,226,0.18), inset 0 1px 0 rgba(255,255,255,0.12); }
         .altar-option span { display: block; font-size: 22px; margin-bottom: 4px; }
         .altar-quote-list { display: grid; gap: 8px; }
         .altar-quote-btn { text-align: left; border: 1px solid rgba(180,150,255,0.14); background: rgba(10,6,20,0.48); color: #cdbce8; border-radius: 14px; padding: 10px 12px; cursor: pointer; font-family: 'Quicksand', sans-serif; line-height: 1.45; }
         .altar-quote-btn.active { border-color: rgba(255,214,139,0.42); color: #fff1c7; background: rgba(255,214,139,0.08); }
         .altar-note-input { width: 100%; min-height: 78px; resize: vertical; border-radius: 14px; border: 1px solid rgba(180,150,255,0.18); background: rgba(8,5,18,0.72); color: #f3dcff; padding: 12px; font-family: 'Quicksand', sans-serif; outline: none; }
         .altar-shop-card { margin-top: 12px; padding: 14px; border-radius: 16px; border: 1px solid rgba(255,214,139,0.20); background: linear-gradient(135deg, rgba(255,214,139,0.08), rgba(180,150,255,0.08)); color: #cdbce8; font-size: 13px; line-height: 1.6; }
+        .altar-premium-badge { display: inline-flex; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: rgba(255,214,139,0.13); color: #ffe3a6; border: 1px solid rgba(255,214,139,0.20); font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
 
         /* Empty state */
         .empty { text-align: center; padding: 60px 20px; color: #706080; }
@@ -632,10 +658,17 @@
         .btn-ban:hover { background:rgba(255,120,40,0.22); }
         .report-resolved-tag { font-size:12px; color:#504060; margin-top:10px; }
 
+        @media (max-width: 980px) {
+            .altar-hero-grid { grid-template-columns: 1fr; }
+            .altar-controls-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
         @media (max-width: 768px) {
             .hero-title { font-size: 42px; }
             .about-content { flex-direction: column; text-align: center; }
             .profile-header { flex-direction: column; text-align: center; }
+            .my-pixie-page { padding-top: 10px; }
+            .altar-board { min-height: 320px; }
             .pixie-memory-hero { grid-template-columns: 1fr; }
             .tarot-card-wrap { width: 160px; height: 272px; }
             .tarot-spread { gap: 16px; }
@@ -648,6 +681,13 @@
 
         @media (max-width: 640px) {
             nav { padding: 12px 20px; }
+            body.pixie-profile-page #loki-pixie-agent { display: none !important; }
+            .my-pixie-page { padding-inline: 14px; padding-bottom: 74px; }
+            .altar-profile-shell { border-radius: 24px; }
+            .altar-controls-grid { grid-template-columns: 1fr; }
+            .altar-command-bar { align-items: stretch; }
+            .altar-command-actions { width: 100%; }
+            .altar-command-actions .btn { flex: 1 1 auto; }
             .nav-hamburger { display: block; }
             nav .links {
                 display: none; flex-direction: column; align-items: stretch;
@@ -701,7 +741,7 @@
         }
 
         nav {
-            top: 14px;
+            top: 10px;
             left: 50%;
             right: auto;
             width: min(1540px, calc(100% - 32px));
@@ -713,37 +753,40 @@
                 radial-gradient(circle at 12% 0%, rgba(255, 79, 216, 0.24), transparent 16rem);
             box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.08);
             backdrop-filter: blur(18px);
+            padding: 9px 18px;
         }
 
         nav .logo {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-family: 'Quicksand', sans-serif;
             font-weight: 800;
+            font-size: 18px;
             letter-spacing: 0.04em;
             text-transform: uppercase;
             color: #fff4ff;
         }
 
         .nav-logo-mark {
-            width: 38px;
-            height: 38px;
+            width: 32px;
+            height: 32px;
             border-radius: 12px;
             box-shadow: 0 0 24px rgba(255, 79, 216, 0.42);
         }
 
         nav .links a {
             color: #e8d2ff;
-            font-size: 12px;
-            letter-spacing: 0.12em;
+            font-size: 11px;
+            letter-spacing: 0.08em;
         }
+        nav .links { gap: 8px; min-width: 0; }
 
         .nav-primary {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px;
+            gap: 3px;
+            padding: 3px;
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 999px;
             background: rgba(20, 8, 32, 0.58);
@@ -751,7 +794,7 @@
         }
 
         nav .links .nav-tab {
-            padding: 10px 14px;
+            padding: 7px 9px;
             border-radius: 999px;
             color: rgba(245, 218, 255, 0.74);
             font-weight: 800;
@@ -1260,6 +1303,11 @@
         .page:not(#page-home) section {
             padding-top: 128px;
             padding-bottom: 100px;
+        }
+
+        #page-profile section.my-pixie-page {
+            padding-top: 86px;
+            padding-bottom: 82px;
         }
 
         #page-tarot section,
@@ -2111,10 +2159,8 @@
                 <div class="about-avatar">✦</div>
                 <div class="about-text">
                     <h3>hey, i'm crissy</h3>
-                    <p>i make sparkly things on the internet. games, art, music,
-                    whatever feels magical. this is my little corner of the web —
-                    a place where everything glows and nothing is boring.
-                    <br><br>✦ gamer ✦ creator ✦ fairy enthusiast ✦</p>
+                    <p>I'm the creator of Pixie Portal. If you have ideas, problems, questions, or magic to share, please reach out. Thank you for being here.
+                    <br><br>&#10022; gamer &#10022; creator &#10022; fairy enthusiast &#10022;</p>
                 </div>
             </div>
         </section>
@@ -2715,7 +2761,7 @@
 
     <!-- ============ PROFILE PAGE ============ -->
     <div class="page" id="page-profile">
-        <section>
+        <section class="my-pixie-page">
             <div class="altar-profile-shell" id="altar-profile-shell">
                 <div class="altar-hero-grid">
                     <div class="altar-identity-panel">
@@ -2738,7 +2784,7 @@
                     <div class="altar-board" id="profile-altar-board"></div>
                 </div>
             </div>
-            <div class="profile-tabs" style="overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;">
+            <div class="profile-tabs">
                 <button class="profile-tab active" onclick="switchTab('altar-tab')">Altar</button>
                 <button class="profile-tab" onclick="switchTab('scores')">Scores</button>
                 <button class="profile-tab" onclick="switchTab('horoscope-tab')">Horoscope</button>
@@ -3291,6 +3337,7 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const page = document.getElementById('page-' + id);
             if (page) page.classList.add('active');
+            document.body.classList.toggle('pixie-profile-page', id === 'profile');
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.page === id);
             });
@@ -5312,6 +5359,7 @@
             { id:'spark', label:'Spark', mark:'&#10036;', x:'60%', y:'70%', r:'-14deg', s:'32px' }
         ];
         const ALTAR_QUOTES = ['soft life, strong magic', 'built from dreams, receipts, and moonlight', 'do not disturb: becoming legendary', 'my altar, my myth, my rules', 'the portal remembers what I choose to keep'];
+        let altarDirty = false;
         function escAttr(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
         function getAltarStorageKey() { return 'pixieAltarProfile:' + (currentUser?.id || 'guest'); }
         function getDefaultAltarProfile() { return { patron:'freyja', theme:'rose', quote:ALTAR_QUOTES[0], note:'', stickers:['stars','heart','moon'], generatedSelf:false }; }
@@ -5332,7 +5380,11 @@
                     credentials: 'include',
                     body: JSON.stringify({ display_name: currentUser.display_name, bio: currentUser.bio, avatar_emoji: currentUser.avatar_emoji, appearance: currentUser.appearance })
                 }).catch(() => {});
+                altarDirty = false;
+            } else {
+                altarDirty = true;
             }
+            updateAltarSaveState();
         }
         function getAltarPatron(altar) { return ALTAR_DEITIES.find(d => d.id === altar.patron) || ALTAR_DEITIES[0]; }
         function renderAltarProfile() {
@@ -5350,7 +5402,7 @@
             if (board) {
                 board.className = 'altar-board theme-' + (altar.theme || 'rose');
                 const activeStickers = ALTAR_STICKERS.filter(s => (altar.stickers || []).includes(s.id));
-                board.innerHTML = '<div class="altar-center-icon' + (altar.generatedSelf ? ' altar-generated-self' : '') + '">' + (altar.generatedSelf ? escHtml(currentUser.avatar_emoji || '*') : patron.icon) + '</div>' +
+                board.innerHTML = '<div class="altar-preview-label">Live Preview</div><div class="altar-center-icon' + (altar.generatedSelf ? ' altar-generated-self' : '') + '">' + (altar.generatedSelf ? escHtml(currentUser.avatar_emoji || '*') : patron.icon) + '</div>' +
                     activeStickers.map(s => '<span class="altar-sticker" style="--x:' + s.x + ';--y:' + s.y + ';--r:' + s.r + ';--s:' + s.s + ';">' + s.mark + '</span>').join('') +
                     '<div class="altar-quote-card">"' + escHtml(altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>';
             }
@@ -5360,22 +5412,24 @@
             const host = document.getElementById('altar-controls');
             if (!host || !currentUser) return;
             const altar = getAltarProfile();
-            host.innerHTML = '<div class="altar-controls-grid">' +
-                '<div class="altar-control-panel"><div class="altar-control-title">Choose a god or goddess</div><div class="altar-option-grid">' +
+            host.innerHTML = '<div class="altar-command-bar"><div><div class="altar-kicker">Altar editor</div><div class="altar-save-state" id="altar-save-state">Saved</div></div><div class="altar-command-actions"><button class="btn btn-primary btn-small" onclick="saveAltarToProfile()">Save Altar</button><button class="btn btn-ghost btn-small" onclick="resetAltarProfile()">Reset</button><button class="btn btn-ghost btn-small" onclick="previewPublicProfile()">Preview Public Profile</button><button class="btn btn-ghost btn-small" onclick="shareAltarProfile()">Share Profile</button></div></div><div class="altar-controls-grid">' +
+                '<div class="altar-control-panel"><div class="altar-control-title">Choose a god or goddess</div><p class="altar-control-help">Pick the mythic center of your page.</p><div class="altar-option-grid">' +
                 ALTAR_DEITIES.map(d => '<button class="altar-option ' + (altar.patron === d.id && !altar.generatedSelf ? 'active' : '') + '" onclick="chooseAltarPatron(&quot;' + d.id + '&quot;)"><span>' + d.icon + '</span>' + escHtml(d.name) + '</button>').join('') +
-                '</div></div><div class="altar-control-panel"><div class="altar-control-title">Room theme</div><div class="altar-option-grid">' +
+                '</div></div><div class="altar-control-panel"><div class="altar-control-title">Room theme</div><p class="altar-control-help">Change the mood of the live preview room.</p><div class="altar-option-grid">' +
                 ALTAR_THEMES.map(t => '<button class="altar-option ' + (altar.theme === t.id ? 'active' : '') + '" onclick="setAltarTheme(&quot;' + t.id + '&quot;)">' + escHtml(t.name) + '</button>').join('') +
-                '</div><div class="altar-shop-card">Paid path: generate a stylized altar portrait of yourself, then use it as the center icon for this page.<div style="margin-top:10px;"><button class="btn btn-primary btn-small" onclick="openAIGeneratedSelfOffer()">Unlock AI Self Portrait</button></div></div></div>' +
-                '<div class="altar-control-panel"><div class="altar-control-title">Stickers</div><div class="altar-option-grid">' +
+                '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">AI Self Portrait</strong><span class="altar-premium-badge">Premium</span><br>Generate a stylized altar portrait of yourself and place it at the center of your profile.<div style="margin-top:10px;"><button class="btn btn-primary btn-small" onclick="openAIGeneratedSelfOffer()">Generate AI Self Portrait</button></div></div></div>' +
+                '<div class="altar-control-panel"><div class="altar-control-title">Stickers</div><p class="altar-control-help">Old MySpace energy, cleaned up for the Portal.</p><div class="altar-option-grid">' +
                 ALTAR_STICKERS.map(s => '<button class="altar-option ' + ((altar.stickers || []).includes(s.id) ? 'active' : '') + '" onclick="toggleAltarSticker(&quot;' + s.id + '&quot;)"><span>' + s.mark + '</span>' + escHtml(s.label) + '</button>').join('') +
-                '</div></div><div class="altar-control-panel"><div class="altar-control-title">Quotes and notes</div><div class="altar-quote-list">' +
+                '</div></div><div class="altar-control-panel"><div class="altar-control-title">Quotes and notes</div><p class="altar-control-help">Choose a plaque or write your own altar line.</p><div class="altar-quote-list">' +
                 ALTAR_QUOTES.map(q => '<button class="altar-quote-btn ' + (altar.quote === q && !altar.note ? 'active' : '') + '" onclick="setAltarQuote(&quot;' + escAttr(q) + '&quot;)">' + escHtml(q) + '</button>').join('') +
                 '</div><textarea class="altar-note-input" id="altar-note-input" placeholder="Write your Myspace-style altar quote..." oninput="setAltarNote(this.value)">' + escHtml(altar.note || '') + '</textarea></div></div>';
+            updateAltarSaveState();
         }
-        function chooseAltarPatron(id) { const altar = getAltarProfile(); altar.patron = id; altar.generatedSelf = false; saveAltarProfile(altar, true); renderAltarProfile(); toast('Altar patron updated'); }
-        function setAltarTheme(id) { const altar = getAltarProfile(); altar.theme = id; saveAltarProfile(altar, true); renderAltarProfile(); }
-        function toggleAltarSticker(id) { const altar = getAltarProfile(); const set = new Set(altar.stickers || []); if (set.has(id)) set.delete(id); else set.add(id); altar.stickers = [...set]; saveAltarProfile(altar, true); renderAltarProfile(); }
-        function setAltarQuote(quote) { const altar = getAltarProfile(); altar.quote = quote; altar.note = ''; saveAltarProfile(altar, true); renderAltarProfile(); }
+        function updateAltarSaveState() { const el = document.getElementById('altar-save-state'); if (el) el.textContent = altarDirty ? 'Unsaved changes' : 'Saved'; }
+        function chooseAltarPatron(id) { const altar = getAltarProfile(); altar.patron = id; altar.generatedSelf = false; saveAltarProfile(altar, false); renderAltarProfile(); }
+        function setAltarTheme(id) { const altar = getAltarProfile(); altar.theme = id; saveAltarProfile(altar, false); renderAltarProfile(); }
+        function toggleAltarSticker(id) { const altar = getAltarProfile(); const set = new Set(altar.stickers || []); if (set.has(id)) set.delete(id); else set.add(id); altar.stickers = [...set]; saveAltarProfile(altar, false); renderAltarProfile(); }
+        function setAltarQuote(quote) { const altar = getAltarProfile(); altar.quote = quote; altar.note = ''; saveAltarProfile(altar, false); renderAltarProfile(); }
         function setAltarNote(value) {
             const altar = getAltarProfile();
             altar.note = value.slice(0, 180);
@@ -5383,13 +5437,21 @@
             const quote = document.querySelector('#profile-altar-board .altar-quote-card');
             if (quote) quote.textContent = '"' + (altar.note || altar.quote || ALTAR_QUOTES[0]) + '"';
         }
-        function openAIGeneratedSelfOffer() { const altar = getAltarProfile(); altar.generatedSelf = true; saveAltarProfile(altar, true); renderAltarProfile(); toast('AI self altar preview enabled. Hook this to paid generation next.'); }
+        function saveAltarToProfile() { const altar = getAltarProfile(); saveAltarProfile(altar, true); renderAltarProfile(); toast('Altar saved'); }
+        function resetAltarProfile() { const altar = getDefaultAltarProfile(); saveAltarProfile(altar, false); renderAltarProfile(); toast('Altar reset preview'); }
+        function previewPublicProfile() { if (currentUser?.username) viewPublicProfile(currentUser.username); else toast('Log in to preview public profile'); }
+        function shareAltarProfile() {
+            const url = location.origin + '/index.html#profile-' + (currentUser?.username || 'pixie');
+            navigator.clipboard?.writeText(url).then(() => toast('Profile link copied')).catch(() => toast('Share link ready'));
+        }
+        function openAIGeneratedSelfOffer() { const altar = getAltarProfile(); altar.generatedSelf = true; saveAltarProfile(altar, false); renderAltarProfile(); toast('AI self portrait preview enabled'); }
 
         async function loadProfile() {
             if (!currentUser) return;
             document.getElementById('profile-avatar').textContent = currentUser.avatar_emoji || '✦';
             document.getElementById('profile-name').textContent = currentUser.display_name;
             document.getElementById('profile-bio').textContent = currentUser.bio || '';
+            altarDirty = false;
             renderAltarProfile();
 
             // Load scores
@@ -5421,6 +5483,7 @@
                 skin_tone: document.getElementById('appearance-skin-tone').value.trim(),
                 height: document.getElementById('appearance-height').value.trim(),
                 build: document.getElementById('appearance-build').value.trim(),
+                altar: currentUser.appearance?.altar || getAltarProfile()
             };
             await fetch(API + '/api/profile', {
                 method: 'PUT', headers: {'Content-Type': 'application/json'},
