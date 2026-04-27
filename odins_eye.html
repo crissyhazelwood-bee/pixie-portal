@@ -555,47 +555,138 @@
       align-items: start;
     }
     .year-wheel-panel {
-      background: radial-gradient(circle at 50% 42%, rgba(255,150,200,0.09), transparent 34%),
-                  linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.93));
-      border: 1px solid rgba(180,150,255,0.18);
-      border-radius: 24px;
-      padding: 22px;
+      background:
+        radial-gradient(circle at 16% 14%, rgba(255,232,170,0.22), transparent 32%),
+        radial-gradient(circle at 86% 12%, rgba(178,220,255,0.18), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(218,255,202,0.14), transparent 38%),
+        linear-gradient(145deg, rgba(42,28,58,0.88), rgba(22,16,42,0.94));
+      border: 1px solid rgba(255,222,166,0.28);
+      border-radius: 28px;
+      padding: clamp(18px, 3vw, 28px);
       position: sticky;
       top: 82px;
       overflow: hidden;
+      box-shadow:
+        0 24px 80px rgba(0,0,0,0.34),
+        0 0 36px rgba(255,185,220,0.13),
+        inset 0 1px 0 rgba(255,255,255,0.12);
     }
     .year-wheel-panel::before {
       content: '';
       position: absolute;
-      inset: 18px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 50%;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255,235,194,0.08) 1px, transparent 1px),
+        linear-gradient(rgba(255,235,194,0.06) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: 0.35;
       pointer-events: none;
+    }
+    .year-wheel-hero {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .year-wheel-art-frame {
+      position: relative;
+      padding: 10px;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 50% 8%, rgba(255,246,215,0.35), transparent 42%),
+        linear-gradient(145deg, rgba(255,236,190,0.17), rgba(180,146,255,0.10));
+      border: 1px solid rgba(255,230,178,0.34);
+      box-shadow:
+        0 20px 56px rgba(0,0,0,0.34),
+        0 0 34px rgba(255,221,150,0.16);
+    }
+    .year-wheel-art-frame::after {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,240,200,0.24);
+      pointer-events: none;
+      box-shadow: 0 0 28px rgba(255,212,156,0.18);
+    }
+    .year-wheel-art {
+      display: block;
+      width: 100%;
+      border-radius: 20px;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      background: rgba(255,246,225,0.88);
+      border: 1px solid rgba(255,241,210,0.62);
+      box-shadow: inset 0 0 0 1px rgba(80,38,92,0.06);
     }
     .wheel-title {
       font-family: 'Pacifico', cursive;
-      color: #ff96c8;
-      font-size: 26px;
+      color: #fff0bd;
+      font-size: 28px;
       text-align: center;
       margin-bottom: 8px;
       position: relative;
       z-index: 1;
+      text-shadow: 0 0 18px rgba(255,216,142,0.32), 0 0 28px rgba(255,128,218,0.20);
     }
     .wheel-subtitle {
-      color: #9080b0;
+      color: rgba(250,238,255,0.86);
       font-size: 13px;
       line-height: 1.55;
       text-align: center;
-      margin: 0 auto 18px;
+      margin: 0 auto 14px;
       max-width: 420px;
       position: relative;
       z-index: 1;
     }
+    .wheel-body {
+      color: rgba(247,236,255,0.78);
+      font-size: 13px;
+      line-height: 1.65;
+      text-align: center;
+      margin: 0 auto 16px;
+      max-width: 460px;
+      position: relative;
+      z-index: 1;
+    }
+    .wheel-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 2px 0 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .wheel-action {
+      border: 1px solid rgba(255,225,168,0.35);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(255,246,220,0.08);
+      color: #fff2c8;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255,202,138,0.10);
+      transition: transform 0.18s, border-color 0.18s, background 0.18s;
+    }
+    .wheel-action:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,178,225,0.62);
+      background: rgba(255,184,225,0.14);
+    }
+    .wheel-action.primary {
+      color: #2a1536;
+      background: linear-gradient(135deg, #fff0bd, #f7b5df 55%, #c8ddff);
+      border-color: rgba(255,246,210,0.62);
+    }
     .wheel-orbit {
       position: relative;
-      width: min(100%, 420px);
+      width: min(100%, 360px);
       aspect-ratio: 1;
-      margin: 0 auto;
+      margin: 12px auto 0;
       border-radius: 50%;
       background:
         conic-gradient(from -90deg,
@@ -625,7 +716,7 @@
       top: 50%;
       width: 76px;
       min-height: 76px;
-      transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-155px) rotate(calc(-1 * var(--angle)));
+      transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-132px) rotate(calc(-1 * var(--angle)));
       border-radius: 18px;
       border: 1px solid rgba(255,255,255,0.14);
       background: rgba(15,8,32,0.84);
@@ -650,11 +741,15 @@
     .wheel-node .wheel-node-name { font-size: 10px; font-weight: 800; line-height: 1.1; }
     .wheel-node .wheel-node-date { font-size: 9px; color: #9080b0; line-height: 1.1; }
     .wheel-detail {
-      background: linear-gradient(135deg, rgba(26,16,48,0.85), rgba(13,8,32,0.92));
-      border: 1px solid rgba(180,150,255,0.18);
-      border-radius: 24px;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(255,222,166,0.14), transparent 28%),
+        radial-gradient(circle at 88% 0%, rgba(186,216,255,0.11), transparent 32%),
+        linear-gradient(135deg, rgba(34,20,50,0.86), rgba(13,8,32,0.92));
+      border: 1px solid rgba(255,222,166,0.18);
+      border-radius: 28px;
       padding: 24px;
       min-height: 420px;
+      box-shadow: 0 18px 56px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
     }
     .wheel-detail-kicker {
       color: #96ffdc;
@@ -705,6 +800,18 @@
       line-height: 1.6;
       border-top: 1px solid rgba(180,150,255,0.12);
       padding-top: 14px;
+    }
+    .wheel-memory-saved {
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(218,255,202,0.34);
+      background: rgba(218,255,202,0.10);
+      color: #eaffd8;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     /* â”€â”€â”€â”€â”€â”€â”€â”€â”€ POEM WEAVER â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -948,14 +1055,27 @@
     <!-- Norse Seasonal Calendar -->
     <div class="section" id="section-year">
       <div class="runes-intro">
-        <strong>The Pagan Wheel of the Year</strong> is the modern Pagan/Wiccan eight-festival calendar: Samhain, Yule, Imbolc, Ostara, Beltane, Litha, Lughnasadh/Lammas, and Mabon. It mixes solstices, equinoxes, and cross-quarter festivals from several European traditions.
+        <strong>The Pagan Wheel of the Year</strong> is the modern Pagan/Wiccan eight-festival calendar: Yule / Winter Solstice, Imbolc, Ostara / Spring Equinox, Beltane, Litha / Summer Solstice, Lughnasadh / First Harvest, Mabon / Autumn Equinox, and Samhain. It mixes solstices, equinoxes, and cross-quarter festivals from several European traditions.
         <br><br>
         Tap a sabbat to see its season, themes, and a Pixie-safe reflection prompt.
       </div>
       <div class="wheel-wrap">
         <div class="year-wheel-panel">
-          <div class="wheel-title">Pagan Wheel of the Year</div>
-          <p class="wheel-subtitle">Eight seasonal sabbats for tracking light, harvest, threshold, and return.</p>
+          <div class="year-wheel-hero">
+            <div class="year-wheel-art-frame">
+              <img class="year-wheel-art" src="/assets/wheel-of-year.jpg" alt="Pastel Wheel of the Year seasonal calendar with sabbats, solstices, equinoxes, herbs, candles, moon and sun motifs">
+            </div>
+            <div>
+              <div class="wheel-title">Wheel of the Year</div>
+              <p class="wheel-subtitle">Seasonal magic, sabbats, and portal rhythms.</p>
+              <p class="wheel-body">Follow the turning year through solstices, equinoxes, harvests, blooms, fires, shadows, and returns of light. Discover each seasonal gate, save notes to your Pixie memory, and unlock charms tied to the wheel.</p>
+              <div class="wheel-actions" aria-label="Wheel of the Year actions">
+                <button class="wheel-action primary" type="button" onclick="openWheel()">Open the Wheel</button>
+                <button class="wheel-action" type="button" onclick="discoverCurrentSeason()">Discover This Season</button>
+                <button class="wheel-action" type="button" onclick="saveWheelToMemory()">Save to Memory</button>
+              </div>
+            </div>
+          </div>
           <div class="wheel-orbit" id="year-wheel-orbit"></div>
         </div>
         <article class="wheel-detail" id="year-wheel-detail" aria-live="polite"></article>
@@ -1705,7 +1825,7 @@
     },
     {
       id: 'yule',
-      name: 'Yule',
+      name: 'Yule / Winter Solstice',
       icon: '✦',
       date: 'Winter solstice / Dec 21-22',
       status: 'Modern Pagan solar sabbat at midwinter; the name also has older Germanic roots.',
@@ -1729,7 +1849,7 @@
     },
     {
       id: 'ostara',
-      name: 'Ostara',
+      name: 'Ostara / Spring Equinox',
       icon: '☼',
       date: 'Spring equinox / Mar 19-21',
       status: 'Modern Pagan solar sabbat. The name comes through later Germanic spring-goddess discussions and modern usage.',
@@ -1753,7 +1873,7 @@
     },
     {
       id: 'litha',
-      name: 'Litha',
+      name: 'Litha / Summer Solstice',
       icon: '☀',
       date: 'Summer solstice / Jun 20-22',
       status: 'Modern Pagan solar sabbat at midsummer.',
@@ -1765,10 +1885,10 @@
     },
     {
       id: 'lughnasadh',
-      name: 'Lughnasadh / Lammas',
+      name: 'Lughnasadh / First Harvest',
       icon: '✹',
       date: 'Aug 1',
-      status: 'Modern Pagan cross-quarter sabbat rooted especially in Gaelic Lughnasadh and Christian Lammas harvest traditions.',
+      status: 'Modern Pagan cross-quarter sabbat rooted especially in Gaelic Lughnasadh and later first-harvest/Lammas traditions.',
       modern: 'Marks first harvest, grain, skill, games, offerings, and gratitude for food.',
       norse: 'Odin’s Eye note: not a Norse holiday name; use as the wheel’s harvest-opening spoke.',
       ritual: 'Cut the first sheaf. Count what arrived. Share enough that the harvest stays holy.',
@@ -1777,7 +1897,7 @@
     },
     {
       id: 'mabon',
-      name: 'Mabon',
+      name: 'Mabon / Autumn Equinox',
       icon: '◐',
       date: 'Autumn equinox / Sep 21-23',
       status: 'Modern Pagan solar sabbat name popularized in the 20th century.',
@@ -1905,6 +2025,58 @@
       <div class="wheel-tags">${item.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
       <div class="wheel-source-note">Fact boundary: this is the modern Pagan/Wiccan Wheel of the Year, not a claim that Viking-age people used this exact fixed calendar. Britannica describes Wicca as commonly observing eight seasonal sabbats: Yule, Imbolc, Ostara, Beltane, Litha, Lughnasadh, Mabon, and Samhain.</div>
     `;
+  }
+
+  function openWheel() {
+    const orbit = document.getElementById('year-wheel-orbit');
+    orbit?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    orbit?.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.025)' }, { transform: 'scale(1)' }],
+      { duration: 820, easing: 'ease-out' }
+    );
+  }
+
+  function getCurrentWheelIndex(date = new Date()) {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const mmdd = month * 100 + day;
+    if (mmdd >= 1031 || mmdd < 1221) return 0; // Samhain through the darkening year.
+    if (mmdd >= 1221 || mmdd < 201) return 1;
+    if (mmdd >= 201 && mmdd < 320) return 2;
+    if (mmdd >= 320 && mmdd < 430) return 3;
+    if (mmdd >= 430 && mmdd < 620) return 4;
+    if (mmdd >= 620 && mmdd < 801) return 5;
+    if (mmdd >= 801 && mmdd < 921) return 6;
+    return 7;
+  }
+
+  function discoverCurrentSeason() {
+    const index = getCurrentWheelIndex();
+    selectWheelSpoke(index);
+    document.getElementById('year-wheel-detail')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function saveWheelToMemory() {
+    const item = YEAR_WHEEL[activeWheelIndex] || YEAR_WHEEL[getCurrentWheelIndex()];
+    try {
+      const key = 'pixieSeasonalMemory';
+      const memory = JSON.parse(localStorage.getItem(key) || '[]');
+      memory.unshift({
+        category: 'seasonal/wheel-of-year/pagan-year',
+        title: item.name,
+        date: new Date().toISOString(),
+        note: item.ritual,
+        tags: item.tags
+      });
+      localStorage.setItem(key, JSON.stringify(memory.slice(0, 24)));
+      const detail = document.getElementById('year-wheel-detail');
+      if (detail) {
+        detail.insertAdjacentHTML('afterbegin', '<div class="wheel-memory-saved">Saved to Pixie seasonal memory.</div>');
+        setTimeout(() => detail.querySelector('.wheel-memory-saved')?.remove(), 2600);
+      }
+    } catch (err) {
+      console.warn('Wheel memory save failed', err);
+    }
   }
 
   function buildGods() {
