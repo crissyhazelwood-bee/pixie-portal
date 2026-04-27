@@ -780,6 +780,35 @@
                 rgba(15,8,34,0.82);
         }
 
+
+
+        /* Pixie Portal chamber chrome: keeps standalone games visually tied to the main world. */
+        .back-btn,
+        .ghost-btn,
+        .go-ghost,
+        .dock-btn:first-child {
+            border: 1px solid rgba(255, 214, 139, 0.24) !important;
+            border-radius: 999px !important;
+            background:
+                radial-gradient(circle at 18% 0%, rgba(255, 150, 220, 0.20), transparent 48%),
+                rgba(18, 8, 32, 0.72) !important;
+            color: #fff1c7 !important;
+            box-shadow: 0 0 22px rgba(255, 120, 220, 0.14), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+            backdrop-filter: blur(14px);
+            text-decoration: none !important;
+            font-family: 'Quicksand', sans-serif !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.02em;
+        }
+        .back-btn:hover,
+        .ghost-btn:hover,
+        .go-ghost:hover,
+        .dock-btn:first-child:hover {
+            border-color: rgba(255, 150, 220, 0.58) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 28px rgba(255, 120, 220, 0.24), 0 14px 40px rgba(0,0,0,0.24) !important;
+        }
+
     </style>
 </head>
 <body>
@@ -793,7 +822,7 @@
 </div>
 
 <div id="ui">
-    <a class="back-btn" onclick="window.location.href='/'">&#x2190; Portal</a>
+    <a class="back-btn" onclick="window.location.href='/index.html#/portal'">Back to Portal</a>
     <div style="text-align:center;">
         <div id="zone-name">The Meadow</div>
         <div id="portal-stats" style="display:none;gap:5px;justify-content:center;margin-top:3px;"></div>
@@ -843,7 +872,7 @@
         <span id="pixie-memory-copy">Memories, charms, games, readings, and realm choices build your private Pixie profile.</span>
     </div>
     <div class="hud-panel bottom-dock">
-        <button class="dock-btn" onclick="window.location.href='/'"><b>&#x2302;</b>Home</button>
+        <button class="dock-btn" onclick="window.location.href='/index.html#/portal'"><b>&#x2302;</b>Portal</button>
         <button id="dock-build" class="dock-btn" onclick="toggleBuild()"><b>&#x1F528;</b>Build</button>
         <button class="dock-btn" onclick="openPortalSheet('inventory')"><b>&#x1F392;</b>Bag</button>
         <button class="dock-btn" onclick="openCustomizer()"><b>&#x2728;</b>Fairy</button>

@@ -36,6 +36,35 @@
         #game-over button:hover { transform:scale(1.05); box-shadow:0 5px 25px rgba(200,255,80,0.3); }
         #game-over .ghost-btn { background:transparent; color:#b496ff; border:1px solid rgba(180,150,255,0.3); }
         #game-over .ghost-btn:hover { border-color:#c8ff50; color:#c8ff50; }
+
+
+        /* Pixie Portal chamber chrome: keeps standalone games visually tied to the main world. */
+        .back-btn,
+        .ghost-btn,
+        .go-ghost,
+        .dock-btn:first-child {
+            border: 1px solid rgba(255, 214, 139, 0.24) !important;
+            border-radius: 999px !important;
+            background:
+                radial-gradient(circle at 18% 0%, rgba(255, 150, 220, 0.20), transparent 48%),
+                rgba(18, 8, 32, 0.72) !important;
+            color: #fff1c7 !important;
+            box-shadow: 0 0 22px rgba(255, 120, 220, 0.14), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+            backdrop-filter: blur(14px);
+            text-decoration: none !important;
+            font-family: 'Quicksand', sans-serif !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.02em;
+        }
+        .back-btn:hover,
+        .ghost-btn:hover,
+        .go-ghost:hover,
+        .dock-btn:first-child:hover {
+            border-color: rgba(255, 150, 220, 0.58) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 28px rgba(255, 120, 220, 0.24), 0 14px 40px rgba(0,0,0,0.24) !important;
+        }
+
     </style>
 </head>
 <body>
@@ -54,7 +83,7 @@
 
 <div id="ui" style="display:none;">
     <div class="ui-left">
-        <a class="back-btn" onclick="window.location.href='/'">← Portal</a>
+        <a class="back-btn" onclick="window.location.href='/index.html#/portal'">Back to Portal</a>
         <div class="stat">🌟 <span class="stat-val" id="orbs">0</span></div>
     </div>
     <div class="ui-right">
@@ -68,7 +97,7 @@
     <div class="final-score" id="final-score">0</div>
     <div class="stats" id="final-stats"></div>
     <button onclick="startGame()">Glow Again ✦</button>
-    <button class="ghost-btn" onclick="window.location.href='/'">Back to Portal</button>
+    <button class="ghost-btn" onclick="window.location.href='/index.html#/portal'">Back to Portal</button>
 </div>
 
 <script>

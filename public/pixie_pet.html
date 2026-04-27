@@ -74,6 +74,35 @@
         .game-card .gc-desc{color:#9080b0;font-size:12px;line-height:1.4}
         .game-card .gc-best{color:#ffffa0;font-size:11px;margin-top:8px}
         .close-select{margin-top:25px;padding:10px 25px;border-radius:20px;border:1px solid rgba(180,150,255,0.3);background:transparent;color:#b496ff;font-family:'Quicksand',sans-serif;font-weight:600;cursor:pointer;font-size:14px}
+
+
+        /* Pixie Portal chamber chrome: keeps standalone games visually tied to the main world. */
+        .back-btn,
+        .ghost-btn,
+        .go-ghost,
+        .dock-btn:first-child {
+            border: 1px solid rgba(255, 214, 139, 0.24) !important;
+            border-radius: 999px !important;
+            background:
+                radial-gradient(circle at 18% 0%, rgba(255, 150, 220, 0.20), transparent 48%),
+                rgba(18, 8, 32, 0.72) !important;
+            color: #fff1c7 !important;
+            box-shadow: 0 0 22px rgba(255, 120, 220, 0.14), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+            backdrop-filter: blur(14px);
+            text-decoration: none !important;
+            font-family: 'Quicksand', sans-serif !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.02em;
+        }
+        .back-btn:hover,
+        .ghost-btn:hover,
+        .go-ghost:hover,
+        .dock-btn:first-child:hover {
+            border-color: rgba(255, 150, 220, 0.58) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 28px rgba(255, 120, 220, 0.24), 0 14px 40px rgba(0,0,0,0.24) !important;
+        }
+
     </style>
 </head>
 <body>
@@ -83,7 +112,7 @@
 <!-- HUB UI -->
 <div id="hub-ui">
     <div class="top-bar">
-        <a class="back-btn" onclick="window.location.href='/'">← Portal</a>
+        <a class="back-btn" onclick="window.location.href='/index.html#/portal'">Back to Portal</a>
         <div class="stats-bar">
             <div class="stat-pill"><span class="stat-icon">✨</span><div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-sparkle" style="width:80%;background:linear-gradient(90deg,#ff96c8,#ffb0d8)"></div></div><span class="stat-val" id="val-sparkle">80</span></div>
             <div class="stat-pill"><span class="stat-icon">💖</span><div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-happy" style="width:80%;background:linear-gradient(90deg,#ff6090,#ff90b0)"></div></div><span class="stat-val" id="val-happy">80</span></div>

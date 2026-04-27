@@ -1322,6 +1322,32 @@
         .portal-node strong { display: block; color: #fff1c7; font-size: 15px; margin-bottom: 4px; }
         .portal-node small { color: rgba(230,214,255,0.72); line-height: 1.4; }
 
+        .maker-games-panel {
+            margin-top: 22px;
+            padding: 18px;
+            border-radius: 26px;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(255, 214, 139, 0.12), transparent 28%),
+                radial-gradient(circle at 86% 18%, rgba(121, 247, 255, 0.10), transparent 32%),
+                rgba(10, 4, 22, 0.62);
+            border: 1px solid rgba(255, 214, 139, 0.18);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 50px rgba(0,0,0,0.22);
+        }
+
+        .maker-games-panel .cards {
+            margin-top: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .maker-game-tile {
+            opacity: .86;
+            min-height: 150px;
+        }
+
+        .maker-game-tile:hover {
+            opacity: 1;
+        }
+
         body.global-chamber-active .nav-tab.active { box-shadow: 0 0 26px rgba(255,214,139,0.20); }
 
         .chamber-shell {
@@ -2526,18 +2552,6 @@
                     <div class="card-desc">Flap through an enchanted crystal cave, collect gems, and breathe fire to smash obstacles. How far can your dragon fly?</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <a class="card reveal" href="https://aiit-threshold.com/game" target="_blank" rel="noopener" style="text-decoration:none;">
-                    <span class="card-icon">🫘</span>
-                    <div class="card-title">Them Beans Though</div>
-                    <div class="card-desc">You are a coherence particle. Dodge meteors. Collect beans. Find the ring before decoherence wins. Built by Rhet.</div>
-                    <span class="card-tag tag-game">LIVE</span>
-                </a>
-                <a class="card reveal" href="https://aiit-threshold.com/dailygrind" target="_blank" rel="noopener" style="text-decoration:none;">
-                    <span class="card-icon">😁</span>
-                    <div class="card-title">Dailygrind</div>
-                    <div class="card-desc">You vs the bad vibes. Hop through a tunnel of 😠😢😭🤬 and see how far you get. Leaderboard live. Built by Rhet.</div>
-                    <span class="card-tag tag-game">LIVE</span>
-                </a>
             </div>
             </div>
         </section>
@@ -2689,18 +2703,6 @@
                     <div class="card-desc">Flap through an enchanted crystal cave, collect gems, and breathe fire to smash obstacles.</div>
                     <span class="card-tag tag-game">Play</span>
                 </div>
-                <a class="card game-tile" data-tags="arcade" href="https://aiit-threshold.com/game" target="_blank" rel="noopener" style="text-decoration:none;">
-                    <span class="card-icon">🫘</span>
-                    <div class="card-title">Them Beans Though</div>
-                    <div class="card-desc">You are a coherence particle. Dodge meteors. Collect beans. Find the ring before decoherence wins. Built by Rhet.</div>
-                    <span class="card-tag tag-game">LIVE</span>
-                </a>
-                <a class="card game-tile" data-tags="daily arcade" href="https://aiit-threshold.com/dailygrind" target="_blank" rel="noopener" style="text-decoration:none;">
-                    <span class="card-icon">😁</span>
-                    <div class="card-title">Dailygrind</div>
-                    <div class="card-desc">You vs the bad vibes. Hop through a tunnel of 😠😢😭🤬 and see how far you get. Leaderboard live. Built by Rhet.</div>
-                    <span class="card-tag tag-game">LIVE</span>
-                </a>
             </div>
             </div>
 
@@ -2774,6 +2776,25 @@
                     <div class="card-desc">Hatch magical eggs by completing tiny daily rituals and games.</div>
                     <div class="card-meta"><span>Reward: Pixie Pets</span><span>Status: Coming soon</span></div>
                     <span class="card-tag tag-game locked-badge">Preview</span>
+                </div>
+            </div>
+            <div class="maker-games-panel reveal">
+                <div class="hub-kicker">Side portal</div>
+                <div class="hub-title" style="font-size:22px;">From the makers of Loki</div>
+                <div class="hub-copy">These open outside Pixie Portal on purpose. Weird little experiments from the AIIT / Loki side of the house.</div>
+                <div class="cards">
+                    <a class="card game-tile maker-game-tile" data-tags="maker arcade" href="https://aiit-threshold.com/game" target="_blank" rel="noopener" style="text-decoration:none;">
+                        <span class="card-icon">&#129752;</span>
+                        <div class="card-title">Them Beans Though</div>
+                        <div class="card-desc">A coherence-particle side quest. Dodge meteors, collect beans, and find the ring before decoherence wins.</div>
+                        <span class="card-tag tag-game">Partner</span>
+                    </a>
+                    <a class="card game-tile maker-game-tile" data-tags="maker daily arcade" href="https://aiit-threshold.com/dailygrind" target="_blank" rel="noopener" style="text-decoration:none;">
+                        <span class="card-icon">&#128513;</span>
+                        <div class="card-title">Dailygrind</div>
+                        <div class="card-desc">You versus the bad vibes. A strange little tunnel runner from Rhet's side of the lab.</div>
+                        <span class="card-tag tag-game">Partner</span>
+                    </a>
                 </div>
             </div>
 
