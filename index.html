@@ -525,7 +525,7 @@
         .altar-obj-mini-bottles { height: 108px; display: flex; align-items: flex-end; justify-content: center; gap: 8px; }
         .altar-obj-mini-bottles span:not(.altar-obj-shadow) { width: 24px; height: 58px; border-radius: 10px 10px 16px 16px; background: linear-gradient(180deg, rgba(255,245,255,0.75), rgba(255,135,218,0.52)); border: 1px solid rgba(255,255,255,0.32); box-shadow: inset -6px -9px 14px rgba(56,24,66,0.24), 0 0 14px rgba(255,135,218,0.18); }
         .altar-obj-mini-bottles span:nth-child(2) { height: 72px; background: linear-gradient(180deg, rgba(232,255,248,0.82), rgba(120,224,205,0.52)); }
-        .altar-obj-crystal-ball .ball { width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: radial-gradient(circle at 34% 24%, #fff6ff 0 8%, #e3c3ff 18%, #8d6dff 48%, rgba(49,26,70,0.92) 100%); border: 2px solid rgba(255,238,255,0.52); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 28px rgba(176,126,255,0.38); }
+        .altar-obj-crystal-ball .ball { position: relative; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: radial-gradient(circle at 34% 24%, #fff6ff 0 8%, #e3c3ff 18%, #8d6dff 48%, rgba(49,26,70,0.92) 100%); border: 2px solid rgba(255,238,255,0.52); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 28px rgba(176,126,255,0.38); }
         .altar-obj-crystal-ball .stand { width: 74px; height: 22px; margin: -8px auto 0; border-radius: 50% 50% 12px 12px; background: linear-gradient(180deg, #f6d07e, #69412b); border: 1px solid rgba(255,236,184,0.55); }
         .altar-obj-candle { position: relative; height: 112px; }
         .altar-obj-candle .wax { position: absolute; left: 38px; bottom: 10px; width: 32px; height: 70px; border-radius: 14px 14px 8px 8px; background: linear-gradient(180deg, #ffe5ef, #e9a9ca); box-shadow: inset -8px 0 14px rgba(111,47,89,0.28); }
@@ -559,7 +559,7 @@
         @keyframes altarSmoke { from { transform: translateY(8px) scale(.78); opacity:.35; } to { transform: translateY(-8px) scale(1.1); opacity:.72; } }
         .altar-obj-portrait { width: 108px; height: 128px; margin: 0 auto; padding: 8px; border-radius: 24px 24px 18px 18px; background: linear-gradient(145deg, #f2c878, #6b3d47 46%, #17101b); border: 2px solid rgba(255,232,184,0.42); box-shadow: 0 0 24px rgba(255,214,139,0.20), inset 0 0 0 4px rgba(16,8,20,0.72); }
         .altar-obj-portrait .altar-self-portrait { width: 100%; height: 100%; border-radius: 18px; }
-        .altar-obj-note { width: 112px; min-height: 74px; padding: 12px 10px; border-radius: 8px; color: #4a2633; font-size: 11px; line-height: 1.25; font-weight: 800; text-align: left; background: linear-gradient(180deg, #ffe8b9, #e2bf83); border: 1px solid rgba(82,45,28,0.22); box-shadow: 0 8px 18px rgba(0,0,0,0.28); }
+        .altar-obj-note { position: relative; width: 112px; min-height: 74px; padding: 12px 10px; border-radius: 8px; color: #4a2633; font-size: 11px; line-height: 1.25; font-weight: 800; text-align: left; background: linear-gradient(180deg, #ffe8b9, #e2bf83); border: 1px solid rgba(82,45,28,0.22); box-shadow: 0 8px 18px rgba(0,0,0,0.28); }
         .cabinet-plaque { position: absolute; left: 12%; right: 12%; bottom: 18px; max-width: none; margin: 0; border-radius: 18px; background: linear-gradient(180deg, rgba(255,214,139,0.18), rgba(36,16,34,0.96)); z-index: 32; }
         @media (max-width: 720px) {
             .altar-board.cabinet-mode { min-height: 620px; padding: 12px; }
@@ -569,6 +569,40 @@
             .altar-physical-object { width: 92px; height: 92px; }
             .cabinet-plaque { left: 8%; right: 8%; font-size: 12px; }
         }
+        .altar-cabinet { background: radial-gradient(circle at 50% 18%, rgba(97,48,102,0.78), transparent 30%), linear-gradient(180deg, #1b0e20 0%, #08040c 100%); border-color: #09050c; box-shadow: 0 38px 120px rgba(0,0,0,0.68), 0 0 62px rgba(255,116,220,0.16), inset 0 0 0 2px rgba(255,214,139,0.26), inset 0 0 78px rgba(0,0,0,0.78); }
+        .altar-cabinet-back-pattern { position: absolute; inset: 38px 54px 54px; z-index: 1; border-radius: 22px; opacity: .7; background: radial-gradient(circle at 50% 18%, rgba(255,214,139,0.10), transparent 20%), radial-gradient(circle at 16px 16px, rgba(255,214,139,0.13) 0 1px, transparent 2px), radial-gradient(circle at 46px 38px, rgba(255,126,224,0.10) 0 1px, transparent 2px), linear-gradient(180deg, rgba(8,4,12,0.20), rgba(0,0,0,0.28)); background-size: auto, 58px 58px, 58px 58px, auto; pointer-events: none; }
+        .altar-cabinet-crest { position: absolute; left: 50%; top: 14px; z-index: 9; width: 210px; height: 72px; transform: translateX(-50%); border-radius: 50% 50% 14px 14px; background: radial-gradient(circle at 50% 20%, rgba(255,214,139,0.22), transparent 28%), linear-gradient(180deg, rgba(34,16,36,0.92), rgba(7,4,10,0.96)); border: 1px solid rgba(255,214,139,0.28); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 28px rgba(0,0,0,0.32); pointer-events: none; }
+        .altar-cabinet-crest::before { content: "☾ ✦ ☽"; position: absolute; inset: 18px 0 auto; text-align: center; color: #ffe7aa; font-size: 23px; letter-spacing: 14px; text-shadow: 0 0 16px rgba(255,214,139,0.52); }
+        .altar-cabinet-corner { position: absolute; z-index: 10; width: 48px; height: 48px; border: 1px solid rgba(255,214,139,0.28); pointer-events: none; }
+        .altar-cabinet-corner.tl { left: 28px; top: 28px; border-right: 0; border-bottom: 0; border-radius: 18px 0 0 0; }
+        .altar-cabinet-corner.tr { right: 28px; top: 28px; border-left: 0; border-bottom: 0; border-radius: 0 18px 0 0; }
+        .altar-cabinet-corner.bl { left: 28px; bottom: 28px; border-right: 0; border-top: 0; border-radius: 0 0 0 18px; }
+        .altar-cabinet-corner.br { right: 28px; bottom: 28px; border-left: 0; border-top: 0; border-radius: 0 0 18px 0; }
+        .altar-cabinet-shelf::before { content: ""; position: absolute; left: 18px; right: 18px; top: -7px; height: 8px; border-radius: 999px; background: linear-gradient(90deg, transparent, rgba(255,214,139,0.22), transparent); }
+        .altar-cabinet-shelf::after { content: ""; position: absolute; left: 5%; right: 5%; bottom: -10px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.34); filter: blur(5px); }
+        .altar-shelf-cloth { position: absolute; left: 16%; right: 16%; height: 28px; z-index: 9; border-radius: 0 0 18px 18px; background: linear-gradient(180deg, rgba(255,214,230,0.18), rgba(156,92,154,0.24)); border-bottom: 1px solid rgba(255,214,139,0.18); clip-path: polygon(0 0,100% 0,100% 72%,94% 100%,88% 72%,82% 100%,76% 72%,70% 100%,64% 72%,58% 100%,52% 72%,46% 100%,40% 72%,34% 100%,28% 72%,22% 100%,16% 72%,10% 100%,4% 72%,0 100%); pointer-events: none; }
+        .altar-shelf-cloth.middle { display: none; }
+        .altar-shelf-cloth.lower { top: 88%; opacity: .58; }
+        .altar-obj-crystal-ball .ball::after { content: ""; position: absolute; width: 24px; height: 13px; margin: 15px 0 0 18px; border-radius: 50%; background: rgba(255,255,255,0.72); filter: blur(.3px); transform: rotate(-18deg); }
+        .altar-obj-candle .wax::before { content: ""; position: absolute; left: 8px; top: 12px; width: 7px; height: 22px; border-radius: 999px; background: rgba(255,255,255,0.42); box-shadow: 12px 13px 0 -2px rgba(161,76,119,0.28); }
+        .altar-obj-candle::after { content: ""; position: absolute; left: 22px; top: 12px; width: 70px; height: 82px; border-radius: 50%; background: radial-gradient(circle, rgba(255,182,82,0.26), transparent 64%); filter: blur(6px); z-index: -1; }
+        .altar-obj-cat .body::after { content: ""; position: absolute; right: -18px; top: 18px; width: 36px; height: 13px; border-radius: 50%; border-top: 8px solid #060408; transform: rotate(36deg); }
+        .altar-obj-books span:not(.altar-obj-shadow)::after { content: ""; display: block; width: 60%; height: 2px; margin: 10px auto 0; border-radius: 999px; background: rgba(255,255,255,0.32); box-shadow: 0 13px rgba(0,0,0,0.18), 0 26px rgba(255,255,255,0.18); }
+        .altar-obj-bottle .jar::after { content: ""; position: absolute; width: 12px; height: 42px; margin-left: -20px; border-radius: 999px; background: rgba(255,255,255,0.30); filter: blur(.2px); }
+        .altar-obj-portrait { transform: perspective(260px) rotateX(1deg); box-shadow: 0 16px 22px rgba(0,0,0,0.44), 0 0 24px rgba(255,214,139,0.20), inset 0 0 0 4px rgba(16,8,20,0.72); }
+        .altar-obj-portrait::before { content: ""; position: absolute; inset: -13px; z-index: -1; border-radius: 30px 30px 22px 22px; background: linear-gradient(145deg, rgba(255,214,139,0.55), rgba(255,126,224,0.20), rgba(0,0,0,0.72)); box-shadow: 0 0 26px rgba(255,214,139,0.18); }
+        .altar-obj-note::before { content: ""; position: absolute; left: 40%; top: -8px; width: 28px; height: 12px; transform: rotate(-6deg); border-radius: 3px; background: rgba(255,236,194,0.62); box-shadow: 0 2px 5px rgba(0,0,0,0.18); }
+        .altar-obj-flowers { position: relative; height: 110px; }
+        .altar-obj-flowers span { position: absolute; bottom: 22px; width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle, #ffe7aa 0 22%, #ff8fda 24% 70%, transparent 72%); box-shadow: 0 0 14px rgba(255,143,218,0.28); }
+        .altar-obj-flowers span:nth-child(1) { left: 18px; bottom: 28px; transform: scale(.9); }
+        .altar-obj-flowers span:nth-child(2) { left: 42px; bottom: 44px; transform: scale(1.12); }
+        .altar-obj-flowers span:nth-child(3) { left: 66px; bottom: 26px; transform: scale(.82); }
+        .altar-obj-scroll { position: relative; width: 108px; height: 62px; margin: 24px auto 0; border-radius: 18px 8px 18px 8px; background: linear-gradient(180deg, #ffe7bb, #c99f6b); border: 1px solid rgba(74,42,28,0.26); box-shadow: inset 0 0 18px rgba(88,50,28,0.18), 0 10px 18px rgba(0,0,0,0.25); }
+        .altar-obj-scroll::before, .altar-obj-scroll::after { content: ""; position: absolute; top: 17px; width: 14px; height: 30px; border-radius: 999px; background: linear-gradient(180deg, #f7dba5, #8a5a36); }
+        .altar-obj-scroll::before { left: 4px; }
+        .altar-obj-scroll::after { right: 4px; }
+        .cabinet-plaque { border-color: rgba(255,214,139,0.36); box-shadow: 0 -8px 20px rgba(0,0,0,0.25), 0 10px 28px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -6px 18px rgba(0,0,0,0.26); }
+        .altar-info-card, .altar-preview-card, .altar-editor-card { border-color: rgba(255,214,139,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), 0 18px 45px rgba(0,0,0,0.28), 0 0 24px rgba(255,120,230,0.08); }
         .altar-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
         .altar-summary-chip { padding: 10px; border-radius: 14px; background: rgba(8,5,18,0.42); border: 1px solid rgba(255,214,139,0.10); }
         .altar-summary-chip small { display: block; color: rgba(255,232,190,0.58); font-size: 9px; font-weight: 900; letter-spacing: 0.9px; text-transform: uppercase; }
@@ -4138,8 +4172,9 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const page = document.getElementById('page-' + id);
             if (page) page.classList.add('active');
-            document.body.classList.toggle('pixie-profile-page', id === 'profile');
-            document.body.classList.toggle('my-pixie-page-active', id === 'profile');
+            const isAltarPage = id === 'profile' || id === 'my-pixie';
+            document.body.classList.toggle('pixie-profile-page', isAltarPage);
+            document.body.classList.toggle('my-pixie-page-active', isAltarPage);
             if (id === 'profile' && !currentUser) {
                 openModal('login');
                 showPage('home');
@@ -6454,7 +6489,7 @@
                     generated:false
                 },
                 words:{
-                    bio:'I am the creator of Pixie Portal. If you have ideas, problems, questions, or magic to share, please reach out.',
+                    bio:"I'm the creator of Pixie Portal. If you have ideas, problems, questions, or magic to share, please reach out. Thank you for being here.",
                     poem:'soft life, strong magic',
                     goal:'Build the living portal',
                     affirmation:'The portal remembers what I choose to keep.',
@@ -6622,6 +6657,7 @@
                 { itemId:'dream-key', shelf:'top', slot:'top-right', x:69, y:32, scale:1, rot:0, z:22, html:'<div class="altar-obj-cat"><div class="body"></div><div class="head"></div><div class="eyes">••</div><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'moon-charm', shelf:'top', slot:'top-left', x:80, y:36, scale:.95, rot:4, z:19, html:'<div class="altar-obj-herbs"><span class="sprig"></span><span class="sprig"></span><span class="sprig"></span><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'poem-1', shelf:'top', slot:'top-right', x:58, y:34, scale:.82, rot:-4, z:18, html:'<div class="altar-obj-mini-bottles"><span></span><span></span><span class="altar-obj-shadow"></span></div>' },
+                { itemId:'rose-crystal', shelf:'top', slot:'top-right', x:87, y:32, scale:.82, rot:8, z:20, html:'<div class="altar-obj-flowers"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'bio-card', shelf:'middle', slot:'middle-left', x:24, y:58, scale:1, rot:-1, z:23, html:'<div class="altar-obj-books"><span style="height:68px;--book:#23131f"></span><span style="height:62px;--book:#e8c5d8"></span><span style="height:72px;--book:#cfa8ff"></span><span style="height:58px;--book:#ffd1a6"></span><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'rose-crystal', shelf:'middle', slot:'middle-left', x:47, y:60, scale:1, rot:0, z:24, html:'<div class="altar-obj-crystals"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'poem-1', shelf:'middle', slot:'middle-right', x:66, y:58, scale:.95, rot:4, z:23, html:'<div class="altar-obj-bottle"><div class="neck"></div><div class="jar">MOON</div><span class="altar-obj-shadow"></span></div>' },
@@ -6631,6 +6667,7 @@
                 { itemId:'poem-1', shelf:'lower', slot:'lower-center', x:36, y:80, scale:1.06, rot:-3, z:30, html:'<div class="altar-obj-open-book"><div class="page left"><span class="line"></span><span class="line"></span><span class="line"></span></div><div class="page right"><span class="line"></span><span class="line"></span><span class="line"></span></div><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'tarot-star', shelf:'lower', slot:'lower-center', x:65, y:82, scale:1, rot:8, z:27, html:'<div class="altar-obj-tarot">✦</div>' },
                 { itemId:'goal-1', shelf:'lower', slot:'lower-right', x:84, y:72, scale:.82, rot:7, z:18, html:'<div class="altar-obj-note">' + escHtml(goal) + '</div>' },
+                { itemId:'poem-1', shelf:'lower', slot:'lower-center', x:52, y:83, scale:.78, rot:4, z:24, html:'<div class="altar-obj-scroll"></div>' },
                 { itemId:'dream-key', shelf:'lower', slot:'lower-right', x:78, y:85, scale:1, rot:0, z:27, html:'<div class="altar-obj-incense"><div class="smoke"></div><div class="bowl"></div><span class="altar-obj-shadow"></span></div>' }
             ];
         }
@@ -6670,8 +6707,10 @@
             board.innerHTML = '<div class="altar-cabinet" aria-label="Decorated personal altar cabinet">' +
                 '<div class="altar-cabinet-spire left"></div><div class="altar-cabinet-spire right"></div>' +
                 '<div class="altar-cabinet-moon m1">☾</div><div class="altar-cabinet-moon m2">☽</div><div class="altar-cabinet-moon m3">✦</div><div class="altar-cabinet-moon m4">✦</div>' +
+                '<div class="altar-cabinet-back-pattern"></div><div class="altar-cabinet-crest"></div><div class="altar-cabinet-corner tl"></div><div class="altar-cabinet-corner tr"></div><div class="altar-cabinet-corner bl"></div><div class="altar-cabinet-corner br"></div>' +
                 '<div class="altar-cabinet-vine left"></div><div class="altar-cabinet-vine right"></div>' +
                 '<div class="altar-cabinet-shelf top"></div><div class="altar-cabinet-shelf middle"></div><div class="altar-cabinet-shelf lower"></div>' +
+                '<div class="altar-shelf-cloth middle"></div><div class="altar-shelf-cloth lower"></div>' +
                 objects +
                 '<div class="altar-mantra-plaque cabinet-plaque">"' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>' +
                 '</div>';
