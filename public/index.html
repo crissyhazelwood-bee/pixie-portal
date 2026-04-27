@@ -1290,6 +1290,111 @@
             background: linear-gradient(135deg, #ffb3f3, #8d55ff);
         }
 
+        .portal-node-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .portal-node {
+            min-height: 116px;
+            border: 1px solid rgba(255, 170, 240, 0.16);
+            border-radius: 22px;
+            padding: 16px;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(255, 120, 220, 0.16), transparent 52%),
+                rgba(16, 8, 30, 0.68);
+            color: #f8eaff;
+            text-align: left;
+            cursor: pointer;
+            transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .portal-node:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 214, 139, 0.34);
+            box-shadow: 0 18px 44px rgba(0,0,0,0.28), 0 0 24px rgba(255,120,220,0.14);
+        }
+
+        .portal-node span { display: block; font-size: 28px; margin-bottom: 8px; }
+        .portal-node strong { display: block; color: #fff1c7; font-size: 15px; margin-bottom: 4px; }
+        .portal-node small { color: rgba(230,214,255,0.72); line-height: 1.4; }
+
+        body.global-chamber-active .nav-tab.active { box-shadow: 0 0 26px rgba(255,214,139,0.20); }
+
+        .chamber-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: clamp(18px, 3vw, 34px);
+            border-radius: 34px;
+            background:
+                radial-gradient(circle at 50% 10%, rgba(255,145,220,0.14), transparent 32%),
+                radial-gradient(circle at 86% 72%, rgba(150,115,255,0.12), transparent 28%),
+                linear-gradient(145deg, rgba(18,8,32,0.88), rgba(7,4,16,0.94));
+            border: 1px solid rgba(255,180,238,0.18);
+            box-shadow: 0 28px 90px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .chamber-back-btn {
+            position: sticky;
+            top: calc(var(--nav-height) + 10px);
+            z-index: 20;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 999px;
+            padding: 10px 16px;
+            background: rgba(20,8,34,.72);
+            color: #fff;
+            backdrop-filter: blur(16px);
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .chamber-hero {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 0 auto 26px;
+            padding: clamp(18px, 3vw, 28px);
+            border-radius: 30px;
+            background: rgba(28,12,46,.58);
+            border: 1px solid rgba(255,180,238,.18);
+        }
+
+        .chamber-orb {
+            width: clamp(78px, 10vw, 126px);
+            height: clamp(78px, 10vw, 126px);
+            display: grid;
+            place-items: center;
+            border-radius: 32px;
+            background: radial-gradient(circle, rgba(255,160,230,.30), rgba(90,45,130,.28));
+            box-shadow: 0 0 44px rgba(255,140,225,.20);
+            font-size: 42px;
+            flex: 0 0 auto;
+        }
+
+        .chamber-breadcrumb { color: rgba(255,232,190,0.65); font-size: 11px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+        .chamber-title { margin: 7px 0; color: #fff1c7; font-size: clamp(34px, 5vw, 64px); line-height: .98; }
+        .chamber-copy { margin: 0; color: rgba(236,220,255,0.78); line-height: 1.65; }
+        .chamber-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 28px; padding: 12px; border-radius: 999px; background: rgba(20,8,34,.56); border: 1px solid rgba(255,255,255,.12); }
+
+        @media (max-width: 760px) {
+            .chamber-hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .chamber-actions {
+                border-radius: 24px;
+            }
+        }
+
         .locked-badge {
             color: #ffe6ff;
             border-color: rgba(255, 179, 243, 0.24);
@@ -2087,7 +2192,7 @@
                 <a class="nav-tab active" data-page="home" onclick="showPage('home')">Portal</a>
                 <a class="nav-tab" data-page="games" onclick="showPage('games')">Play</a>
                 <a class="nav-tab" data-page="create" onclick="showPage('create')">Create</a>
-                <a class="nav-tab" data-page="tarot" onclick="showPage('tarot')">Tarot</a>
+                <a class="nav-tab" data-page="tarot" onclick="openPortalChamber('tarot')">Tarot</a>
                 <a class="nav-tab" data-page="horoscope" onclick="showPage('horoscope')">Stars</a>
                 <a class="nav-tab" data-page="journal-page" onclick="showPage('journal-page')">Dreams</a>
                 <a class="nav-tab" data-page="herbs" onclick="showPage('herbs')">Herbs</a>
@@ -2235,6 +2340,33 @@
                             <button class="btn btn-ghost btn-small" onclick="showPage('charms')">View Charms</button>
                         </div>
                     </div>
+                    <div class="portal-hub-card wide">
+                        <div class="hub-kicker">Portal navigation</div>
+                        <div class="hub-title">Choose a chamber</div>
+                        <div class="hub-copy">The Portal is becoming the root: choose a node, descend into a focused chamber, act, then return.</div>
+                        <div class="portal-node-grid">
+                            <button class="portal-node" onclick="openPortalChamber('tarot')">
+                                <span>ðŸ§š</span>
+                                <strong>Tarot Ring</strong>
+                                <small>Draw, reveal, zoom into the card, and return.</small>
+                            </button>
+                            <button class="portal-node" onclick="openPortalChamber('dream')">
+                                <span>ðŸŒ™</span>
+                                <strong>Dream Well</strong>
+                                <small>Open memories instead of scrolling entries.</small>
+                            </button>
+                            <button class="portal-node" onclick="openPortalChamber('create')">
+                                <span>âš’</span>
+                                <strong>Creation Forge</strong>
+                                <small>Portraits, stickers, dreams, and paid magic.</small>
+                            </button>
+                            <button class="portal-node" onclick="openPortalChamber('altar')">
+                                <span>ðŸ•¯</span>
+                                <strong>Altar Shrine</strong>
+                                <small>Your profile becomes a room of personal relics.</small>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2337,7 +2469,7 @@
                     <div class="card-desc">Pick your zodiac sign and get your daily cosmic message. Updated every day.</div>
                     <span class="card-tag tag-horoscope">Read Now</span>
                 </div>
-                <div class="card reveal" onclick="showPage('tarot')" style="text-align:center;">
+                <div class="card reveal" onclick="openPortalChamber('tarot')" style="text-align:center;">
                     <span class="card-icon">🧚</span>
                     <div class="card-title">Fairy Tarot</div>
                     <div class="card-desc">Draw three enchanted cards from the Fairy Realm. A new spread awaits you each day.</div>
@@ -2629,7 +2761,16 @@
     <!-- ============ TAROT PAGE ============ -->
     <div class="page" id="page-tarot">
         <section>
-            <h2 class="section-title">Fairy Tarot</h2>
+            <div class="chamber-shell" id="tarot-chamber-shell">
+                <button class="chamber-back-btn" onclick="backToPortal()">Back to Portal</button>
+                <div class="chamber-hero">
+                    <div class="chamber-orb">T</div>
+                    <div>
+                        <div class="chamber-breadcrumb">Portal -> Tarot Ring</div>
+                        <h2 class="chamber-title">Fairy Tarot</h2>
+                        <p class="chamber-copy">Draw, reveal, zoom into the card, then return to the Portal. This is the first chamber in the new world navigation spine.</p>
+                    </div>
+                </div>
             <p class="section-subtitle">three cards from the fairy realm ✦ a new spread each day</p>
 
             <div class="spread-tabs" style="justify-content:center;">
@@ -2674,6 +2815,12 @@
             </div>
 
             <div class="tarot-reading" id="tarot-reading"></div>
+            <div class="chamber-actions">
+                <button class="btn btn-ghost btn-small" onclick="backToPortal()">Return to Portal</button>
+                <button class="btn btn-ghost btn-small" onclick="showPage('vault')">Unlock Deep Reading</button>
+                <button class="btn btn-primary btn-small" onclick="drawTarot()">Draw Again</button>
+            </div>
+            </div>
         </section>
     </div>
 
@@ -3538,6 +3685,21 @@
 
         let currentUser = null;
         let selectedMood = 'sparkly';
+        let globalView = 'portal';
+        let activeChamber = null;
+        let openingChamber = false;
+        let portalCameraState = { rotation: 0, zoom: 1, lastSelectedNode: 'portal' };
+        const CHAMBER_PAGE_MAP = {
+            tarot: 'tarot',
+            dream: 'journal-page',
+            charms: 'charms',
+            vault: 'vault',
+            create: 'create',
+            herb: 'herbs',
+            altar: 'profile',
+            game: 'games',
+            stars: 'horoscope'
+        };
 
         // ============================================
         // SPARKLE BACKGROUND
@@ -3579,6 +3741,11 @@
         // NAVIGATION
         // ============================================
         function showPage(id) {
+            if (!openingChamber) {
+                globalView = 'portal';
+                activeChamber = null;
+                document.body.classList.remove('global-chamber-active');
+            }
             const nl = document.getElementById('nav-links');
             const nh = document.getElementById('nav-hamburger');
             if (nl) nl.classList.remove('open');
@@ -3610,6 +3777,52 @@
             if (id === 'admin') loadAdminReports('open');
             if (id === 'my-pixie' || id === 'vault') renderPixieMemory();
             if (id === 'herbs') renderHerbology();
+        }
+
+        function openPortalChamber(type, options = {}) {
+            portalCameraState.lastSelectedNode = type;
+            if (type !== 'tarot') {
+                showPage(CHAMBER_PAGE_MAP[type] || 'home');
+                toast('The ' + chamberLabel(type) + ' chamber shell is coming next.');
+                return;
+            }
+
+            activeChamber = { type, subType: options.subType || '', id: options.id || '' };
+            globalView = 'chamber';
+            openingChamber = true;
+            showPage(CHAMBER_PAGE_MAP[type] || 'home');
+            openingChamber = false;
+            document.body.classList.add('global-chamber-active');
+            try { history.pushState({ globalView: 'chamber', type }, '', '#/chamber/' + type); } catch (err) {}
+
+            if (type === 'tarot') {
+                if (typeof lokiAltarConfirm === 'function') {
+                    lokiAltarConfirm('Tarot Ring opened. Draw, reveal, and return when the cards have spoken.');
+                }
+                return;
+            }
+        }
+
+        function backToPortal() {
+            globalView = 'portal';
+            activeChamber = null;
+            document.body.classList.remove('global-chamber-active');
+            showPage('home');
+            try { history.pushState({ globalView: 'portal' }, '', '#/portal'); } catch (err) {}
+        }
+
+        function chamberLabel(type) {
+            return {
+                tarot: 'Tarot Ring',
+                dream: 'Dream Well',
+                charms: 'Charm Circle',
+                vault: 'Memory Vault',
+                create: 'Creation Forge',
+                herb: 'Herb Grove',
+                altar: 'Altar Shrine',
+                game: 'Game Gate',
+                stars: 'Star Gate'
+            }[type] || 'Portal';
         }
 
         function toggleMobileNav() {
@@ -7148,6 +7361,9 @@
         function drawTarot() {
             todayTarotCards = getTodayTarot();
             tarotDrawn = true;
+            const tarotPulls = Number(localStorage.getItem('pixieTarotPulls') || '0') || 0;
+            localStorage.setItem('pixieTarotPulls', String(tarotPulls + 1));
+            if (typeof recordAltarEvent === 'function') recordAltarEvent('tarot_chamber_drawn', { chamber: activeChamber?.type || 'tarot' });
             document.getElementById('tarot-draw-btn').disabled = true;
             document.getElementById('tarot-draw-btn').textContent = 'Cards Drawn';
 
