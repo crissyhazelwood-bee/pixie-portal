@@ -1952,6 +1952,7 @@
                 <a class="nav-tab" data-page="herbs" onclick="showPage('herbs')">Herbs</a>
                 <a class="nav-tab" data-page="charms" onclick="showPage('charms')">Charms</a>
                 <a class="nav-tab" data-page="my-pixie" onclick="showPage('my-pixie')">My Pixie</a>
+                <a class="nav-tab" data-page="profile" onclick="showPage('profile')">Altar</a>
                 <a class="nav-tab" data-page="vault" onclick="showPage('vault')">Vault</a>
                 <div class="nav-dropdown">
                     <span class="nav-dropdown-toggle">Lore ▾</span>
@@ -2686,6 +2687,7 @@
                     <div class="hub-title">Your Pixie grows with your realm, dreams, charms, readings, and creations.</div>
                     <div class="hub-copy">When enough memory is built, export a personalized local Pixie instance with your account archive, persona config, recall database, and local setup path. This is presented honestly as memory plus recall unless true fine-tuning is implemented.</div>
                     <div class="reward-row">
+                        <button class="btn btn-primary" onclick="showPage('profile')">Open Personal Altar</button>
                         <button class="btn btn-primary" onclick="showPage('vault')">See Export Tiers</button>
                         <button class="btn btn-ghost" onclick="downloadPixieMemory()">Download Memory Archive</button>
                     </div>
@@ -3423,6 +3425,12 @@
             if (page) page.classList.add('active');
             document.body.classList.toggle('pixie-profile-page', id === 'profile');
             document.body.classList.toggle('my-pixie-page-active', id === 'profile');
+            if (id === 'profile' && !currentUser) {
+                openModal('login');
+                showPage('home');
+                toast('Log in to open your Personal Altar');
+                return;
+            }
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.page === id);
             });
