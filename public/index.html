@@ -473,9 +473,12 @@
             transition: opacity .22s ease, transform .22s ease;
         }
         .loki-altar-confirm.show { opacity: 1; transform: translateY(0) scale(1); }
+        .loki-altar-confirm.is-working { pointer-events: auto; }
+        .loki-altar-confirm.is-working .loki-altar-orb { animation: altarPortraitHalo 1.2s ease-in-out infinite alternate; }
         .loki-altar-orb { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff1c7; font-size: 24px; font-weight: 900; background: radial-gradient(circle at 32% 28%, #ffe6ad, #ff7ee0 45%, #7c55ff); box-shadow: 0 0 26px rgba(255,126,224,0.34); }
         .loki-altar-confirm strong { display: block; color: #fff1c7; margin-bottom: 3px; }
         .loki-altar-confirm span { color: rgba(240,220,255,0.82); font-size: 13px; line-height: 1.45; }
+        .loki-altar-timer { display: inline-flex; margin-top: 8px; padding: 4px 9px; border-radius: 999px; color: #fff1c7; background: rgba(255,214,139,0.10); border: 1px solid rgba(255,214,139,0.18); font-size: 12px; font-weight: 900; }
         .altar-slot.drop-flash { animation: altarDropFlash 0.9s ease both; }
         @keyframes altarDropFlash {
             0% { box-shadow: 0 0 0 rgba(255,120,230,0); transform: translateY(0); }
@@ -5570,6 +5573,8 @@
         const ALTAR_QUOTES = ['soft life, strong magic', 'built from dreams, receipts, and moonlight', 'do not disturb: becoming legendary', 'my altar, my myth, my rules', 'the portal remembers what I choose to keep'];
         let altarDirty = false;
         let altarViewState = { view:'altar', selectedPieceId:'', selectedSlotId:'', savedScrollY:0 };
+        let grokPortraitStartedAt = 0;
+        let grokTimerHandle = null;
         function escAttr(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
         function getAltarStorageKey() { return 'pixieAltarProfile:' + (currentUser?.id || 'guest'); }
         function getAltarSavedStorageKey() { return getAltarStorageKey() + ':saved'; }
@@ -5941,6 +5946,48 @@
                 btn.textContent = state === 'working' ? 'Grok is generating...' : (id === 'altar-grok-top-btn' ? 'Generate Grok Portrait' : 'Generate with Grok');
             });
         }
+        function formatGrokElapsed() {
+            if (!grokPortraitStartedAt) return '0:00';
+            const seconds = Math.max(0, Math.floor((Date.now() - grokPortraitStartedAt) / 1000));
+            return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+        }
+        function showLokiGrokProgress(message = 'OOHHHHHH HERE IT COMES!!! Grok is building your altar portrait.') {
+            let el = document.querySelector('.loki-altar-confirm');
+            if (!el) {
+                el = document.createElement('div');
+                el.className = 'loki-altar-confirm is-working';
+                document.body.appendChild(el);
+                requestAnimationFrame(() => el.classList.add('show'));
+            }
+            el.classList.add('is-working', 'show');
+            el.innerHTML = '<div class="loki-altar-orb">L</div><div><strong>Loki Pixie</strong><span>' + escHtml(message) + '</span><div class="loki-altar-timer">Waiting ' + formatGrokElapsed() + '</div></div>';
+            if (!grokTimerHandle) {
+                grokTimerHandle = setInterval(() => {
+                    const timer = document.querySelector('.loki-altar-timer');
+                    if (timer) timer.textContent = 'Waiting ' + formatGrokElapsed();
+                }, 1000);
+            }
+        }
+        function finishLokiGrokProgress(message, keepVisible = true) {
+            if (grokTimerHandle) {
+                clearInterval(grokTimerHandle);
+                grokTimerHandle = null;
+            }
+            const elapsed = formatGrokElapsed();
+            grokPortraitStartedAt = 0;
+            const el = document.querySelector('.loki-altar-confirm');
+            if (!el) {
+                if (keepVisible) lokiAltarConfirm(message + ' Took ' + elapsed + '.');
+                return;
+            }
+            el.classList.remove('is-working');
+            el.innerHTML = '<div class="loki-altar-orb">L</div><div><strong>Loki Pixie</strong><span>' + escHtml(message + ' Took ' + elapsed + '.') + '</span></div>';
+            if (!keepVisible) setTimeout(() => el.remove(), 260);
+            else setTimeout(() => {
+                el.classList.remove('show');
+                setTimeout(() => el.remove(), 260);
+            }, 6200);
+        }
         function updateAltarSaveState() { const el = document.getElementById('altar-save-state'); if (el) el.textContent = altarDirty ? 'Unsaved changes' : 'Saved'; }
         function chooseAltarPatron(id) { const altar = getAltarProfile(); altar.patron = id; altar.generatedSelf = false; saveAltarProfile(normalizeAltarProfile(altar), false); renderAltarProfile(); }
         function setAltarTheme(id) { const altar = getAltarProfile(); altar.theme = id; saveAltarProfile(altar, false); renderAltarProfile(); }
@@ -5998,6 +6045,10 @@
             }, 20);
         }
         function lokiAltarConfirm(message) {
+            if (grokTimerHandle) {
+                clearInterval(grokTimerHandle);
+                grokTimerHandle = null;
+            }
             document.querySelector('.loki-altar-confirm')?.remove();
             const el = document.createElement('div');
             el.className = 'loki-altar-confirm';
@@ -6090,7 +6141,9 @@
             altar.selfPortrait.grokStatus = 'processing';
             saveAltarProfile(altar, false);
             renderAltarProfile();
+            grokPortraitStartedAt = Date.now();
             setGrokUiState('working', 'Grok is generating your animated portrait. This can take a couple minutes.');
+            showLokiGrokProgress('OOHHHHHH HERE IT COMES!!! Grok is generating your altar portrait. I will stay here until it lands.');
             toast('Asking Grok to generate your portrait...');
             try {
                 const res = await fetch(API + '/api/altar/self-portrait-grok', {
@@ -6110,6 +6163,7 @@
                     failed.selfPortrait = { ...(failed.selfPortrait || {}), grokStatus:'failed' };
                     saveAltarProfile(failed, false);
                     renderAltarProfile();
+                    finishLokiGrokProgress(data.error === 'missing_replicate_key' ? 'Grok cannot start because Replicate is not configured.' : 'Grok could not start the portrait.');
                     toast(data.error === 'missing_replicate_key' ? 'Replicate API key is not configured yet' : 'Grok portrait failed');
                     return;
                 }
@@ -6120,6 +6174,7 @@
                 }
                 if (data.status === 'processing') {
                     setGrokUiState('working', 'Grok is generating your animated portrait. This can take a couple minutes.');
+                    showLokiGrokProgress('OOHHHHHH HERE IT COMES!!! Grok accepted the job and the portrait is cooking.');
                     toast('Grok is generating your animated portrait...');
                     pollGrokSelfPortrait(0);
                     return;
@@ -6129,6 +6184,7 @@
                 failed.selfPortrait = { ...(failed.selfPortrait || {}), grokStatus:'failed' };
                 saveAltarProfile(failed, false);
                 renderAltarProfile();
+                finishLokiGrokProgress('Grok tripped before the portrait could start.');
                 toast('Grok portrait failed');
                 return;
             }
@@ -6144,10 +6200,11 @@
             altar.selectedSlot = { shelf:'middle', slot:'middle-center' };
             saveAltarProfile(altar, false);
             placeAltarItem('ai-self');
+            finishLokiGrokProgress('Your portrait is on the altar.');
             toast('Animated self portrait preview unlocked');
         }
         async function pollGrokSelfPortrait(attempt = 0) {
-            if (attempt > 36) { setGrokUiState('idle', 'Grok is still working on Replicate. Check back soon.'); toast('Grok is still working. Check back soon.'); return; }
+            if (attempt > 36) { setGrokUiState('idle', 'Grok is still working on Replicate. Check back soon.'); finishLokiGrokProgress('Grok is still working on Replicate. You can check back soon.'); toast('Grok is still working. Check back soon.'); return; }
             setTimeout(async () => {
                 try {
                     const res = await fetch(API + '/api/altar/self-portrait-grok', { credentials:'include' });
@@ -6160,14 +6217,17 @@
                     if (data.status === 'done') {
                         setGrokUiState('idle', 'Ready. Your Grok portrait is saved and placed on the altar.');
                         placeAltarItem('ai-self');
+                        finishLokiGrokProgress('AAAHHH it landed. Your Grok portrait is alive on the altar.');
                         toast('Grok animated portrait ready');
                         return;
                     }
-                    if (data.status === 'failed') { setGrokUiState('idle', 'Generation failed. Try again.'); toast('Grok portrait failed'); return; }
+                    if (data.status === 'failed') { setGrokUiState('idle', 'Generation failed. Try again.'); finishLokiGrokProgress('Grok portrait failed. Try one more time.'); toast('Grok portrait failed'); return; }
                     setGrokUiState('working', 'Still generating with Grok... ' + Math.min(attempt + 1, 36) + '/36');
+                    showLokiGrokProgress('Still cooking. Grok is rendering your altar portrait... check ' + Math.min(attempt + 1, 36) + '/36.');
                     pollGrokSelfPortrait(attempt + 1);
                 } catch(e) {
                     setGrokUiState('working', 'Still waiting for Grok. Retrying check...');
+                    showLokiGrokProgress('The ravens are checking again. Still waiting for Grok...');
                     pollGrokSelfPortrait(attempt + 1);
                 }
             }, attempt < 6 ? 5000 : 10000);
