@@ -534,6 +534,34 @@
         .altar-focus-title { color: #fff1c7; font-size: clamp(20px, 3vw, 30px); font-weight: 900; margin: 4px 0; }
         .altar-focus-copy { color: rgba(238,220,255,0.84); line-height: 1.6; margin: 0 0 12px; }
         .altar-focus-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .altar-page-jump-fix { scroll-behavior: auto; }
+        .altar-chamber-view { display: none; min-height: calc(100vh - var(--nav-height)); padding: 28px clamp(16px, 4vw, 40px) 120px; background: radial-gradient(circle at 50% 20%, rgba(255,145,220,0.16), transparent 32%), radial-gradient(circle at 80% 80%, rgba(150,115,255,0.13), transparent 28%), #090311; color: #fff1fb; border-radius: 32px; border: 1px solid rgba(255,180,238,0.14); box-shadow: 0 28px 90px rgba(0,0,0,0.42); }
+        body.altar-chamber-active .altar-profile-shell,
+        body.altar-chamber-active .profile-tabs,
+        body.altar-chamber-active #tab-altar-tab { display: none; }
+        body.altar-chamber-active #altar-chamber-view { display: block; }
+        .altar-back-btn { position: sticky; top: calc(var(--nav-height) + 10px); z-index: 10; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 10px 16px; background: rgba(20,8,34,.72); color: #fff; backdrop-filter: blur(16px); cursor: pointer; font-family: 'Quicksand', sans-serif; font-weight: 900; }
+        .altar-chamber-hero { max-width: 1040px; margin: 34px auto 20px; display: flex; align-items: center; gap: 24px; padding: clamp(20px, 3vw, 30px); border-radius: 32px; background: rgba(28,12,46,.62); border: 1px solid rgba(255,180,238,.22); box-shadow: 0 24px 90px rgba(0,0,0,.45); }
+        .altar-piece-orb { width: clamp(112px, 16vw, 190px); height: clamp(112px, 18vw, 210px); display: grid; place-items: center; border-radius: 34px; background: radial-gradient(circle, rgba(255,160,230,.28), rgba(90,45,130,.28)); box-shadow: 0 0 44px rgba(255,140,225,.22); font-size: 42px; overflow: hidden; }
+        .altar-piece-orb .altar-self-portrait { width: 100%; height: 100%; border-radius: inherit; }
+        .altar-breadcrumb { font-size: 12px; text-transform: uppercase; letter-spacing: .16em; opacity: .65; }
+        .altar-chamber-hero h1 { margin: 8px 0; color: #fff1c7; font-size: clamp(34px, 6vw, 72px); line-height: .95; }
+        .altar-chamber-hero p { margin: 0; opacity: .78; line-height: 1.6; }
+        .altar-chamber-grid { max-width: 1040px; margin: 0 auto 100px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; }
+        .altar-chamber-main, .altar-chamber-upgrades { border-radius: 28px; padding: 24px; background: rgba(20,8,34,.58); border: 1px solid rgba(255,180,238,.18); backdrop-filter: blur(18px); }
+        .altar-chamber-main h3, .altar-chamber-upgrades h3 { margin: 0 0 10px; color: #ffb7e8; }
+        .altar-chamber-main p, .altar-chamber-upgrades p { color: rgba(236,220,255,0.82); line-height: 1.6; }
+        .altar-upgrade-list { display: grid; gap: 10px; }
+        .altar-upgrade-card { border-radius: 16px; padding: 12px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,214,139,0.16); color: #fff1c7; text-align: left; cursor: pointer; font-family: 'Quicksand', sans-serif; }
+        .altar-chamber-actions { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 10px; padding: 10px; border-radius: 999px; background: rgba(20,8,34,.76); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(18px); z-index: 20; }
+        .altar-chamber-actions button { border: 0; border-radius: 999px; padding: 12px 18px; background: rgba(255,255,255,.10); color: #fff; cursor: pointer; font-family: 'Quicksand', sans-serif; font-weight: 900; }
+        .altar-chamber-actions .primary { background: linear-gradient(90deg, #ff8fd8, #c79cff); color: #16071f; }
+        @media (max-width: 800px) {
+            .altar-chamber-view { padding: 16px 14px 130px; border-radius: 22px; }
+            .altar-chamber-hero { flex-direction: column; text-align: center; }
+            .altar-chamber-grid { grid-template-columns: 1fr; }
+            .altar-chamber-actions { width: calc(100% - 24px); justify-content: center; border-radius: 24px; flex-wrap: wrap; }
+        }
         body.pixie-profile-page #loki-pixie-agent,
         body.my-pixie-page-active #loki-pixie-agent,
         body.pixie-profile-page #pixie-sigil,
@@ -2980,6 +3008,7 @@
                 <div id="user-search-results"></div>
                 <div id="following-list"></div>
             </div>
+            <div class="altar-chamber-view" id="altar-chamber-view"></div>
         </section>
     </div>
 
@@ -5540,6 +5569,7 @@
         ];
         const ALTAR_QUOTES = ['soft life, strong magic', 'built from dreams, receipts, and moonlight', 'do not disturb: becoming legendary', 'my altar, my myth, my rules', 'the portal remembers what I choose to keep'];
         let altarDirty = false;
+        let altarViewState = { view:'altar', selectedPieceId:'', selectedSlotId:'', savedScrollY:0 };
         function escAttr(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
         function getAltarStorageKey() { return 'pixieAltarProfile:' + (currentUser?.id || 'guest'); }
         function getAltarSavedStorageKey() { return getAltarStorageKey() + ':saved'; }
@@ -5654,6 +5684,14 @@
         }
         function getAltarPatron(altar) { return ALTAR_DEITIES.find(d => d.id === altar.patron) || ALTAR_DEITIES[0]; }
         function getAltarItem(altar, itemId) { return (altar.library || []).find(item => item.id === itemId); }
+        function recordAltarEvent(name, detail = {}) {
+            try {
+                const key = 'pixieAltarEvents:' + (currentUser?.id || 'guest');
+                const events = JSON.parse(localStorage.getItem(key) || '[]');
+                events.push({ name, detail, at: new Date().toISOString() });
+                localStorage.setItem(key, JSON.stringify(events.slice(-80)));
+            } catch(e) {}
+        }
         function getSelfPortraitClass(altar) { return 'style-' + String(altar.selfPortrait?.style || 'Glossy Pixie').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
         function getSelfPortraitInitials() {
             const name = String(currentUser?.display_name || currentUser?.username || 'Pixie').trim();
@@ -5705,9 +5743,16 @@
             return '<div class="altar-item type-' + escHtml(item.type || 'sticker') + (item.premium ? ' premium' : '') + '"><div class="altar-item-icon">' + icon + '</div><div class="altar-item-label">' + escHtml(item.label || 'Altar item') + '</div>' + (item.text ? '<div class="altar-item-text">' + escHtml(item.text) + '</div>' : '') + '</div>';
         }
         function openAltarPiece(shelfId, slotId) {
-            selectAltarSlot(shelfId, slotId);
-            switchTab('altar-tab');
-            setTimeout(() => document.getElementById('altar-focus-panel')?.scrollIntoView({ behavior:'smooth', block:'center' }), 40);
+            const altar = getAltarProfile();
+            const shelf = altar.shelves.find(s => s.id === shelfId);
+            const slot = shelf?.slots.find(s => s.slot === slotId);
+            altar.selectedSlot = { shelf:shelfId, slot:slotId };
+            saveAltarProfile(altar, false);
+            altarViewState = { view:'piece', selectedPieceId: slot?.itemId || 'empty-slot', selectedSlotId: slotId, savedScrollY: window.scrollY };
+            recordAltarEvent('altar_piece_opened', { pieceId: altarViewState.selectedPieceId, shelfId, slotId });
+            document.body.classList.add('altar-chamber-active', 'altar-page-jump-fix');
+            renderAltarChamber();
+            try { history.pushState({ altarView:'piece', pieceId: altarViewState.selectedPieceId, slotId }, '', '#/altar/piece/' + encodeURIComponent(altarViewState.selectedPieceId || 'empty-slot')); } catch(e) {}
         }
         function renderAltarShelf(altar, meta) {
             const shelf = altar.shelves.find(s => s.id === meta.id) || { slots:[] };
@@ -5773,6 +5818,72 @@
                     : '<button class="btn btn-primary btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Add Related Sticker</button><button class="btn btn-ghost btn-small" onclick="saveAltarToProfile()">Save Altar</button>';
             panel.className = 'altar-focus-panel show';
             panel.innerHTML = '<div class="altar-focus-icon">' + icon + '</div><div><div class="altar-focus-kicker">' + escHtml(selected.shelf + ' shelf / ' + selected.slot.replace(/-/g, ' ')) + '</div><div class="altar-focus-title">' + escHtml(item.label || 'Altar piece') + '</div><p class="altar-focus-copy">' + escHtml(item.text || 'This shrine piece is part of your public or private altar. Later this can open a deeper customization page with upgrades, lore, and memory controls.') + '</p><div class="altar-focus-actions">' + action + '<button class="btn btn-ghost btn-small" onclick="removeSelectedAltarItem()">Remove</button></div></div>';
+        }
+        function getSelectedAltarPiece() {
+            const altar = getAltarProfile();
+            const selected = altar.selectedSlot || { shelf:'middle', slot:'middle-center' };
+            const shelf = altar.shelves.find(s => s.id === selected.shelf);
+            const slot = shelf?.slots.find(s => s.slot === selected.slot);
+            const item = getAltarItem(altar, slot?.itemId);
+            return { altar, selected, slot, item };
+        }
+        function getAltarChamberCopy(item) {
+            if (!item) return {
+                title:'Empty Slot Chamber',
+                subtitle:'Choose what belongs on this shelf.',
+                main:'Empty slots are how the altar grows. Place an earned charm, a generated sticker, a poem, a goal, or your self portrait here.',
+                upgrades:['Locked premium shrine pieces', 'Earnable game charms', 'AI-generated stickers']
+            };
+            if (item.type === 'portrait') return {
+                title:'Self Portrait Chamber',
+                subtitle:'Your generated profile picture becomes a living shrine object.',
+                main:'Generate, preview, place, and save your portrait here. This is the identity object people will click when they visit your altar.',
+                upgrades:['1 credit: regenerate portrait', '3 credits: animated portrait', '5 credits: HD altar export']
+            };
+            if (item.type === 'poem') return {
+                title:'Poem Plaque Chamber',
+                subtitle:'Words carved into the altar.',
+                main:'Edit the plaque, generate a poem, choose a tone, save it to the altar, or turn it into a share card.',
+                upgrades:['1 credit: rewrite poem', '2 credits: glowing plaque', '3 credits: premium share card']
+            };
+            if (item.type === 'bio') return {
+                title:'Bio Card Chamber',
+                subtitle:'Your public altar introduction.',
+                main:'Set your altar bio, choose a title, choose visibility, and later add a premium frame or animated badge.',
+                upgrades:['Animated bio card', 'Premium profile badge', 'Custom frame']
+            };
+            if (item.type === 'goal') return {
+                title:'Goal Card Chamber',
+                subtitle:'A ritual intention you can return to.',
+                main:'Track a goal, choose a ritual category, save progress, and eventually unlock reminder rituals or milestone cards.',
+                upgrades:['Reminder ritual', 'Premium goal frame', 'Animated milestone card']
+            };
+            return {
+                title:(item.label || 'Shrine Piece') + ' Chamber',
+                subtitle:'A deeper room for this altar object.',
+                main:'This object can hold lore, memory, customization, placement, sharing, and future upgrades without cluttering the main altar.',
+                upgrades:['Animated aura', 'Premium shrine object', 'Associated poem or omen']
+            };
+        }
+        function renderAltarChamber() {
+            const host = document.getElementById('altar-chamber-view');
+            if (!host || !currentUser) return;
+            const { altar, selected, item } = getSelectedAltarPiece();
+            const copy = getAltarChamberCopy(item);
+            const icon = item?.type === 'portrait' ? renderSelfPortraitMini(altar) : (item?.icon || '+');
+            const itemLabel = item?.label || 'Empty Slot';
+            const mainControls = item?.type === 'portrait'
+                ? '<div class="altar-word-grid"><label>Style</label><select class="altar-select" onchange="setSelfPortraitField(&quot;style&quot;, this.value);renderAltarChamber();">' + ALTAR_SELF_STYLES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.style === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select><label>Mood</label><select class="altar-select" onchange="setSelfPortraitField(&quot;mood&quot;, this.value);renderAltarChamber();">' + ALTAR_SELF_MOODS.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.mood === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select><label>Frame</label><select class="altar-select" onchange="setSelfPortraitField(&quot;frame&quot;, this.value);renderAltarChamber();">' + ALTAR_SELF_FRAMES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.frame === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select><button class="btn btn-primary btn-small" onclick="openAIGeneratedSelfOffer()">Generate Portrait</button></div>'
+                : !item
+                    ? '<div class="altar-library-grid">' + (altar.library || []).map(i => '<button class="altar-option" onclick="placeAltarItem(&quot;' + escAttr(i.id) + '&quot;);renderAltarChamber();"><span>' + (i.type === 'portrait' ? 'SELF' : (i.icon || '&#10022;')) + '</span>' + escHtml(i.label || i.id) + '</button>').join('') + '</div>'
+                    : '<p>' + escHtml(copy.main) + '</p><div class="altar-focus-actions"><button class="btn btn-primary btn-small" onclick="generateAltarItem(&quot;poem&quot;)">Generate Related Magic</button><button class="btn btn-ghost btn-small" onclick="removeSelectedAltarItem();renderAltarChamber()">Remove From Slot</button></div>';
+            host.innerHTML = '<button class="altar-back-btn" onclick="backToAltar()">← Back to Your Altar</button><section class="altar-chamber-hero"><div class="altar-piece-orb">' + icon + '</div><div><div class="altar-breadcrumb">Your Altar → ' + escHtml(itemLabel) + '</div><h1>' + escHtml(copy.title) + '</h1><p>' + escHtml(copy.subtitle) + '</p></div></section><section class="altar-chamber-grid"><div class="altar-chamber-main"><h3>' + escHtml(itemLabel) + '</h3><p>' + escHtml(copy.main) + '</p>' + mainControls + '</div><aside class="altar-chamber-upgrades"><h3>Deeper magic</h3><p>Upgrade paths live here, inside the object, not on the main altar.</p><div class="altar-upgrade-list">' + copy.upgrades.map(u => '<button class="altar-upgrade-card" onclick="recordAltarEvent(&quot;altar_upgrade_clicked&quot;, { pieceId:&quot;' + escAttr(item?.id || 'empty-slot') + '&quot;, upgrade:&quot;' + escAttr(u) + '&quot; });toast(&quot;Upgrade path coming soon&quot;)">' + escHtml(u) + '</button>').join('') + '</div></aside></section><footer class="altar-chamber-actions"><button onclick="previewPublicProfile()">Preview</button><button onclick="shareAltarProfile()">Share</button><button class="primary" onclick="saveAltarToProfile();recordAltarEvent(&quot;altar_chamber_saved&quot;, { pieceId:&quot;' + escAttr(item?.id || 'empty-slot') + '&quot; })">Save to Altar</button></footer>';
+        }
+        function backToAltar() {
+            document.body.classList.remove('altar-chamber-active');
+            recordAltarEvent('altar_back_clicked', {});
+            try { history.pushState({ altarView:'altar' }, '', '#/altar'); } catch(e) {}
+            setTimeout(() => window.scrollTo({ top: altarViewState.savedScrollY || 0, behavior:'auto' }), 20);
         }
         function renderAltarControls() {
             const host = document.getElementById('altar-controls');
@@ -6136,6 +6247,7 @@
         }
 
         function switchTab(tab) {
+            if (tab !== 'altar-tab') document.body.classList.remove('altar-chamber-active');
             document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             const activeEvent = typeof event !== 'undefined' ? event : null;
