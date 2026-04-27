@@ -57,11 +57,11 @@ function updateAppearance(appearance, patch) {
     generated: patch.selfPortrait?.grokVideoUrl ? true : !!selfPortrait.generated
   };
   const nextLibrary = library.map(item => item?.id === "ai-self"
-    ? { ...item, type: "portrait", label: "Grok Animated Portrait", text: "$1.99 - Grok generated video altar", premium: true }
+    ? { ...item, type: "portrait", label: "Grok Animated Portrait", text: "saved Grok video portrait", premium: false }
     : item
   );
   if (!nextLibrary.some(item => item?.id === "ai-self")) {
-    nextLibrary.push({ id: "ai-self", type: "portrait", label: "Grok Animated Portrait", icon: "SELF", text: "$1.99 - Grok generated video altar", premium: true });
+    nextLibrary.push({ id: "ai-self", type: "portrait", label: "Grok Animated Portrait", icon: "SELF", text: "saved Grok video portrait", premium: false });
   }
   return {
     ...ap,

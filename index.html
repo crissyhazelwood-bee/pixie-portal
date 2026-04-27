@@ -5472,7 +5472,7 @@
             { id:'centerpiece-symbol', type:'deity', label:'Centerpiece', icon:'&#10022;', text:'chosen patron' },
             { id:'candle-pair', type:'sticker', label:'Candles', icon:'&#10073;', category:'lights' },
             { id:'rose-crystal', type:'charm', label:'Rose Crystal', icon:'&#9671;', category:'crystals' },
-            { id:'ai-self', type:'portrait', label:'AI Self Portrait', icon:'SELF', text:'customize in studio', premium:true },
+            { id:'ai-self', type:'portrait', label:'Self Portrait', icon:'SELF', text:'customize in studio' },
             { id:'poem-1', type:'poem', label:'Poem Plaque', icon:'&#10048;', text:'soft life, strong magic' },
             { id:'moon-charm', type:'charm', label:'Moon Charm', icon:'&#9789;', category:'moons' },
             { id:'bio-card', type:'bio', label:'Bio Card', icon:'&#9998;', text:'creator of Pixie Portal' },
@@ -5552,8 +5552,7 @@
                 type:'portrait',
                 label:(altar.selfPortrait?.grokImageUrl || altar.selfPortrait?.grokVideoUrl) ? 'Grok Animated Portrait' : (altar.selfPortrait?.animated ? 'Animated Self Portrait' : 'AI Self Portrait'),
                 icon:'SELF',
-                text:(altar.selfPortrait?.grokImageUrl || altar.selfPortrait?.grokVideoUrl) ? '$1.99 - Grok generated video altar' : (altar.selfPortrait?.animated ? '$1.99 - ' + (altar.selfPortrait.style || 'Custom Pixie') + ' motion altar' : (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic')),
-                premium:true
+                text:(altar.selfPortrait?.grokImageUrl || altar.selfPortrait?.grokVideoUrl) ? 'saved Grok video portrait' : (altar.selfPortrait?.animated ? (altar.selfPortrait.style || 'Custom Pixie') + ' motion altar' : (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic'))
             });
             altar.library = [...libraryMap.values()].slice(0, 60);
             if (!Array.isArray(altar.shelves)) altar.shelves = base.shelves;
@@ -5694,12 +5693,12 @@
             const altar = getAltarProfile();
             const selectedText = (altar.selectedSlot?.shelf || 'middle') + ' / ' + (altar.selectedSlot?.slot || 'middle-center').replace(/-/g, ' ');
             const word = altar.words || {};
-            const libraryButtons = (altar.library || []).map(item => '<button class="altar-option" onclick="quickPlaceAltarItem(&quot;' + escAttr(item.id) + '&quot;)"><span>' + (item.type === 'portrait' ? 'SELF' : (item.icon || '&#10022;')) + '</span>' + escHtml(item.label || item.id) + (item.premium ? '<br><small class="altar-premium-badge">Premium</small>' : '') + '</button>').join('');
+            const libraryButtons = (altar.library || []).filter(item => item.type !== 'portrait').map(item => '<button class="altar-option" onclick="quickPlaceAltarItem(&quot;' + escAttr(item.id) + '&quot;)"><span>' + (item.icon || '&#10022;') + '</span>' + escHtml(item.label || item.id) + (item.premium ? '<br><small class="altar-premium-badge">Premium</small>' : '') + '</button>').join('');
             const charmButtons = (altar.library || []).filter(item => ['charm','tarot','dream','deity','portrait'].includes(item.type)).map(item => '<button class="altar-option" onclick="quickPlaceAltarItem(&quot;' + escAttr(item.id) + '&quot;)"><span>' + (item.type === 'portrait' ? 'SELF' : (item.icon || '&#10022;')) + '</span>' + escHtml(item.label || item.id) + '</button>').join('');
             host.innerHTML = '<div class="altar-command-bar"><div><div class="altar-kicker">Altar editor</div><div class="altar-save-state" id="altar-save-state">Saved</div><div class="altar-select-row">Select a shelf slot, then choose one thing to place. Selected: <strong>' + escHtml(selectedText) + '</strong></div></div><div class="altar-command-actions"><button class="btn btn-primary btn-small altar-command-primary" onclick="saveAltarToProfile()">Save Altar</button><button class="btn btn-ghost btn-small altar-command-important" id="altar-grok-top-btn" onclick="openAIGeneratedSelfOffer()">Generate Grok Portrait</button><button class="btn btn-ghost btn-small" onclick="previewPublicProfile()">Preview</button><button class="btn btn-ghost btn-small" onclick="shareAltarProfile()">Share</button></div></div><div class="altar-controls-grid">' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Altar theme</div><p class="altar-control-help">Set the room mood behind the shelves.</p><div class="altar-option-grid">' +
                 ALTAR_THEMES.map(t => '<button class="altar-option ' + (altar.theme === t.id ? 'active' : '') + '" onclick="setAltarTheme(&quot;' + t.id + '&quot;)">' + escHtml(t.name) + '</button>').join('') +
-                '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">Grok animated portrait</strong><span class="altar-premium-badge">$1.99</span><br>Generate a moving altar portrait, then place it on the middle shelf.</div></div>' +
+                '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">Portrait flow</strong><br>Your Grok portrait lives in the Self Portrait Studio. Generate it there, place it on a shelf, then Save Altar.</div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Centerpiece</div><p class="altar-control-help">Choose the deity, goddess, guide, or self portrait at the heart of the shrine.</p><div class="altar-option-grid">' +
                 ALTAR_DEITIES.map(d => '<button class="altar-option ' + (altar.patron === d.id && !altar.generatedSelf ? 'active' : '') + '" onclick="chooseAltarPatron(&quot;' + d.id + '&quot;)"><span>' + d.icon + '</span>' + escHtml(d.name) + '</button>').join('') +
                 '</div></div>' +
@@ -5707,9 +5706,9 @@
                 '<label>Portrait style</label><select class="altar-select" onchange="setSelfPortraitField(&quot;style&quot;, this.value)">' + ALTAR_SELF_STYLES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.style === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
                 '<label>Mood</label><select class="altar-select" onchange="setSelfPortraitField(&quot;mood&quot;, this.value)">' + ALTAR_SELF_MOODS.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.mood === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
                 '<label>Frame</label><select class="altar-select" onchange="setSelfPortraitField(&quot;frame&quot;, this.value)">' + ALTAR_SELF_FRAMES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.frame === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
-                '<div class="altar-self-portrait-studio">' + renderSelfPortraitMini(altar) + '<div class="altar-self-portrait-meta"><strong>Grok Animated Self Portrait</strong><span>' + escHtml(altar.selfPortrait?.style || 'Glossy Pixie') + ' - ' + escHtml(altar.selfPortrait?.mood || 'soft and divine') + '</span><span>' + escHtml(altar.selfPortrait?.frame || 'Rose Gold Frame') + '</span><span class="altar-price-pill">Grok video - $1.99</span><div id="altar-grok-status" class="altar-grok-status ' + (altar.selfPortrait?.grokStatus === 'processing' ? 'is-working' : '') + '">' + getGrokStatusText(altar) + '</div></div></div>' +
+                '<div class="altar-self-portrait-studio">' + renderSelfPortraitMini(altar) + '<div class="altar-self-portrait-meta"><strong>Grok Animated Self Portrait</strong><span>' + escHtml(altar.selfPortrait?.style || 'Glossy Pixie') + ' - ' + escHtml(altar.selfPortrait?.mood || 'soft and divine') + '</span><span>' + escHtml(altar.selfPortrait?.frame || 'Rose Gold Frame') + '</span><span class="altar-price-pill">Saved to altar profile</span><div id="altar-grok-status" class="altar-grok-status ' + (altar.selfPortrait?.grokStatus === 'processing' ? 'is-working' : '') + '">' + getGrokStatusText(altar) + '</div></div></div>' +
                 '<label>Custom prompt notes</label><textarea class="altar-note-input" oninput="setSelfPortraitField(&quot;prompt&quot;, this.value)" placeholder="pink hair, temple gold, moonlit wings, favorite colors...">' + escHtml(altar.selfPortrait?.prompt || '') + '</textarea>' +
-                '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small altar-command-primary" id="altar-grok-main-btn" onclick="openAIGeneratedSelfOffer()">Generate with Grok - $1.99</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;ai-self&quot;)">Place Portrait</button></div></div>' +
+                '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small altar-command-primary" id="altar-grok-main-btn" onclick="openAIGeneratedSelfOffer()">Generate with Grok</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;ai-self&quot;)">Place Portrait</button></div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">AI stickers & library</div><p class="altar-control-help">Click a shelf slot, then place stickers, generated art, poems, charms, or notes.</p><div class="altar-library-grid">' + libraryButtons + '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate AI Sticker</button><button class="btn btn-ghost btn-small" onclick="removeSelectedAltarItem()">Remove Slot Item</button></div></div>' +
                 '<details class="altar-advanced-tools"><summary>Advanced altar tools</summary><div class="altar-advanced-inner">' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Words</div><p class="altar-control-help">Bio, poem, goals, affirmations, notes, and the bottom mantra plaque.</p><div class="altar-word-grid">' +
@@ -5725,11 +5724,11 @@
         }
         function getGrokStatusText(altar) {
             const sp = altar?.selfPortrait || {};
-            if (sp.grokVideoUrl) return 'Ready. Your Grok portrait is saved and can be placed on the altar.';
+            if (sp.grokVideoUrl) return 'Ready. The Grok portrait is saved to your altar profile. Use Place Portrait, then Save Altar.';
             if (sp.grokStatus === 'processing') return 'Generating now. This can take a couple minutes; keep this page open.';
             if (sp.grokStatus === 'failed') return 'Generation failed. Try again, or check Replicate.';
-            if (sp.generated) return 'Preview unlocked. Generate with Grok when you want the real moving portrait.';
-            return 'Not generated yet. Pick a style, then generate with Grok.';
+            if (sp.generated) return 'Portrait preview is active. Generate with Grok to replace it with the real moving portrait.';
+            return 'Pick a style, generate with Grok, then place it on your altar shelf.';
         }
         function setGrokUiState(state, text) {
             const status = document.getElementById('altar-grok-status');
@@ -5741,7 +5740,7 @@
                 const btn = document.getElementById(id);
                 if (!btn) return;
                 btn.disabled = state === 'working';
-                btn.textContent = state === 'working' ? 'Grok is generating...' : (id === 'altar-grok-top-btn' ? 'Generate Grok Portrait' : 'Generate with Grok - $1.99');
+                btn.textContent = state === 'working' ? 'Grok is generating...' : (id === 'altar-grok-top-btn' ? 'Generate Grok Portrait' : 'Generate with Grok');
             });
         }
         function updateAltarSaveState() { const el = document.getElementById('altar-save-state'); if (el) el.textContent = altarDirty ? 'Unsaved changes' : 'Saved'; }
@@ -5821,6 +5820,7 @@
                 item.icon = 'SELF';
                 item.label = 'AI Self Portrait';
                 item.text = (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic');
+                delete item.premium;
             }
             saveAltarProfile(altar, false);
             renderAltarBoard(altar);
@@ -5925,9 +5925,10 @@
             if (item) {
                 item.icon = 'SELF';
                 item.label = 'Grok Animated Portrait';
-                item.text = '$1.99 - Grok generated motion altar';
+                item.text = 'saved Grok motion portrait';
                 item.frame = altar.selfPortrait.frame || 'Rose Gold Frame';
                 item.prompt = altar.selfPortrait.prompt || '';
+                delete item.premium;
             }
             altar.selectedSlot = { shelf:'middle', slot:'middle-center' };
             saveAltarProfile(altar, false);
