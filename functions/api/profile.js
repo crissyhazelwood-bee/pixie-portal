@@ -57,6 +57,7 @@ export async function onRequestPut({ request, env }) {
           mood: String(altar.selfPortrait.mood || "").slice(0, 80),
           frame: String(altar.selfPortrait.frame || "").slice(0, 80),
           prompt: String(altar.selfPortrait.prompt || "").slice(0, 260),
+          image: String(altar.selfPortrait.image || "").slice(0, 20000),
           generated: !!altar.selfPortrait.generated
         } : undefined,
         library: Array.isArray(altar.library) ? altar.library.slice(0, 60).map(safeAltarItem) : [],
