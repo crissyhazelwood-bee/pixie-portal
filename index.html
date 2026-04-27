@@ -3951,6 +3951,7 @@
             try { history.pushState({ globalView: 'chamber', type }, '', '#/chamber/' + type); } catch (err) {}
 
             if (type === 'tarot') {
+                recordServerEvent('portal_chamber_opened', { chamber: 'tarot' }, 'chamber');
                 if (typeof lokiAltarConfirm === 'function') {
                     lokiAltarConfirm('Tarot Ring opened. Draw, reveal, and return when the cards have spoken.');
                 }
@@ -3958,22 +3959,26 @@
             }
             if (type === 'dream') {
                 incrementLocalCounter('dreamChamberVisits');
+                recordServerEvent('dream_chamber_opened', { chamber: 'dream' }, 'chamber');
                 if (typeof lokiAltarConfirm === 'function') lokiAltarConfirm('You came to the water.');
                 return;
             }
             if (type === 'charms') {
                 incrementLocalCounter('charmChamberVisits');
                 renderCharmDetail(null);
+                recordServerEvent('charm_chamber_opened', { chamber: 'charms' }, 'chamber');
                 if (typeof lokiAltarConfirm === 'function') lokiAltarConfirm('Choose slowly.');
                 return;
             }
         }
 
         function backToPortal() {
+            const previousChamber = activeChamber?.type || 'unknown';
             globalView = 'portal';
             activeChamber = null;
             document.body.classList.remove('global-chamber-active');
             showPage('home');
+            recordServerEvent('portal_returned', { from: previousChamber }, 'chamber');
             try { history.pushState({ globalView: 'portal' }, '', '#/portal'); } catch (err) {}
         }
 
@@ -3995,6 +4000,42 @@
             const current = Number(localStorage.getItem(key) || '0') || 0;
             localStorage.setItem(key, String(current + 1));
             return current + 1;
+        }
+
+        async function recordServerEvent(eventType, payload = {}, source = 'site') {
+            if (!currentUser) return;
+            try {
+                await fetch(API + '/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ event_type: eventType, payload, source })
+                });
+            } catch (err) {}
+        }
+
+        async function syncInventoryItem(item, equipped = false) {
+            if (!currentUser || !item?.id) return;
+            try {
+                await fetch(API + '/api/inventory', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        item_id: item.id,
+                        item_type: item.type || 'charm',
+                        item: item
+                    })
+                });
+                if (equipped) {
+                    await fetch(API + '/api/inventory', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ item_id: item.id, equipped: true })
+                    });
+                }
+            } catch (err) {}
         }
 
         const CHARM_DETAILS = {
@@ -4039,6 +4080,7 @@
         function openCharmDetail(id) {
             incrementLocalCounter('charmsOpened');
             activeChamber = { type: 'charms', subType: 'detail', id };
+            recordServerEvent('charm_opened', { charm_id: id }, 'charms');
             try { history.pushState({ globalView: 'chamber', type: 'charms', id }, '', '#/chamber/charms/' + id); } catch (err) {}
             renderCharmDetail(id);
         }
@@ -4073,6 +4115,8 @@
             incrementLocalCounter('charmsEquipped');
             localStorage.setItem('pixieEquippedCharm', id);
             const charm = CHARM_DETAILS[id];
+            syncInventoryItem({ id, type: 'charm', label: charm?.title || id, icon: charm?.glyph || '?', text: charm?.copy || '' }, true);
+            recordServerEvent('charm_equipped', { charm_id: id }, 'charms');
             toast((charm?.title || 'Charm') + ' equipped.');
         }
 
@@ -4902,6 +4946,7 @@
             });
             const json = await res.json().catch(() => ({}));
             incrementLocalCounter('dreamEntriesCreated');
+            recordServerEvent('dream_entry_created', { entry_id: json.id || null }, 'dream');
             closeModals();
             document.getElementById('entry-title').value = '';
             document.getElementById('entry-content').value = '';
@@ -4918,6 +4963,7 @@
         function openDreamEntryFromEvent(event, id) {
             if (event?.target?.closest?.('button, select, a, video, input, textarea')) return;
             incrementLocalCounter('dreamEntriesOpened');
+            recordServerEvent('dream_entry_opened', { entry_id: id }, 'dream');
             document.querySelectorAll('.journal-entry').forEach(entry => entry.classList.remove('is-focused'));
             const entry = document.querySelector(`.journal-entry[data-entry-id="${id}"]`);
             if (entry) entry.classList.add('is-focused');
@@ -5026,6 +5072,7 @@
             });
             const created = await createRes.json();
             incrementLocalCounter('dreamEntriesCreated');
+            recordServerEvent('dream_entry_created', { entry_id: created.id || null, random: true }, 'dream');
             if (!created.id) { toast('Something went wrong ✦'); return; }
 
             toast('Weaving your dream ✦');
