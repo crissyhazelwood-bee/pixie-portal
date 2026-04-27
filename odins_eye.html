@@ -414,7 +414,7 @@
       line-height: 1.6;
     }
 
-    /* Year Wheel */
+    /* Norse Seasonal Calendar */
     .wheel-wrap {
       display: grid;
       grid-template-columns: minmax(280px, 0.9fr) minmax(280px, 1.1fr);
@@ -732,7 +732,7 @@
       <button class="tab-btn active" onclick="switchTab('gods')">âœ¦ Greek Gods</button>
       <button class="tab-btn" onclick="switchTab('norse')">âš”ï¸ Norse Gods</button>
       <button class="tab-btn" onclick="switchTab('runes')">ᚱ Norse Runes</button>
-      <button class="tab-btn" onclick="switchTab('year')">ᛃ Year Wheel</button>
+      <button class="tab-btn" onclick="switchTab('year')">ᛃ Norse Year</button>
       <button class="tab-btn" onclick="switchTab('poem')">âœ Poem Weaver</button>
     </div>
 
@@ -795,17 +795,17 @@
 
     </div>
 
-    <!-- Year Wheel -->
+    <!-- Norse Seasonal Calendar -->
     <div class="section" id="section-year">
       <div class="runes-intro">
-        <strong>The Wheel of the Year</strong> below is a clear learning tool, not a claim that Vikings used the modern eight-sabbat Wiccan calendar. The solstices and equinoxes are real solar anchors; Yule, Winter Nights, Dísablót, Álfablót, and Sigrblót are Norse/Germanic seasonal traditions with uneven evidence and regionally variable timing.
+        <strong>Odin's Seasonal Calendar</strong> is a Norse/Germanic year map, not a modern Wiccan holiday wheel. The solstices and equinoxes are astronomical anchors; Jól, Vetrnætr, Dísablót, Álfablót, and Sigrblót are attested or discussed Norse/Germanic seasonal rites with uneven evidence and regionally variable timing.
         <br><br>
-        Tap a spoke to see what is historical, what is modern reconstruction, and what kind of ritual or reflection fits the season.
+        Tap a season marker to see what is historical, what is modern reconstruction, and what kind of reflection fits the season.
       </div>
       <div class="wheel-wrap">
         <div class="year-wheel-panel">
-          <div class="wheel-title">Odin's Year Wheel</div>
-          <p class="wheel-subtitle">Solar stations, seasonal thresholds, and Norse-attested feast names kept separate so the magic stays honest.</p>
+          <div class="wheel-title">Odin's Seasonal Calendar</div>
+          <p class="wheel-subtitle">Solar stations, seasonal thresholds, and Norse feast names kept separate so the magic stays honest.</p>
           <div class="wheel-orbit" id="year-wheel-orbit"></div>
         </div>
         <article class="wheel-detail" id="year-wheel-detail" aria-live="polite"></article>
@@ -1543,23 +1543,23 @@
   const YEAR_WHEEL = [
     {
       id: 'yule',
-      name: 'Yule',
+      name: 'Jól',
       icon: 'ᛇ',
       date: 'Winter solstice / midwinter',
       status: 'Historically attested Germanic winter festival; exact older timing varies by source and region.',
-      modern: 'Modern wheels place Yule at the winter solstice around Dec 21.',
-      norse: 'Old Norse jól / Yule is one of the strongest Germanic seasonal anchors and later merged with Christmas traditions during Christianization.',
+      modern: 'Modern Norse-inspired calendars often place Jól at or near the winter solstice, around Dec 21.',
+      norse: 'Old Norse jól, later Yule, is one of the strongest Germanic seasonal anchors and later merged with Christmas traditions during Christianization.',
       ritual: 'Honor endurance, kinship, fire, and the return of light. Good night for ancestor names, winter stores, and promises kept.',
       tags: ['winter', 'ancestors', 'fire', 'returning light'],
       angle: 0
     },
     {
       id: 'disablot',
-      name: 'Dísablót',
+      name: 'Dísablót / Disting',
       icon: 'ᛒ',
       date: 'Late winter / regional timing',
       status: 'Attested in Old Norse sources, but not fixed to the modern Feb 1 cross-quarter everywhere.',
-      modern: 'Modern practitioners sometimes map it near Imbolc/Candlemas as a late-winter spoke.',
+      modern: 'Modern Norse-inspired calendars sometimes place this in late winter, but exact dating is not universal.',
       norse: 'A blót honoring the dísir, female ancestral or fate-linked powers. Swedish Disting traditions are often discussed with it.',
       ritual: 'Ask what must be protected until spring. Honor women of the line, household luck, and quiet survival.',
       tags: ['dísir', 'household', 'late winter', 'protection'],
@@ -1567,11 +1567,11 @@
     },
     {
       id: 'spring-equinox',
-      name: 'Spring Equinox',
+      name: 'Várjafndægri',
       icon: 'ᛏ',
       date: 'Around Mar 20',
-      status: 'Astronomical solar station; not specifically an old Norse named feast in the same way as Yule.',
-      modern: 'Modern wheels often call this Ostara, a name tied to later Germanic/English spring goddess discussions and modern practice.',
+      status: 'Spring equinox. The Old Norse-style label means spring equinox; it is an astronomical marker, not proof of a fixed Viking feast.',
+      modern: 'Avoiding the name Ostara here because it belongs to later Germanic/English goddess discussion and modern pagan practice, not a clean Old Norse holiday name.',
       norse: 'Use this as the balance point: day and night nearly equal, winter loosening, travel and work returning.',
       ritual: 'Balance the scales. Choose what gets planted, what gets repaired, and what deserves daylight.',
       tags: ['equinox', 'balance', 'spring', 'beginnings'],
@@ -1583,7 +1583,7 @@
       icon: 'ᛋ',
       date: 'Spring / beginning of summer in Old Norse reckoning',
       status: 'Attested as a victory sacrifice, but exact modern calendar placement is reconstructed.',
-      modern: 'Often mapped near late April or May Day on modern Norse-inspired wheels.',
+      modern: 'Often mapped near late April or early summer in modern Norse-inspired calendars.',
       norse: 'A seasonal rite for victory and success as campaigning, travel, and outward work resume.',
       ritual: 'Name the battle honestly. Ask for discipline, courage, and clean victory rather than noise.',
       tags: ['victory', 'summer opening', 'courage', 'Tyr'],
@@ -1591,11 +1591,11 @@
     },
     {
       id: 'midsummer',
-      name: 'Midsummer',
+      name: 'Midsumar',
       icon: 'ᛊ',
       date: 'Summer solstice / around Jun 20-24',
       status: 'Strong northern seasonal festival complex; specific pagan-era details vary.',
-      modern: 'Modern wheels place Litha/Midsummer at the summer solstice.',
+      modern: 'Using Midsumar/Midsummer here, not Litha, because Litha is not the right Old Norse holiday label.',
       norse: 'The long light belongs to blessing, protection, travel, fertility, and public celebration.',
       ritual: 'Stand in visible truth. Bless tools, homes, fields, projects, and the body that carries you.',
       tags: ['solstice', 'sun', 'blessing', 'growth'],
@@ -1603,11 +1603,11 @@
     },
     {
       id: 'harvest',
-      name: 'First Harvest',
+      name: 'Harvest Tide',
       icon: 'ᚠ',
       date: 'Late summer / harvest opening',
-      status: 'The modern Aug 1 spoke is Celtic/modern Wiccan in name; Norse harvest timing was local and agricultural.',
-      modern: 'Often called Lammas/Lughnasadh in the eightfold Wheel, not an old Norse name.',
+      status: 'Seasonal harvest marker. Norse harvest timing was local and agricultural; this is not a fixed ancient holiday name.',
+      modern: 'Avoiding Lammas/Lughnasadh because those are not Old Norse names.',
       norse: 'For Odin’s Eye, read this as the first accounting: what has value, what must be shared, what must not be wasted.',
       ritual: 'Count resources. Give thanks without pretending the work is finished.',
       tags: ['harvest', 'Fehu', 'resources', 'gratitude'],
@@ -1615,11 +1615,11 @@
     },
     {
       id: 'autumn-equinox',
-      name: 'Autumn Equinox',
+      name: 'Haustjafndægri',
       icon: 'ᛃ',
       date: 'Around Sep 22',
-      status: 'Astronomical solar station; modern Mabon name is not ancient Norse.',
-      modern: 'Modern wheels often call this Mabon, a 20th-century naming choice from Welsh mythology.',
+      status: 'Autumn equinox. The Old Norse-style label means autumn equinox; it is an astronomical marker, not proof of a fixed Viking feast.',
+      modern: 'Avoiding Mabon because it is a modern neopagan name, not an ancient Norse seasonal name.',
       norse: 'Use this as the second balance point: harvest measured, debts noticed, winter preparations begin.',
       ritual: 'Reconcile the ledger. Finish what can be finished; return what was borrowed.',
       tags: ['equinox', 'Jera', 'harvest', 'accounting'],
@@ -1627,11 +1627,11 @@
     },
     {
       id: 'winter-nights',
-      name: 'Winter Nights',
+      name: 'Vetrnætr',
       icon: 'ᛟ',
       date: 'Autumn / opening of winter',
       status: 'Attested Old Norse seasonal festival; timing varied, often around the beginning of winter.',
-      modern: 'Sometimes mapped near Samhain/Halloween, but it is not identical to the Celtic festival.',
+      modern: 'Sometimes mapped near late October in modern calendars, but it is not Samhain and should not be treated as the same festival.',
       norse: 'Vetrnætr / Winter Nights marks the turn into winter. Álfablót and ancestral rites are often discussed in this seasonal cluster.',
       ritual: 'Close the gates. Honor the dead, secure the home, and decide what deserves to cross into winter with you.',
       tags: ['ancestors', 'winter opening', 'home', 'Othala'],
@@ -1743,7 +1743,7 @@
     const item = YEAR_WHEEL[index];
     if (!detail || !item) return;
     detail.innerHTML = `
-      <div class="wheel-detail-kicker">Seasonal spoke ${index + 1} of 8</div>
+      <div class="wheel-detail-kicker">Season marker ${index + 1} of ${YEAR_WHEEL.length}</div>
       <h2>${item.name}</h2>
       <div class="wheel-date-line">${item.date}</div>
       <p>${item.norse}</p>
@@ -1753,7 +1753,7 @@
       </div>
       <div class="wheel-info-box"><strong>Odin's Eye Prompt</strong><span>${item.ritual}</span></div>
       <div class="wheel-tags">${item.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
-      <div class="wheel-source-note">Fact boundary: the eight-spoke wheel is a modern teaching frame. The Norse/Germanic record is stronger for some seasonal rites, especially Yule, Sigrblót, Dísablót, and Winter Nights, but exact dates and practices varied by place, period, and source.</div>
+      <div class="wheel-source-note">Fact boundary: this is a modern teaching map for Odin's Eye, not a claim that Viking-age people used this exact fixed calendar. The Norse/Germanic record is stronger for some seasonal rites, especially Jól, Sigrblót, Dísablót, and Vetrnætr, but exact dates and practices varied by place, period, and source.</div>
     `;
   }
 
