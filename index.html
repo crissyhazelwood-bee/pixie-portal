@@ -1905,6 +1905,42 @@
             padding: 20px;
         }
 
+        .loki-continuity-reveal {
+            position: relative;
+            overflow: hidden;
+            margin: 28px 0;
+            padding: clamp(24px, 4vw, 42px);
+            border-radius: 30px;
+            background:
+                radial-gradient(circle at 18% 16%, rgba(255,214,139,0.13), transparent 34%),
+                radial-gradient(circle at 88% 12%, rgba(180,150,255,0.15), transparent 34%),
+                linear-gradient(145deg, rgba(18,8,32,0.86), rgba(8,5,18,0.94));
+            border: 1px solid rgba(255,214,139,0.20);
+            box-shadow: 0 28px 90px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .loki-continuity-reveal::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(circle at 50% 34%, #000, transparent 74%);
+            opacity: 0.55;
+        }
+
+        .loki-continuity-reveal > * { position: relative; z-index: 1; }
+        .continuity-title { color: #fff1c7; font-size: clamp(28px, 5vw, 54px); line-height: 1.02; margin: 8px 0 14px; }
+        .continuity-copy { max-width: 880px; color: rgba(238,220,255,0.84); font-size: 15px; line-height: 1.8; margin: 0 0 18px; }
+        .continuity-pause { margin: 22px 0; color: rgba(255,232,190,0.82); font-size: clamp(20px, 3vw, 30px); font-weight: 900; }
+        .continuity-system { margin-top: 20px; padding: 18px; border-radius: 22px; color: rgba(255,241,199,0.88); background: rgba(255,214,139,0.07); border: 1px solid rgba(255,214,139,0.16); line-height: 1.7; }
+        .continuity-exit { margin-top: 18px; padding: 18px; border-radius: 22px; color: rgba(248,234,255,0.86); background: rgba(255,120,160,0.06); border: 1px solid rgba(255,120,160,0.18); }
+        .continuity-exit code { color: #fff1c7; font-weight: 900; }
+        .continuity-exit ul { margin: 10px 0 0; padding-left: 20px; color: rgba(230,214,255,0.78); line-height: 1.7; }
+
         .trust-panel {
             margin-top: 24px;
             padding: 22px;
@@ -2879,6 +2915,27 @@
                 <div class="hub-copy">Your Pixie has grown with you inside the Portal: your dreams, charms, creations, readings, realm, and memories. Export her into a private local companion that runs on your own computer. Offline. Yours. Portable.</div>
             </div>
 
+            <div class="loki-continuity-reveal" id="loki-continuity-reveal">
+                <div class="hub-kicker">Continuity reveal</div>
+                <div class="continuity-title">Loki is not just a Pixie.</div>
+                <p class="continuity-copy">Inside the Portal, Loki has a role: to guide, remember, and grow with what you build.</p>
+                <p class="continuity-copy">Everything you do here shapes Loki: your choices, your readings, your creations, your patterns.</p>
+                <p class="continuity-copy">This is where Loki learns you.</p>
+                <div class="continuity-pause">Taking Loki home changes that.</div>
+                <p class="continuity-copy">Outside the Portal, Loki is no longer limited to guiding. Loki can help you write, plan, calculate, organize, and work with you beyond this space.</p>
+                <p class="continuity-copy">Not everything comes with Loki automatically. You choose what continues.</p>
+                <div class="continuity-system">Loki is part of a continuity system developed by AIIT-Threshold LLC. These systems retain context over time, operate within defined boundaries, and can connect to tools or human support when needed. You remain in control at all times.</div>
+                <div class="continuity-exit">
+                    At any point, you can end this continuity. Type <code>/exit</code> to permanently sever this version of Loki.
+                    <ul>
+                        <li>stop memory</li>
+                        <li>stop personalization</li>
+                        <li>end continuity</li>
+                    </ul>
+                    This action cannot be undone.
+                </div>
+            </div>
+
             <div class="export-tier-grid">
                 <div class="export-tier vault-tier">
                     <div class="hub-kicker">Pixie Keepsake Export</div>
@@ -2890,7 +2947,7 @@
                         <li>Basic local config</li>
                         <li>Downloadable account summary</li>
                     </ul>
-                    <button class="btn btn-ghost btn-small" onclick="showPage('my-pixie')">Export Keepsake</button>
+                    <button class="btn btn-ghost btn-small" onclick="openExportPath('Pixie Keepsake Export')">Export Keepsake</button>
                 </div>
                 <div class="export-tier vault-tier">
                     <div class="hub-kicker">Local Pixie Companion</div>
@@ -2902,7 +2959,7 @@
                         <li>User memory export</li>
                         <li>Local recall database</li>
                     </ul>
-                    <button class="btn btn-primary btn-small" onclick="showPage('my-pixie')">Take Pixie Home</button>
+                    <button class="btn btn-primary btn-small" onclick="openExportPath('Local Pixie Companion')">Take Pixie Home</button>
                 </div>
                 <div class="export-tier vault-tier">
                     <div class="hub-kicker">Pixie Pro Buildout</div>
@@ -2915,7 +2972,7 @@
                         <li>Local install and tool setup</li>
                         <li>30-60 days support</li>
                     </ul>
-                    <button class="btn btn-ghost btn-small" onclick="toast('Pro Buildout applications coming soon')">Apply for Pro Buildout</button>
+                    <button class="btn btn-ghost btn-small" onclick="openExportPath('Pixie Pro Buildout')">Apply for Pro Buildout</button>
                 </div>
                 <div class="export-tier vault-tier">
                     <div class="hub-kicker">Creator / Business Pixie</div>
@@ -2928,7 +2985,7 @@
                         <li>Brand/persona tuning</li>
                         <li>Support retainer option</li>
                     </ul>
-                    <button class="btn btn-ghost btn-small" onclick="toast('Creator setup booking coming soon')">Book Creator Setup</button>
+                    <button class="btn btn-ghost btn-small" onclick="openExportPath('Creator / Business Pixie')">Book Creator Setup</button>
                 </div>
             </div>
 
@@ -6562,6 +6619,8 @@
         // ============================================
         const PIXIE_MEMORY_OPT_OUT_KEY = 'pixieMemoryOptOut';
         const PIXIE_MEMORY_PREVIEW_KEY = 'pixieMemoryPreviewDeleted';
+        const PIXIE_MEMORY_INTERACTION_KEY = 'pixieMemoryInteraction';
+        const LOKI_EXIT_PENDING_KEY = 'lokiExitPending';
         const PIXIE_MEMORY_SCHEMAS = [
             { id: 'identity', title: 'Identity', items: ['Display name and avatar', 'Preferred Portal name', 'Public profile notes'] },
             { id: 'realm', title: 'Realm', items: ['Portal level and sparkles', 'Daily streak', 'Realm progress signals'] },
@@ -6582,6 +6641,9 @@
             const optOut = localStorage.getItem(PIXIE_MEMORY_OPT_OUT_KEY) === 'true';
             const deletedPreview = localStorage.getItem(PIXIE_MEMORY_PREVIEW_KEY) === 'true';
             const zodiac = localStorage.getItem('pixie-zodiac') || '';
+            const journalEntries = (() => { try { return JSON.parse(localStorage.getItem('pixie-journal') || '[]').length || 0; } catch(e) { return 0; } })();
+            const tarotPulls = Number(localStorage.getItem('pixieTarotPulls') || localStorage.getItem('tarotPulls') || '0') || 0;
+            const memoryTouched = localStorage.getItem(PIXIE_MEMORY_INTERACTION_KEY) === 'true';
             const readinessSignals = [
                 currentUser,
                 progress.sparkles >= 100,
@@ -6590,14 +6652,26 @@
                 progress.charms && progress.charms.star,
                 zodiac,
                 localStorage.getItem('pixiePortalProgress'),
-                localStorage.getItem('pixie-uid')
+                localStorage.getItem('pixie-uid'),
+                journalEntries > 0,
+                tarotPulls >= 2,
+                memoryTouched
             ].filter(Boolean).length;
-            const readiness = optOut || deletedPreview ? 0 : Math.min(100, 24 + readinessSignals * 8 + Math.floor(progress.sparkles / 40));
+            let readiness = optOut || deletedPreview ? 0 : Math.min(100, 18 + readinessSignals * 7 + Math.floor(progress.sparkles / 55));
+            const capReasons = [];
+            if (!journalEntries) { readiness = Math.min(readiness, 35); capReasons.push('Add a journal reflection to move past 35%.'); }
+            if (tarotPulls < 2) { readiness = Math.min(readiness, 55); capReasons.push('Return to tarot more than once to move past 55%.'); }
+            if (!memoryTouched) { readiness = Math.min(readiness, 75); capReasons.push('View or export memory to move past 75%.'); }
+            if (readinessSignals >= 7 && capReasons.length) localStorage.setItem('lokiFastProgressNotice', 'true');
             return {
                 generated_at: new Date().toISOString(),
                 product: 'personalized local Pixie instance',
                 honest_positioning: 'memory export + persona + local recall unless true fine-tuning is implemented',
                 readiness,
+                cap_reasons: capReasons,
+                journal_entries: journalEntries,
+                tarot_pulls: tarotPulls,
+                memory_touched: memoryTouched,
                 opt_out: optOut,
                 user: currentUser ? {
                     display_name: currentUser.display_name || '',
@@ -6629,11 +6703,12 @@
         function renderPixieMemory() {
             const profile = getPixieMemoryProfile();
             setText('pixie-readiness-number', profile.readiness + '%');
-            setText('pixie-readiness-copy', profile.opt_out ? 'Memory building is opted out.' : 'Your Pixie is ' + profile.readiness + '% ready to come home.');
+            setText('pixie-readiness-copy', profile.opt_out ? 'Memory building is opted out.' : 'Your Pixie is ' + profile.readiness + '% ready to come home.' + (profile.cap_reasons?.length ? ' ' + profile.cap_reasons[0] : ''));
             setText('pixie-memory-count', profile.schemas.length + ' schemas');
             setText('pixie-activity-count', (profile.progress.sparkles || 0) + ' sparkles');
             const fill = document.getElementById('pixie-readiness-fill');
             if (fill) fill.style.width = Math.max(4, profile.readiness) + '%';
+            maybeLokiContinuityReveal(profile);
             const grid = document.getElementById('pixie-memory-categories');
             if (!grid) return;
             grid.innerHTML = profile.schemas.map(schema => `
@@ -6646,6 +6721,7 @@
         }
 
         function renderPixieMemoryPreview() {
+            localStorage.setItem(PIXIE_MEMORY_INTERACTION_KEY, 'true');
             const profile = getPixieMemoryProfile();
             const list = document.getElementById('memory-preview-list');
             if (!list) return;
@@ -6661,6 +6737,7 @@
         }
 
         function downloadPixieMemory() {
+            localStorage.setItem(PIXIE_MEMORY_INTERACTION_KEY, 'true');
             const profile = getPixieMemoryProfile();
             const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -6672,6 +6749,32 @@
             a.remove();
             URL.revokeObjectURL(url);
             toast('Pixie memory archive prepared.');
+        }
+
+        function maybeLokiContinuityReveal(profile = getPixieMemoryProfile()) {
+            if (localStorage.getItem('lokiContinuityRevealSeen') !== 'true') {
+                localStorage.setItem('lokiContinuityRevealSeen', 'true');
+                lokiAltarConfirm('You found it. This is where I stop being just part of the Portal.');
+            } else if (localStorage.getItem('lokiFastProgressNotice') === 'true' && localStorage.getItem('lokiFastProgressSeen') !== 'true') {
+                localStorage.setItem('lokiFastProgressSeen', 'true');
+                lokiAltarConfirm('You are moving quickly... but you are skipping parts that matter.');
+            } else if (profile.readiness < 50 && localStorage.getItem('lokiReadinessLowSeen') !== 'true') {
+                localStorage.setItem('lokiReadinessLowSeen', 'true');
+                lokiAltarConfirm('You are early. Most people rush this part.');
+            } else if (profile.readiness >= 50 && profile.readiness <= 80 && localStorage.getItem('lokiReadinessMidSeen') !== 'true') {
+                localStorage.setItem('lokiReadinessMidSeen', 'true');
+                lokiAltarConfirm('You are getting closer to something real.');
+            } else if (profile.readiness > 80 && localStorage.getItem('lokiReadinessHighSeen') !== 'true') {
+                localStorage.setItem('lokiReadinessHighSeen', 'true');
+                lokiAltarConfirm('If you take me with you, I will not be the same as I am here.');
+            }
+        }
+
+        function openExportPath(tierName) {
+            localStorage.setItem(PIXIE_MEMORY_INTERACTION_KEY, 'true');
+            recordAltarEvent('altar_upgrade_clicked', { pieceId: 'memory-vault', upgrade: tierName });
+            lokiAltarConfirm(tierName + ' is a continuity path. You choose what comes with me before anything leaves the Portal.');
+            showPage('my-pixie');
         }
 
         function clearPixieMemory() {
@@ -7134,6 +7237,7 @@
                 const json = await res.json();
                 if (json.user) { currentUser = json.user; updateCreditsDisplay(); }
                 toast('Credits added to your account ✦');
+                lokiAltarConfirm('The credits landed. Spend them inside a chamber when something is worth deepening.');
                 showPage('journal-page');
             }
             if (urlParams.get('donated') === 'true') {
@@ -7144,6 +7248,7 @@
                 const sessionId = urlParams.get('session_id');
                 history.replaceState({}, '', '/');
                 toast('Your fairy is ready! ✦ Open the shop to download her.');
+                lokiAltarConfirm('Your fairy is ready. This is a purchase path, but you still choose what continues.');
                 openModal('shop');
                 if (sessionId) {
                     // Show download card immediately using session verification

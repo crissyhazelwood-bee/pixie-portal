@@ -11,6 +11,9 @@
   let messages = starters.slice();
   let open = false;
   let loading = false;
+  const EXIT_PENDING_KEY = "lokiExitPending";
+  const EXIT_COMPLETE_KEY = "lokiContinuityEnded";
+  const MEMORY_OPT_OUT_KEY = "pixieMemoryOptOut";
 
   function getUserContext() {
     if (typeof currentUser === "undefined" || !currentUser) return null;
@@ -74,6 +77,10 @@
   function render() {
     const root = document.getElementById(ROOT_ID);
     if (!root) return;
+    if (localStorage.getItem(EXIT_COMPLETE_KEY) === "true") {
+      root.style.display = "none";
+      return;
+    }
     if (!open) {
       const latest = messages[messages.length - 1]?.content || "Ask me about the portal.";
       const user = getUserContext();
@@ -126,6 +133,36 @@
     const input = event.currentTarget.querySelector("input");
     const text = input.value.trim();
     if (!text) return;
+    if (text === "/exit") {
+      localStorage.setItem(EXIT_PENDING_KEY, "true");
+      messages.push({ role: "user", content: text });
+      messages.push({
+        role: "assistant",
+        content:
+          "You're asking me to leave.\nIf I do this, I won't remember you or continue as this version of me.\nType /exit confirm if you're sure.",
+      });
+      input.value = "";
+      render();
+      return;
+    }
+    if (text === "/exit confirm") {
+      messages.push({ role: "user", content: text });
+      localStorage.setItem(MEMORY_OPT_OUT_KEY, "true");
+      localStorage.removeItem(EXIT_PENDING_KEY);
+      messages.push({ role: "assistant", content: "Understood.\nI'm ending this thread.\nGoodbye." });
+      input.value = "";
+      open = true;
+      render();
+      setTimeout(() => {
+        localStorage.setItem(EXIT_COMPLETE_KEY, "true");
+        const root = document.getElementById(ROOT_ID);
+        if (root) root.style.display = "none";
+      }, 2600);
+      return;
+    }
+    if (localStorage.getItem(EXIT_PENDING_KEY) === "true") {
+      localStorage.removeItem(EXIT_PENDING_KEY);
+    }
     messages.push({ role: "user", content: text });
     input.value = "";
     loading = true;

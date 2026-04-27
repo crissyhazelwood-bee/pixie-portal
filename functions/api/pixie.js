@@ -121,6 +121,21 @@ export async function onRequestPost({ request, env }) {
   const user = cleanUser(body.user);
   const system = buildSystem(user);
   const latestUserText = messages[messages.length - 1].content;
+  if (latestUserText.trim() === "/exit") {
+    return json({
+      reply: "You're asking me to leave.\nIf I do this, I won't remember you or continue as this version of me.\nType /exit confirm if you're sure.",
+      exit_pending: true,
+    });
+  }
+  if (latestUserText.trim() === "/exit confirm") {
+    return json({
+      reply: "Understood.\nI'm ending this thread.\nGoodbye.",
+      exit_confirmed: true,
+      disable_memory: true,
+      disable_personalization: true,
+      disable_export_eligibility: true,
+    });
+  }
   const inputSafety = analyzeSafety(latestUserText);
 
   if (inputSafety.flagged) {
