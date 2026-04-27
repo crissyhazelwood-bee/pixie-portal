@@ -81,6 +81,116 @@
       line-height: 1.6;
     }
 
+
+    /* ── Odin Eye Panel ── */
+    .odin-eye-panel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: clamp(20px, 4vw, 44px);
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255,212,126,0.16), transparent 32%),
+        radial-gradient(circle at 80% 20%, rgba(133,98,255,0.20), transparent 36%),
+        linear-gradient(145deg, rgba(18,15,38,0.88), rgba(42,18,62,0.82));
+      border: 1px solid rgba(255,217,135,0.25);
+      box-shadow:
+        0 0 36px rgba(135,91,255,0.22),
+        inset 0 1px 0 rgba(255,255,255,0.10);
+      margin-bottom: 40px;
+    }
+    .odin-eye-sigil-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(60px, 12vw, 140px);
+      letter-spacing: 0.3em;
+      color: rgba(255,212,126,0.04);
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .odin-eye-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .odin-eye-art-wrap { display: flex; justify-content: center; }
+    .odin-eye-art {
+      width: 100%;
+      max-width: 560px;
+      border-radius: 24px;
+      display: block;
+      object-fit: cover;
+      box-shadow:
+        0 24px 70px rgba(0,0,0,0.45),
+        0 0 34px rgba(255,212,126,0.18);
+      border: 1px solid rgba(255,230,170,0.35);
+    }
+    .odin-eye-copy-wrap { display: flex; flex-direction: column; gap: 14px; }
+    .odin-eye-subtitle {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: rgba(255,212,126,0.65);
+      margin: 0;
+    }
+    .odin-eye-title {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(32px, 5vw, 56px);
+      color: #fff1c7;
+      -webkit-text-fill-color: #fff1c7;
+      text-shadow:
+        0 0 18px rgba(255,215,128,0.35),
+        0 0 32px rgba(151,95,255,0.28);
+      margin: 0;
+      line-height: 1.1;
+    }
+    .odin-eye-copy { color: rgba(245,232,255,0.86); line-height: 1.7; font-size: 15px; margin: 0; }
+    .odin-eye-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .odin-eye-cta-primary {
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,217,135,0.5);
+      background: linear-gradient(135deg, rgba(255,212,126,0.18), rgba(151,95,255,0.18));
+      color: #fff1c7;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .odin-eye-cta-primary:hover {
+      background: linear-gradient(135deg, rgba(255,212,126,0.32), rgba(151,95,255,0.32));
+      box-shadow: 0 0 24px rgba(255,212,126,0.2);
+    }
+    .odin-eye-cta-secondary {
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(180,150,255,0.3);
+      background: transparent;
+      color: rgba(240,208,255,0.7);
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .odin-eye-cta-secondary:hover { border-color: rgba(180,150,255,0.6); color: #f0d0ff; box-shadow: 0 0 16px rgba(180,150,255,0.15); }
+    @media (max-width: 700px) {
+      .odin-eye-inner { grid-template-columns: 1fr; gap: 24px; }
+      .odin-eye-art { max-width: 100%; }
+    }
     /* Tab bar */
     .tabs {
       display: flex;
@@ -723,10 +833,22 @@
 
   <div class="page-wrap">
 
-    <div class=”hero”>
-      <h1>Odin's Eye</h1>
-      
-      <p>Ancient wisdom, divine myth, and the magic of the runes â€” all in one place. Explore the gods, learn the alphabet of the cosmos, and weave your own spells into verse.</p>
+    <div class=”odin-eye-panel”>
+      <div class=”odin-eye-sigil-bg” aria-hidden=”true”>ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ</div>
+      <div class=”odin-eye-inner”>
+        <div class=”odin-eye-art-wrap”>
+          <img src=”/odin.jpg” alt=”Odin reading runes in a misty forest with ravens” class=”odin-eye-art”>
+        </div>
+        <div class=”odin-eye-copy-wrap”>
+          <p class=”odin-eye-subtitle”>Rune insight from the old forest.</p>
+          <h1 class=”odin-eye-title”>Odin's Eye</h1>
+          <p class=”odin-eye-copy”>Draw a rune, ask the ravens, and let Odin's Eye reveal a symbol, warning, or path forward. Each reading becomes part of your Pixie memory if saved.</p>
+          <div class=”odin-eye-ctas”>
+            <button class=”odin-eye-cta-primary” onclick=”castRunes()”>&#10022; Cast the Runes</button>
+            <button class=”odin-eye-cta-secondary” onclick=”saveRuneToMemory()”>Save to Memory</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="tabs">
@@ -2143,6 +2265,36 @@
     } finally {
       btn.disabled = false;
     }
+  }
+
+
+  function castRunes() {
+    switchTab('runes');
+    setTimeout(function() {
+      drawRune();
+      var sec = document.getElementById('section-runes');
+      if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 120);
+  }
+
+  function saveRuneToMemory() {
+    var nameEl = document.getElementById('drawn-name');
+    var name = nameEl && nameEl.textContent.trim();
+    if (!name) { castRunes(); return; }
+    try {
+      var mem = JSON.parse(localStorage.getItem('ppMem') || '{}');
+      if (!mem.runeReadings) mem.runeReadings = [];
+      mem.runeReadings.push({ rune: name, date: new Date().toISOString().slice(0,10) });
+      if (mem.runeReadings.length > 50) mem.runeReadings = mem.runeReadings.slice(-50);
+      localStorage.setItem('ppMem', JSON.stringify(mem));
+    } catch(e) {}
+    if (window.OdinMachine) window.OdinMachine.addRuneDust(1);
+    // TODO: post to journal/oracle API when endpoint supports rune saves
+    var t = document.createElement('div');
+    t.textContent = '✦ rune saved to memory';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(30,20,50,0.95);color:#fff1c7;padding:10px 22px;border-radius:999px;font-size:13px;font-family:Quicksand,sans-serif;font-weight:700;letter-spacing:1px;border:1px solid rgba(255,217,135,0.3);z-index:9999;pointer-events:none;';
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 2500);
   }
 
   // Init
