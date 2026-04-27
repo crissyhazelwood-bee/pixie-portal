@@ -664,8 +664,8 @@
         .altar-shop-actions button, .altar-selected-controls button, .altar-mode-actions button { border: 1px solid rgba(255,214,139,0.18); border-radius: 999px; padding: 7px 10px; color: #f8eaff; background: rgba(255,255,255,0.07); font-size: 10px; font-weight: 900; cursor: pointer; }
         .altar-shop-actions .primary, .altar-selected-controls .primary, .altar-mode-actions .primary { color: #17091e; background: linear-gradient(135deg, #ff93dc, #ffe1a5); }
         .altar-editor-drawer.boutique { width: min(100%, 1040px); padding: 18px; background: radial-gradient(circle at 14% 10%, rgba(255,214,139,0.10), transparent 30%), radial-gradient(circle at 90% 16%, rgba(255,126,224,0.10), transparent 34%), linear-gradient(145deg, rgba(13,7,22,0.96), rgba(5,3,10,0.96)); border-color: rgba(255,214,139,0.24); }
-        body.pixie-profile-page .loki-altar-confirm:not(.is-working),
-        body.my-pixie-page-active .loki-altar-confirm:not(.is-working) { display: none !important; }
+        body.pixie-profile-page .loki-altar-confirm,
+        body.my-pixie-page-active .loki-altar-confirm { display: none !important; }
         .altar-boutique-tools { display: grid; grid-template-columns: minmax(180px, 1fr) 170px 160px; gap: 10px; margin: 10px 0 12px; }
         .altar-boutique-input, .altar-boutique-select { width: 100%; border: 1px solid rgba(255,214,139,0.16); border-radius: 14px; padding: 10px 12px; color: #f8eaff; background: rgba(5,3,10,0.72); font: inherit; outline: none; }
         .altar-drawer-tabs.boutique-tabs { padding: 4px; border-radius: 999px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,214,139,0.12); flex-wrap: nowrap; overflow-x: auto; }
@@ -704,8 +704,23 @@
             .altar-item-inspector { position: static; }
             .altar-boutique-tools { grid-template-columns: 1fr; }
         }
-        .altar-selected-controls { position: absolute; left: 50%; bottom: 86px; transform: translateX(-50%); z-index: 60; display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; max-width: min(92%, 680px); padding: 9px; border-radius: 999px; background: rgba(9,5,14,0.86); border: 1px solid rgba(255,214,139,0.22); box-shadow: 0 14px 36px rgba(0,0,0,0.36); }
+        .altar-selected-controls { width: min(100%, 1040px); box-sizing: border-box; margin-top: 14px; display: grid; grid-template-columns: minmax(190px, 1fr) minmax(0, 2fr); gap: 12px; align-items: center; padding: 14px; border-radius: 22px; background: radial-gradient(circle at 12% 0%, rgba(255,214,139,0.12), transparent 40%), rgba(9,5,14,0.88); border: 1px solid rgba(255,214,139,0.22); box-shadow: 0 14px 36px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.08); }
+        .altar-selected-summary { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; align-items: center; color: rgba(245,226,255,0.80); }
+        .altar-selected-preview { width: 56px; height: 56px; border-radius: 15px; display: grid; place-items: center; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,214,139,0.16); overflow: hidden; }
+        .altar-selected-preview > * { transform: scale(.55); }
+        .altar-selected-title { color: #fff1c7; font-size: 13px; font-weight: 900; }
+        .altar-selected-meta { margin-top: 3px; color: rgba(230,214,255,0.62); font-size: 10px; letter-spacing: .7px; text-transform: uppercase; }
+        .altar-selected-buttons { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
         .altar-mode-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .altar-mode-dock { width: min(100%, 1040px); box-sizing: border-box; margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border-radius: 20px; background: rgba(9,5,14,0.70); border: 1px solid rgba(255,214,139,0.16); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+        .altar-mode-help { color: rgba(230,214,255,0.70); font-size: 12px; }
+        .altar-mode-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .altar-mode-buttons button { border: 1px solid rgba(255,214,139,0.18); border-radius: 999px; padding: 8px 13px; color: #f8eaff; background: rgba(255,255,255,0.07); font-size: 11px; font-weight: 900; cursor: pointer; }
+        .altar-mode-buttons button.active { color: #17091e; background: linear-gradient(135deg, #ff93dc, #ffe1a5); }
+        @media (max-width: 760px) {
+            .altar-selected-controls { grid-template-columns: 1fr; }
+            .altar-selected-buttons { justify-content: flex-start; }
+        }
         .altar-physical-object.is-selected::after { content: ""; position: absolute; inset: -10px; border: 1px solid rgba(255,214,139,0.76); border-radius: 24px; box-shadow: 0 0 28px rgba(255,126,224,0.28); pointer-events: none; }
         .altar-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
         .altar-summary-chip { padding: 10px; border-radius: 14px; background: rgba(8,5,18,0.42); border: 1px solid rgba(255,214,139,0.10); }
@@ -6588,6 +6603,7 @@
         const ALTAR_QUOTES = ['soft life, strong magic', 'built from dreams, receipts, and moonlight', 'do not disturb: becoming legendary', 'my altar, my myth, my rules', 'the portal remembers what I choose to keep'];
         let altarDirty = false;
         let altarViewState = { view:'altar', selectedPieceId:'', selectedSlotId:'', savedScrollY:0 };
+        let altarMode = 'view';
         let altarEditMode = false;
         let altarLibraryTab = 'Owned';
         let altarLibraryCategory = 'All';
@@ -6891,8 +6907,17 @@
             return '<button class="altar-physical-object free-decor ' + (selected ? 'is-selected' : '') + '" data-placement-id="' + escAttr(placement.placementId) + '" data-surface="' + escAttr(placement.surfaceId) + '" style="left:' + placement.x + '%;top:' + placement.y + '%;--scale:' + placement.scale + ';--rot:' + placement.rotation + 'deg;z-index:' + placement.zIndex + '" onpointerdown="startAltarDecorDrag(event,&quot;' + escAttr(placement.placementId) + '&quot;)" onclick="selectPlacedDecor(event,&quot;' + escAttr(placement.placementId) + '&quot;)" title="' + escAttr(decor.name || decor.id) + '">' + renderDecorHtml(decor, altar) + '</button>';
         }
         function renderAltarSelectedControls() {
-            if (!altarEditMode || !altarSelectedPlacementId) return '';
-            return '<div class="altar-selected-controls"><button onclick="adjustSelectedDecor(&quot;rotate&quot;,-8)">Rotate left</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,8)">Rotate right</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,-0.08)">Smaller</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,0.08)">Larger</button><button onclick="adjustSelectedDecor(&quot;z&quot;,1)">Forward</button><button onclick="adjustSelectedDecor(&quot;z&quot;,-1)">Backward</button><button onclick="duplicateSelectedDecor()">Duplicate</button><button onclick="removeSelectedDecor()">Remove</button><button class="primary" onclick="saveAltarToProfile()">Save</button></div>';
+            if (altarMode === 'view' || !altarSelectedPlacementId) return '';
+            const altar = getAltarProfile();
+            const placement = (altar.placedDecor || []).find(item => item.placementId === altarSelectedPlacementId);
+            if (!placement) return '<div class="altar-selected-controls"><div class="altar-selected-summary"><div class="altar-selected-preview">✦</div><div><div class="altar-selected-title">No item selected</div><div class="altar-selected-meta">Click an altar object to edit it</div></div></div><div class="altar-selected-buttons"><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
+            const decor = getDecorDefinition(altar, placement.decorId);
+            return '<div class="altar-selected-controls"><div class="altar-selected-summary"><div class="altar-selected-preview">' + renderDecorHtml(decor, altar) + '</div><div><div class="altar-selected-title">' + escHtml(decor.name || decor.id) + '</div><div class="altar-selected-meta">' + escHtml(placement.surfaceId) + ' · x ' + Math.round(placement.x) + ' / y ' + Math.round(placement.y) + ' · scale ' + Number(placement.scale || 1).toFixed(2) + ' · rot ' + Math.round(placement.rotation || 0) + ' · layer ' + (placement.zIndex || 0) + '</div></div></div><div class="altar-selected-buttons"><button onclick="adjustSelectedDecor(&quot;rotate&quot;,-8)">Rotate Left</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,8)">Rotate Right</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,-0.08)">Smaller</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,0.08)">Larger</button><button onclick="adjustSelectedDecor(&quot;z&quot;,1)">Forward</button><button onclick="adjustSelectedDecor(&quot;z&quot;,-1)">Backward</button><button onclick="duplicateSelectedDecor()">Duplicate</button><button onclick="removeSelectedDecor()">Remove</button><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
+        }
+        function renderAltarModeDock() {
+            if (altarMode === 'view') return '';
+            const help = altarMode === 'shop' ? 'Select a decor item, then place it on the altar. Drag it into position.' : 'Click an item to edit. Drag to move.';
+            return '<div class="altar-mode-dock"><div class="altar-mode-help">' + escHtml(help) + '</div><div class="altar-mode-buttons"><button class="' + (altarMode === 'view' ? 'active' : '') + '" onclick="setAltarMode(&quot;view&quot;)">View</button><button class="' + (altarMode === 'edit' ? 'active' : '') + '" onclick="setAltarMode(&quot;edit&quot;)">Edit</button><button class="' + (altarMode === 'shop' ? 'active' : '') + '" onclick="setAltarMode(&quot;shop&quot;)">Shop</button></div></div>';
         }
         function getFilteredAltarDecor(altar) {
             let items = [...ALTAR_DECOR_CATALOG, ...(altar.aiDecor || [])];
@@ -6924,7 +6949,7 @@
             return '<aside class="altar-item-inspector"><div class="altar-inspector-preview">' + renderDecorHtml(item, altar) + '</div><div class="altar-inspector-title">' + escHtml(item.name || item.id) + '</div><div class="altar-shop-tags"><span class="altar-shop-tag rarity">' + escHtml(item.rarity || 'Common') + '</span><span class="altar-shop-tag">' + escHtml(item.category || 'Decor') + '</span><span class="altar-shop-tag">' + escHtml(source) + '</span></div><p class="altar-inspector-copy">' + escHtml(item.text || 'A collectible altar decor piece. Place it freely, then drag, rotate, resize, and layer it inside your shrine.') + '</p><div class="altar-shop-meta"><span>' + escHtml(price) + '</span><span>' + escHtml(item.type || 'decor') + '</span></div><div class="altar-inspector-actions">' + primary + '<button onclick="placeDecorFromLibrary(&quot;' + escAttr(item.id) + '&quot;)">Preview Placement</button>' + aiAction + '</div></aside>';
         }
         function renderAltarEditorDrawer(altar) {
-            if (!altarEditMode) return '';
+            if (altarMode !== 'shop') return '';
             const tabs = ['Owned','Shop','AI Generated','Premium'];
             const cats = ['All','Candles','Crystals','Books','Tarot','Bottles','Herbs','Frames','Stickers','Notes','Pets/Familiars','Premium'];
             let items = getFilteredAltarDecor(altar);
@@ -6966,7 +6991,7 @@
         function renderAltarBoard(altar) {
             const board = document.getElementById('profile-altar-board');
             if (!board) return;
-            board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose') + (altarEditMode ? ' edit-mode' : ' view-mode');
+            board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose') + (altarMode !== 'view' ? ' edit-mode' : ' view-mode') + ' mode-' + altarMode;
             const objects = (altar.placedDecor || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(obj => renderPlacedDecor(obj, altar)).join('');
             board.innerHTML = '<div class="altar-cabinet" aria-label="Decorated personal altar cabinet">' +
                 '<div class="altar-cabinet-spire left"></div><div class="altar-cabinet-spire right"></div>' +
@@ -6977,9 +7002,8 @@
                 '<div class="altar-cabinet-shelf top"></div><div class="altar-cabinet-shelf middle"></div><div class="altar-cabinet-shelf lower"></div>' +
                 '<div class="altar-shelf-cloth middle"></div><div class="altar-shelf-cloth lower"></div>' +
                 objects +
-                renderAltarSelectedControls() +
                 '<div class="altar-mantra-plaque cabinet-plaque">"' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>' +
-                '</div>' + renderAltarEditorDrawer(altar);
+                '</div>' + renderAltarModeDock() + renderAltarSelectedControls() + renderAltarEditorDrawer(altar);
             return;
             board.className = 'altar-board theme-' + (altar.theme || 'rose');
             board.innerHTML = '<div class="altar-preview-label">Your altar</div><div class="altar-room-arch"></div><h3 class="altar-preview-title">Your Altar</h3><div class="altar-preview-subtitle">Click any shrine piece to go deeper</div><div class="altar-moon-phases">○ ◐ ● ◑ ○</div><div class="altar-shelves">' +
@@ -7198,7 +7222,13 @@
             }, 6200);
         }
         function updateAltarSaveState() { const el = document.getElementById('altar-save-state'); if (el) el.textContent = altarDirty ? 'Unsaved changes' : 'Saved'; }
-        function setAltarEditMode(value) { altarEditMode = !!value; if (!altarEditMode) altarSelectedPlacementId = ''; renderAltarProfile(); }
+        function setAltarMode(mode) {
+            altarMode = ['view','edit','shop'].includes(mode) ? mode : 'view';
+            altarEditMode = altarMode !== 'view';
+            if (altarMode === 'view') altarSelectedPlacementId = '';
+            renderAltarProfile();
+        }
+        function setAltarEditMode(value) { setAltarMode(value ? 'shop' : 'view'); }
         function setAltarLibraryTab(tab) { altarLibraryTab = tab; altarSelectedShopDecorId = ''; renderAltarProfile(); }
         function setAltarLibraryCategory(cat) { altarLibraryCategory = cat; altarSelectedShopDecorId = ''; renderAltarProfile(); }
         function selectAltarShopItem(decorId) { altarSelectedShopDecorId = decorId; renderAltarProfile(); }
@@ -7275,6 +7305,8 @@
             const placement = { placementId:'decor-' + Date.now(), decorId, surfaceId:'middleShelf', x:50, y:58, scale:1, rotation:0, zIndex:Math.max(30, ...(altar.placedDecor || []).map(p => p.zIndex || 0)) + 1, source:'library', visibility:'public' };
             altar.placedDecor.push(placement);
             altarSelectedPlacementId = placement.placementId;
+            altarMode = 'edit';
+            altarEditMode = true;
             saveAltarProfile(altar, false);
             renderAltarProfile();
             toast('Placed decor. Drag it anywhere on the altar.');
