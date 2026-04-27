@@ -608,6 +608,9 @@
         .altar-obj-scroll::before, .altar-obj-scroll::after { content: ""; position: absolute; top: 17px; width: 14px; height: 30px; border-radius: 999px; background: linear-gradient(180deg, #f7dba5, #8a5a36); }
         .altar-obj-scroll::before { left: 4px; }
         .altar-obj-scroll::after { right: 4px; }
+        .altar-obj-deity-shrine { position: relative; width: 114px; height: 132px; margin: 0 auto; border-radius: 999px 999px 24px 24px; display: grid; place-items: center; color: #fff1c7; font-size: 44px; background: radial-gradient(circle at 50% 20%, rgba(255,214,139,0.26), transparent 34%), linear-gradient(180deg, rgba(47,21,54,0.92), rgba(10,5,16,0.96)); border: 2px solid rgba(255,214,139,0.38); box-shadow: 0 16px 24px rgba(0,0,0,0.42), 0 0 30px rgba(255,126,224,0.18), inset 0 0 0 6px rgba(8,4,14,0.54); text-shadow: 0 0 18px rgba(255,214,139,0.48); }
+        .altar-obj-deity-shrine::before { content: ""; position: absolute; inset: -11px; z-index: -1; border-radius: 999px 999px 30px 30px; background: linear-gradient(145deg, rgba(255,214,139,0.45), rgba(255,126,224,0.18), rgba(0,0,0,0.66)); box-shadow: 0 0 24px rgba(255,214,139,0.16); }
+        .altar-obj-deity-shrine::after { content: ""; position: absolute; left: 18%; right: 18%; bottom: 11px; height: 10px; border-radius: 50%; background: rgba(255,214,139,0.24); filter: blur(5px); }
         .cabinet-plaque { border-color: rgba(255,214,139,0.36); box-shadow: 0 -8px 20px rgba(0,0,0,0.25), 0 10px 28px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -6px 18px rgba(0,0,0,0.26); }
         .altar-info-card, .altar-preview-card, .altar-editor-card { border-color: rgba(255,214,139,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), 0 18px 45px rgba(0,0,0,0.28), 0 0 24px rgba(255,120,230,0.08); }
         .altar-board.cabinet-mode.theme-rose { background: radial-gradient(circle at 50% 18%, rgba(255,132,222,0.26), transparent 38%), radial-gradient(circle at 52% 68%, rgba(255,214,139,0.12), transparent 44%), linear-gradient(180deg, rgba(24,7,31,0.98), rgba(8,4,13,0.99)); }
@@ -6537,7 +6540,7 @@
                     ]},
                     { id:'middle', slots:[
                         { slot:'middle-left', itemId:'tarot-star' },
-                        { slot:'middle-center', itemId:'ai-self' },
+                        { slot:'middle-center', itemId:'centerpiece-symbol' },
                         { slot:'middle-right', itemId:'poem-1' },
                         { slot:'middle-corner', itemId:'dream-key' }
                     ]},
@@ -6681,6 +6684,7 @@
             const words = altar.words || {};
             const bio = (words.bio || 'Creator of Pixie Portal').slice(0, 58);
             const goal = (words.goal || 'Build the living portal').slice(0, 54);
+            const patron = getAltarPatron(altar);
             return [
                 { itemId:'moon-charm', shelf:'top', slot:'top-left', x:14, y:13, scale:.92, rot:-10, z:14, html:'<div class="altar-obj-sticker">☾</div>' },
                 { itemId:'tarot-star', shelf:'top', slot:'top-right', x:86, y:13, scale:.82, rot:8, z:14, html:'<div class="altar-obj-sticker">✦</div>' },
@@ -6694,7 +6698,7 @@
                 { itemId:'rose-crystal', shelf:'middle', slot:'middle-left', x:47, y:60, scale:1, rot:0, z:24, html:'<div class="altar-obj-crystals"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'poem-1', shelf:'middle', slot:'middle-right', x:66, y:58, scale:.95, rot:4, z:23, html:'<div class="altar-obj-bottle"><div class="neck"></div><div class="jar">MOON</div><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'goal-1', shelf:'middle', slot:'middle-right', x:58, y:65, scale:1, rot:-8, z:25, html:'<div class="altar-obj-tool"><span class="altar-obj-shadow"></span></div>' },
-                { itemId:'ai-self', shelf:'middle', slot:'middle-center', x:50, y:51, scale:1.03, rot:0, z:28, html:'<div class="altar-obj-portrait">' + renderSelfPortraitMini(altar) + '</div>' },
+                { itemId:'centerpiece-symbol', shelf:'middle', slot:'middle-center', x:50, y:51, scale:1.03, rot:0, z:28, html:'<div class="altar-obj-deity-shrine">' + (patron.icon || '&#10022;') + '</div>' },
                 { itemId:'bio-card', shelf:'lower', slot:'lower-left', x:16, y:75, scale:.86, rot:-8, z:18, html:'<div class="altar-obj-note">' + escHtml(bio) + '</div>' },
                 { itemId:'poem-1', shelf:'lower', slot:'lower-center', x:36, y:80, scale:1.06, rot:-3, z:30, html:'<div class="altar-obj-open-book"><div class="page left"><span class="line"></span><span class="line"></span><span class="line"></span></div><div class="page right"><span class="line"></span><span class="line"></span><span class="line"></span></div><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'tarot-star', shelf:'lower', slot:'lower-center', x:65, y:82, scale:1, rot:8, z:27, html:'<div class="altar-obj-tarot">✦</div>' },
@@ -6876,8 +6880,8 @@
             host.innerHTML = '<div class="altar-command-bar"><div><div class="altar-kicker">Altar editor</div><div class="altar-save-state" id="altar-save-state">Saved</div><div class="altar-select-row">Select a shelf slot, then choose one thing to place. Selected: <strong>' + escHtml(selectedText) + '</strong></div></div><div class="altar-command-actions"><button class="btn btn-primary btn-small altar-command-primary" onclick="saveAltarToProfile()">Save Altar</button><button class="btn btn-ghost btn-small altar-command-important" id="altar-grok-top-btn" onclick="openAIGeneratedSelfOffer()">Generate Grok Portrait</button><button class="btn btn-ghost btn-small" onclick="previewPublicProfile()">Preview</button><button class="btn btn-ghost btn-small" onclick="shareAltarProfile()">Share</button></div></div><div class="altar-controls-grid">' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Altar theme</div><p class="altar-control-help">Set the room mood behind the shelves.</p><div class="altar-option-grid">' +
                 ALTAR_THEMES.map(t => '<button class="altar-option ' + (altar.theme === t.id ? 'active' : '') + '" onclick="setAltarTheme(&quot;' + t.id + '&quot;)">' + escHtml(t.name) + '</button>').join('') +
-                '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">Portrait flow</strong><br>Your Grok portrait lives in the Self Portrait Studio. Generate it there, place it on a shelf, then Save Altar.</div></div>' +
-                '<div class="altar-control-panel"><div class="altar-control-title">Centerpiece</div><p class="altar-control-help">Choose the deity, goddess, guide, or self portrait at the heart of the shrine.</p><div class="altar-option-grid">' +
+                '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">Portrait flow</strong><br>Your Grok portrait lives in the mirror beside your name. The cabinet centerpiece stays a shrine object.</div></div>' +
+                '<div class="altar-control-panel"><div class="altar-control-title">Centerpiece</div><p class="altar-control-help">Choose the deity, goddess, or guide at the heart of the shrine.</p><div class="altar-option-grid">' +
                 ALTAR_DEITIES.map(d => '<button class="altar-option ' + (altar.patron === d.id && !altar.generatedSelf ? 'active' : '') + '" onclick="chooseAltarPatron(&quot;' + d.id + '&quot;)"><span>' + d.icon + '</span>' + escHtml(d.name) + '</button>').join('') +
                 '</div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Self portrait studio</div><p class="altar-control-help">Customize the paid portrait before placing it. This is the image prompt path, not an emoji.</p><div class="altar-word-grid">' +
@@ -6886,7 +6890,7 @@
                 '<label>Frame</label><select class="altar-select" onchange="setSelfPortraitField(&quot;frame&quot;, this.value)">' + ALTAR_SELF_FRAMES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.frame === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
                 '<div class="altar-self-portrait-studio">' + renderSelfPortraitMini(altar) + '<div class="altar-self-portrait-meta"><strong>Grok Animated Self Portrait</strong><span>' + escHtml(altar.selfPortrait?.style || 'Glossy Pixie') + ' - ' + escHtml(altar.selfPortrait?.mood || 'soft and divine') + '</span><span>' + escHtml(altar.selfPortrait?.frame || 'Rose Gold Frame') + '</span><span class="altar-price-pill">Saved to altar profile</span><div id="altar-grok-status" class="altar-grok-status ' + (altar.selfPortrait?.grokStatus === 'processing' ? 'is-working' : '') + '">' + getGrokStatusText(altar) + '</div></div></div>' +
                 '<label>Custom prompt notes</label><textarea class="altar-note-input" oninput="setSelfPortraitField(&quot;prompt&quot;, this.value)" placeholder="pink hair, temple gold, moonlit wings, favorite colors...">' + escHtml(altar.selfPortrait?.prompt || '') + '</textarea>' +
-                '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small altar-command-primary" id="altar-grok-main-btn" onclick="openAIGeneratedSelfOffer()">Generate with Grok</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;ai-self&quot;)">Place Portrait</button></div></div>' +
+                '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small altar-command-primary" id="altar-grok-main-btn" onclick="openAIGeneratedSelfOffer()">Generate with Grok</button></div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">AI stickers & library</div><p class="altar-control-help">Click a shelf slot, then place stickers, generated art, poems, charms, or notes.</p><div class="altar-library-grid">' + libraryButtons + '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate AI Sticker</button><button class="btn btn-ghost btn-small" onclick="removeSelectedAltarItem()">Remove Slot Item</button></div></div>' +
                 '<details class="altar-advanced-tools"><summary>Advanced altar tools</summary><div class="altar-advanced-inner">' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Words</div><p class="altar-control-help">Bio, poem, goals, affirmations, notes, and the bottom mantra plaque.</p><div class="altar-word-grid">' +
@@ -6977,6 +6981,13 @@
         function selectAltarSlot(shelfId, slotId) { const altar = getAltarProfile(); altar.selectedSlot = { shelf:shelfId, slot:slotId }; saveAltarProfile(altar, false); renderAltarProfile(); }
         function placeAltarItem(itemId) {
             const altar = getAltarProfile();
+            if (itemId === 'ai-self') {
+                altar.generatedSelf = true;
+                saveAltarProfile(altar, false);
+                renderAltarProfile();
+                lokiAltarConfirm('Your profile picture lives in the mirror beside your name now. The altar centerpiece stays open for shrine pieces.');
+                return;
+            }
             const selected = altar.selectedSlot || { shelf:'middle', slot:'middle-center' };
             const shelf = altar.shelves.find(s => s.id === selected.shelf);
             const slot = shelf?.slots.find(s => s.slot === selected.slot);
@@ -6984,7 +6995,6 @@
             saveAltarProfile(altar, false);
             renderAltarProfile();
             flashAltarSlot(selected.shelf, selected.slot);
-            if (itemId === 'ai-self') lokiAltarConfirm('You added your profile picture to your altar. It is part of your Pixie profile now. Save the altar when it looks right.');
         }
         function getNextEmptyAltarSlot(altar) {
             const selected = altar.selectedSlot || { shelf:'middle', slot:'middle-center' };
@@ -7000,6 +7010,13 @@
         }
         function quickPlaceAltarItem(itemId) {
             const altar = getAltarProfile();
+            if (itemId === 'ai-self') {
+                altar.generatedSelf = true;
+                saveAltarProfile(altar, false);
+                renderAltarProfile();
+                lokiAltarConfirm('Your profile picture lives in the mirror beside your name now.');
+                return;
+            }
             const target = getNextEmptyAltarSlot(altar);
             const shelf = altar.shelves.find(s => s.id === target.shelf);
             const slot = shelf?.slots.find(s => s.slot === target.slot);
@@ -7172,10 +7189,9 @@
                 item.prompt = altar.selfPortrait.prompt || '';
                 delete item.premium;
             }
-            altar.selectedSlot = { shelf:'middle', slot:'middle-center' };
             saveAltarProfile(altar, false);
             placeAltarItem('ai-self');
-            finishLokiGrokProgress('Your portrait is on the altar.');
+            finishLokiGrokProgress('Your portrait is in the mirror beside your name.');
             toast('Animated self portrait preview unlocked');
         }
         async function pollGrokSelfPortrait(attempt = 0) {
@@ -7190,9 +7206,9 @@
                         renderAltarProfile();
                     }
                     if (data.status === 'done') {
-                        setGrokUiState('idle', 'Ready. Your Grok portrait is saved and placed on the altar.');
+                        setGrokUiState('idle', 'Ready. Your Grok portrait is saved in the profile mirror.');
                         placeAltarItem('ai-self');
-                        finishLokiGrokProgress('AAAHHH it landed. Your Grok portrait is alive on the altar.');
+                        finishLokiGrokProgress('AAAHHH it landed. Your Grok portrait is alive in the mirror.');
                         toast('Grok animated portrait ready');
                         return;
                     }
