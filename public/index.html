@@ -1384,6 +1384,66 @@
         .chamber-copy { margin: 0; color: rgba(236,220,255,0.78); line-height: 1.65; }
         .chamber-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 28px; padding: 12px; border-radius: 999px; background: rgba(20,8,34,.56); border: 1px solid rgba(255,255,255,.12); }
 
+        .charm-detail-focus {
+            display: none;
+            grid-column: 1 / -1;
+            margin: 0 0 22px;
+            padding: clamp(18px, 3vw, 28px);
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(255, 214, 139, 0.14), transparent 30%),
+                linear-gradient(145deg, rgba(32, 14, 48, 0.84), rgba(12, 7, 24, 0.92));
+            border: 1px solid rgba(255, 214, 139, 0.22);
+            box-shadow: 0 22px 60px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .charm-detail-focus.active {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .charm-detail-glyph {
+            width: 82px;
+            height: 82px;
+            display: grid;
+            place-items: center;
+            border-radius: 26px;
+            background: radial-gradient(circle, rgba(255,190,245,.26), rgba(90,45,130,.20));
+            box-shadow: 0 0 30px rgba(255,140,225,.18);
+            font-size: 34px;
+        }
+
+        .charm-detail-title {
+            margin: 0 0 5px;
+            color: #fff1c7;
+            font-size: clamp(22px, 3vw, 34px);
+        }
+
+        .charm-detail-copy {
+            margin: 0;
+            color: rgba(236,220,255,0.78);
+            line-height: 1.55;
+        }
+
+        .charm-detail-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .charm-tile.is-focused {
+            border-color: rgba(255, 214, 139, 0.52);
+            box-shadow: 0 0 26px rgba(255,214,139,0.18), 0 20px 50px rgba(0,0,0,0.24);
+        }
+
+        .journal-entry.is-focused {
+            border-color: rgba(255, 214, 139, 0.38);
+            box-shadow: 0 0 24px rgba(255,214,139,0.14), 0 18px 44px rgba(0,0,0,0.20);
+        }
+
         @media (max-width: 760px) {
             .chamber-hero {
                 flex-direction: column;
@@ -1392,6 +1452,19 @@
 
             .chamber-actions {
                 border-radius: 24px;
+            }
+
+            .charm-detail-focus.active {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .charm-detail-glyph {
+                margin: 0 auto;
+            }
+
+            .charm-detail-actions {
+                justify-content: center;
             }
         }
 
@@ -2194,9 +2267,9 @@
                 <a class="nav-tab" data-page="create" onclick="showPage('create')">Create</a>
                 <a class="nav-tab" data-page="tarot" onclick="openPortalChamber('tarot')">Tarot</a>
                 <a class="nav-tab" data-page="horoscope" onclick="showPage('horoscope')">Stars</a>
-                <a class="nav-tab" data-page="journal-page" onclick="showPage('journal-page')">Dreams</a>
+                <a class="nav-tab" data-page="journal-page" onclick="openPortalChamber('dream')">Dreams</a>
                 <a class="nav-tab" data-page="herbs" onclick="showPage('herbs')">Herbs</a>
-                <a class="nav-tab" data-page="charms" onclick="showPage('charms')">Charms</a>
+                <a class="nav-tab" data-page="charms" onclick="openPortalChamber('charms')">Charms</a>
                 <a class="nav-tab" data-page="my-pixie" onclick="showPage('my-pixie')">My Pixie</a>
                 <a class="nav-tab" data-page="profile" onclick="showPage('profile')">Altar</a>
                 <a class="nav-tab" data-page="vault" onclick="showPage('vault')">Vault</a>
@@ -2274,6 +2347,12 @@
             <div class="orb orb-3"></div>
             <img class="hero-mark" src="/pixie-portal-icon.png" alt="Pixie Portal magical portal logo">
             <h1 class="hero-title">Pixie Portal</h1>
+            <p class="hero-subtitle" style="max-width:760px;margin:10px auto 0;font-size:clamp(16px,2vw,22px);line-height:1.55;">
+                The Portal is the bones of a baby Fortnite for fairy people: a cozy 3D island where you run around, collect magic, unlock cute stuff, decorate your realm, and build a bond with your Pixie.
+            </p>
+            <p class="hero-subtitle" style="max-width:700px;margin:8px auto 0;font-size:15px;opacity:.78;">
+                No sweaty battle royale. Just sparkles, quests, charms, memories, and a tiny magical world that grows because you played in it. Coming soon: a social Pixie world.
+            </p>
             <p class="hero-subtitle">games ✦ journal ✦ magic</p>
             <div class="hero-cta">
                 <button class="btn btn-primary" id="hero-btn" onclick="openModal('signup')">Enter the Portal ✦</button>
@@ -2359,6 +2438,11 @@
                                 <span>âš’</span>
                                 <strong>Creation Forge</strong>
                                 <small>Portraits, stickers, dreams, and paid magic.</small>
+                            </button>
+                            <button class="portal-node" onclick="openPortalChamber('charms')">
+                                <span>âœ¦</span>
+                                <strong>Charm Circle</strong>
+                                <small>Collect, focus, equip, and unlock relics.</small>
                             </button>
                             <button class="portal-node" onclick="openPortalChamber('altar')">
                                 <span>ðŸ•¯</span>
@@ -2827,7 +2911,16 @@
     <!-- ============ JOURNAL PAGE ============ -->
     <div class="page" id="page-journal-page">
         <section>
-            <h2 class="section-title">Dream Journal</h2>
+            <div class="chamber-shell" id="dream-chamber-shell">
+                <button class="chamber-back-btn" onclick="backToPortal()">Back to Portal</button>
+                <div class="chamber-hero">
+                    <div class="chamber-orb">D</div>
+                    <div>
+                        <div class="chamber-breadcrumb">Portal -> Dream Well</div>
+                        <h2 class="chamber-title">Dream Well</h2>
+                        <p class="chamber-copy">Memories surface differently here.</p>
+                    </div>
+                </div>
             <p class="section-subtitle">capture the vibes ✦ your entries are private</p>
 
             <div id="journal-logged-out" class="sealed-journal-panel">
@@ -2857,6 +2950,12 @@
                 </div>
                 <div id="journal-safety-support" style="display:none;"></div>
                 <div id="journal-entries"></div>
+            </div>
+            <div class="chamber-actions">
+                <button class="btn btn-ghost btn-small" onclick="backToPortal()">Return to Portal</button>
+                <button class="btn btn-primary btn-small" onclick="openModal('new-entry')">New Dream</button>
+                <button class="btn btn-ghost btn-small" onclick="showPage('vault')">Animate Memory</button>
+            </div>
             </div>
         </section>
     </div>
@@ -2935,8 +3034,16 @@
     <!-- ============ CHARMS PAGE ============ -->
     <div class="page" id="page-charms">
         <section>
-            <h2 class="section-title">Charms</h2>
-            <p class="section-subtitle">collect sparkles, unlock silhouettes, complete magical sets</p>
+            <div class="chamber-shell" id="charms-chamber-shell">
+                <button class="chamber-back-btn" onclick="backToPortal()">Back to Portal</button>
+                <div class="chamber-hero">
+                    <div class="chamber-orb">C</div>
+                    <div>
+                        <div class="chamber-breadcrumb">Portal -> Charm Circle</div>
+                        <h2 class="chamber-title">Charm Circle</h2>
+                        <p class="chamber-copy">Not every charm wants to be worn.</p>
+                    </div>
+                </div>
             <div class="games-shell">
                 <div class="portal-hub-grid">
                     <div class="portal-hub-card">
@@ -2952,13 +3059,20 @@
                     </div>
                 </div>
                 <div class="charms-grid">
-                    <div class="charm-tile earned" id="charm-petal"><div class="charm-glyph">&#10048;</div><div class="tile-kicker" id="charm-petal-state">Unlocked</div><div class="hub-title" style="font-size:18px;">Petal Charm</div><div class="tile-copy">Fairy Garden reward.</div></div>
-                    <div class="charm-tile" id="charm-star"><div class="charm-glyph">&#10023;</div><div class="tile-kicker" id="charm-star-state">Preview</div><div class="hub-title" style="font-size:18px;">Star Shard</div><div class="tile-copy">Daily chest reward.</div></div>
-                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Moon Moth</div><div class="tile-copy">Maze reward silhouette.</div></div>
-                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Rune Ink</div><div class="tile-copy">Spell tracing reward.</div></div>
-                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Dream Symbol</div><div class="tile-copy">Dream bubble reward.</div></div>
-                    <div class="charm-tile locked"><div class="charm-glyph">?</div><div class="tile-kicker">Premium</div><div class="hub-title" style="font-size:18px;">Oracle Wing</div><div class="tile-copy">Vault collectible.</div></div>
+                    <div class="charm-detail-focus" id="charm-detail-focus" aria-live="polite"></div>
+                    <div class="charm-tile earned" id="charm-petal" data-charm-id="petal" onclick="openCharmDetail('petal')"><div class="charm-glyph">&#10048;</div><div class="tile-kicker" id="charm-petal-state">Unlocked</div><div class="hub-title" style="font-size:18px;">Petal Charm</div><div class="tile-copy">Fairy Garden reward.</div></div>
+                    <div class="charm-tile" id="charm-star" data-charm-id="star" onclick="openCharmDetail('star')"><div class="charm-glyph">&#10023;</div><div class="tile-kicker" id="charm-star-state">Preview</div><div class="hub-title" style="font-size:18px;">Star Shard</div><div class="tile-copy">Daily chest reward.</div></div>
+                    <div class="charm-tile locked" data-charm-id="moon-moth" onclick="openCharmDetail('moon-moth')"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Moon Moth</div><div class="tile-copy">Maze reward silhouette.</div></div>
+                    <div class="charm-tile locked" data-charm-id="rune-ink" onclick="openCharmDetail('rune-ink')"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Rune Ink</div><div class="tile-copy">Spell tracing reward.</div></div>
+                    <div class="charm-tile locked" data-charm-id="dream-symbol" onclick="openCharmDetail('dream-symbol')"><div class="charm-glyph">?</div><div class="tile-kicker">Locked</div><div class="hub-title" style="font-size:18px;">Dream Symbol</div><div class="tile-copy">Dream bubble reward.</div></div>
+                    <div class="charm-tile locked" data-charm-id="oracle-wing" onclick="openCharmDetail('oracle-wing')"><div class="charm-glyph">?</div><div class="tile-kicker">Premium</div><div class="hub-title" style="font-size:18px;">Oracle Wing</div><div class="tile-copy">Vault collectible.</div></div>
                 </div>
+            </div>
+            <div class="chamber-actions">
+                <button class="btn btn-ghost btn-small" onclick="backToPortal()">Return to Portal</button>
+                <button class="btn btn-ghost btn-small" onclick="openCharmDetail('petal')">Focus Petal Charm</button>
+                <button class="btn btn-primary btn-small" onclick="showPage('vault')">Open Vault Relics</button>
+            </div>
             </div>
         </section>
     </div>
@@ -3781,7 +3895,8 @@
 
         function openPortalChamber(type, options = {}) {
             portalCameraState.lastSelectedNode = type;
-            if (type !== 'tarot') {
+            const chamberTypes = ['tarot', 'dream', 'charms'];
+            if (!chamberTypes.includes(type)) {
                 showPage(CHAMBER_PAGE_MAP[type] || 'home');
                 toast('The ' + chamberLabel(type) + ' chamber shell is coming next.');
                 return;
@@ -3799,6 +3914,17 @@
                 if (typeof lokiAltarConfirm === 'function') {
                     lokiAltarConfirm('Tarot Ring opened. Draw, reveal, and return when the cards have spoken.');
                 }
+                return;
+            }
+            if (type === 'dream') {
+                incrementLocalCounter('dreamChamberVisits');
+                if (typeof lokiAltarConfirm === 'function') lokiAltarConfirm('You came to the water.');
+                return;
+            }
+            if (type === 'charms') {
+                incrementLocalCounter('charmChamberVisits');
+                renderCharmDetail(null);
+                if (typeof lokiAltarConfirm === 'function') lokiAltarConfirm('Choose slowly.');
                 return;
             }
         }
@@ -3823,6 +3949,91 @@
                 game: 'Game Gate',
                 stars: 'Star Gate'
             }[type] || 'Portal';
+        }
+
+        function incrementLocalCounter(key) {
+            const current = Number(localStorage.getItem(key) || '0') || 0;
+            localStorage.setItem(key, String(current + 1));
+            return current + 1;
+        }
+
+        const CHARM_DETAILS = {
+            petal: {
+                glyph: '&#10048;',
+                title: 'Petal Charm',
+                state: 'Unlocked',
+                copy: 'A Fairy Garden keepsake. It belongs to the soft loop: play, tend, collect, return.'
+            },
+            star: {
+                glyph: '&#10023;',
+                title: 'Star Shard',
+                state: 'Preview',
+                copy: 'A daily chest fragment. Build streaks and the shard starts feeling less like a preview.'
+            },
+            'moon-moth': {
+                glyph: '?',
+                title: 'Moon Moth',
+                state: 'Locked',
+                copy: 'A silhouette from the maze path. It wants motion, night, and a reason to come back.'
+            },
+            'rune-ink': {
+                glyph: '?',
+                title: 'Rune Ink',
+                state: 'Locked',
+                copy: 'Spell tracing residue. This charm should unlock when ritual games begin feeding the Portal.'
+            },
+            'dream-symbol': {
+                glyph: '?',
+                title: 'Dream Symbol',
+                state: 'Locked',
+                copy: 'A future Dream Well relic. Journal memories and generated dream videos will make this personal.'
+            },
+            'oracle-wing': {
+                glyph: '?',
+                title: 'Oracle Wing',
+                state: 'Premium',
+                copy: 'A Vault collectible. It should feel like deeper magic, not basic functionality being held hostage.'
+            }
+        };
+
+        function openCharmDetail(id) {
+            incrementLocalCounter('charmsOpened');
+            activeChamber = { type: 'charms', subType: 'detail', id };
+            try { history.pushState({ globalView: 'chamber', type: 'charms', id }, '', '#/chamber/charms/' + id); } catch (err) {}
+            renderCharmDetail(id);
+        }
+
+        function renderCharmDetail(id) {
+            const panel = document.getElementById('charm-detail-focus');
+            if (!panel) return;
+            document.querySelectorAll('.charm-tile[data-charm-id]').forEach(tile => {
+                tile.classList.toggle('is-focused', !!id && tile.dataset.charmId === id);
+            });
+            if (!id || !CHARM_DETAILS[id]) {
+                panel.classList.remove('active');
+                panel.innerHTML = '';
+                return;
+            }
+            const charm = CHARM_DETAILS[id];
+            panel.classList.add('active');
+            panel.innerHTML = `
+                <div class="charm-detail-glyph">${charm.glyph}</div>
+                <div>
+                    <div class="chamber-breadcrumb">Charm Circle -> ${escHtml(charm.state)}</div>
+                    <h3 class="charm-detail-title">${escHtml(charm.title)}</h3>
+                    <p class="charm-detail-copy">${escHtml(charm.copy)}</p>
+                </div>
+                <div class="charm-detail-actions">
+                    <button class="btn btn-ghost btn-small" onclick="renderCharmDetail(null)">Close</button>
+                    <button class="btn btn-primary btn-small" onclick="equipCharm('${id}')">Equip</button>
+                </div>`;
+        }
+
+        function equipCharm(id) {
+            incrementLocalCounter('charmsEquipped');
+            localStorage.setItem('pixieEquippedCharm', id);
+            const charm = CHARM_DETAILS[id];
+            toast((charm?.title || 'Charm') + ' equipped.');
         }
 
         function toggleMobileNav() {
@@ -4650,6 +4861,7 @@
                 body: JSON.stringify(data), credentials: 'include'
             });
             const json = await res.json().catch(() => ({}));
+            incrementLocalCounter('dreamEntriesCreated');
             closeModals();
             document.getElementById('entry-title').value = '';
             document.getElementById('entry-content').value = '';
@@ -4661,6 +4873,17 @@
                 toast('Entry saved.');
             }
             loadJournal();
+        }
+
+        function openDreamEntryFromEvent(event, id) {
+            if (event?.target?.closest?.('button, select, a, video, input, textarea')) return;
+            incrementLocalCounter('dreamEntriesOpened');
+            document.querySelectorAll('.journal-entry').forEach(entry => entry.classList.remove('is-focused'));
+            const entry = document.querySelector(`.journal-entry[data-entry-id="${id}"]`);
+            if (entry) entry.classList.add('is-focused');
+            activeChamber = { type: 'dream', subType: 'entry', id };
+            try { history.pushState({ globalView: 'chamber', type: 'dream', id }, '', '#/chamber/dream/' + id); } catch (err) {}
+            toast('Dream memory opened.');
         }
 
         function updateCreditsDisplay() {
@@ -4762,6 +4985,7 @@
                 body: JSON.stringify({ title: dream.title, content: dream.content, mood: 'neutral' })
             });
             const created = await createRes.json();
+            incrementLocalCounter('dreamEntriesCreated');
             if (!created.id) { toast('Something went wrong ✦'); return; }
 
             toast('Weaving your dream ✦');
@@ -4775,7 +4999,7 @@
 
             // Reload journal so new entry appears at top
             await loadJournal();
-            showPage('journal-page');
+            if (activeChamber?.type !== 'dream') showPage('journal-page');
 
             if (animData.error === 'limit_reached') {
                 const msg = animData.need === 2
@@ -4844,18 +5068,18 @@
                 const date = new Date(e.created_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 const mood = MOOD_EMOJIS[e.mood] || '💭';
                 const isPub = !!e.is_public;
-                return `<div class="journal-entry" data-entry-id="${e.id}">
+                return `<div class="journal-entry" data-entry-id="${e.id}" onclick="openDreamEntryFromEvent(event, ${e.id})">
                     <div class="entry-header">
                         <span class="entry-mood">${mood}</span>
                         <span class="entry-date">${date}</span>
-                        <button class="entry-delete" onclick="deleteEntry(${e.id})">×</button>
+                        <button class="entry-delete" onclick="event.stopPropagation(); deleteEntry(${e.id})">×</button>
                     </div>
                     ${e.title ? `<div class="entry-title">${escHtml(e.title)}</div>` : ''}
                     <div class="entry-content">${escHtml(e.content)}</div>
                     ${journalSafetySupportHtml(e.safety)}
                     ${entryVideoSection(e)}
                     <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                        <button class="public-toggle${isPub?' is-public':''}" id="pub-toggle-${e.id}" onclick="toggleEntryPublic(${e.id},this)">
+                        <button class="public-toggle${isPub?' is-public':''}" id="pub-toggle-${e.id}" onclick="event.stopPropagation(); toggleEntryPublic(${e.id},this)">
                             <span class="public-dot"></span>${isPub?'Public — visible to followers':'Private — only you'}
                         </button>
                         ${isPub?`<div class="social-actions" id="entry-actions-${e.id}">${entryReactionHtml(e.id)}</div>`:''}
