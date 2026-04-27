@@ -399,10 +399,17 @@
         .altar-self-portrait.style-forest-fae { background: radial-gradient(circle at 50% 26%, rgba(230,255,220,0.42) 0 12%, rgba(120,235,180,0.34) 13% 26%, rgba(72,130,120,0.28) 27% 45%, rgba(8,28,28,0.92) 46% 100%); }
         .altar-self-portrait.style-cyber-fairy { background: radial-gradient(circle at 50% 26%, rgba(210,255,255,0.44) 0 12%, rgba(88,235,255,0.34) 13% 26%, rgba(255,82,224,0.26) 27% 45%, rgba(8,8,30,0.92) 46% 100%); }
         .altar-self-portrait img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+        .altar-self-portrait.is-animated { overflow: hidden; animation: altarPortraitFloat 3.4s ease-in-out infinite; }
+        .altar-self-portrait.is-animated::before { content: ""; position: absolute; inset: -40%; background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.34), transparent, rgba(255,120,230,0.30), transparent); animation: altarPortraitScan 3s linear infinite; mix-blend-mode: screen; }
+        .altar-self-portrait.is-animated::after { content: ""; position: absolute; inset: 10%; border-radius: inherit; border: 1px solid rgba(255,230,170,0.26); box-shadow: 0 0 24px rgba(255,120,230,0.28), inset 0 0 18px rgba(110,240,255,0.14); animation: altarPortraitPulse 1.8s ease-in-out infinite alternate; pointer-events: none; }
+        @keyframes altarPortraitFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.025); } }
+        @keyframes altarPortraitScan { to { transform: rotate(360deg); } }
+        @keyframes altarPortraitPulse { from { opacity: 0.42; } to { opacity: 1; } }
         .altar-self-portrait-studio { margin: 4px 0 12px; min-height: 128px; border-radius: 18px; display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; padding: 14px; background: radial-gradient(circle at 18% 18%, rgba(255,214,139,0.14), transparent 36%), rgba(8,5,18,0.48); border: 1px solid rgba(255,214,139,0.18); }
         .altar-self-portrait-studio .altar-self-portrait { width: 86px; height: 86px; border-radius: 24px; }
         .altar-self-portrait-meta strong { display: block; color: #fff1c7; margin-bottom: 4px; }
         .altar-self-portrait-meta span { display: block; color: rgba(230,214,255,0.78); font-size: 12px; line-height: 1.35; }
+        .altar-price-pill { display: inline-flex; margin-top: 7px; padding: 4px 9px; border-radius: 999px; color: #261030; background: linear-gradient(135deg, #ffe2aa, #ff9fe3); font-size: 11px; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
         .altar-slot.drop-flash { animation: altarDropFlash 0.9s ease both; }
         @keyframes altarDropFlash {
             0% { box-shadow: 0 0 0 rgba(255,120,230,0); transform: translateY(0); }
@@ -5446,6 +5453,8 @@
                     frame:'Rose Gold Frame',
                     prompt:'',
                     image:'',
+                    animated:false,
+                    price:'$1.99',
                     generated:false
                 },
                 words:{
@@ -5493,9 +5502,9 @@
             if (altar.generatedSelf) libraryMap.set('ai-self', {
                 id:'ai-self',
                 type:'portrait',
-                label:'AI Self Portrait',
+                label:altar.selfPortrait?.animated ? 'Animated Self Portrait' : 'AI Self Portrait',
                 icon:'SELF',
-                text:(altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic'),
+                text:altar.selfPortrait?.animated ? '$1.99 - ' + (altar.selfPortrait.style || 'Custom Pixie') + ' motion altar' : (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic'),
                 premium:true
             });
             altar.library = [...libraryMap.values()].slice(0, 60);
@@ -5581,7 +5590,7 @@
         }
         function renderSelfPortraitMini(altar) {
             const image = altar.selfPortrait?.generated || altar.selfPortrait?.image ? buildSelfPortraitImage(altar) : '';
-            return '<div class="altar-self-portrait ' + getSelfPortraitClass(altar) + '">' + (image ? '<img src="' + image + '" alt="Generated self portrait preview">' : escHtml(getSelfPortraitInitials())) + '</div>';
+            return '<div class="altar-self-portrait ' + getSelfPortraitClass(altar) + (altar.selfPortrait?.animated ? ' is-animated' : '') + '">' + (image ? '<img src="' + image + '" alt="Animated self portrait preview">' : escHtml(getSelfPortraitInitials())) + '</div>';
         }
         function renderAltarItem(item) {
             if (!item) return '';
@@ -5637,10 +5646,10 @@
             const word = altar.words || {};
             const libraryButtons = (altar.library || []).map(item => '<button class="altar-option" onclick="quickPlaceAltarItem(&quot;' + escAttr(item.id) + '&quot;)"><span>' + (item.type === 'portrait' ? 'SELF' : (item.icon || '&#10022;')) + '</span>' + escHtml(item.label || item.id) + (item.premium ? '<br><small class="altar-premium-badge">Premium</small>' : '') + '</button>').join('');
             const charmButtons = (altar.library || []).filter(item => ['charm','tarot','dream','deity','portrait'].includes(item.type)).map(item => '<button class="altar-option" onclick="quickPlaceAltarItem(&quot;' + escAttr(item.id) + '&quot;)"><span>' + (item.type === 'portrait' ? 'SELF' : (item.icon || '&#10022;')) + '</span>' + escHtml(item.label || item.id) + '</button>').join('');
-            host.innerHTML = '<div class="altar-command-bar"><div><div class="altar-kicker">Altar editor</div><div class="altar-save-state" id="altar-save-state">Saved</div><div class="altar-select-row">Select a shelf slot, then choose or generate an item to place. Selected: <strong>' + escHtml(selectedText) + '</strong></div></div><div class="altar-command-actions"><button class="btn btn-primary btn-small" onclick="saveAltarToProfile()">Save Altar</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate Sticker</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;poem&quot;)">Generate Poem</button><button class="btn btn-ghost btn-small" onclick="openAIGeneratedSelfOffer()">Generate Self Portrait</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;bio-card&quot;)">Add Bio Card</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;goal-1&quot;)">Add Goal Card</button><button class="btn btn-ghost btn-small" onclick="resetAltarProfile()">Reset</button><button class="btn btn-ghost btn-small" onclick="previewPublicProfile()">Preview Public Altar</button><button class="btn btn-ghost btn-small" onclick="shareAltarProfile()">Share Altar</button></div></div><div class="altar-controls-grid">' +
+            host.innerHTML = '<div class="altar-command-bar"><div><div class="altar-kicker">Altar editor</div><div class="altar-save-state" id="altar-save-state">Saved</div><div class="altar-select-row">Select a shelf slot, then choose or generate an item to place. Selected: <strong>' + escHtml(selectedText) + '</strong></div></div><div class="altar-command-actions"><button class="btn btn-primary btn-small" onclick="saveAltarToProfile()">Save Altar</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate Sticker</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;poem&quot;)">Generate Poem</button><button class="btn btn-ghost btn-small" onclick="openAIGeneratedSelfOffer()">Animated Portrait $1.99</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;bio-card&quot;)">Add Bio Card</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;goal-1&quot;)">Add Goal Card</button><button class="btn btn-ghost btn-small" onclick="resetAltarProfile()">Reset</button><button class="btn btn-ghost btn-small" onclick="previewPublicProfile()">Preview Public Altar</button><button class="btn btn-ghost btn-small" onclick="shareAltarProfile()">Share Altar</button></div></div><div class="altar-controls-grid">' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Altar theme</div><p class="altar-control-help">Set the room mood behind the shelves.</p><div class="altar-option-grid">' +
                 ALTAR_THEMES.map(t => '<button class="altar-option ' + (altar.theme === t.id ? 'active' : '') + '" onclick="setAltarTheme(&quot;' + t.id + '&quot;)">' + escHtml(t.name) + '</button>').join('') +
-                '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">Pixie credits</strong><span class="altar-premium-badge">Premium</span><br>AI self portraits, custom stickers, and animated altar items can be unlocked with Pixie credits.</div></div>' +
+                '</div><div class="altar-shop-card"><strong style="color:#ffe3a6;">Animated portrait</strong><span class="altar-premium-badge">$1.99</span><br>Unlock a moving altar portrait with scan shimmer, aura pulse, and animated shrine glow. Full payment wiring can connect to the shop next.</div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Centerpiece</div><p class="altar-control-help">Choose the deity, goddess, guide, or self portrait at the heart of the shrine.</p><div class="altar-option-grid">' +
                 ALTAR_DEITIES.map(d => '<button class="altar-option ' + (altar.patron === d.id && !altar.generatedSelf ? 'active' : '') + '" onclick="chooseAltarPatron(&quot;' + d.id + '&quot;)"><span>' + d.icon + '</span>' + escHtml(d.name) + '</button>').join('') +
                 '</div></div>' +
@@ -5648,9 +5657,9 @@
                 '<label>Portrait style</label><select class="altar-select" onchange="setSelfPortraitField(&quot;style&quot;, this.value)">' + ALTAR_SELF_STYLES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.style === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
                 '<label>Mood</label><select class="altar-select" onchange="setSelfPortraitField(&quot;mood&quot;, this.value)">' + ALTAR_SELF_MOODS.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.mood === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
                 '<label>Frame</label><select class="altar-select" onchange="setSelfPortraitField(&quot;frame&quot;, this.value)">' + ALTAR_SELF_FRAMES.map(v => '<option value="' + escAttr(v) + '" ' + (altar.selfPortrait?.frame === v ? 'selected' : '') + '>' + escHtml(v) + '</option>').join('') + '</select>' +
-                '<div class="altar-self-portrait-studio">' + renderSelfPortraitMini(altar) + '<div class="altar-self-portrait-meta"><strong>' + escHtml(altar.selfPortrait?.style || 'Glossy Pixie') + '</strong><span>' + escHtml(altar.selfPortrait?.mood || 'soft and divine') + '</span><span>' + escHtml(altar.selfPortrait?.frame || 'Rose Gold Frame') + '</span></div></div>' +
+                '<div class="altar-self-portrait-studio">' + renderSelfPortraitMini(altar) + '<div class="altar-self-portrait-meta"><strong>Animated Self Portrait</strong><span>' + escHtml(altar.selfPortrait?.style || 'Glossy Pixie') + ' - ' + escHtml(altar.selfPortrait?.mood || 'soft and divine') + '</span><span>' + escHtml(altar.selfPortrait?.frame || 'Rose Gold Frame') + '</span><span class="altar-price-pill">$1.99 animation unlock</span></div></div>' +
                 '<label>Custom prompt notes</label><textarea class="altar-note-input" oninput="setSelfPortraitField(&quot;prompt&quot;, this.value)" placeholder="pink hair, temple gold, moonlit wings, favorite colors...">' + escHtml(altar.selfPortrait?.prompt || '') + '</textarea>' +
-                '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="openAIGeneratedSelfOffer()">Generate Self Portrait</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;ai-self&quot;)">Place Portrait</button></div></div>' +
+                '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="openAIGeneratedSelfOffer()">Unlock Animated Portrait - $1.99</button><button class="btn btn-ghost btn-small" onclick="placeAltarItem(&quot;ai-self&quot;)">Place Preview</button></div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">AI stickers & library</div><p class="altar-control-help">Click a shelf slot, then place stickers, generated art, poems, charms, or notes.</p><div class="altar-library-grid">' + libraryButtons + '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="generateAltarItem(&quot;sticker&quot;)">Generate AI Sticker</button><button class="btn btn-ghost btn-small" onclick="removeSelectedAltarItem()">Remove Slot Item</button></div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Words</div><p class="altar-control-help">Bio, poem, goals, affirmations, notes, and the bottom mantra plaque.</p><div class="altar-word-grid">' +
                 '<label>Bio</label><textarea class="altar-note-input" oninput="setAltarWord(&quot;bio&quot;, this.value)" placeholder="Bio card">' + escHtml(word.bio || '') + '</textarea>' +
@@ -5793,19 +5802,21 @@
             const altar = getAltarProfile();
             altar.generatedSelf = true;
             altar.selfPortrait = { ...(altar.selfPortrait || {}), generated:true };
+            altar.selfPortrait.animated = true;
+            altar.selfPortrait.price = '$1.99';
             altar.selfPortrait.image = buildSelfPortraitImage(altar);
             const item = altar.library.find(i => i.id === 'ai-self');
             if (item) {
                 item.icon = 'SELF';
-                item.label = 'AI Self Portrait';
-                item.text = (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic');
+                item.label = 'Animated Self Portrait';
+                item.text = '$1.99 - ' + (altar.selfPortrait.style || 'Custom Pixie') + ' motion altar';
                 item.frame = altar.selfPortrait.frame || 'Rose Gold Frame';
                 item.prompt = altar.selfPortrait.prompt || '';
             }
             altar.selectedSlot = { shelf:'middle', slot:'middle-center' };
             saveAltarProfile(altar, false);
             placeAltarItem('ai-self');
-            toast('Self portrait studio preview placed');
+            toast('Animated self portrait preview unlocked');
         }
 
         async function loadProfile() {
