@@ -321,6 +321,13 @@
         .altar-copy { color: rgba(230, 214, 255, 0.82); font-size: 14px; line-height: 1.7; margin: 0; }
         .altar-patron-row { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 20px; background: radial-gradient(circle at 12% 18%, rgba(255,214,139,0.13), transparent 40%), rgba(255,255,255,0.045); border: 1px solid rgba(255,214,139,0.14); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 32px rgba(0,0,0,0.18); }
         .altar-patron-icon { width: 62px; height: 62px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 34px; background: linear-gradient(135deg, rgba(255,150,200,0.24), rgba(180,150,255,0.20)); box-shadow: 0 0 28px rgba(255,150,200,0.15); }
+        .altar-patron-icon.mirror-frame { position: relative; flex: 0 0 98px; width: 98px; height: 118px; padding: 9px; border-radius: 999px 999px 30px 30px; background: radial-gradient(circle at 50% 12%, rgba(255, 246, 206, 0.26), transparent 30%), linear-gradient(145deg, #ffe1a5, #b46b7f 35%, #32172f 68%, #09050e); border: 1px solid rgba(255, 231, 170, 0.52); box-shadow: 0 18px 40px rgba(0,0,0,0.34), 0 0 30px rgba(255, 126, 224, 0.18), inset 0 0 0 4px rgba(20,8,26,0.82), inset 0 1px 0 rgba(255,255,255,0.22); overflow: visible; }
+        .altar-patron-icon.mirror-frame::before { content: ""; position: absolute; inset: -9px; z-index: -1; border-radius: 999px 999px 36px 36px; background: linear-gradient(145deg, rgba(255,226,170,0.58), rgba(255,126,224,0.20), rgba(0,0,0,0.40)); box-shadow: 0 0 26px rgba(255,214,139,0.18); }
+        .altar-patron-icon.mirror-frame::after { content: "mirror"; position: absolute; left: 50%; bottom: -10px; transform: translateX(-50%); padding: 3px 9px; border-radius: 999px; color: #fff1c7; background: rgba(9,5,14,0.92); border: 1px solid rgba(255,214,139,0.24); font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+        .altar-patron-icon.mirror-frame .altar-self-portrait { width: 100%; height: 100%; border-radius: 999px 999px 24px 24px; }
+        .altar-patron-icon.mirror-frame .portrait-initials { font-size: 11px; }
+        .altar-patron-icon.mirror-frame .portrait-orbit { inset: 9%; }
+        .altar-patron-text { min-width: 0; }
         .altar-patron-name { color: #fff1c7; font-size: 18px; font-weight: 800; }
         .altar-patron-domain { color: #9f8fbd; font-size: 12px; margin-top: 3px; }
         .altar-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -3607,7 +3614,7 @@
                         <p class="altar-copy" id="profile-bio"></p>
                         <div class="altar-patron-row">
                             <div class="altar-patron-icon" id="profile-avatar">&#10022;</div>
-                            <div>
+                            <div class="altar-patron-text">
                                 <div class="altar-patron-name" id="altar-patron-name">Choose a patron</div>
                                 <div class="altar-patron-domain" id="altar-patron-domain">Build a page that feels like yours.</div>
                             </div>
@@ -6751,8 +6758,9 @@
             const patron = getAltarPatron(altar);
             const avatar = document.getElementById('profile-avatar');
             if (avatar) {
-                avatar.innerHTML = altar.generatedSelf ? 'SELF' : patron.icon;
+                avatar.classList.toggle('mirror-frame', !!altar.generatedSelf || !!altar.selfPortrait?.grokImageUrl || !!altar.selfPortrait?.grokVideoUrl || !!altar.selfPortrait?.animated);
                 avatar.classList.toggle('altar-generated-self', !!altar.generatedSelf);
+                avatar.innerHTML = (avatar.classList.contains('mirror-frame')) ? renderSelfPortraitMini(altar) : patron.icon;
             }
             setText('altar-patron-name', altar.generatedSelf ? 'AI mirror of ' + (currentUser.display_name || 'you') : patron.name);
             setText('altar-patron-domain', altar.generatedSelf ? 'A paid generated self altar portrait can live here.' : patron.domain);
@@ -7202,7 +7210,6 @@
 
         async function loadProfile() {
             if (!currentUser) return;
-            document.getElementById('profile-avatar').textContent = currentUser.avatar_emoji || '✦';
             document.getElementById('profile-name').textContent = currentUser.display_name;
             document.getElementById('profile-bio').textContent = currentUser.bio || '';
             altarDirty = false;
