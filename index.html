@@ -268,6 +268,106 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        .altar-profile-shell {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: clamp(18px, 4vw, 34px);
+            margin-bottom: 28px;
+            background:
+                radial-gradient(circle at 18% 16%, rgba(255, 210, 126, 0.16), transparent 34%),
+                radial-gradient(circle at 82% 12%, rgba(255, 120, 220, 0.18), transparent 34%),
+                linear-gradient(145deg, rgba(23, 10, 38, 0.90), rgba(10, 6, 20, 0.94));
+            border: 1px solid rgba(255, 214, 139, 0.22);
+            box-shadow: 0 0 44px rgba(180, 96, 255, 0.18), inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+        .altar-profile-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 34px 34px;
+            opacity: 0.24;
+            mask-image: radial-gradient(circle at 50% 40%, #000, transparent 76%);
+        }
+        .altar-hero-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.35fr);
+            gap: 24px;
+            align-items: stretch;
+        }
+        .altar-identity-panel,
+        .altar-board {
+            position: relative;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 214, 139, 0.20);
+            background: rgba(14, 8, 28, 0.68);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .altar-identity-panel { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .altar-kicker { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255, 214, 139, 0.72); font-weight: 800; }
+        .altar-title { font-family: 'Pacifico', cursive; color: #ffe1f4; -webkit-text-fill-color: #ffe1f4; font-size: clamp(30px, 5vw, 48px); margin: 0; line-height: 1.1; text-shadow: 0 0 22px rgba(255, 120, 220, 0.25); }
+        .altar-copy { color: rgba(230, 214, 255, 0.82); font-size: 14px; line-height: 1.7; margin: 0; }
+        .altar-patron-row { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.06); }
+        .altar-patron-icon { width: 62px; height: 62px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 34px; background: linear-gradient(135deg, rgba(255,150,200,0.24), rgba(180,150,255,0.20)); box-shadow: 0 0 28px rgba(255,150,200,0.15); }
+        .altar-patron-name { color: #fff1c7; font-size: 18px; font-weight: 800; }
+        .altar-patron-domain { color: #9f8fbd; font-size: 12px; margin-top: 3px; }
+        .altar-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+        .altar-board {
+            min-height: 360px;
+            overflow: hidden;
+            padding: 22px;
+            isolation: isolate;
+        }
+        .altar-board.theme-rose { background: radial-gradient(circle at 50% 20%, rgba(255,150,200,0.20), transparent 38%), linear-gradient(160deg, rgba(40,14,48,0.86), rgba(11,7,22,0.92)); }
+        .altar-board.theme-moon { background: radial-gradient(circle at 80% 20%, rgba(210,225,255,0.18), transparent 34%), linear-gradient(160deg, rgba(12,22,48,0.86), rgba(8,6,22,0.94)); }
+        .altar-board.theme-forest { background: radial-gradient(circle at 18% 20%, rgba(130,255,190,0.14), transparent 34%), linear-gradient(160deg, rgba(9,38,35,0.84), rgba(7,6,20,0.94)); }
+        .altar-board.theme-sun { background: radial-gradient(circle at 72% 18%, rgba(255,214,126,0.24), transparent 34%), linear-gradient(160deg, rgba(56,24,32,0.84), rgba(13,7,20,0.94)); }
+        .altar-board::before {
+            content: "";
+            position: absolute;
+            left: 9%;
+            right: 9%;
+            bottom: 48px;
+            height: 76px;
+            border-radius: 50% 50% 18px 18px;
+            background: linear-gradient(180deg, rgba(255,230,170,0.18), rgba(110,70,130,0.20));
+            border: 1px solid rgba(255,230,170,0.16);
+            box-shadow: 0 -12px 50px rgba(255,190,120,0.10);
+            z-index: 0;
+        }
+        .altar-center-icon { position: absolute; top: 38px; left: 50%; transform: translateX(-50%); width: 118px; height: 118px; border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 62px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,230,170,0.22); box-shadow: 0 0 42px rgba(255,150,220,0.18); z-index: 2; }
+        .altar-generated-self { background-image: linear-gradient(135deg, rgba(255,214,126,0.18), rgba(110,240,255,0.12)); }
+        .altar-generated-self::after { content: "AI SELF"; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); padding: 4px 10px; border-radius: 999px; background: rgba(10,6,20,0.92); border: 1px solid rgba(255,214,126,0.24); color: #ffe0a8; font-size: 10px; letter-spacing: 1px; font-weight: 800; }
+        .altar-quote-card { position: absolute; left: 22px; right: 22px; bottom: 20px; z-index: 3; padding: 14px 16px; border-radius: 18px; color: #f8eaff; background: rgba(9,5,18,0.68); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(10px); font-size: 14px; line-height: 1.6; }
+        .altar-sticker {
+            position: absolute;
+            z-index: 4;
+            left: var(--x);
+            top: var(--y);
+            transform: rotate(var(--r));
+            font-size: var(--s);
+            filter: drop-shadow(0 7px 16px rgba(0,0,0,0.42));
+            user-select: none;
+        }
+        .altar-controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 20px; }
+        .altar-control-panel { border-radius: 20px; padding: 18px; background: rgba(24, 12, 42, 0.74); border: 1px solid rgba(180,150,255,0.14); }
+        .altar-control-title { color: #ffb7e8; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+        .altar-option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
+        .altar-option { border: 1px solid rgba(180,150,255,0.16); background: rgba(10,6,20,0.50); color: #d8c8f0; border-radius: 14px; padding: 10px 8px; cursor: pointer; font-family: 'Quicksand', sans-serif; transition: all 0.2s; text-align: center; min-height: 58px; }
+        .altar-option:hover, .altar-option.active { border-color: rgba(255,150,200,0.52); color: #fff; background: rgba(255,150,200,0.10); box-shadow: 0 0 18px rgba(255,150,200,0.12); }
+        .altar-option span { display: block; font-size: 22px; margin-bottom: 4px; }
+        .altar-quote-list { display: grid; gap: 8px; }
+        .altar-quote-btn { text-align: left; border: 1px solid rgba(180,150,255,0.14); background: rgba(10,6,20,0.48); color: #cdbce8; border-radius: 14px; padding: 10px 12px; cursor: pointer; font-family: 'Quicksand', sans-serif; line-height: 1.45; }
+        .altar-quote-btn.active { border-color: rgba(255,214,139,0.42); color: #fff1c7; background: rgba(255,214,139,0.08); }
+        .altar-note-input { width: 100%; min-height: 78px; resize: vertical; border-radius: 14px; border: 1px solid rgba(180,150,255,0.18); background: rgba(8,5,18,0.72); color: #f3dcff; padding: 12px; font-family: 'Quicksand', sans-serif; outline: none; }
+        .altar-shop-card { margin-top: 12px; padding: 14px; border-radius: 16px; border: 1px solid rgba(255,214,139,0.20); background: linear-gradient(135deg, rgba(255,214,139,0.08), rgba(180,150,255,0.08)); color: #cdbce8; font-size: 13px; line-height: 1.6; }
+
         /* Empty state */
         .empty { text-align: center; padding: 60px 20px; color: #706080; }
         .empty-icon { font-size: 50px; margin-bottom: 15px; display: block; }
@@ -2616,17 +2716,31 @@
     <!-- ============ PROFILE PAGE ============ -->
     <div class="page" id="page-profile">
         <section>
-            <div class="profile-header">
-                <div class="profile-avatar" id="profile-avatar">✦</div>
-                <div class="profile-info">
-                    <h2 id="profile-name">...</h2>
-                    <p id="profile-bio"></p>
+            <div class="altar-profile-shell" id="altar-profile-shell">
+                <div class="altar-hero-grid">
+                    <div class="altar-identity-panel">
+                        <div class="altar-kicker">Personal altar</div>
+                        <h2 class="altar-title" id="profile-name">...</h2>
+                        <p class="altar-copy" id="profile-bio"></p>
+                        <div class="altar-patron-row">
+                            <div class="altar-patron-icon" id="profile-avatar">?</div>
+                            <div>
+                                <div class="altar-patron-name" id="altar-patron-name">Choose a patron</div>
+                                <div class="altar-patron-domain" id="altar-patron-domain">Build a page that feels like yours.</div>
+                            </div>
+                        </div>
+                        <div class="altar-actions">
+                            <button class="btn btn-primary btn-small" onclick="switchTab('altar-tab')">Customize Altar</button>
+                            <button class="btn btn-ghost btn-small" onclick="openAIGeneratedSelfOffer()">AI Self Portrait</button>
+                            <button class="btn btn-ghost btn-small" onclick="openModal('edit-profile')">Edit Words</button>
+                        </div>
+                    </div>
+                    <div class="altar-board" id="profile-altar-board"></div>
                 </div>
-                <button class="btn btn-ghost btn-small" onclick="openModal('edit-profile')">Edit Profile</button>
             </div>
-
             <div class="profile-tabs" style="overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;">
-                <button class="profile-tab active" onclick="switchTab('scores')">Scores</button>
+                <button class="profile-tab active" onclick="switchTab('altar-tab')">Altar</button>
+                <button class="profile-tab" onclick="switchTab('scores')">Scores</button>
                 <button class="profile-tab" onclick="switchTab('horoscope-tab')">Horoscope</button>
                 <button class="profile-tab" onclick="switchTab('tarot-tab')">Tarot</button>
                 <button class="profile-tab" onclick="switchTab('journal-tab')">My Journal</button>
@@ -2634,7 +2748,10 @@
                 <button class="profile-tab" onclick="switchTab('following-tab');loadFollowing()">Following</button>
             </div>
 
-            <div class="tab-content active" id="tab-scores">
+            <div class="tab-content active" id="tab-altar-tab">
+                <div id="altar-controls"></div>
+            </div>
+            <div class="tab-content" id="tab-scores">
                 <div id="my-scores"></div>
             </div>
             <div class="tab-content" id="tab-horoscope-tab">
@@ -5171,11 +5288,109 @@
         // ============================================
         // SCORES / PROFILE
         // ============================================
+        const ALTAR_DEITIES = [
+            { id: 'aphrodite', name: 'Aphrodite', icon: '&hearts;', domain: 'love, beauty, devotion' },
+            { id: 'athena', name: 'Athena', icon: '&#9671;', domain: 'strategy, craft, wisdom' },
+            { id: 'freyja', name: 'Freyja', icon: '&#10022;', domain: 'magic, desire, gold' },
+            { id: 'isis', name: 'Isis', icon: '&#9765;', domain: 'healing, motherhood, sacred words' },
+            { id: 'thoth', name: 'Thoth', icon: '&#9775;', domain: 'writing, moon, measurement' },
+            { id: 'odin', name: 'Odin', icon: '&#10013;', domain: 'runes, ordeal, sight' },
+            { id: 'hekate', name: 'Hekate', icon: '&#9906;', domain: 'thresholds, spirits, crossroads' },
+            { id: 'brigid', name: 'Brigid', icon: '&#10036;', domain: 'poetry, fire, healing' },
+            { id: 'bastet', name: 'Bastet', icon: '&#9728;', domain: 'protection, pleasure, home' },
+            { id: 'lakshmi', name: 'Lakshmi', icon: '&#10048;', domain: 'abundance, grace, fortune' },
+            { id: 'kuan-yin', name: 'Kuan Yin', icon: '&#10045;', domain: 'mercy, tenderness, listening' },
+            { id: 'anubis', name: 'Anubis', icon: '&#9878;', domain: 'passage, memory, guardianship' }
+        ];
+        const ALTAR_THEMES = [{id:'rose',name:'Rose Portal'}, {id:'moon',name:'Moon Room'}, {id:'forest',name:'Forest Shrine'}, {id:'sun',name:'Gold Temple'}];
+        const ALTAR_STICKERS = [
+            { id:'stars', label:'Stars', mark:'&#10022;', x:'12%', y:'16%', r:'-12deg', s:'34px' },
+            { id:'heart', label:'Heart', mark:'&hearts;', x:'76%', y:'18%', r:'10deg', s:'36px' },
+            { id:'moon', label:'Moon', mark:'&#9789;', x:'16%', y:'54%', r:'8deg', s:'40px' },
+            { id:'key', label:'Key', mark:'&#9906;', x:'72%', y:'52%', r:'-8deg', s:'34px' },
+            { id:'flower', label:'Flower', mark:'&#10048;', x:'38%', y:'70%', r:'14deg', s:'38px' },
+            { id:'spark', label:'Spark', mark:'&#10036;', x:'60%', y:'70%', r:'-14deg', s:'32px' }
+        ];
+        const ALTAR_QUOTES = ['soft life, strong magic', 'built from dreams, receipts, and moonlight', 'do not disturb: becoming legendary', 'my altar, my myth, my rules', 'the portal remembers what I choose to keep'];
+        function escAttr(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function getAltarStorageKey() { return 'pixieAltarProfile:' + (currentUser?.id || 'guest'); }
+        function getDefaultAltarProfile() { return { patron:'freyja', theme:'rose', quote:ALTAR_QUOTES[0], note:'', stickers:['stars','heart','moon'], generatedSelf:false }; }
+        function getAltarProfile() {
+            const fromAppearance = currentUser?.appearance?.altar && typeof currentUser.appearance.altar === 'object' ? currentUser.appearance.altar : {};
+            let local = {};
+            try { local = JSON.parse(localStorage.getItem(getAltarStorageKey()) || '{}'); } catch(e) {}
+            return { ...getDefaultAltarProfile(), ...fromAppearance, ...local };
+        }
+        function saveAltarProfile(altar, syncServer = false) {
+            localStorage.setItem(getAltarStorageKey(), JSON.stringify(altar));
+            if (!currentUser) return;
+            currentUser.appearance = { ...(currentUser.appearance || {}), altar };
+            if (syncServer) {
+                fetch(API + '/api/profile', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({ display_name: currentUser.display_name, bio: currentUser.bio, avatar_emoji: currentUser.avatar_emoji, appearance: currentUser.appearance })
+                }).catch(() => {});
+            }
+        }
+        function getAltarPatron(altar) { return ALTAR_DEITIES.find(d => d.id === altar.patron) || ALTAR_DEITIES[0]; }
+        function renderAltarProfile() {
+            if (!currentUser) return;
+            const altar = getAltarProfile();
+            const patron = getAltarPatron(altar);
+            const avatar = document.getElementById('profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = altar.generatedSelf ? escHtml(currentUser.avatar_emoji || '*') : patron.icon;
+                avatar.classList.toggle('altar-generated-self', !!altar.generatedSelf);
+            }
+            setText('altar-patron-name', altar.generatedSelf ? 'AI mirror of ' + (currentUser.display_name || 'you') : patron.name);
+            setText('altar-patron-domain', altar.generatedSelf ? 'A paid generated self altar portrait can live here.' : patron.domain);
+            const board = document.getElementById('profile-altar-board');
+            if (board) {
+                board.className = 'altar-board theme-' + (altar.theme || 'rose');
+                const activeStickers = ALTAR_STICKERS.filter(s => (altar.stickers || []).includes(s.id));
+                board.innerHTML = '<div class="altar-center-icon' + (altar.generatedSelf ? ' altar-generated-self' : '') + '">' + (altar.generatedSelf ? escHtml(currentUser.avatar_emoji || '*') : patron.icon) + '</div>' +
+                    activeStickers.map(s => '<span class="altar-sticker" style="--x:' + s.x + ';--y:' + s.y + ';--r:' + s.r + ';--s:' + s.s + ';">' + s.mark + '</span>').join('') +
+                    '<div class="altar-quote-card">"' + escHtml(altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>';
+            }
+            renderAltarControls();
+        }
+        function renderAltarControls() {
+            const host = document.getElementById('altar-controls');
+            if (!host || !currentUser) return;
+            const altar = getAltarProfile();
+            host.innerHTML = '<div class="altar-controls-grid">' +
+                '<div class="altar-control-panel"><div class="altar-control-title">Choose a god or goddess</div><div class="altar-option-grid">' +
+                ALTAR_DEITIES.map(d => '<button class="altar-option ' + (altar.patron === d.id && !altar.generatedSelf ? 'active' : '') + '" onclick="chooseAltarPatron(&quot;' + d.id + '&quot;)"><span>' + d.icon + '</span>' + escHtml(d.name) + '</button>').join('') +
+                '</div></div><div class="altar-control-panel"><div class="altar-control-title">Room theme</div><div class="altar-option-grid">' +
+                ALTAR_THEMES.map(t => '<button class="altar-option ' + (altar.theme === t.id ? 'active' : '') + '" onclick="setAltarTheme(&quot;' + t.id + '&quot;)">' + escHtml(t.name) + '</button>').join('') +
+                '</div><div class="altar-shop-card">Paid path: generate a stylized altar portrait of yourself, then use it as the center icon for this page.<div style="margin-top:10px;"><button class="btn btn-primary btn-small" onclick="openAIGeneratedSelfOffer()">Unlock AI Self Portrait</button></div></div></div>' +
+                '<div class="altar-control-panel"><div class="altar-control-title">Stickers</div><div class="altar-option-grid">' +
+                ALTAR_STICKERS.map(s => '<button class="altar-option ' + ((altar.stickers || []).includes(s.id) ? 'active' : '') + '" onclick="toggleAltarSticker(&quot;' + s.id + '&quot;)"><span>' + s.mark + '</span>' + escHtml(s.label) + '</button>').join('') +
+                '</div></div><div class="altar-control-panel"><div class="altar-control-title">Quotes and notes</div><div class="altar-quote-list">' +
+                ALTAR_QUOTES.map(q => '<button class="altar-quote-btn ' + (altar.quote === q && !altar.note ? 'active' : '') + '" onclick="setAltarQuote(&quot;' + escAttr(q) + '&quot;)">' + escHtml(q) + '</button>').join('') +
+                '</div><textarea class="altar-note-input" id="altar-note-input" placeholder="Write your Myspace-style altar quote..." oninput="setAltarNote(this.value)">' + escHtml(altar.note || '') + '</textarea></div></div>';
+        }
+        function chooseAltarPatron(id) { const altar = getAltarProfile(); altar.patron = id; altar.generatedSelf = false; saveAltarProfile(altar, true); renderAltarProfile(); toast('Altar patron updated'); }
+        function setAltarTheme(id) { const altar = getAltarProfile(); altar.theme = id; saveAltarProfile(altar, true); renderAltarProfile(); }
+        function toggleAltarSticker(id) { const altar = getAltarProfile(); const set = new Set(altar.stickers || []); if (set.has(id)) set.delete(id); else set.add(id); altar.stickers = [...set]; saveAltarProfile(altar, true); renderAltarProfile(); }
+        function setAltarQuote(quote) { const altar = getAltarProfile(); altar.quote = quote; altar.note = ''; saveAltarProfile(altar, true); renderAltarProfile(); }
+        function setAltarNote(value) {
+            const altar = getAltarProfile();
+            altar.note = value.slice(0, 180);
+            saveAltarProfile(altar, false);
+            const quote = document.querySelector('#profile-altar-board .altar-quote-card');
+            if (quote) quote.textContent = '"' + (altar.note || altar.quote || ALTAR_QUOTES[0]) + '"';
+        }
+        function openAIGeneratedSelfOffer() { const altar = getAltarProfile(); altar.generatedSelf = true; saveAltarProfile(altar, true); renderAltarProfile(); toast('AI self altar preview enabled. Hook this to paid generation next.'); }
+
         async function loadProfile() {
             if (!currentUser) return;
             document.getElementById('profile-avatar').textContent = currentUser.avatar_emoji || '✦';
             document.getElementById('profile-name').textContent = currentUser.display_name;
             document.getElementById('profile-bio').textContent = currentUser.bio || '';
+            renderAltarProfile();
 
             // Load scores
             const res = await fetch(API + '/api/scores', { credentials: 'include' });
@@ -5244,8 +5459,10 @@
         function switchTab(tab) {
             document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('tab-' + tab).classList.add('active');
+            const activeEvent = typeof event !== 'undefined' ? event : null;
+            const trigger = activeEvent?.target || [...document.querySelectorAll('.profile-tab')].find(t => t.getAttribute('onclick')?.includes("'" + tab + "'"));
+            trigger?.classList.add('active');
+            document.getElementById('tab-' + tab)?.classList.add('active');
         }
 
         // ============================================

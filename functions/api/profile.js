@@ -10,6 +10,7 @@ export async function onRequestPut({ request, env }) {
   const safeEmoji = (avatar_emoji || "✦").slice(0, 10);
   let safeAppearance = null;
   if (appearance && typeof appearance === 'object') {
+    const altar = appearance.altar && typeof appearance.altar === 'object' ? appearance.altar : null;
     safeAppearance = JSON.stringify({
       gender: (appearance.gender || "").slice(0, 40),
       hair_color: (appearance.hair_color || "").slice(0, 80),
@@ -18,6 +19,14 @@ export async function onRequestPut({ request, env }) {
       skin_tone: (appearance.skin_tone || "").slice(0, 80),
       height: (appearance.height || "").slice(0, 40),
       build: (appearance.build || "").slice(0, 80),
+      altar: altar ? {
+        patron: (altar.patron || "").slice(0, 40),
+        theme: (altar.theme || "").slice(0, 40),
+        quote: (altar.quote || "").slice(0, 180),
+        note: (altar.note || "").slice(0, 180),
+        stickers: Array.isArray(altar.stickers) ? altar.stickers.slice(0, 12).map(s => String(s).slice(0, 40)) : [],
+        generatedSelf: !!altar.generatedSelf
+      } : undefined,
     });
   }
   await env.DB.prepare("UPDATE users SET display_name=?, bio=?, avatar_emoji=?, appearance=COALESCE(?, appearance) WHERE id=?").bind(safeName, safeBio, safeEmoji, safeAppearance, userId).run();
