@@ -18,12 +18,16 @@ function sanitizeMemory(input = {}) {
   const altarSummary = input.altarSummary && typeof input.altarSummary === "object"
     ? boundedObject(input.altarSummary)
     : {};
+  const herbology = input.herbology && typeof input.herbology === "object"
+    ? boundedObject(input.herbology)
+    : {};
   return {
     favoriteColors: Array.isArray(input.favoriteColors) ? input.favoriteColors.slice(0, 12).map(v => String(v).slice(0, 40)) : [],
     favoriteThemes: Array.isArray(input.favoriteThemes) ? input.favoriteThemes.slice(0, 12).map(v => String(v).slice(0, 80)) : [],
     notes: String(input.notes || "").slice(0, 1200),
     preferences,
     altarSummary,
+    herbology,
     lastSavedFrom: String(input.lastSavedFrom || "site").slice(0, 80)
   };
 }

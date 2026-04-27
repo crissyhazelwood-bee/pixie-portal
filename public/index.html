@@ -1811,6 +1811,137 @@
             padding-left: 18px;
         }
 
+        .herbology-hero {
+            position: relative;
+            max-width: 1180px;
+            margin: 48px auto 32px;
+            padding: clamp(22px, 4vw, 44px);
+            border-radius: 32px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 540px);
+            gap: clamp(24px, 4vw, 44px);
+            align-items: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(185, 255, 190, 0.16), transparent 34%),
+                radial-gradient(circle at 82% 20%, rgba(255, 146, 220, 0.18), transparent 36%),
+                radial-gradient(circle at 50% 100%, rgba(150, 105, 255, 0.16), transparent 42%),
+                linear-gradient(145deg, rgba(19, 31, 28, 0.92), rgba(44, 18, 58, 0.88));
+            border: 1px solid rgba(210, 255, 190, 0.24);
+            box-shadow:
+                0 0 44px rgba(144, 255, 170, 0.14),
+                0 0 54px rgba(255, 108, 220, 0.14),
+                inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        .herbology-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.18;
+            background-image:
+                radial-gradient(circle at 18% 62%, rgba(234, 255, 199, 0.55) 0 1px, transparent 2px),
+                linear-gradient(120deg, transparent 0 46%, rgba(210, 255, 190, 0.12) 47% 48%, transparent 49% 100%);
+            background-size: 52px 52px, 120px 120px;
+        }
+
+        .herbology-hero > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .herbology-kicker {
+            color: #baffd2;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .herbology-title {
+            margin: 10px 0 8px;
+            color: #eaffc7;
+            font-size: clamp(40px, 7vw, 76px);
+            line-height: 0.96;
+            text-shadow:
+                0 0 18px rgba(190, 255, 160, 0.32),
+                0 0 30px rgba(255, 126, 220, 0.24);
+        }
+
+        .herbology-subtitle {
+            margin: 0 0 16px;
+            color: #ffd8f5;
+            font-size: clamp(17px, 2.1vw, 24px);
+            font-weight: 800;
+        }
+
+        .herbology-copy {
+            color: rgba(245, 238, 255, 0.88);
+            line-height: 1.7;
+            max-width: 60ch;
+        }
+
+        .herbology-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .herbology-button {
+            border: 1px solid rgba(220, 255, 190, 0.35);
+            border-radius: 999px;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, rgba(162, 255, 175, 0.20), rgba(255, 116, 220, 0.28));
+            color: #f7ffe8;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            box-shadow: 0 0 22px rgba(165, 255, 180, 0.14);
+            cursor: pointer;
+        }
+
+        .herbology-button.primary {
+            color: #172416;
+            background: linear-gradient(135deg, #dfffaf, #ff9cdd);
+        }
+
+        .herbology-art-frame {
+            position: relative;
+            justify-self: center;
+            padding: 10px;
+            border-radius: 32px;
+            background:
+                radial-gradient(circle at 20% 0%, rgba(234, 255, 199, 0.22), transparent 40%),
+                rgba(255,255,255,0.05);
+            border: 1px solid rgba(226, 255, 190, 0.22);
+        }
+
+        .herbology-art-frame::after {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border-radius: 24px;
+            pointer-events: none;
+            border: 1px solid rgba(255, 230, 180, 0.32);
+            box-shadow: inset 0 0 36px rgba(16, 24, 16, 0.18);
+        }
+
+        .herbology-art {
+            width: 100%;
+            max-width: 540px;
+            aspect-ratio: 1 / 1;
+            border-radius: 26px;
+            display: block;
+            object-fit: cover;
+            border: 1px solid rgba(226, 255, 190, 0.38);
+            box-shadow:
+                0 24px 70px rgba(0,0,0,0.42),
+                0 0 34px rgba(178, 255, 190, 0.18),
+                0 0 26px rgba(255, 150, 220, 0.14);
+        }
+
         .herbology-grid {
             display: grid;
             grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
@@ -2275,6 +2406,11 @@
             .cosmic-weather,
             .herbology-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .herbology-hero {
+                grid-template-columns: 1fr;
+                margin: 24px 14px 28px;
             }
 
             .herb-card-list {
@@ -3031,8 +3167,22 @@
     <!-- ============ HERBS PAGE ============ -->
     <div class="page" id="page-herbs">
         <section>
-            <h2 class="section-title">Herbology</h2>
-            <p class="section-subtitle">wellness literacy, safety warnings, and gentle rituals - no plant ID, no diagnosis</p>
+            <div class="herbology-hero">
+                <div>
+                    <div class="herbology-kicker">Garden apothecary</div>
+                    <h2 class="herbology-title">Herbology</h2>
+                    <div class="herbology-subtitle">Plant magic, remedies, and garden wisdom.</div>
+                    <p class="herbology-copy">Step into the living garden and learn the language of herbs, flowers, roots, and moonlit remedies. Save plants to your Pixie memory, collect botanical charms, and unlock recipes for teas, tinctures, spells, and altar offerings.</p>
+                    <div class="herbology-actions">
+                        <button class="herbology-button primary" onclick="openHerbarium()">Open the Herbarium</button>
+                        <button class="herbology-button" onclick="discoverRandomHerb()">Discover an Herb</button>
+                        <button class="herbology-button" onclick="saveSelectedHerbToMemory()">Save to Memory</button>
+                    </div>
+                </div>
+                <div class="herbology-art-frame">
+                    <img class="herbology-art" src="/herbology-garden-hero.jpg" alt="Mystical herb garden with a raven wizard, floral healer, herbs, birds, and moonlit botanical magic">
+                </div>
+            </div>
             <div class="games-shell">
                 <div class="portal-hub-grid">
                     <div class="portal-hub-card">
@@ -4542,6 +4692,50 @@
         function selectHerb(id) {
             selectedHerbId = id;
             renderHerbology();
+        }
+
+        function openHerbarium() {
+            document.getElementById('herb-search')?.focus();
+            document.querySelector('.herbology-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function discoverRandomHerb() {
+            const pool = HERB_LIBRARY.filter(herb => herbFilter === 'all' || herb.categories.includes(herbFilter));
+            const herb = pool[Math.floor(Math.random() * pool.length)] || HERB_LIBRARY[0];
+            selectedHerbId = herb.id;
+            const search = document.getElementById('herb-search');
+            if (search) search.value = '';
+            renderHerbology();
+            document.querySelector('.herbology-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (typeof toast === 'function') toast('The garden revealed ' + herb.name + ' ✦');
+            if (typeof recordServerEvent === 'function') recordServerEvent('herb_discovered', { herb_id: herb.id, herb_name: herb.name }, 'herbology');
+        }
+
+        async function saveSelectedHerbToMemory() {
+            const herb = HERB_LIBRARY.find(item => item.id === selectedHerbId) || HERB_LIBRARY[0];
+            const key = 'pixieMemory:herbology';
+            const saved = (() => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; } })();
+            const next = [{ id: herb.id, name: herb.name, latin: herb.latin, saved_at: new Date().toISOString() }, ...saved.filter(item => item.id !== herb.id)].slice(0, 24);
+            localStorage.setItem(key, JSON.stringify(next));
+            if (typeof recordServerEvent === 'function') recordServerEvent('herb_saved', { herb_id: herb.id, herb_name: herb.name }, 'herbology');
+            if (currentUser) {
+                try {
+                    await fetch(API + '/api/memory', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            herbology: {
+                                savedHerbs: next,
+                                lastSaved: herb.name,
+                                updatedAt: new Date().toISOString()
+                            },
+                            lastSavedFrom: 'herbology'
+                        })
+                    });
+                } catch(e) {}
+            }
+            if (typeof toast === 'function') toast(herb.name + ' saved to your Pixie memory ✦');
         }
 
         function getHerbRiskClass(risk) {
