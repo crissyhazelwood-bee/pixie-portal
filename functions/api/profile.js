@@ -59,6 +59,9 @@ export async function onRequestPut({ request, env }) {
           prompt: String(altar.selfPortrait.prompt || "").slice(0, 260),
           image: String(altar.selfPortrait.image || "").slice(0, 20000),
           grokImageUrl: String(altar.selfPortrait.grokImageUrl || "").slice(0, 1000),
+          grokVideoUrl: String(altar.selfPortrait.grokVideoUrl || "").slice(0, 1000),
+          grokPredictionId: String(altar.selfPortrait.grokPredictionId || "").slice(0, 120),
+          grokStatus: String(altar.selfPortrait.grokStatus || "").slice(0, 40),
           animated: !!altar.selfPortrait.animated,
           price: String(altar.selfPortrait.price || "").slice(0, 20),
           generated: !!altar.selfPortrait.generated

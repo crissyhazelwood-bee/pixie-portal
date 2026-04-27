@@ -399,6 +399,7 @@
         .altar-self-portrait.style-forest-fae { --portrait-a:#75e7bb; --portrait-b:#9b77ff; --portrait-c:#e8ffe6; }
         .altar-self-portrait.style-cyber-fairy { --portrait-a:#67f2ff; --portrait-b:#ff52dd; --portrait-c:#f5e9ff; }
         .portrait-orbit, .portrait-halo, .portrait-wings, .portrait-hair, .portrait-face, .portrait-eyes, .portrait-mouth, .portrait-scan, .portrait-sparks, .portrait-initials { position: absolute; pointer-events: none; }
+        .altar-self-portrait img, .altar-self-portrait video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; z-index: 1; }
         .portrait-orbit { inset: 8%; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--portrait-c) 54%, transparent); box-shadow: 0 0 22px color-mix(in srgb, var(--portrait-a) 30%, transparent), inset 0 0 22px color-mix(in srgb, var(--portrait-b) 18%, transparent); }
         .portrait-halo { top: 12%; width: 58%; height: 18%; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--portrait-c) 68%, transparent); box-shadow: 0 0 18px color-mix(in srgb, var(--portrait-c) 40%, transparent); transform: rotate(-8deg); }
         .portrait-wings { inset: 28% 5% 22%; background: radial-gradient(ellipse at 20% 50%, color-mix(in srgb, var(--portrait-a) 38%, transparent), transparent 34%), radial-gradient(ellipse at 80% 50%, color-mix(in srgb, var(--portrait-b) 38%, transparent), transparent 34%); filter: blur(1px); }
@@ -5524,9 +5525,9 @@
             if (altar.generatedSelf) libraryMap.set('ai-self', {
                 id:'ai-self',
                 type:'portrait',
-                label:altar.selfPortrait?.grokImageUrl ? 'Grok Animated Portrait' : (altar.selfPortrait?.animated ? 'Animated Self Portrait' : 'AI Self Portrait'),
+                label:(altar.selfPortrait?.grokImageUrl || altar.selfPortrait?.grokVideoUrl) ? 'Grok Animated Portrait' : (altar.selfPortrait?.animated ? 'Animated Self Portrait' : 'AI Self Portrait'),
                 icon:'SELF',
-                text:altar.selfPortrait?.grokImageUrl ? '$1.99 - Grok generated motion altar' : (altar.selfPortrait?.animated ? '$1.99 - ' + (altar.selfPortrait.style || 'Custom Pixie') + ' motion altar' : (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic')),
+                text:(altar.selfPortrait?.grokImageUrl || altar.selfPortrait?.grokVideoUrl) ? '$1.99 - Grok generated video altar' : (altar.selfPortrait?.animated ? '$1.99 - ' + (altar.selfPortrait.style || 'Custom Pixie') + ' motion altar' : (altar.selfPortrait.style || 'Custom Pixie') + ' - ' + (altar.selfPortrait.mood || 'personal magic')),
                 premium:true
             });
             altar.library = [...libraryMap.values()].slice(0, 60);
@@ -5611,8 +5612,10 @@
             return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
         }
         function renderSelfPortraitMini(altar) {
+            const video = altar.selfPortrait?.grokVideoUrl || '';
             const image = altar.selfPortrait?.grokImageUrl || '';
-            return '<div class="altar-self-portrait ' + getSelfPortraitClass(altar) + (altar.selfPortrait?.animated ? ' is-animated' : '') + '">' + (image ? '<img src="' + escAttr(image) + '" alt="Grok generated animated self portrait">' : '<span class="portrait-initials">GROK</span>') + '<span class="portrait-orbit"></span><span class="portrait-halo"></span><span class="portrait-wings"></span><span class="portrait-scan"></span><span class="portrait-sparks"></span></div>';
+            const status = altar.selfPortrait?.grokStatus === 'processing' ? 'GROK...' : 'GROK';
+            return '<div class="altar-self-portrait ' + getSelfPortraitClass(altar) + (altar.selfPortrait?.animated ? ' is-animated' : '') + '">' + (video ? '<video src="' + escAttr(video) + '" autoplay muted loop playsinline></video>' : (image ? '<img src="' + escAttr(image) + '" alt="Grok generated self portrait">' : '<span class="portrait-initials">' + status + '</span>')) + '<span class="portrait-orbit"></span><span class="portrait-halo"></span><span class="portrait-wings"></span><span class="portrait-scan"></span><span class="portrait-sparks"></span></div>';
         }
         function renderAltarItem(item) {
             if (!item) return '';
@@ -5840,12 +5843,20 @@
                     })
                 });
                 const data = await res.json();
-                if (!res.ok || !data.imageUrl) {
-                    toast(data.error === 'grok_not_configured' ? 'Grok API key is not configured yet' : 'Grok portrait failed');
+                if (!res.ok) {
+                    toast(data.error === 'missing_replicate_key' ? 'Replicate API key is not configured yet' : 'Grok portrait failed');
                     return;
                 }
-                altar.selfPortrait.grokImageUrl = data.imageUrl;
-                altar.selfPortrait.image = '';
+                if (data.appearance?.altar) {
+                    currentUser.appearance = data.appearance;
+                    saveAltarProfile(data.appearance.altar, false);
+                    renderAltarProfile();
+                }
+                if (data.status === 'processing') {
+                    toast('Grok is generating your animated portrait...');
+                    pollGrokSelfPortrait();
+                    return;
+                }
             } catch(e) {
                 toast('Grok portrait failed');
                 return;
@@ -5862,6 +5873,25 @@
             saveAltarProfile(altar, false);
             placeAltarItem('ai-self');
             toast('Animated self portrait preview unlocked');
+        }
+        async function pollGrokSelfPortrait(attempt = 0) {
+            if (attempt > 36) { toast('Grok is still working. Check back soon.'); return; }
+            setTimeout(async () => {
+                try {
+                    const res = await fetch(API + '/api/altar/self-portrait-grok', { credentials:'include' });
+                    const data = await res.json();
+                    if (data.appearance?.altar) {
+                        currentUser.appearance = data.appearance;
+                        saveAltarProfile(data.appearance.altar, false);
+                        renderAltarProfile();
+                    }
+                    if (data.status === 'done') { toast('Grok animated portrait ready'); return; }
+                    if (data.status === 'failed') { toast('Grok portrait failed'); return; }
+                    pollGrokSelfPortrait(attempt + 1);
+                } catch(e) {
+                    toast('Could not check Grok portrait yet');
+                }
+            }, attempt < 6 ? 5000 : 10000);
         }
 
         async function loadProfile() {
