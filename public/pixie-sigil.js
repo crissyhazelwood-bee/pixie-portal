@@ -71,6 +71,7 @@
     }
 
     function init() {
+        if (document.body.classList.contains('pixie-profile-page') || document.body.classList.contains('my-pixie-page-active')) return;
         const clicks      = getClicks();
         const baseOpacity = Math.min(0.035 + clicks * 0.007, 0.2);
 

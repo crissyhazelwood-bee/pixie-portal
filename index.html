@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#17051f">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&family=Pacifico&display=swap" rel="stylesheet">
     <style>
+        :root { --nav-height: 72px; --nav-clearance: 124px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0a0614;
@@ -271,14 +272,14 @@
         .my-pixie-page {
             max-width: 1360px;
             margin: 0 auto;
-            padding: 24px clamp(16px, 4vw, 40px) 90px;
+            padding: var(--nav-clearance) clamp(16px, 4vw, 40px) 96px;
         }
         .altar-profile-shell {
             position: relative;
             overflow: hidden;
             border-radius: 28px;
             padding: clamp(18px, 3vw, 28px);
-            margin: 0 auto 18px;
+            margin: 0 auto 24px;
             background:
                 radial-gradient(circle at 18% 16%, rgba(255, 210, 126, 0.16), transparent 34%),
                 radial-gradient(circle at 82% 12%, rgba(255, 120, 220, 0.18), transparent 34%),
@@ -324,7 +325,9 @@
         .altar-patron-domain { color: #9f8fbd; font-size: 12px; margin-top: 3px; }
         .altar-actions { display: flex; flex-wrap: wrap; gap: 10px; }
         .altar-board {
-            min-height: 340px;
+            min-height: clamp(280px, 34vh, 420px);
+            height: auto;
+            max-height: none;
             overflow: hidden;
             padding: 22px;
             isolation: isolate;
@@ -362,7 +365,7 @@
             box-shadow: 0 -12px 50px rgba(255,190,120,0.10);
             z-index: 0;
         }
-        .altar-center-icon { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); width: 118px; height: 118px; border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 62px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,230,170,0.22); box-shadow: 0 0 42px rgba(255,150,220,0.18); z-index: 2; }
+        .altar-center-icon { position: absolute; top: clamp(54px, 7vh, 78px); left: 50%; transform: translateX(-50%); width: clamp(96px, 9vw, 118px); height: clamp(96px, 9vw, 118px); border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: clamp(50px, 5vw, 62px); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,230,170,0.22); box-shadow: 0 0 42px rgba(255,150,220,0.18); z-index: 2; }
         .altar-generated-self { background-image: linear-gradient(135deg, rgba(255,214,126,0.18), rgba(110,240,255,0.12)); }
         .altar-generated-self::after { content: "AI SELF"; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); padding: 4px 10px; border-radius: 999px; background: rgba(10,6,20,0.92); border: 1px solid rgba(255,214,126,0.24); color: #ffe0a8; font-size: 10px; letter-spacing: 1px; font-weight: 800; }
         .altar-quote-card { position: absolute; left: 32px; right: 32px; bottom: 24px; z-index: 3; padding: 14px 16px; border-radius: 18px; color: #f8eaff; background: rgba(9,5,18,0.70); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(10px); font-size: 14px; line-height: 1.6; text-align: center; box-shadow: 0 12px 28px rgba(0,0,0,0.24); }
@@ -393,6 +396,10 @@
         .altar-note-input { width: 100%; min-height: 78px; resize: vertical; border-radius: 14px; border: 1px solid rgba(180,150,255,0.18); background: rgba(8,5,18,0.72); color: #f3dcff; padding: 12px; font-family: 'Quicksand', sans-serif; outline: none; }
         .altar-shop-card { margin-top: 12px; padding: 14px; border-radius: 16px; border: 1px solid rgba(255,214,139,0.20); background: linear-gradient(135deg, rgba(255,214,139,0.08), rgba(180,150,255,0.08)); color: #cdbce8; font-size: 13px; line-height: 1.6; }
         .altar-premium-badge { display: inline-flex; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: rgba(255,214,139,0.13); color: #ffe3a6; border: 1px solid rgba(255,214,139,0.20); font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+        body.pixie-profile-page #loki-pixie-agent,
+        body.my-pixie-page-active #loki-pixie-agent,
+        body.pixie-profile-page #pixie-sigil,
+        body.my-pixie-page-active #pixie-sigil { display: none !important; }
 
         /* Empty state */
         .empty { text-align: center; padding: 60px 20px; color: #706080; }
@@ -681,8 +688,7 @@
 
         @media (max-width: 640px) {
             nav { padding: 12px 20px; }
-            body.pixie-profile-page #loki-pixie-agent { display: none !important; }
-            .my-pixie-page { padding-inline: 14px; padding-bottom: 74px; }
+            .my-pixie-page { padding: calc(var(--nav-height) + 54px) 14px 74px; }
             .altar-profile-shell { border-radius: 24px; }
             .altar-controls-grid { grid-template-columns: 1fr; }
             .altar-command-bar { align-items: stretch; }
@@ -1306,7 +1312,7 @@
         }
 
         #page-profile section.my-pixie-page {
-            padding-top: 86px;
+            padding-top: var(--nav-clearance);
             padding-bottom: 82px;
         }
 
@@ -3338,6 +3344,7 @@
             const page = document.getElementById('page-' + id);
             if (page) page.classList.add('active');
             document.body.classList.toggle('pixie-profile-page', id === 'profile');
+            document.body.classList.toggle('my-pixie-page-active', id === 'profile');
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.page === id);
             });
