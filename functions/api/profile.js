@@ -11,6 +11,22 @@ export async function onRequestPut({ request, env }) {
   let safeAppearance = null;
   if (appearance && typeof appearance === 'object') {
     const altar = appearance.altar && typeof appearance.altar === 'object' ? appearance.altar : null;
+    const safeAltarItem = (item = {}) => ({
+      id: String(item.id || "").slice(0, 80),
+      type: String(item.type || "").slice(0, 40),
+      label: String(item.label || "").slice(0, 80),
+      icon: String(item.icon || "").slice(0, 40),
+      text: String(item.text || "").slice(0, 260),
+      category: String(item.category || "").slice(0, 40),
+      premium: !!item.premium
+    });
+    const safeAltarShelves = Array.isArray(altar?.shelves) ? altar.shelves.slice(0, 4).map((shelf = {}) => ({
+      id: String(shelf.id || "").slice(0, 40),
+      slots: Array.isArray(shelf.slots) ? shelf.slots.slice(0, 8).map((slot = {}) => ({
+        slot: String(slot.slot || "").slice(0, 60),
+        itemId: String(slot.itemId || "").slice(0, 80)
+      })) : []
+    })) : [];
     safeAppearance = JSON.stringify({
       gender: (appearance.gender || "").slice(0, 40),
       hair_color: (appearance.hair_color || "").slice(0, 80),
@@ -24,6 +40,20 @@ export async function onRequestPut({ request, env }) {
         theme: (altar.theme || "").slice(0, 40),
         quote: (altar.quote || "").slice(0, 180),
         note: (altar.note || "").slice(0, 180),
+        visibility: altar.visibility === "private" ? "private" : "public",
+        selectedSlot: altar.selectedSlot && typeof altar.selectedSlot === "object" ? {
+          shelf: String(altar.selectedSlot.shelf || "").slice(0, 40),
+          slot: String(altar.selectedSlot.slot || "").slice(0, 60)
+        } : undefined,
+        words: altar.words && typeof altar.words === "object" ? {
+          bio: String(altar.words.bio || "").slice(0, 260),
+          poem: String(altar.words.poem || "").slice(0, 180),
+          goal: String(altar.words.goal || "").slice(0, 180),
+          affirmation: String(altar.words.affirmation || "").slice(0, 180),
+          notes: String(altar.words.notes || "").slice(0, 180)
+        } : undefined,
+        library: Array.isArray(altar.library) ? altar.library.slice(0, 60).map(safeAltarItem) : [],
+        shelves: safeAltarShelves,
         stickers: Array.isArray(altar.stickers) ? altar.stickers.slice(0, 12).map(s => String(s).slice(0, 40)) : [],
         generatedSelf: !!altar.generatedSelf
       } : undefined,
