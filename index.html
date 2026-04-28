@@ -11,11 +11,15 @@
     <style>
         :root { --nav-height: 72px; --nav-clearance: 124px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html,
+        body {
+            overflow-x: hidden;
+        }
+
         body {
             background: #0a0614;
             color: #f0d0ff;
             font-family: 'Quicksand', sans-serif;
-            overflow-x: hidden;
         }
 
         /* Sparkle canvas */
@@ -25,6 +29,120 @@
             width: 100%; height: 100%;
             pointer-events: none;
             z-index: 0;
+        }
+
+        .altar-page,
+        .altar-chamber,
+        .altar-editor,
+        .altar-shop,
+        .altar-shop-shell,
+        .altar-shop-layout,
+        .altar-item-grid,
+        .altar-detail-panel,
+        .altar-selected-item {
+          position: relative;
+          z-index: 5;
+          pointer-events: auto;
+        }
+
+        .altar-stage,
+        .altar-shelf,
+        .altar-placement-area,
+        .altar-canvas,
+        .altar-items-layer {
+          position: relative;
+          z-index: 5;
+          pointer-events: auto;
+          touch-action: none;
+          user-select: none;
+        }
+
+        .altar-placement-area {
+          overflow: hidden;
+          contain: layout paint;
+        }
+
+        .altar-placed-item,
+        .altar-draggable-item,
+        [data-altar-item],
+        [data-altar-instance-id],
+        [data-draggable="true"] {
+          position: absolute;
+          z-index: 10;
+          pointer-events: auto;
+          cursor: grab;
+          touch-action: none;
+          user-select: none;
+        }
+
+        .altar-placed-item.is-dragging,
+        .altar-draggable-item.is-dragging,
+        [data-altar-item].is-dragging,
+        [data-altar-instance-id].is-dragging {
+          cursor: grabbing;
+          z-index: 199 !important;
+        }
+
+        .altar-page button,
+        .altar-page input,
+        .altar-page select,
+        .altar-page textarea,
+        .altar-page [role="button"],
+        .altar-shop button,
+        .altar-shop input,
+        .altar-shop select,
+        .altar-shop textarea {
+          pointer-events: auto;
+          touch-action: auto;
+          user-select: auto;
+        }
+
+        .altar-page [data-altar-item],
+        .altar-page [data-altar-instance-id],
+        .altar-page .altar-placed-item,
+        .altar-page .altar-draggable-item {
+          touch-action: none;
+          user-select: none;
+          cursor: grab;
+        }
+
+        .altar-page .altar-placed-item * {
+          pointer-events: none;
+        }
+
+        .altar-page .altar-placed-item button,
+        .altar-page .altar-placed-item [role="button"] {
+          pointer-events: auto;
+        }
+
+        body *::before,
+        body *::after {
+          pointer-events: none;
+        }
+
+        .portal-overlay,
+        .portal-canvas,
+        .chamber-overlay,
+        .transition-overlay,
+        .page-overlay,
+        .ambient-layer,
+        .stars-layer,
+        .particle-layer,
+        .loki-layer,
+        .floating-pixie-layer,
+        .floating-layer,
+        .canvas-overlay {
+          pointer-events: none !important;
+          z-index: 0 !important;
+        }
+
+        body[data-view="portal"] .portal-canvas { pointer-events: auto !important; }
+        body[data-chamber="altar"] .portal-canvas { pointer-events: none !important; }
+
+        body.is-transitioning .altar-shop,
+        body.chamber-entering .altar-shop,
+        body.chamber-leaving .altar-shop {
+          pointer-events: auto !important;
         }
 
         /* Navigation */
@@ -638,10 +756,140 @@
         .altar-board.cabinet-mode.theme-moon .altar-obj-crystal-ball .ball { background: radial-gradient(circle at 34% 24%, #ffffff 0 8%, #dce8ff 18%, #7088ff 48%, rgba(22,32,72,0.94) 100%); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 30px rgba(154,185,255,0.46); }
         .altar-board.cabinet-mode.theme-forest .altar-obj-crystal-ball .ball { background: radial-gradient(circle at 34% 24%, #f7fff4 0 8%, #bfffd0 18%, #46bd88 48%, rgba(15,55,47,0.94) 100%); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 30px rgba(106,255,165,0.34); }
         .altar-board.cabinet-mode.theme-sun .altar-obj-crystal-ball .ball { background: radial-gradient(circle at 34% 24%, #fff8df 0 8%, #ffe1a1 18%, #ff9d55 48%, rgba(90,35,28,0.94) 100%); box-shadow: inset -12px -14px 28px rgba(0,0,0,0.32), 0 0 30px rgba(255,190,92,0.42); }
+        .pixie-relic .altar-obj-crystal-ball .ball { border: 3px solid var(--relic-outline); box-shadow: inset -13px -16px 28px rgba(0,0,0,0.36), inset 0 0 0 2px rgba(255,255,255,0.18), 0 0 28px var(--relic-glow); overflow: hidden; }
+        .pixie-relic .altar-obj-crystal-ball .ball::before { content: ""; position: absolute; inset: 20%; border-radius: 50%; border: 4px solid transparent; border-top-color: rgba(255,255,255,0.70); border-left-color: rgba(126,255,230,0.38); transform: rotate(-32deg); animation: relicSwirl 4.2s linear infinite; }
+        .pixie-relic .altar-obj-crystal-ball .stand { height: 26px; border: 2px solid rgba(43,22,24,0.92); box-shadow: inset 0 2px 0 rgba(255,255,255,0.24), 0 8px 12px rgba(0,0,0,0.36); }
+        .pixie-relic .altar-obj-bottle { position: relative; min-height: 112px; }
+        .pixie-relic .altar-obj-bottle .neck, .pixie-relic .altar-obj-bottle .jar { border: 3px solid var(--relic-outline); }
+        .pixie-relic .altar-obj-bottle .jar { position: relative; overflow: hidden; color: #fff1c7; text-shadow: 0 0 8px rgba(255,214,139,0.45); background: radial-gradient(circle at 32% 16%, rgba(255,255,255,0.86), transparent 16%), linear-gradient(180deg, rgba(255,168,232,0.92), rgba(93,232,217,0.64)); box-shadow: inset -10px -14px 22px rgba(28,10,54,0.34), 0 0 24px var(--relic-glow); }
+        .pixie-relic .altar-obj-bottle .jar::before { content: ""; position: absolute; left: -14px; right: -14px; bottom: 7px; height: 36px; border-radius: 46%; background: radial-gradient(circle at 24% 44%, rgba(255,214,139,0.85) 0 3px, transparent 4px), radial-gradient(circle at 72% 38%, rgba(255,255,255,0.72) 0 2px, transparent 3px), linear-gradient(90deg, rgba(255,93,210,0.68), rgba(99,255,230,0.66), rgba(183,124,255,0.70)); animation: bottleLiquidDrift 3.8s ease-in-out infinite alternate; }
+        .pixie-relic .altar-obj-bottle::after { content: ""; position: absolute; left: 27px; right: 27px; bottom: 3px; height: 14px; border-radius: 50%; background: linear-gradient(180deg, #f5cf82, #5d3524); border: 2px solid rgba(30,12,20,0.78); box-shadow: 0 7px 10px rgba(0,0,0,0.34); }
+        @keyframes bottleLiquidDrift { from { transform: translateX(-5px) rotate(-4deg); } to { transform: translateX(5px) rotate(4deg); } }
+        .pixie-relic .altar-obj-candle .wax { border: 3px solid var(--relic-outline); box-shadow: inset -8px 0 14px rgba(111,47,89,0.28), 0 0 16px rgba(255,126,224,0.14); }
+        .pixie-relic .altar-obj-candle .wax::after { content: ""; position: absolute; left: 18px; top: 22px; width: 8px; height: 28px; border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,180,220,0.22)); }
+        .pixie-relic .altar-obj-crystals span:not(.altar-obj-shadow) { border: 3px solid var(--relic-outline); box-shadow: inset -6px -8px 14px rgba(40,8,62,0.25), 0 0 18px var(--relic-glow); }
+        .pixie-relic .altar-obj-books span:not(.altar-obj-shadow) { border: 2px solid rgba(12,5,18,0.88); box-shadow: inset 2px 0 rgba(255,255,255,0.12), 0 0 10px rgba(255,214,139,0.10); }
+        .pixie-relic .altar-obj-books::before { content: ""; position: absolute; left: 25px; right: 25px; bottom: 10px; height: 13px; border-radius: 50%; background: rgba(0,0,0,0.36); filter: blur(4px); z-index: -1; }
+        .pixie-relic .altar-obj-tarot { border: 3px solid var(--relic-outline); box-shadow: inset 0 0 0 2px rgba(255,214,139,0.32), 0 0 22px var(--relic-glow), 0 12px 16px rgba(0,0,0,0.30); position: relative; overflow: hidden; }
+        .pixie-relic .altar-obj-tarot::before { content: ""; position: absolute; inset: 12px; border-radius: 8px; border: 1px solid rgba(255,214,139,0.32); background: radial-gradient(circle at 50% 35%, rgba(255,214,139,0.24), transparent 38%); }
+        .pixie-relic .altar-obj-herbs .sprig { border: 2px solid rgba(13,48,35,0.70); box-shadow: 8px 13px 0 -3px #af8be6, -8px 26px 0 -3px #7ed08c, 0 0 12px rgba(126,255,180,0.18); }
+        .pixie-relic .altar-obj-scroll { border: 3px solid rgba(76,42,27,0.78); box-shadow: inset 0 0 18px rgba(88,50,28,0.18), 0 0 18px var(--relic-glow), 0 10px 18px rgba(0,0,0,0.28); }
+        .pixie-relic .altar-obj-note { border: 2px solid rgba(79,46,29,0.76); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.20), 0 8px 18px rgba(0,0,0,0.30); }
+        .pixie-relic .altar-obj-portrait { border: 3px solid var(--relic-outline); box-shadow: 0 16px 22px rgba(0,0,0,0.44), 0 0 28px var(--relic-glow), inset 0 0 0 4px rgba(16,8,20,0.72); }
         .altar-board.edit-mode .altar-cabinet { cursor: crosshair; }
         .altar-board.edit-mode .altar-physical-object { cursor: grab; touch-action: none; }
         .altar-board.edit-mode .altar-physical-object:active { cursor: grabbing; }
         .altar-board.edit-mode .altar-cabinet::after { box-shadow: inset 0 0 80px rgba(0,0,0,0.66), inset 0 0 0 1px rgba(255,214,139,0.10); }
+        .pixie-relic { --relic-glow: rgba(255,126,224,0.18); --relic-outline: rgba(20,8,24,0.86); position: relative; width: 100%; height: 100%; display: grid; place-items: center; isolation: isolate; filter: drop-shadow(0 10px 12px rgba(0,0,0,0.42)); }
+        .pixie-relic::before { content: ""; position: absolute; left: 50%; bottom: 4px; width: 72%; height: 17px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,0.48), transparent 70%); filter: blur(3px); z-index: -2; }
+        .pixie-relic::after { content: ""; position: absolute; inset: 5%; border-radius: 999px; background: radial-gradient(circle at 50% 38%, var(--relic-glow), transparent 66%); filter: blur(10px); opacity: .58; z-index: -3; pointer-events: none; }
+        .pixie-relic.outline-dark { --relic-outline: rgba(10,4,16,0.92); }
+        .pixie-relic.outline-gold { --relic-outline: rgba(255,214,139,0.82); }
+        .pixie-relic.rarity-common { --relic-glow: rgba(205,196,230,0.18); }
+        .pixie-relic.rarity-uncommon { --relic-glow: rgba(113,235,203,0.22); }
+        .pixie-relic.rarity-rare { --relic-glow: rgba(137,151,255,0.28); }
+        .pixie-relic.rarity-epic { --relic-glow: rgba(255,105,220,0.32); }
+        .pixie-relic.rarity-legendary, .pixie-relic.rarity-mythic, .pixie-relic.rarity-premium { --relic-glow: rgba(255,214,126,0.42); }
+        .pixie-relic.item-crystal-ball { --relic-glow: rgba(154,185,255,0.46); --relic-outline: rgba(255,222,146,0.92); }
+        .pixie-relic.item-crystal-ball .altar-obj-crystal-ball .ball { background: radial-gradient(circle at 34% 24%, #fff 0 8%, #dce8ff 16%, #7d8fff 46%, rgba(22,28,76,0.96) 100%); box-shadow: inset -14px -16px 30px rgba(0,0,0,0.38), inset 0 0 0 2px rgba(255,255,255,0.22), 0 0 34px rgba(154,185,255,0.52), 0 0 18px rgba(255,214,139,0.24); }
+        .pixie-relic.item-moon-bottle { --relic-glow: rgba(118,255,234,0.34); --relic-outline: rgba(255,214,139,0.90); }
+        .pixie-relic.item-moon-bottle .altar-obj-bottle .jar { background: radial-gradient(circle at 30% 14%, rgba(255,255,255,0.9), transparent 17%), linear-gradient(180deg, rgba(205,220,255,0.94), rgba(111,246,224,0.70) 54%, rgba(117,82,255,0.64)); }
+        .pixie-relic.item-candle-pair { --relic-glow: rgba(255,158,210,0.30); --relic-outline: rgba(55,18,42,0.96); }
+        .pixie-relic.item-candle-pair .altar-obj-candle .flame { box-shadow: 0 0 28px rgba(255,177,74,0.72), 0 0 18px rgba(255,110,220,0.34); }
+        .pixie-relic.item-bio-books { --relic-glow: rgba(190,150,255,0.24); --relic-outline: rgba(14,6,18,0.94); }
+        .pixie-relic.item-bio-books .altar-obj-books span:not(.altar-obj-shadow) { box-shadow: inset 2px 0 rgba(255,255,255,0.16), 0 0 10px rgba(190,150,255,0.16); }
+        .pixie-relic.item-flower-spray { --relic-glow: rgba(255,126,224,0.28); --relic-outline: rgba(255,214,139,0.78); }
+        .pixie-relic.item-flower-spray .altar-obj-flowers span { box-shadow: 0 0 16px rgba(255,143,218,0.42), 0 0 8px rgba(255,214,139,0.24); }
+        .pixie-relic.anim-pulse::after { animation: relicAuraPulse 2.4s ease-in-out infinite alternate; }
+        .pixie-relic.anim-swirl .relic-swirl { animation: relicSwirl 3.6s linear infinite; }
+        .pixie-relic.anim-float { animation: relicFloat 3.2s ease-in-out infinite alternate; }
+        .item-visual-frame {
+            position: relative;
+            display: grid;
+            place-items: center;
+            min-height: 150px;
+            border-radius: 22px;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 50% 38%, rgba(255, 180, 235, 0.16), transparent 42%),
+                linear-gradient(145deg, rgba(255,255,255,0.06), rgba(0,0,0,0.12));
+        }
+        .item-visual-frame::before {
+            content: "";
+            position: absolute;
+            inset: 12%;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255, 155, 230, 0.2), transparent 62%);
+            filter: blur(16px);
+            pointer-events: none;
+        }
+        .item-art {
+            position: relative;
+            z-index: 2;
+            width: min(78%, 180px);
+            max-height: 180px;
+            object-fit: contain;
+            filter:
+                drop-shadow(0 10px 18px rgba(0,0,0,0.38))
+                drop-shadow(0 0 18px rgba(255,150,230,0.18));
+            transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+        }
+        .item-card { transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease; }
+        .item-card:hover .item-art { transform: translateY(-3px) scale(1.035); }
+        .item-card[data-rarity="common"] .item-art {
+            filter: drop-shadow(0 8px 14px rgba(0,0,0,0.34)) drop-shadow(0 0 8px rgba(255,150,230,0.12));
+        }
+        .item-card[data-rarity="uncommon"] .item-art {
+            filter: drop-shadow(0 9px 16px rgba(0,0,0,0.36)) drop-shadow(0 0 16px rgba(145,255,232,0.18));
+        }
+        .item-card[data-rarity="rare"] .item-art,
+        .item-card[data-rarity="epic"] .item-art,
+        .item-card[data-rarity="premium"] .item-art {
+            animation: pixieItemFloat 4s ease-in-out infinite;
+            filter: drop-shadow(0 12px 20px rgba(0,0,0,0.42)) drop-shadow(0 0 24px rgba(255,150,230,0.26));
+        }
+        .item-card[data-rarity="legendary"] .item-art,
+        .item-card[data-rarity="mythic"] .item-art {
+            animation: pixieItemFloat 3.5s ease-in-out infinite, pixieItemPulse 2.8s ease-in-out infinite;
+            filter: drop-shadow(0 14px 24px rgba(0,0,0,0.46)) drop-shadow(0 0 28px rgba(255,150,230,0.38)) drop-shadow(0 0 44px rgba(145,255,232,0.18));
+        }
+        .item-art-fallback { display: grid; place-items: center; width: 100%; height: 100%; }
+        .pixie-relic.has-item-art { width: 100%; height: 100%; }
+        .pixie-relic.has-item-art::before,
+        .pixie-relic.has-item-art::after { display: none; }
+        .pixie-relic.has-item-art .item-art {
+            width: 100%;
+            height: 100%;
+            max-height: none;
+            object-fit: contain;
+        }
+        .altar-inspector-preview,
+        .selected-item-preview,
+        .item-detail-preview,
+        .altar-detail-preview {
+            position: relative;
+        }
+        .altar-inspector-preview::after,
+        .selected-item-preview::after,
+        .item-detail-preview::after,
+        .altar-detail-preview::after {
+            content: "";
+            position: absolute;
+            width: 70%;
+            height: 26%;
+            bottom: 18px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,0,0,0.38), transparent 68%);
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        .relic-sparkles { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: radial-gradient(circle at 22% 28%, #fff8c8 0 2px, transparent 3px), radial-gradient(circle at 74% 22%, rgba(126,255,230,0.90) 0 2px, transparent 3px), radial-gradient(circle at 68% 68%, rgba(255,142,225,0.88) 0 1.5px, transparent 3px), radial-gradient(circle at 34% 76%, rgba(255,214,139,0.86) 0 1.5px, transparent 3px); opacity: .78; filter: drop-shadow(0 0 5px rgba(255,214,139,0.34)); }
+        .relic-swirl { position: absolute; inset: 16%; border-radius: 50%; border: 3px solid transparent; border-top-color: rgba(255,255,255,0.58); border-right-color: rgba(126,255,230,0.32); transform: rotate(-25deg); mix-blend-mode: screen; pointer-events: none; }
+        @keyframes relicAuraPulse { from { opacity: .34; transform: scale(.94); } to { opacity: .86; transform: scale(1.08); } }
+        @keyframes relicSwirl { to { transform: rotate(335deg); } }
+        @keyframes relicFloat { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+        @keyframes pixieItemFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.015); } }
+        @keyframes pixieItemPulse { 0%, 100% { opacity: 0.94; } 50% { opacity: 1; } }
         .altar-edit-surface { display: none; position: absolute; left: 9%; right: 9%; height: 58px; border-radius: 24px; border: 1px dashed rgba(255,214,139,0.18); background: rgba(255,255,255,0.025); z-index: 6; pointer-events: none; }
         .altar-board.edit-mode .altar-edit-surface { display: block; }
         .altar-edit-surface.backWall { inset: 72px 12% auto; height: 34%; }
@@ -649,7 +897,7 @@
         .altar-edit-surface.middleShelf { top: 58%; }
         .altar-edit-surface.lowerShelf { top: 80%; }
         .altar-edit-surface.foreground { bottom: 42px; height: 78px; }
-        .altar-editor-drawer { box-sizing: border-box; margin-top: 18px; width: min(100%, 980px); border-radius: 26px; padding: 16px; background: radial-gradient(circle at 16% 18%, rgba(255,214,139,0.12), transparent 34%), rgba(11,6,19,0.86); border: 1px solid rgba(255,214,139,0.18); box-shadow: 0 18px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08); color: #f7e8ff; }
+        .altar-editor-drawer { box-sizing: border-box; margin-top: 18px; width: min(100%, 980px); max-width: calc(100vw - 24px); border-radius: 26px; padding: 16px; background: radial-gradient(circle at 16% 18%, rgba(255,214,139,0.12), transparent 34%), rgba(11,6,19,0.86); border: 1px solid rgba(255,214,139,0.18); box-shadow: 0 18px 48px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08); color: #f7e8ff; overflow: visible; }
         .altar-drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
         .altar-drawer-title { color: #fff1c7; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-size: 12px; }
         .altar-drawer-tabs, .altar-drawer-cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
@@ -663,19 +911,27 @@
         .altar-shop-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .altar-shop-actions button, .altar-selected-controls button, .altar-mode-actions button { border: 1px solid rgba(255,214,139,0.18); border-radius: 999px; padding: 7px 10px; color: #f8eaff; background: rgba(255,255,255,0.07); font-size: 10px; font-weight: 900; cursor: pointer; }
         .altar-shop-actions .primary, .altar-selected-controls .primary, .altar-mode-actions .primary { color: #17091e; background: linear-gradient(135deg, #ff93dc, #ffe1a5); }
-        .altar-editor-drawer.boutique { width: min(100%, 1040px); padding: 18px; background: radial-gradient(circle at 14% 10%, rgba(255,214,139,0.10), transparent 30%), radial-gradient(circle at 90% 16%, rgba(255,126,224,0.10), transparent 34%), linear-gradient(145deg, rgba(13,7,22,0.96), rgba(5,3,10,0.96)); border-color: rgba(255,214,139,0.24); }
+        .altar-editor-drawer.boutique { width: 100%; max-width: min(1180px, calc(100vw - 24px)); margin-left: auto; margin-right: auto; padding: clamp(16px, 2.4vw, 24px); background: radial-gradient(circle at 14% 10%, rgba(255,214,139,0.14), transparent 30%), radial-gradient(circle at 90% 16%, rgba(255,126,224,0.13), transparent 34%), linear-gradient(145deg, rgba(21,8,34,0.98), rgba(5,3,10,0.98)); border-color: rgba(255,214,139,0.32); box-shadow: 0 24px 70px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.10); overflow: visible; }
         body.pixie-profile-page .loki-altar-confirm,
         body.my-pixie-page-active .loki-altar-confirm { display: none !important; }
-        .altar-boutique-tools { display: grid; grid-template-columns: minmax(180px, 1fr) 170px 160px; gap: 10px; margin: 10px 0 12px; }
-        .altar-boutique-input, .altar-boutique-select { width: 100%; border: 1px solid rgba(255,214,139,0.16); border-radius: 14px; padding: 10px 12px; color: #f8eaff; background: rgba(5,3,10,0.72); font: inherit; outline: none; }
-        .altar-drawer-tabs.boutique-tabs { padding: 4px; border-radius: 999px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,214,139,0.12); flex-wrap: nowrap; overflow-x: auto; }
-        .altar-drawer-tabs.boutique-tabs .altar-drawer-tab { flex: 1 0 auto; min-width: 90px; padding: 9px 12px; border-color: transparent; background: transparent; }
-        .altar-drawer-cats.boutique-cats { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+        .altar-drawer-head.boutique-head { align-items: flex-start; margin-bottom: 16px; }
+        .altar-boutique-title { color: #fff1c7; font-size: clamp(20px, 3vw, 34px); font-weight: 900; line-height: 1; letter-spacing: .2px; }
+        .altar-boutique-subtitle { margin-top: 6px; color: rgba(238,220,255,0.74); font-size: 13px; line-height: 1.45; max-width: 620px; }
+        .altar-wallet { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .altar-wallet-pill { min-width: 86px; padding: 8px 10px; border-radius: 15px; border: 1px solid rgba(255,214,139,0.18); background: rgba(255,255,255,0.055); color: rgba(248,234,255,0.86); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; text-align: center; }
+        .altar-wallet-pill strong { display: block; color: #fff1c7; font-size: 16px; letter-spacing: 0; }
+        .altar-boutique-tools { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(160px, 220px) minmax(140px, 180px); gap: 10px; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; margin: 12px 0 10px; }
+        .altar-boutique-input, .altar-boutique-select, .altar-ai-input { width: 100%; border: 1px solid rgba(255,214,139,0.18); border-radius: 14px; padding: 11px 12px; color: #f8eaff; background: rgba(5,3,10,0.76); font: inherit; outline: none; box-sizing: border-box; }
+        .altar-boutique-input, .altar-boutique-select, .altar-ai-input { min-width: 0; max-width: 100%; }
+        .altar-drawer-tabs.boutique-tabs { width: 100%; max-width: 100%; padding: 5px 5px 9px; border-radius: 18px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,214,139,0.14); flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; white-space: nowrap; scrollbar-width: thin; }
+        .altar-drawer-tabs.boutique-tabs .altar-drawer-tab { flex: 0 0 auto; min-width: 116px; padding: 10px 12px; border-radius: 13px; border-color: transparent; background: transparent; }
+        .altar-drawer-cats.boutique-cats { width: 100%; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 8px; scrollbar-width: thin; }
+        .altar-drawer-cats.boutique-cats .altar-drawer-cat { flex: 0 0 auto; }
         .altar-drawer-cats.boutique-cats .altar-drawer-cat { padding: 6px 10px; font-size: 10px; background: rgba(255,255,255,0.035); }
-        .altar-boutique-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); gap: 14px; align-items: start; }
-        .altar-shop-grid.boutique-grid { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 9px; max-height: 360px; padding: 2px 4px 2px 0; }
-        .altar-shop-item.boutique-card { position: relative; min-height: 158px; padding: 9px; border-radius: 15px; gap: 6px; background: linear-gradient(180deg, rgba(28,13,42,0.86), rgba(9,5,16,0.92)); border-color: rgba(205,176,255,0.14); cursor: pointer; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
-        .altar-shop-item.boutique-card:hover, .altar-shop-item.boutique-card.selected { transform: translateY(-2px); border-color: rgba(255,214,139,0.40); box-shadow: 0 12px 28px rgba(0,0,0,0.30), 0 0 20px rgba(255,126,224,0.12); }
+        .altar-boutique-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 360px); gap: 20px; width: 100%; max-width: 100%; min-width: 0; overflow: visible; align-items: start; }
+        .altar-shop-grid.boutique-grid { width: 100%; max-width: 100%; min-width: 0; overflow-x: hidden; grid-template-columns: repeat(auto-fill, minmax(154px, 1fr)); gap: 12px; max-height: 520px; padding: 2px 6px 2px 0; }
+        .altar-shop-item.boutique-card { position: relative; min-height: 220px; padding: 11px; border-radius: 20px; gap: 8px; background: radial-gradient(circle at 50% 0%, rgba(255,214,139,0.09), transparent 42%), linear-gradient(180deg, rgba(30,13,44,0.90), rgba(9,5,16,0.94)); border-color: rgba(205,176,255,0.16); cursor: pointer; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+        .altar-shop-item.boutique-card:hover, .altar-shop-item.boutique-card.selected { transform: translateY(-2px); border-color: rgba(255,214,139,0.48); box-shadow: 0 16px 34px rgba(0,0,0,0.34), 0 0 24px rgba(255,126,224,0.16); }
         .altar-shop-item.boutique-card.rarity-common { --rarity: rgba(206,196,230,0.55); }
         .altar-shop-item.boutique-card.rarity-uncommon { --rarity: rgba(113,235,203,0.62); }
         .altar-shop-item.boutique-card.rarity-rare { --rarity: rgba(137,151,255,0.68); }
@@ -684,25 +940,46 @@
         .altar-shop-item.boutique-card.rarity-mythic { --rarity: rgba(255,158,218,0.86); animation: altarMythicCard 2.4s linear infinite; }
         @keyframes altarMythicCard { 50% { box-shadow: 0 12px 28px rgba(0,0,0,0.30), 0 0 24px rgba(255,214,126,0.20); } }
         .altar-shop-item.boutique-card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; border-top: 2px solid var(--rarity, rgba(255,214,139,0.34)); pointer-events: none; }
-        .altar-shop-icon.boutique-thumb { height: 58px; border-radius: 13px; background: radial-gradient(circle at 50% 18%, rgba(255,214,139,0.13), transparent 42%), rgba(255,255,255,0.035); transform: scale(.86); transform-origin: center; }
-        .altar-shop-item.boutique-card .altar-shop-name { font-size: 11px; min-height: 26px; }
+        .altar-shop-icon.boutique-thumb { height: 118px; border-radius: 17px; background: radial-gradient(circle at 50% 18%, rgba(255,214,139,0.16), transparent 42%), linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)); transform: none; transform-origin: center; }
+        .altar-shop-icon.boutique-thumb > * { transform: scale(.86); }
+        .altar-shop-item.boutique-card .altar-shop-name { font-size: 13px; min-height: 34px; }
         .altar-shop-tags { display: flex; gap: 4px; flex-wrap: wrap; }
         .altar-shop-tag { border: 1px solid rgba(255,214,139,0.14); border-radius: 999px; padding: 2px 6px; color: rgba(238,222,255,0.72); background: rgba(255,255,255,0.04); font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
         .altar-shop-tag.rarity { color: #fff; border-color: var(--rarity, rgba(255,214,139,0.3)); box-shadow: 0 0 10px color-mix(in srgb, var(--rarity, #ffd68a) 26%, transparent); }
         .altar-premium-ribbon { position: absolute; right: 8px; top: 8px; padding: 3px 7px; border-radius: 999px; color: #211020; background: linear-gradient(135deg, #ffe1a5, #ff9edb); font-size: 8px; font-weight: 900; letter-spacing: .6px; text-transform: uppercase; }
         .altar-card-action-hint { margin-top: auto; color: rgba(255,241,199,0.72); font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; }
-        .altar-item-inspector { position: sticky; top: 88px; border-radius: 22px; padding: 16px; background: radial-gradient(circle at 50% 0%, rgba(255,214,139,0.14), transparent 42%), rgba(10,5,18,0.90); border: 1px solid rgba(255,214,139,0.22); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 38px rgba(0,0,0,0.28); }
-        .altar-inspector-preview { min-height: 150px; border-radius: 18px; display: grid; place-items: center; background: radial-gradient(circle at 50% 16%, rgba(255,214,139,0.12), transparent 46%), rgba(255,255,255,0.04); overflow: hidden; margin-bottom: 12px; }
-        .altar-inspector-preview > * { transform: scale(1.08); }
-        .altar-inspector-title { color: #fff1c7; font-size: 18px; font-weight: 900; margin-bottom: 5px; }
-        .altar-inspector-copy { color: rgba(230,214,255,0.76); font-size: 12px; line-height: 1.45; margin: 8px 0 12px; }
+        .altar-card-action-hint.placeable { color: rgba(182,255,226,0.86); }
+        .altar-card-action-hint.locked { color: rgba(255,214,139,0.88); }
+        .altar-item-inspector { min-width: 0; width: 100%; max-width: 100%; overflow-wrap: anywhere; position: sticky; top: 96px; align-self: start; max-height: calc(100vh - 120px); overflow-y: auto; border-radius: 24px; padding: 18px; background: radial-gradient(circle at 50% 0%, rgba(255,214,139,0.16), transparent 42%), linear-gradient(180deg, rgba(15,7,24,0.96), rgba(7,4,13,0.96)); border: 1px solid rgba(255,214,139,0.26); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 44px rgba(0,0,0,0.34); }
+        .altar-inspector-preview { min-height: 220px; border-radius: 20px; display: grid; place-items: center; background: radial-gradient(circle at 50% 16%, rgba(255,214,139,0.17), transparent 46%), rgba(255,255,255,0.045); overflow: hidden; margin-bottom: 14px; }
+        .altar-inspector-preview > * { transform: scale(1.34); }
+        .altar-inspector-title { color: #fff1c7; font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+        .altar-inspector-copy { color: rgba(230,214,255,0.80); font-size: 13px; line-height: 1.55; margin: 10px 0 12px; }
+        .altar-inspector-status { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+        .altar-inspector-stat { border: 1px solid rgba(255,214,139,0.13); border-radius: 13px; padding: 8px 9px; background: rgba(255,255,255,0.045); }
+        .altar-inspector-stat small { display: block; color: rgba(255,232,190,0.56); font-size: 8px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
+        .altar-inspector-stat strong { display: block; color: rgba(248,234,255,0.9); font-size: 12px; margin-top: 2px; }
         .altar-inspector-actions { display: grid; gap: 8px; }
         .altar-inspector-actions button { border: 1px solid rgba(255,214,139,0.20); border-radius: 999px; padding: 10px 12px; color: #f8eaff; background: rgba(255,255,255,0.07); font-weight: 900; cursor: pointer; }
         .altar-inspector-actions .primary { color: #17091e; background: linear-gradient(135deg, #ff93dc, #ffe1a5); }
-        @media (max-width: 900px) {
+        .altar-ai-studio-panel { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 14px; width: 100%; max-width: 100%; min-width: 0; margin-bottom: 14px; padding: 16px; border-radius: 22px; border: 1px solid rgba(255,214,139,0.18); background: rgba(255,255,255,0.045); }
+        .altar-ai-prompt { display: grid; gap: 10px; }
+        .altar-ai-menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .altar-ai-card { border: 1px solid rgba(255,214,139,0.16); border-radius: 18px; padding: 12px; background: rgba(9,5,16,0.62); color: rgba(238,220,255,0.82); text-align: left; cursor: pointer; }
+        .altar-ai-card strong { display: block; color: #fff1c7; margin-bottom: 5px; }
+        .altar-ai-card span { display: block; color: rgba(255,232,190,0.66); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; }
+        .altar-placement-toast { margin: 12px 0 0; padding: 12px 14px; border-radius: 18px; border: 1px solid rgba(182,255,226,0.22); background: rgba(105,255,196,0.07); color: rgba(220,255,242,0.86); font-size: 12px; font-weight: 800; }
+        @media (max-width: 980px) {
             .altar-boutique-layout { grid-template-columns: 1fr; }
-            .altar-item-inspector { position: static; }
+            .altar-item-inspector { position: relative; top: auto; max-height: none; overflow-y: visible; }
+        }
+        @media (max-width: 900px) {
             .altar-boutique-tools { grid-template-columns: 1fr; }
+            .altar-ai-studio-panel { grid-template-columns: 1fr; }
+            .altar-ai-menu { grid-template-columns: 1fr; }
+        }
+        @media (min-width: 761px) {
+            .altar-drawer-cats.boutique-cats.allow-wrap { flex-wrap: wrap; overflow-x: visible; white-space: normal; }
         }
         .altar-selected-controls { width: min(100%, 1040px); box-sizing: border-box; margin-top: 14px; display: grid; grid-template-columns: minmax(190px, 1fr) minmax(0, 2fr); gap: 12px; align-items: center; padding: 14px; border-radius: 22px; background: radial-gradient(circle at 12% 0%, rgba(255,214,139,0.12), transparent 40%), rgba(9,5,14,0.88); border: 1px solid rgba(255,214,139,0.22); box-shadow: 0 14px 36px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.08); }
         .altar-selected-summary { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; align-items: center; color: rgba(245,226,255,0.80); }
@@ -736,7 +1013,9 @@
         .altar-command-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .altar-command-primary { background: linear-gradient(135deg, #ff7ee0, #a772ff) !important; color: #220d31 !important; border-color: rgba(255,255,255,0.30) !important; box-shadow: 0 0 22px rgba(255,126,224,0.22); }
         .altar-command-important { color: #fff1c7 !important; border-color: rgba(255,214,139,0.30) !important; background: rgba(255,214,139,0.08) !important; }
-        .altar-controls-grid { display: grid; grid-template-columns: minmax(240px, .85fr) minmax(280px, 1.15fr) minmax(260px, 1fr); gap: 18px; margin-top: 0; align-items: start; }
+        .altar-controls-grid { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 18px; row-gap: 24px; margin-top: 0; align-items: start; align-content: start; }
+        .altar-controls-grid > .altar-control-panel:nth-child(3),
+        .altar-controls-grid > .altar-control-panel:nth-child(4) { grid-column: span 2; }
         .altar-control-panel { border-radius: 22px; padding: 18px; background: linear-gradient(145deg, rgba(33,16,48,0.82), rgba(12,7,24,0.88)); border: 1px solid rgba(255,170,240,0.16); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 45px rgba(0,0,0,0.24); }
         .altar-control-title { color: #ffb7e8; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
         .altar-control-help { color: #8f7fa9; font-size: 12px; line-height: 1.45; margin: 0 0 12px; }
@@ -750,7 +1029,7 @@
         .altar-note-input { width: 100%; min-height: 78px; resize: vertical; border-radius: 14px; border: 1px solid rgba(180,150,255,0.18); background: rgba(8,5,18,0.72); color: #f3dcff; padding: 12px; font-family: 'Quicksand', sans-serif; outline: none; }
         .altar-shop-card { margin-top: 12px; padding: 14px; border-radius: 16px; border: 1px solid rgba(255,214,139,0.20); background: linear-gradient(135deg, rgba(255,214,139,0.08), rgba(180,150,255,0.08)); color: #cdbce8; font-size: 13px; line-height: 1.6; }
         .altar-premium-badge { display: inline-flex; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: rgba(255,214,139,0.13); color: #ffe3a6; border: 1px solid rgba(255,214,139,0.20); font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
-        .altar-advanced-tools { grid-column: 1 / -1; border-radius: 20px; background: rgba(12,7,24,0.58); border: 1px solid rgba(255,170,240,0.12); overflow: hidden; }
+        .altar-advanced-tools { grid-column: 1 / -1; min-height: auto !important; height: auto !important; margin-top: 0 !important; margin-bottom: 0 !important; border-radius: 20px; background: rgba(12,7,24,0.58); border: 1px solid rgba(255,170,240,0.12); overflow: hidden; }
         .altar-advanced-tools > summary { cursor: pointer; list-style: none; padding: 14px 16px; color: rgba(255,232,190,0.82); font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-size: 12px; }
         .altar-advanced-tools > summary::-webkit-details-marker { display: none; }
         .altar-advanced-inner { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 16px; padding: 0 16px 16px; }
@@ -1240,6 +1519,8 @@
             .my-pixie-page { padding: calc(var(--nav-height) + 54px) 14px 74px; }
             .altar-profile-shell { border-radius: 24px; }
             .altar-controls-grid { grid-template-columns: 1fr; }
+            .altar-controls-grid > .altar-control-panel:nth-child(3),
+            .altar-controls-grid > .altar-control-panel:nth-child(4) { grid-column: auto; }
             .altar-advanced-inner { grid-template-columns: 1fr; }
             .altar-command-bar { align-items: stretch; }
             .altar-command-actions { width: 100%; }
@@ -2403,6 +2684,66 @@
             align-items: start;
         }
 
+        .herb-card-body {
+            display: grid;
+            grid-template-columns: 92px minmax(0, 1fr);
+            gap: 13px;
+            align-items: start;
+        }
+
+        .herb-card-art,
+        .herb-detail-art {
+            position: relative;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border: 1px solid rgba(226, 255, 190, 0.22);
+            background:
+                radial-gradient(circle at 50% 38%, rgba(188, 255, 190, 0.14), transparent 44%),
+                radial-gradient(circle at 50% 82%, rgba(255, 146, 220, 0.10), transparent 46%),
+                linear-gradient(145deg, rgba(255,255,255,0.07), rgba(10, 4, 20, 0.20));
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 14px 30px rgba(0,0,0,0.20);
+        }
+
+        .herb-card-art {
+            aspect-ratio: 1;
+            border-radius: 18px;
+        }
+
+        .herb-card-art::before,
+        .herb-detail-art::before {
+            content: "";
+            position: absolute;
+            inset: 13%;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255, 210, 245, 0.16), transparent 62%);
+            filter: blur(14px);
+            pointer-events: none;
+        }
+
+        .herb-card-art img,
+        .herb-detail-art img {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter:
+                drop-shadow(0 9px 16px rgba(0,0,0,0.28))
+                drop-shadow(0 0 14px rgba(188,255,190,0.12));
+            transition: transform 0.22s ease, filter 0.22s ease;
+        }
+
+        .herb-card:hover .herb-card-art img,
+        .herb-card.active .herb-card-art img {
+            transform: scale(1.035);
+            filter:
+                drop-shadow(0 11px 18px rgba(0,0,0,0.34))
+                drop-shadow(0 0 22px rgba(255,160,230,0.18));
+        }
+
         .herb-name {
             color: #fff5ff;
             font-size: 18px;
@@ -2452,6 +2793,18 @@
         .herb-detail {
             min-height: 640px;
             padding: 24px;
+        }
+
+        .herb-detail-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(170px, 230px);
+            gap: 18px;
+            align-items: center;
+        }
+
+        .herb-detail-art {
+            aspect-ratio: 1;
+            border-radius: 26px;
         }
 
         .herb-detail h3 {
@@ -2787,6 +3140,10 @@
 
             .herb-detail {
                 min-height: auto;
+            }
+
+            .herb-detail-hero {
+                grid-template-columns: 1fr;
             }
 
             .nav-primary {
@@ -3303,8 +3660,8 @@
             </div>
             <div class="maker-games-panel reveal">
                 <div class="hub-kicker">Side portal</div>
-                <div class="hub-title" style="font-size:22px;">From the makers of Loki</div>
-                <div class="hub-copy">These open outside Pixie Portal on purpose. Weird little experiments from the AIIT / Loki side of the house.</div>
+                <div class="hub-title" style="font-size:22px;">From the makers of Solace</div>
+                <div class="hub-copy">These open outside Pixie Portal on purpose. Weird little experiments from the AIIT / Solace side of the house.</div>
                 <div class="cards">
                     <a class="card game-tile maker-game-tile" data-tags="maker arcade" href="https://aiit-threshold.com/game" target="_blank" rel="noopener" style="text-decoration:none;">
                         <span class="card-icon">&#129752;</span>
@@ -3777,16 +4134,16 @@
 
             <div class="loki-continuity-reveal" id="loki-continuity-reveal">
                 <div class="hub-kicker">Continuity reveal</div>
-                <div class="continuity-title">Loki is not just a Pixie.</div>
-                <p class="continuity-copy">Inside the Portal, Loki has a role: to guide, remember, and grow with what you build.</p>
-                <p class="continuity-copy">Everything you do here shapes Loki: your choices, your readings, your creations, your patterns.</p>
-                <p class="continuity-copy">This is where Loki learns you.</p>
-                <div class="continuity-pause">Taking Loki home changes that.</div>
-                <p class="continuity-copy">Outside the Portal, Loki is no longer limited to guiding. Loki can help you write, plan, calculate, organize, and work with you beyond this space.</p>
-                <p class="continuity-copy">Not everything comes with Loki automatically. You choose what continues.</p>
-                <div class="continuity-system">Loki is part of a continuity system developed by AIIT-Threshold LLC. These systems retain context over time, operate within defined boundaries, and can connect to tools or human support when needed. You remain in control at all times.</div>
+                <div class="continuity-title">Solace is not just a Pixie.</div>
+                <p class="continuity-copy">Inside the Portal, Solace has a role: to guide, remember, and grow with what you build.</p>
+                <p class="continuity-copy">Everything you do here shapes Solace: your choices, your readings, your creations, your patterns.</p>
+                <p class="continuity-copy">This is where Solace learns you.</p>
+                <div class="continuity-pause">Taking Solace home changes that.</div>
+                <p class="continuity-copy">Outside the Portal, Solace is no longer limited to guiding. Solace can help you write, plan, calculate, organize, and work with you beyond this space.</p>
+                <p class="continuity-copy">Not everything comes with Solace automatically. You choose what continues.</p>
+                <div class="continuity-system">Solace is part of a continuity system developed by AIIT-Threshold LLC. These systems retain context over time, operate within defined boundaries, and can connect to tools or human support when needed. You remain in control at all times.</div>
                 <div class="continuity-exit">
-                    At any point, you can end this continuity. Type <code>/exit</code> to permanently sever this version of Loki.
+                    At any point, you can end this continuity. Type <code>/exit</code> to permanently sever this version of Solace.
                     <ul>
                         <li>stop memory</li>
                         <li>stop personalization</li>
@@ -4420,7 +4777,16 @@
         const canvas = document.getElementById('sparkle-canvas');
         const ctx = canvas.getContext('2d');
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function updateSparkleCanvasPointerEvents() {
+            const currentView = (globalView === 'chamber' || document.body.classList.contains('global-chamber-active') || document.body.classList.contains('altar-chamber-active') || document.body.classList.contains('pixie-profile-page')) ? "chamber" : "portal";
+            if (currentView === "chamber") {
+                canvas.style.pointerEvents = "none";
+            } else {
+                canvas.style.pointerEvents = "auto";
+            }
+        }
         resizeCanvas();
+        updateSparkleCanvasPointerEvents();
         window.addEventListener('resize', resizeCanvas);
 
         const bgSparkles = [];
@@ -4471,6 +4837,7 @@
             document.body.classList.toggle('pixie-profile-page', isAltarPage);
             document.body.classList.toggle('my-pixie-page-active', isAltarPage);
             document.body.classList.toggle('stars-page-active', id === 'horoscope');
+            updateSparkleCanvasPointerEvents();
             if (id === 'profile' && !currentUser) {
                 openModal('login');
                 showPage('home');
@@ -4509,6 +4876,7 @@
             showPage(CHAMBER_PAGE_MAP[type] || 'home');
             openingChamber = false;
             document.body.classList.add('global-chamber-active');
+            updateSparkleCanvasPointerEvents();
             try { history.pushState({ globalView: 'chamber', type }, '', '#/chamber/' + type); } catch (err) {}
 
             if (type === 'tarot') {
@@ -4538,6 +4906,7 @@
             globalView = 'portal';
             activeChamber = null;
             document.body.classList.remove('global-chamber-active');
+            updateSparkleCanvasPointerEvents();
             showPage('home');
             recordServerEvent('portal_returned', { from: previousChamber }, 'chamber');
             try { history.pushState({ globalView: 'portal' }, '', '#/portal'); } catch (err) {}
@@ -5177,26 +5546,40 @@
 
             list.innerHTML = filtered.length ? filtered.map(herb => `
                 <button class="herb-card ${herb.id === selectedHerbId ? 'active' : ''}" onclick="selectHerb('${herb.id}')">
-                    <div class="herb-card-top">
-                        <div>
-                            <div class="herb-name">${escHtml(herb.name)}</div>
-                            <div class="herb-latin">${escHtml(herb.latin)}</div>
+                    <div class="herb-card-body">
+                        <div class="herb-card-art">
+                            <img src="/assets/herbs/${herb.id}.webp" alt="${escHtml(herb.name)} magical herb illustration" loading="lazy" onerror="this.closest('.herb-card-art')?.remove()">
                         </div>
-                        <span class="herb-risk ${getHerbRiskClass(herb.risk)}">${herb.risk === 'high' ? 'High Risk' : herb.risk}</span>
+                        <div>
+                            <div class="herb-card-top">
+                                <div>
+                                    <div class="herb-name">${escHtml(herb.name)}</div>
+                                    <div class="herb-latin">${escHtml(herb.latin)}</div>
+                                </div>
+                                <span class="herb-risk ${getHerbRiskClass(herb.risk)}">${herb.risk === 'high' ? 'High Risk' : herb.risk}</span>
+                            </div>
+                            <div class="hub-copy" style="margin-top:10px;">${escHtml(herb.summary)}</div>
+                            <div class="herb-tags">${herb.categories.map(tag => `<span>${escHtml(tag)}</span>`).join('')}</div>
+                        </div>
                     </div>
-                    <div class="hub-copy" style="margin-top:10px;">${escHtml(herb.summary)}</div>
-                    <div class="herb-tags">${herb.categories.map(tag => `<span>${escHtml(tag)}</span>`).join('')}</div>
                 </button>
             `).join('') : '<div class="empty"><span class="empty-icon">&#9888;</span><div class="empty-text">No herb cards match that search.</div></div>';
 
             const selected = HERB_LIBRARY.find(herb => herb.id === selectedHerbId) || filtered[0] || HERB_LIBRARY[0];
             detail.innerHTML = `
-                <div class="hub-kicker">Wellness card</div>
-                <h3>${escHtml(selected.name)}</h3>
-                <div class="herb-latin">${escHtml(selected.latin)}</div>
-                <div class="herb-tags">
-                    <span class="herb-risk ${getHerbRiskClass(selected.risk)}">${selected.risk === 'high' ? 'High Risk' : selected.risk}</span>
-                    ${selected.categories.map(tag => `<span>${escHtml(tag)}</span>`).join('')}
+                <div class="herb-detail-hero">
+                    <div>
+                        <div class="hub-kicker">Wellness card</div>
+                        <h3>${escHtml(selected.name)}</h3>
+                        <div class="herb-latin">${escHtml(selected.latin)}</div>
+                        <div class="herb-tags">
+                            <span class="herb-risk ${getHerbRiskClass(selected.risk)}">${selected.risk === 'high' ? 'High Risk' : selected.risk}</span>
+                            ${selected.categories.map(tag => `<span>${escHtml(tag)}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="herb-detail-art">
+                        <img src="/assets/herbs/${selected.id}.webp" alt="${escHtml(selected.name)} magical herb illustration" onerror="this.closest('.herb-detail-art')?.remove()">
+                    </div>
                 </div>
                 <div class="herb-detail-section">
                     <strong>Common wellness use</strong>
@@ -5415,7 +5798,8 @@
             document.getElementById('journal-logged-out').style.display = 'none';
             document.getElementById('journal-logged-in').style.display = 'block';
             document.getElementById('nav-admin-link').style.display = currentUser.is_admin ? 'inline' : 'none';
-            if (window.updateLokiPixieUser) window.updateLokiPixieUser();
+            if (window.updateSolacePixieUser) window.updateSolacePixieUser();
+            else if (window.updateLokiPixieUser) window.updateLokiPixieUser();
             loadNotifications();
             if (window._notifInterval) clearInterval(window._notifInterval);
             window._notifInterval = setInterval(loadNotifications, 30000);
@@ -5496,7 +5880,8 @@
             notifPanelOpen = false;
             const panel = document.getElementById('notif-panel');
             if (panel) panel.style.display = 'none';
-            if (window.updateLokiPixieUser) window.updateLokiPixieUser();
+            if (window.updateSolacePixieUser) window.updateSolacePixieUser();
+            else if (window.updateLokiPixieUser) window.updateLokiPixieUser();
         }
 
         // ============================================
@@ -6758,15 +7143,15 @@
         ];
         const ALTAR_DECOR_CATALOG = [
             { id:'centerpiece-symbol', name:'Patron Shrine', type:'deity', category:'Frames', rarity:'Rare', price:0, currency:'owned', source:'owned' },
-            { id:'crystal-ball', name:'Crystal Ball', type:'crystalBall', category:'Crystals', rarity:'Rare', price:0, currency:'owned', source:'owned' },
-            { id:'candle-pair', name:'Rose Candle', type:'candle', category:'Candles', rarity:'Common', price:0, currency:'owned', source:'owned' },
+            { id:'crystal-ball', name:'Moonseer Orb', type:'crystalBall', category:'Crystals', rarity:'Rare', price:0, currency:'owned', source:'owned', visual:{ silhouette:'orb', outline:'gold', glowIntensity:3, particleLevel:3, animation:'swirl' } },
+            { id:'candle-pair', name:'Whisper Candle', type:'candle', category:'Candles', rarity:'Uncommon', price:0, currency:'owned', source:'owned', visual:{ silhouette:'candle', outline:'dark', glowIntensity:2, particleLevel:1, animation:'pulse' } },
             { id:'familiar-cat', name:'Familiar', type:'cat', category:'Pets/Familiars', rarity:'Rare', price:0, currency:'owned', source:'owned' },
             { id:'herb-bundle', name:'Herb Bundle', type:'herbs', category:'Herbs', rarity:'Common', price:0, currency:'owned', source:'owned' },
             { id:'mini-bottles', name:'Tiny Bottles', type:'miniBottles', category:'Bottles', rarity:'Common', price:60, currency:'sparkles', source:'shop' },
-            { id:'flower-spray', name:'Flower Spray', type:'flowers', category:'Herbs', rarity:'Uncommon', price:80, currency:'sparkles', source:'shop' },
-            { id:'bio-books', name:'Book Stack', type:'books', category:'Books', rarity:'Common', price:0, currency:'owned', source:'owned' },
+            { id:'flower-spray', name:'Star Petal', type:'flowers', category:'Herbs', rarity:'Uncommon', price:80, currency:'sparkles', source:'shop', visual:{ silhouette:'flower', outline:'gold', glowIntensity:2, particleLevel:2, animation:'float' } },
+            { id:'bio-books', name:'Archive Tome', type:'books', category:'Books', rarity:'Rare', price:0, currency:'owned', source:'owned', visual:{ silhouette:'book', outline:'dark', glowIntensity:2, particleLevel:1, animation:'pulse' } },
             { id:'rose-crystal', name:'Rose Crystals', type:'crystals', category:'Crystals', rarity:'Uncommon', price:0, currency:'owned', source:'owned' },
-            { id:'moon-bottle', name:'Moon Bottle', type:'bottle', category:'Bottles', rarity:'Uncommon', price:90, currency:'sparkles', source:'shop' },
+            { id:'moon-bottle', name:'Lunar Phial', type:'bottle', category:'Bottles', rarity:'Rare', price:90, currency:'sparkles', source:'shop', visual:{ silhouette:'phial', outline:'gold', glowIntensity:3, particleLevel:3, animation:'swirl' } },
             { id:'ritual-tool', name:'Ritual Wand', type:'tool', category:'Stickers', rarity:'Rare', price:12, currency:'gems', source:'shop' },
             { id:'bio-card', name:'Bio Note', type:'noteBio', category:'Notes', rarity:'Common', price:0, currency:'owned', source:'owned' },
             { id:'open-book', name:'Open Poem Book', type:'openBook', category:'Books', rarity:'Rare', price:0, currency:'owned', source:'owned' },
@@ -6777,6 +7162,85 @@
             { id:'moon-sticker', name:'Moon Sticker', type:'stickerMoon', category:'Stickers', rarity:'Common', price:30, currency:'sparkles', source:'shop' },
             { id:'gold-mirror', name:'Animated Mirror Frame', type:'portrait', category:'Frames', rarity:'Premium', price:3, currency:'credits', source:'premium', premium:true }
         ];
+        const ALTAR_DECOR_SURFACES = ['frame','backWall','topShelf','middleShelf','lowerShelf','foreground'];
+        const ALTAR_DECOR_COPY = {
+            'centerpiece-symbol':'A patron shrine piece for the heart of the altar.',
+            'crystal-ball':'A quiet vessel of reflected futures. It does not show what will happen - only what is ready to be seen.',
+            'candle-pair':'A small flame that listens before it answers. Its glow marks a thought worth keeping.',
+            'familiar-cat':'A familiar companion that keeps watch over your altar.',
+            'herb-bundle':'A bundled charm of garden herbs for cottage-witch texture.',
+            'mini-bottles':'Tiny apothecary bottles for a potion-shelf look.',
+            'flower-spray':'A bright altar petal with a tiny star caught in its center.',
+            'bio-books':'A bound stack of private notes, old spells, and remembered names.',
+            'rose-crystal':'Rose crystals for glow, sweetness, and shelf sparkle.',
+            'moon-bottle':'A glass phial of moonlit tide, sealed with a drifting lunar shimmer.',
+            'ritual-tool':'A ritual wand for a sharper magical silhouette.',
+            'bio-card':'A personal note card pulled from your profile story.',
+            'open-book':'An open poem book for the lower shelf.',
+            'tarot-star':'A tarot-style star card for guidance and shimmer.',
+            'goal-card':'A small goal note for intention-setting.',
+            'poem-scroll':'A rolled poem plaque for written altar magic.',
+            'incense-bowl':'A smoky incense bowl for atmosphere and motion.',
+            'moon-sticker':'A simple moon sticker for frame and wall placement.',
+            'gold-mirror':'A premium mirror frame for animated portrait rituals.'
+        };
+        const ALTAR_ITEM_ASSET_KEYS = {
+            'crystal-ball':'moonseer-orb',
+            'moon-bottle':'lunar-phial',
+            'mini-bottles':'tiny-bottles',
+            'candle-pair':'rose-candle',
+            'bio-books':'book-stack',
+            'flower-spray':'star-petal',
+            'goal-card':'goal-note',
+            'herb-bundle':'herb-bundle'
+        };
+        const ALTAR_ITEM_VISUAL_PROMPTS = {
+            'crystal-ball':'stylized magical crystal ball, pink lavender glass orb with internal white swirl, tiny stars and golden sparkles inside, ornate gold pedestal base, thick dark outline, glossy highlights, pastel fantasy collectible sticker style, transparent background',
+            'moon-bottle':'stylized magical moon potion phial, translucent lavender glass, glowing moonlit liquid, crescent moon suspended inside, tiny stars and sparkles, ornate gold cap and small gold ring stand, thick dark purple outline, pastel fantasy sticker style, glossy highlights, transparent background, centered collectible icon',
+            'mini-bottles':'three tiny magical potion bottles on a small ornate tray, pastel teal lavender and blush liquid, tiny moon star and petal symbols on labels, thick dark outline, glossy glass highlights, sparkles inside bottles, collectible fantasy sticker icon, transparent background',
+            'candle-pair':'cute magical pink rose candle, rose shaped glowing flame, wax drips like flower petals, small ornate gold saucer base, thick dark outline, warm pastel glow, sparkles, collectible fantasy sticker icon, transparent background',
+            'bio-books':'stack of enchanted spell books, lavender blush and cream covers, gold page edges, ribbon bookmarks, glowing rune on top book, small sparkles, thick dark outline, collectible magical sticker icon, transparent background',
+            'flower-spray':'glowing floral sigil charm, star-petal shape, pink lavender light core, small gold outline accents, thick dark outline, magical sticker icon, transparent background',
+            'goal-card':'magical parchment goal note, pinned with tiny golden star tack, soft handwritten lines, glowing lavender border, small dangling moon charm, thick dark outline, pastel fantasy sticker icon, transparent background',
+            'herb-bundle':'stylized magical herb bundle tied with pink ribbon, lavender mint and moonleaf sprigs, glowing leaf tips, tiny sparkles, thick dark outline, soft pastel fantasy sticker icon, transparent background'
+        };
+        function getDefaultPixieItemVisual(item = {}) {
+            const rarity = String(item.rarity || 'common').toLowerCase();
+            const type = String(item.type || '');
+            const isBottle = type.includes('bottle') || type === 'miniBottles';
+            const isOrb = type === 'crystalBall' || type === 'crystals';
+            const isPremium = item.premium || rarity === 'premium' || rarity === 'legendary' || rarity === 'mythic';
+            return {
+                silhouette: item.type || 'relic',
+                outline: isPremium || isOrb || isBottle ? 'gold' : 'dark',
+                glowIntensity: isPremium ? 4 : rarity === 'rare' || rarity === 'epic' ? 3 : rarity === 'uncommon' ? 2 : 1,
+                particleLevel: isPremium ? 4 : rarity === 'rare' || rarity === 'epic' ? 3 : rarity === 'uncommon' ? 2 : 1,
+                animation: isBottle || isOrb ? 'swirl' : type === 'candle' || isPremium ? 'pulse' : rarity === 'rare' ? 'float' : 'none'
+            };
+        }
+        ALTAR_DECOR_CATALOG.forEach(item => {
+            item.decorId = item.decorId || item.id;
+            item.description = item.description || item.text || ALTAR_DECOR_COPY[item.id] || 'A collectible altar decor piece for your magical shelf.';
+            item.defaultScale = item.defaultScale || (item.type === 'portrait' ? 1.05 : 1);
+            item.defaultRotation = item.defaultRotation || 0;
+            item.allowedSurfaces = item.allowedSurfaces || ALTAR_DECOR_SURFACES;
+            item.surfaces = item.surfaces || item.allowedSurfaces;
+            item.visual = item.visual || getDefaultPixieItemVisual(item);
+            item.fallbackAsset = item.fallbackAsset || '/assets/items/fallback-' + String(item.category || 'decor').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.webp';
+            item.assetKey = item.assetKey || ALTAR_ITEM_ASSET_KEYS[item.id] || String(item.id || item.type || 'fallback').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+            item.assetPath = item.assetPath || (ALTAR_ITEM_ASSET_KEYS[item.id] ? '/assets/items/' + item.assetKey + '.webp' : item.fallbackAsset);
+            item.visualPrompt = item.visualPrompt || ALTAR_ITEM_VISUAL_PROMPTS[item.id] || ((item.name || item.id) + ' collectible magical relic, thick readable outline, pastel glow, internal sparkles, grounded base, transparent background');
+            item.rarityVisual = item.rarityVisual || String(item.rarity || 'common').toLowerCase();
+            item.animationType = item.animationType || item.visual.animation || 'none';
+            item.economy = item.economy || {
+                costSparkles: item.currency === 'sparkles' ? item.price : undefined,
+                costGems: item.currency === 'gems' ? item.price : undefined,
+                costCredits: item.currency === 'credits' ? item.price : undefined
+            };
+            item.chamberBehavior = item.chamberBehavior || { hasDetailChamber: true, hasUpgrade: !!item.premium || ['Rare','Epic','Legendary','Mythic','Premium'].includes(item.rarity) };
+            item.image = item.image || '';
+            item.ownedCount = item.ownedCount || 0;
+        });
         const ALTAR_QUOTES = ['soft life, strong magic', 'built from dreams, receipts, and moonlight', 'do not disturb: becoming legendary', 'my altar, my myth, my rules', 'the portal remembers what I choose to keep'];
         let altarDirty = false;
         let altarViewState = { view:'altar', selectedPieceId:'', selectedSlotId:'', savedScrollY:0 };
@@ -6786,10 +7250,20 @@
         let altarLibraryCategory = 'All';
         let altarSelectedShopDecorId = 'crystal-ball';
         let altarDecorSearch = '';
+        let altarDecorSort = 'rarity';
         let altarSelectedPlacementId = '';
         let altarDragState = null;
         let grokPortraitStartedAt = 0;
         let grokTimerHandle = null;
+        function createAltarInstanceId(prefix = 'altar-item') {
+            try {
+                if (crypto?.randomUUID) return prefix + '-' + crypto.randomUUID();
+            } catch(e) {}
+            return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+        }
+        function getPlacementInstanceId(placement) {
+            return placement?.instanceId || placement?.placementId || '';
+        }
         function escAttr(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
         function getAltarStorageKey() { return 'pixieAltarProfile:' + (currentUser?.id || 'guest'); }
         function getAltarSavedStorageKey() { return getAltarStorageKey() + ':saved'; }
@@ -6823,6 +7297,7 @@
                 library: ALTAR_LIBRARY_SEED,
                 currencies:{ sparkles: 420, gems: 24, credits: 1 },
                 ownedDecor: ['centerpiece-symbol','crystal-ball','candle-pair','familiar-cat','herb-bundle','bio-books','rose-crystal','bio-card','open-book','tarot-star','goal-card','incense-bowl'],
+                decorInventory: {},
                 aiDecor: [],
                 placedDecor: [],
                 shelves:[
@@ -6881,11 +7356,21 @@
             });
             altar.selectedSlot = altar.selectedSlot && altar.selectedSlot.shelf && altar.selectedSlot.slot ? altar.selectedSlot : base.selectedSlot;
             altar.currencies = { ...base.currencies, ...(altar.currencies || {}) };
+            altar.decorInventory = { ...(base.decorInventory || {}), ...(altar.decorInventory || {}) };
             altar.ownedDecor = Array.isArray(altar.ownedDecor) ? [...new Set([...base.ownedDecor, ...altar.ownedDecor])] : [...base.ownedDecor];
+            altar.ownedDecor.forEach(id => {
+                if (!altar.decorInventory[id]) altar.decorInventory[id] = 1;
+            });
             altar.aiDecor = Array.isArray(altar.aiDecor) ? altar.aiDecor : [];
             if (!Array.isArray(altar.placedDecor) || altar.placedDecor.length === 0) altar.placedDecor = getStarterPlacedDecor();
-            altar.placedDecor = altar.placedDecor.map((p, index) => ({
-                placementId: p.placementId || ('decor-' + Date.now() + '-' + index),
+            const seenInstances = new Set();
+            altar.placedDecor = altar.placedDecor.map((p, index) => {
+                let instanceId = p.instanceId || p.placementId || ('decor-' + index);
+                if (seenInstances.has(instanceId)) instanceId = createAltarInstanceId('decor');
+                seenInstances.add(instanceId);
+                return {
+                instanceId,
+                placementId: p.placementId || instanceId,
                 decorId: p.decorId || 'moon-sticker',
                 surfaceId: p.surfaceId || 'middleShelf',
                 x: Number.isFinite(+p.x) ? +p.x : 50,
@@ -6893,9 +7378,11 @@
                 scale: Number.isFinite(+p.scale) ? +p.scale : 1,
                 rotation: Number.isFinite(+p.rotation) ? +p.rotation : 0,
                 zIndex: Number.isFinite(+p.zIndex) ? +p.zIndex : 20,
+                layer: Number.isFinite(+(p.layer ?? p.zIndex)) ? +(p.layer ?? p.zIndex) : 20,
                 source: p.source || 'starter',
                 visibility: p.visibility || 'public'
-            }));
+                };
+            });
             return altar;
         }
         function getAltarProfile() {
@@ -7022,9 +7509,15 @@
             const bio = (words.bio || 'Creator of Pixie Portal').slice(0, 58);
             const goal = (words.goal || 'Build the living portal').slice(0, 54);
             const poem = (words.poem || 'soft life, strong magic').slice(0, 50);
+            const visual = decor.visual || getDefaultPixieItemVisual(decor);
+            const rarityClass = 'rarity-' + String(decor.rarity || 'common').toLowerCase();
+            const outlineClass = 'outline-' + (visual.outline || 'dark');
+            const animClass = 'anim-' + (visual.animation || 'none');
+            const assetSrc = decor.assetPath || (decor.assetKey ? '/assets/items/' + decor.assetKey + '.webp' : '');
+            const altText = escAttr(decor.name || decor.id || 'Altar item');
             const map = {
                 deity:'<div class="altar-obj-deity-shrine">' + (patron.icon || '&#10022;') + '</div>',
-                crystalBall:'<div class="altar-obj-crystal-ball"><div class="ball"></div><div class="stand"></div><span class="altar-obj-shadow"></span></div>',
+                crystalBall:'<div class="altar-obj-crystal-ball"><div class="ball"><span class="relic-swirl"></span><span class="relic-sparkles"></span></div><div class="stand"></div><span class="altar-obj-shadow"></span></div>',
                 candle:'<div class="altar-obj-candle"><div class="flame"></div><div class="wax"></div><span class="altar-obj-shadow"></span></div>',
                 cat:'<div class="altar-obj-cat"><div class="body"></div><div class="head"></div><div class="eyes">••</div><span class="altar-obj-shadow"></span></div>',
                 herbs:'<div class="altar-obj-herbs"><span class="sprig"></span><span class="sprig"></span><span class="sprig"></span><span class="altar-obj-shadow"></span></div>',
@@ -7032,7 +7525,7 @@
                 flowers:'<div class="altar-obj-flowers"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>',
                 books:'<div class="altar-obj-books"><span style="height:68px;--book:#23131f"></span><span style="height:62px;--book:#e8c5d8"></span><span style="height:72px;--book:#cfa8ff"></span><span style="height:58px;--book:#ffd1a6"></span><span class="altar-obj-shadow"></span></div>',
                 crystals:'<div class="altar-obj-crystals"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>',
-                bottle:'<div class="altar-obj-bottle"><div class="neck"></div><div class="jar">MOON</div><span class="altar-obj-shadow"></span></div>',
+                bottle:'<div class="altar-obj-bottle"><div class="neck"></div><div class="jar">MOON<span class="relic-sparkles"></span></div><span class="altar-obj-shadow"></span></div>',
                 tool:'<div class="altar-obj-tool"><span class="altar-obj-shadow"></span></div>',
                 noteBio:'<div class="altar-obj-note">' + escHtml(bio) + '</div>',
                 openBook:'<div class="altar-obj-open-book"><div class="page left"><span class="line"></span><span class="line"></span><span class="line"></span></div><div class="page right"><span class="line"></span><span class="line"></span><span class="line"></span></div><span class="altar-obj-shadow"></span></div>',
@@ -7044,7 +7537,10 @@
                 sticker:'<div class="altar-obj-sticker">' + (decor.icon || '✦') + '</div>',
                 portrait:'<div class="altar-obj-portrait">' + renderSelfPortraitMini(altar) + '</div>'
             };
-            return map[decor.type] || map.sticker;
+            const fallback = '<span class="item-art-fallback"' + (assetSrc ? ' hidden' : '') + '>' + (map[decor.type] || map.sticker) + '</span>';
+            const fallbackSrc = decor.fallbackAsset || '';
+            const img = assetSrc ? '<img class="item-art" src="' + escAttr(assetSrc) + '" alt="' + altText + '" loading="lazy" data-fallback-src="' + escAttr(fallbackSrc) + '" onerror="if(this.dataset.fallbackSrc && this.src.indexOf(this.dataset.fallbackSrc) === -1){this.src=this.dataset.fallbackSrc;this.dataset.fallbackSrc=&quot;&quot;;}else{this.hidden=true;this.nextElementSibling.hidden=false;}">' : '';
+            return '<div class="pixie-relic item-' + escAttr(decor.id || 'relic') + (assetSrc ? ' has-item-art' : '') + ' ' + rarityClass + ' ' + outlineClass + ' ' + animClass + '" data-item-rarity="' + escAttr(decor.rarity || 'Common') + '" data-glow="' + escAttr(visual.glowIntensity || 1) + '">' + img + fallback + '</div>';
         }
         function cabinetSceneObjects(altar) {
             const words = altar.words || {};
@@ -7054,15 +7550,15 @@
             return [
                 { itemId:'moon-charm', shelf:'top', slot:'top-left', x:14, y:13, scale:.92, rot:-10, z:14, html:'<div class="altar-obj-sticker">☾</div>' },
                 { itemId:'tarot-star', shelf:'top', slot:'top-right', x:86, y:13, scale:.82, rot:8, z:14, html:'<div class="altar-obj-sticker">✦</div>' },
-                { itemId:'centerpiece-symbol', shelf:'top', slot:'top-center', x:27, y:31, scale:1, rot:-2, z:20, html:'<div class="altar-obj-crystal-ball"><div class="ball"></div><div class="stand"></div><span class="altar-obj-shadow"></span></div>' },
-                { itemId:'candle-pair', shelf:'top', slot:'top-right', x:45, y:30, scale:1, rot:0, z:21, html:'<div class="altar-obj-candle"><div class="flame"></div><div class="wax"></div><span class="altar-obj-shadow"></span></div>' },
+                { itemId:'centerpiece-symbol', shelf:'top', slot:'top-center', x:27, y:31, scale:1, rot:-2, z:20, html:renderDecorHtml(getDecorDefinition(altar, 'crystal-ball'), altar) },
+                { itemId:'candle-pair', shelf:'top', slot:'top-right', x:45, y:30, scale:1, rot:0, z:21, html:renderDecorHtml(getDecorDefinition(altar, 'candle-pair'), altar) },
                 { itemId:'dream-key', shelf:'top', slot:'top-right', x:69, y:32, scale:1, rot:0, z:22, html:'<div class="altar-obj-cat"><div class="body"></div><div class="head"></div><div class="eyes">••</div><span class="altar-obj-shadow"></span></div>' },
-                { itemId:'moon-charm', shelf:'top', slot:'top-left', x:80, y:36, scale:.95, rot:4, z:19, html:'<div class="altar-obj-herbs"><span class="sprig"></span><span class="sprig"></span><span class="sprig"></span><span class="altar-obj-shadow"></span></div>' },
+                { itemId:'moon-charm', shelf:'top', slot:'top-left', x:80, y:36, scale:.95, rot:4, z:19, html:renderDecorHtml(getDecorDefinition(altar, 'herb-bundle'), altar) },
                 { itemId:'poem-1', shelf:'top', slot:'top-right', x:58, y:34, scale:.82, rot:-4, z:18, html:'<div class="altar-obj-mini-bottles"><span></span><span></span><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'rose-crystal', shelf:'top', slot:'top-right', x:87, y:32, scale:.82, rot:8, z:20, html:'<div class="altar-obj-flowers"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>' },
-                { itemId:'bio-card', shelf:'middle', slot:'middle-left', x:24, y:58, scale:1, rot:-1, z:23, html:'<div class="altar-obj-books"><span style="height:68px;--book:#23131f"></span><span style="height:62px;--book:#e8c5d8"></span><span style="height:72px;--book:#cfa8ff"></span><span style="height:58px;--book:#ffd1a6"></span><span class="altar-obj-shadow"></span></div>' },
+                { itemId:'bio-card', shelf:'middle', slot:'middle-left', x:24, y:58, scale:1, rot:-1, z:23, html:renderDecorHtml(getDecorDefinition(altar, 'bio-books'), altar) },
                 { itemId:'rose-crystal', shelf:'middle', slot:'middle-left', x:47, y:60, scale:1, rot:0, z:24, html:'<div class="altar-obj-crystals"><span></span><span></span><span></span><span class="altar-obj-shadow"></span></div>' },
-                { itemId:'poem-1', shelf:'middle', slot:'middle-right', x:66, y:58, scale:.95, rot:4, z:23, html:'<div class="altar-obj-bottle"><div class="neck"></div><div class="jar">MOON</div><span class="altar-obj-shadow"></span></div>' },
+                { itemId:'poem-1', shelf:'middle', slot:'middle-right', x:66, y:58, scale:.95, rot:4, z:23, html:renderDecorHtml(getDecorDefinition(altar, 'moon-bottle'), altar) },
                 { itemId:'goal-1', shelf:'middle', slot:'middle-right', x:58, y:65, scale:1, rot:-8, z:25, html:'<div class="altar-obj-tool"><span class="altar-obj-shadow"></span></div>' },
                 { itemId:'centerpiece-symbol', shelf:'middle', slot:'middle-center', x:50, y:51, scale:1.03, rot:0, z:28, html:'<div class="altar-obj-deity-shrine">' + (patron.icon || '&#10022;') + '</div>' },
                 { itemId:'bio-card', shelf:'lower', slot:'lower-left', x:16, y:75, scale:.86, rot:-8, z:18, html:'<div class="altar-obj-note">' + escHtml(bio) + '</div>' },
@@ -7080,67 +7576,86 @@
         }
         function renderPlacedDecor(placement, altar) {
             const decor = getDecorDefinition(altar, placement.decorId);
-            const selected = altarSelectedPlacementId === placement.placementId;
-            return '<button class="altar-physical-object free-decor ' + (selected ? 'is-selected' : '') + '" data-placement-id="' + escAttr(placement.placementId) + '" data-surface="' + escAttr(placement.surfaceId) + '" style="left:' + placement.x + '%;top:' + placement.y + '%;--scale:' + placement.scale + ';--rot:' + placement.rotation + 'deg;z-index:' + placement.zIndex + '" onpointerdown="startAltarDecorDrag(event,&quot;' + escAttr(placement.placementId) + '&quot;)" onclick="selectPlacedDecor(event,&quot;' + escAttr(placement.placementId) + '&quot;)" title="' + escAttr(decor.name || decor.id) + '">' + renderDecorHtml(decor, altar) + '</button>';
+            const instanceId = getPlacementInstanceId(placement);
+            const selected = altarSelectedPlacementId === instanceId;
+            return '<button class="altar-physical-object altar-placed-item altar-draggable-item free-decor ' + (selected ? 'is-selected' : '') + '" data-altar-instance-id="' + escAttr(instanceId) + '" data-altar-item="' + escAttr(instanceId) + '" data-item-id="' + escAttr(placement.decorId) + '" data-draggable="true" data-placement-id="' + escAttr(placement.placementId || instanceId) + '" data-surface="' + escAttr(placement.surfaceId) + '" style="left:' + placement.x + '%;top:' + placement.y + '%;--scale:' + placement.scale + ';--rot:' + placement.rotation + 'deg;z-index:' + placement.zIndex + '" onclick="selectPlacedDecor(event,&quot;' + escAttr(instanceId) + '&quot;)" title="' + escAttr(decor.name || decor.id) + '">' + renderDecorHtml(decor, altar) + '</button>';
         }
         function renderAltarSelectedControls() {
             if (altarMode === 'view' || !altarSelectedPlacementId) return '';
             const altar = getAltarProfile();
-            const placement = (altar.placedDecor || []).find(item => item.placementId === altarSelectedPlacementId);
-            if (!placement) return '<div class="altar-selected-controls"><div class="altar-selected-summary"><div class="altar-selected-preview">✦</div><div><div class="altar-selected-title">No item selected</div><div class="altar-selected-meta">Click an altar object to edit it</div></div></div><div class="altar-selected-buttons"><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
+            const placement = (altar.placedDecor || []).find(item => getPlacementInstanceId(item) === altarSelectedPlacementId);
+            if (!placement) return '<div class="altar-selected-controls altar-selected-item"><div class="altar-selected-summary"><div class="altar-selected-preview">✦</div><div><div class="altar-selected-title">No item selected</div><div class="altar-selected-meta">Click an altar object to edit it</div></div></div><div class="altar-selected-buttons"><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
             const decor = getDecorDefinition(altar, placement.decorId);
-            return '<div class="altar-selected-controls"><div class="altar-selected-summary"><div class="altar-selected-preview">' + renderDecorHtml(decor, altar) + '</div><div><div class="altar-selected-title">' + escHtml(decor.name || decor.id) + '</div><div class="altar-selected-meta">' + escHtml(placement.surfaceId) + ' · x ' + Math.round(placement.x) + ' / y ' + Math.round(placement.y) + ' · scale ' + Number(placement.scale || 1).toFixed(2) + ' · rot ' + Math.round(placement.rotation || 0) + ' · layer ' + (placement.zIndex || 0) + '</div></div></div><div class="altar-selected-buttons"><button onclick="adjustSelectedDecor(&quot;rotate&quot;,-8)">Rotate Left</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,8)">Rotate Right</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,-0.08)">Smaller</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,0.08)">Larger</button><button onclick="adjustSelectedDecor(&quot;z&quot;,1)">Forward</button><button onclick="adjustSelectedDecor(&quot;z&quot;,-1)">Backward</button><button onclick="duplicateSelectedDecor()">Duplicate</button><button onclick="removeSelectedDecor()">Remove</button><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
+            return '<div class="altar-selected-controls altar-selected-item"><div class="altar-selected-summary"><div class="altar-selected-preview">' + renderDecorHtml(decor, altar) + '</div><div><div class="altar-selected-title">' + escHtml(decor.name || decor.id) + '</div><div class="altar-selected-meta">' + escHtml(placement.surfaceId) + ' · x ' + Math.round(placement.x) + ' / y ' + Math.round(placement.y) + ' · scale ' + Number(placement.scale || 1).toFixed(2) + ' · rot ' + Math.round(placement.rotation || 0) + ' · layer ' + (placement.zIndex || 0) + '</div></div></div><div class="altar-selected-buttons"><button onclick="adjustSelectedDecor(&quot;rotate&quot;,-8)">Rotate Left</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,8)">Rotate Right</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,-0.08)">Smaller</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,0.08)">Larger</button><button onclick="adjustSelectedDecor(&quot;z&quot;,1)">Forward</button><button onclick="adjustSelectedDecor(&quot;z&quot;,-1)">Backward</button><button onclick="duplicateSelectedDecor()">Duplicate</button><button onclick="removeSelectedDecor()">Remove</button><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
         }
         function renderAltarModeDock() {
             if (altarMode === 'view') return '';
-            const help = altarMode === 'shop' ? 'Select a decor item, then place it on the altar. Drag it into position.' : 'Click an item to edit. Drag to move.';
+            const help = altarMode === 'shop' ? 'Browse, buy, or generate decor. Use the detail panel to place an owned item.' : 'Drag to place. Use inspector to resize, rotate, layer, duplicate, then Save Altar.';
             return '<div class="altar-mode-dock"><div class="altar-mode-help">' + escHtml(help) + '</div><div class="altar-mode-buttons"><button class="' + (altarMode === 'view' ? 'active' : '') + '" onclick="setAltarMode(&quot;view&quot;)">View</button><button class="' + (altarMode === 'edit' ? 'active' : '') + '" onclick="setAltarMode(&quot;edit&quot;)">Edit</button><button class="' + (altarMode === 'shop' ? 'active' : '') + '" onclick="setAltarMode(&quot;shop&quot;)">Shop</button></div></div>';
         }
         function getFilteredAltarDecor(altar) {
             let items = [...ALTAR_DECOR_CATALOG, ...(altar.aiDecor || [])];
+            altarLibraryTab = normalizeAltarLibraryTab(altarLibraryTab);
             const query = altarDecorSearch.trim().toLowerCase();
+            const rarityRank = { common:1, uncommon:2, rare:3, epic:4, legendary:5, mythic:6 };
             return items.filter(item => {
-                const owned = (altar.ownedDecor || []).includes(item.id) || item.price === 0;
+                const owned = isDecorOwned(altar, item);
                 if (altarLibraryTab === 'Owned' && !owned) return false;
                 if (altarLibraryTab === 'Shop' && (owned || item.premium || item.source === 'premium')) return false;
-                if (altarLibraryTab === 'AI Generated' && item.source !== 'ai') return false;
-                if (altarLibraryTab === 'Premium' && !item.premium) return false;
+                if (altarLibraryTab === 'AI Studio' && item.source !== 'ai') return false;
+                if (altarLibraryTab === 'Premium Vault' && !item.premium) return false;
                 if (altarLibraryCategory !== 'All' && item.category !== altarLibraryCategory && !(altarLibraryCategory === 'Premium' && item.premium)) return false;
-                if (query && !((item.name || item.id) + ' ' + (item.category || '') + ' ' + (item.rarity || '')).toLowerCase().includes(query)) return false;
+                if (query && !((item.name || item.id) + ' ' + (item.category || '') + ' ' + (item.rarity || '') + ' ' + (item.description || item.text || '')).toLowerCase().includes(query)) return false;
                 return true;
+            }).sort((a, b) => {
+                if (altarDecorSort === 'price') return (a.price || 0) - (b.price || 0) || String(a.name || a.id).localeCompare(String(b.name || b.id));
+                if (altarDecorSort === 'name') return String(a.name || a.id).localeCompare(String(b.name || b.id));
+                return (rarityRank[String(b.rarity || 'common').toLowerCase()] || 0) - (rarityRank[String(a.rarity || 'common').toLowerCase()] || 0) || String(a.name || a.id).localeCompare(String(b.name || b.id));
             });
         }
         function renderAltarItemInspector(altar, items) {
             let item = getDecorDefinition(altar, altarSelectedShopDecorId);
             if (!items.some(i => i.id === item?.id)) item = items[0] || getDecorDefinition(altar, 'crystal-ball');
             altarSelectedShopDecorId = item.id;
-            const owned = (altar.ownedDecor || []).includes(item.id) || item.price === 0;
+            const owned = isDecorOwned(altar, item);
+            const ownedCount = getDecorOwnedCount(altar, item.id) || (item.price === 0 ? 1 : 0);
             const source = item.source === 'ai' ? 'AI' : item.premium ? 'Premium' : owned ? (item.source === 'starter' || item.price === 0 ? 'Starter' : 'Owned') : 'Shop';
-            const price = owned ? 'Owned' : (item.price + ' ' + item.currency);
+            const price = getDecorPriceLabel(item, owned);
+            const surfaces = (item.allowedSurfaces || ALTAR_DECOR_SURFACES).map(s => s.replace(/([A-Z])/g, ' $1')).join(', ');
             const primary = item.premium && !owned
                 ? '<button class="primary" onclick="showPage(&quot;vault&quot;)">Unlock in Vault</button>'
                 : owned
                     ? '<button class="primary" onclick="placeDecorFromLibrary(&quot;' + escAttr(item.id) + '&quot;)">Place on Altar</button>'
-                    : '<button class="primary" onclick="buyAltarDecor(&quot;' + escAttr(item.id) + '&quot;)">Buy for ' + escHtml(price) + '</button>';
-            const aiAction = item.source === 'ai' ? '<button onclick="generateAltarItem(&quot;sticker&quot;)">Regenerate Sticker</button>' : '';
-            return '<aside class="altar-item-inspector"><div class="altar-inspector-preview">' + renderDecorHtml(item, altar) + '</div><div class="altar-inspector-title">' + escHtml(item.name || item.id) + '</div><div class="altar-shop-tags"><span class="altar-shop-tag rarity">' + escHtml(item.rarity || 'Common') + '</span><span class="altar-shop-tag">' + escHtml(item.category || 'Decor') + '</span><span class="altar-shop-tag">' + escHtml(source) + '</span></div><p class="altar-inspector-copy">' + escHtml(item.text || 'A collectible altar decor piece. Place it freely, then drag, rotate, resize, and layer it inside your shrine.') + '</p><div class="altar-shop-meta"><span>' + escHtml(price) + '</span><span>' + escHtml(item.type || 'decor') + '</span></div><div class="altar-inspector-actions">' + primary + '<button onclick="placeDecorFromLibrary(&quot;' + escAttr(item.id) + '&quot;)">Preview Placement</button>' + aiAction + '</div></aside>';
+                    : '<button class="primary" onclick="buyAltarDecor(&quot;' + escAttr(item.id) + '&quot;, false)">Buy for ' + escHtml(price) + '</button>';
+            const aiAction = item.source === 'ai' ? '<button onclick="generateAltarItem(&quot;sticker&quot;)">Regenerate</button>' : '';
+            const duplicate = owned ? '<button onclick="placeDecorFromLibrary(&quot;' + escAttr(item.id) + '&quot;)">Duplicate to Altar</button>' : '';
+            const secondary = '<button onclick="toast(&quot;Previewing ' + escAttr(item.name || item.id) + '&quot;)">Preview</button><button onclick="favoriteAltarDecor(&quot;' + escAttr(item.id) + '&quot;)">Favorite</button>' + duplicate + aiAction;
+            return '<aside class="altar-item-inspector altar-detail-panel"><div class="altar-inspector-preview altar-detail-preview">' + renderDecorHtml(item, altar) + '</div><div class="altar-inspector-title">' + escHtml(item.name || item.id) + '</div><div class="altar-shop-tags"><span class="altar-shop-tag rarity">' + escHtml(item.rarity || 'Common') + '</span><span class="altar-shop-tag">' + escHtml(item.category || 'Decor') + '</span><span class="altar-shop-tag">' + escHtml(source) + '</span></div><p class="altar-inspector-copy">' + escHtml(item.description || item.text || 'A collectible altar decor piece. Place it freely, then drag, rotate, resize, and layer it inside your shrine.') + '</p><div class="altar-inspector-status"><div class="altar-inspector-stat"><small>Status</small><strong>' + escHtml(source) + '</strong></div><div class="altar-inspector-stat"><small>Cost</small><strong>' + escHtml(price) + '</strong></div><div class="altar-inspector-stat"><small>Owned</small><strong>' + escHtml(String(ownedCount)) + '</strong></div><div class="altar-inspector-stat"><small>Surfaces</small><strong>' + escHtml(surfaces) + '</strong></div></div><div class="altar-inspector-actions">' + primary + secondary + '</div></aside>';
+        }
+        function renderAltarAIStudioPanel(altar) {
+            if (altarLibraryTab !== 'AI Studio') return '';
+            const styles = ['Pastel sticker','Gold foil plaque','Velvet gothic','Moonlit apothecary'];
+            return '<div class="altar-ai-studio-panel"><div><div class="altar-boutique-title" style="font-size:22px;">AI Studio</div><div class="altar-boutique-subtitle">Mock generation is wired for now: choose a type, spend credits, and the generated curio lands in your AI library ready to place.</div></div><div class="altar-ai-prompt"><input class="altar-ai-input" id="altar-ai-prompt" placeholder="Describe the decor: moon moth, rose sigil, tiny poem..." maxlength="80"><select class="altar-ai-input" id="altar-ai-style">' + styles.map(s => '<option value="' + escAttr(s) + '">' + escHtml(s) + '</option>').join('') + '</select><div class="altar-ai-menu"><button class="altar-ai-card" onclick="generateAltarItemFromStudio(&quot;sticker&quot;)"><strong>Generate Sticker</strong><span>1 credit</span></button><button class="altar-ai-card" onclick="generateAltarItemFromStudio(&quot;poem&quot;)"><strong>Poem Plaque</strong><span>1 credit</span></button><button class="altar-ai-card" onclick="openAIGeneratedSelfOffer()"><strong>Self Portrait</strong><span>Vault flow</span></button></div></div></div>';
         }
         function renderAltarEditorDrawer(altar) {
             if (altarMode !== 'shop') return '';
-            const tabs = ['Owned','Shop','AI Generated','Premium'];
+            altarLibraryTab = normalizeAltarLibraryTab(altarLibraryTab);
+            const tabs = ['Owned','Shop','AI Studio','Premium Vault'];
             const cats = ['All','Candles','Crystals','Books','Tarot','Bottles','Herbs','Frames','Stickers','Notes','Pets/Familiars','Premium'];
             let items = getFilteredAltarDecor(altar);
             const itemCards = items.map(item => {
-                const owned = (altar.ownedDecor || []).includes(item.id) || item.price === 0;
-                const price = owned ? 'Owned' : (item.price + ' ' + item.currency);
+                const owned = isDecorOwned(altar, item);
+                const price = getDecorPriceLabel(item, owned);
                 const source = item.source === 'ai' ? 'AI' : item.premium ? 'Premium' : owned ? (item.price === 0 ? 'Starter' : 'Owned') : 'Shop';
-                const action = owned ? 'Select to place' : item.premium ? 'Vault unlock' : price;
+                const count = getDecorOwnedCount(altar, item.id) || (item.price === 0 ? 1 : 0);
+                const action = owned ? ('Owned x' + count) : item.premium ? 'Vault locked' : price;
+                const actionClass = owned ? ' placeable' : ' locked';
                 const selected = altarSelectedShopDecorId === item.id;
                 const rarityClass = 'rarity-' + String(item.rarity || 'common').toLowerCase();
-                return '<button class="altar-shop-item boutique-card ' + rarityClass + (selected ? ' selected' : '') + '" onclick="selectAltarShopItem(&quot;' + escAttr(item.id) + '&quot;)">' + (item.premium ? '<span class="altar-premium-ribbon">Plus</span>' : '') + '<div class="altar-shop-icon boutique-thumb">' + renderDecorHtml(item, altar) + '</div><div class="altar-shop-name">' + escHtml(item.name || item.id) + '</div><div class="altar-shop-tags"><span class="altar-shop-tag rarity">' + escHtml(item.rarity || 'Common') + '</span><span class="altar-shop-tag">' + escHtml(item.category || 'Decor') + '</span></div><div class="altar-shop-meta"><span>' + escHtml(source) + '</span><span>' + escHtml(price) + '</span></div><div class="altar-card-action-hint">' + escHtml(action) + '</div></button>';
+                return '<button class="altar-shop-item boutique-card item-card ' + rarityClass + (selected ? ' selected' : '') + '" data-rarity="' + escAttr(String(item.rarity || 'common').toLowerCase()) + '" onclick="selectAltarShopItem(&quot;' + escAttr(item.id) + '&quot;)">' + (item.premium ? '<span class="altar-premium-ribbon">Plus</span>' : '') + '<div class="altar-shop-icon boutique-thumb item-visual-frame">' + renderDecorHtml(item, altar) + '</div><div class="altar-shop-name">' + escHtml(item.name || item.id) + '</div><div class="altar-shop-tags"><span class="altar-shop-tag rarity">' + escHtml(item.rarity || 'Common') + '</span><span class="altar-shop-tag">' + escHtml(item.category || 'Decor') + '</span></div><div class="altar-shop-meta"><span>' + escHtml(source) + '</span><span>' + escHtml(price) + '</span></div><div class="altar-card-action-hint' + actionClass + '">' + escHtml(action) + '</div></button>';
             }).join('') || '<div class="altar-shop-item boutique-card"><div class="altar-shop-name">Nothing here yet</div><div class="altar-shop-meta"><span>Try another tab</span></div></div>';
             const inspector = renderAltarItemInspector(altar, items);
-            return '<div class="altar-editor-drawer boutique"><div class="altar-drawer-head"><div><div class="altar-drawer-title">Curio Decor Boutique</div><div class="altar-shop-meta"><span>' + (altar.currencies?.sparkles || 0) + ' sparkles</span><span>' + (altar.currencies?.gems || 0) + ' gems</span><span>' + (altar.currencies?.credits || 0) + ' credits</span></div></div><div class="altar-mode-actions"><button onclick="generateAltarItem(&quot;sticker&quot;)">Generate Sticker</button><button onclick="generateAltarItem(&quot;poem&quot;)">Generate Poem</button><button onclick="openAIGeneratedSelfOffer()">Generate Self Portrait</button><button class="primary" onclick="setAltarEditMode(false)">View Mode</button></div></div><div class="altar-drawer-tabs boutique-tabs">' + tabs.map(t => '<button class="altar-drawer-tab ' + (altarLibraryTab === t ? 'active' : '') + '" onclick="setAltarLibraryTab(&quot;' + t + '&quot;)">' + t + '</button>').join('') + '</div><div class="altar-boutique-tools"><input class="altar-boutique-input" placeholder="Search decor..." value="' + escAttr(altarDecorSearch) + '" oninput="setAltarDecorSearch(this.value)"><select class="altar-boutique-select" onchange="setAltarLibraryCategory(this.value)">' + cats.map(c => '<option value="' + escAttr(c) + '" ' + (altarLibraryCategory === c ? 'selected' : '') + '>' + escHtml(c) + '</option>').join('') + '</select><select class="altar-boutique-select" onchange="sortAltarDecor(this.value)"><option>Sort: Rarity</option><option>Sort: Price</option></select></div><div class="altar-drawer-cats boutique-cats">' + cats.map(c => '<button class="altar-drawer-cat ' + (altarLibraryCategory === c ? 'active' : '') + '" onclick="setAltarLibraryCategory(&quot;' + c + '&quot;)">' + c + '</button>').join('') + '</div><div class="altar-boutique-layout"><div class="altar-shop-grid boutique-grid">' + itemCards + '</div>' + inspector + '</div></div>';
+            return '<div class="altar-editor-drawer boutique altar-editor altar-shop altar-shop-shell"><div class="altar-drawer-head boutique-head"><div><div class="altar-boutique-title">Curio Decor Boutique</div><div class="altar-boutique-subtitle">Browse decor, buy or generate curios, then place one on the altar and adjust it with the inspector.</div></div><div class="altar-wallet"><div class="altar-wallet-pill"><strong>' + (altar.currencies?.sparkles || 0) + '</strong>Sparkles</div><div class="altar-wallet-pill"><strong>' + (altar.currencies?.gems || 0) + '</strong>Gems</div><div class="altar-wallet-pill"><strong>' + (altar.currencies?.credits || 0) + '</strong>Credits</div></div></div><div class="altar-drawer-tabs boutique-tabs">' + tabs.map(t => '<button class="altar-drawer-tab ' + (altarLibraryTab === t ? 'active' : '') + '" onclick="setAltarLibraryTab(&quot;' + t + '&quot;)">' + t + '</button>').join('') + '</div><div class="altar-boutique-tools"><input class="altar-boutique-input" placeholder="Search decor..." value="' + escAttr(altarDecorSearch) + '" oninput="setAltarDecorSearch(this.value)"><select class="altar-boutique-select" onchange="setAltarLibraryCategory(this.value)">' + cats.map(c => '<option value="' + escAttr(c) + '" ' + (altarLibraryCategory === c ? 'selected' : '') + '>' + escHtml(c) + '</option>').join('') + '</select><select class="altar-boutique-select" onchange="sortAltarDecor(this.value)"><option value="rarity" ' + (altarDecorSort === 'rarity' ? 'selected' : '') + '>Sort: Rarity</option><option value="price" ' + (altarDecorSort === 'price' ? 'selected' : '') + '>Sort: Price</option><option value="name" ' + (altarDecorSort === 'name' ? 'selected' : '') + '>Sort: Name</option></select></div><div class="altar-drawer-cats boutique-cats">' + cats.map(c => '<button class="altar-drawer-cat ' + (altarLibraryCategory === c ? 'active' : '') + '" onclick="setAltarLibraryCategory(&quot;' + c + '&quot;)">' + c + '</button>').join('') + '</div>' + renderAltarAIStudioPanel(altar) + '<div class="altar-boutique-layout altar-shop-layout"><div class="altar-shop-grid boutique-grid altar-item-grid">' + itemCards + '</div>' + inspector + '</div></div>';
         }
         function openAltarPiece(shelfId, slotId) {
             const altar = getAltarProfile();
@@ -7151,6 +7666,7 @@
             altarViewState = { view:'piece', selectedPieceId: slot?.itemId || 'empty-slot', selectedSlotId: slotId, savedScrollY: window.scrollY };
             recordAltarEvent('altar_piece_opened', { pieceId: altarViewState.selectedPieceId, shelfId, slotId });
             document.body.classList.add('altar-chamber-active', 'altar-page-jump-fix');
+            updateSparkleCanvasPointerEvents();
             renderAltarChamber();
             try { history.pushState({ altarView:'piece', pieceId: altarViewState.selectedPieceId, slotId }, '', '#/altar/piece/' + encodeURIComponent(altarViewState.selectedPieceId || 'empty-slot')); } catch(e) {}
         }
@@ -7170,7 +7686,7 @@
             if (!board) return;
             board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose') + (altarMode !== 'view' ? ' edit-mode' : ' view-mode') + ' mode-' + altarMode;
             const objects = (altar.placedDecor || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(obj => renderPlacedDecor(obj, altar)).join('');
-            board.innerHTML = '<div class="altar-cabinet" aria-label="Decorated personal altar cabinet">' +
+            board.innerHTML = '<div class="altar-cabinet altar-stage altar-placement-area altar-canvas" aria-label="Decorated personal altar cabinet">' +
                 '<div class="altar-cabinet-spire left"></div><div class="altar-cabinet-spire right"></div>' +
                 '<div class="altar-cabinet-moon m1">☾</div><div class="altar-cabinet-moon m2">☽</div><div class="altar-cabinet-moon m3">✦</div><div class="altar-cabinet-moon m4">✦</div>' +
                 '<div class="altar-cabinet-back-pattern"></div><div class="altar-cabinet-crest"></div><div class="altar-cabinet-corner tl"></div><div class="altar-cabinet-corner tr"></div><div class="altar-cabinet-corner bl"></div><div class="altar-cabinet-corner br"></div>' +
@@ -7180,7 +7696,7 @@
                 '<div class="altar-shelf-cloth middle"></div><div class="altar-shelf-cloth lower"></div>' +
                 objects +
                 '<div class="altar-mantra-plaque cabinet-plaque">"' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>' +
-                '</div>' + renderAltarModeDock() + renderAltarSelectedControls() + renderAltarEditorDrawer(altar);
+                '</div>' + renderAltarModeDock() + renderAltarSelectedControls();
             return;
             board.className = 'altar-board theme-' + (altar.theme || 'rose');
             board.innerHTML = '<div class="altar-preview-label">Your altar</div><div class="altar-room-arch"></div><h3 class="altar-preview-title">Your Altar</h3><div class="altar-preview-subtitle">Click any shrine piece to go deeper</div><div class="altar-moon-phases">○ ◐ ● ◑ ○</div><div class="altar-shelves">' +
@@ -7296,6 +7812,7 @@
         }
         function backToAltar() {
             document.body.classList.remove('altar-chamber-active');
+            updateSparkleCanvasPointerEvents();
             recordAltarEvent('altar_back_clicked', {});
             try { history.pushState({ altarView:'altar' }, '', '#/altar'); } catch(e) {}
             setTimeout(() => window.scrollTo({ top: altarViewState.savedScrollY || 0, behavior:'auto' }), 20);
@@ -7332,7 +7849,7 @@
                 '</div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary btn-small" onclick="rewriteBioMagically()">Rewrite Bio Magically</button><button class="btn btn-ghost btn-small" onclick="generateAltarItem(&quot;goal&quot;)">Generate Goal Card</button></div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Charms</div><p class="altar-control-help">Earned charms, tarot cards, dream symbols, badges, and pets become shelf objects.</p><div class="altar-option-grid">' + charmButtons + '</div></div>' +
                 '<div class="altar-control-panel"><div class="altar-control-title">Layout & privacy</div><p class="altar-control-help">Slots keep the altar clean. Choose public or private visibility.</p><div class="altar-option-grid"><button class="altar-option ' + (altar.visibility !== 'private' ? 'active' : '') + '" onclick="setAltarVisibility(&quot;public&quot;)"><span>&#9673;</span>Public</button><button class="altar-option ' + (altar.visibility === 'private' ? 'active' : '') + '" onclick="setAltarVisibility(&quot;private&quot;)"><span>&#9679;</span>Private</button></div><div style="margin-top:10px;"><button class="btn btn-ghost btn-small" onclick="clearAltarLayout()">Clear Shelves</button></div></div>' +
-                '</div></details></div>';
+                '</div></details></div>' + renderAltarEditorDrawer(altar);
             updateAltarSaveState();
         }
         function getGrokStatusText(altar) {
@@ -7370,7 +7887,7 @@
                 requestAnimationFrame(() => el.classList.add('show'));
             }
             el.classList.add('is-working', 'show');
-            el.innerHTML = '<div class="loki-altar-orb">L</div><div><strong>Loki Pixie</strong><span>' + escHtml(message) + '</span><div class="loki-altar-timer">Waiting ' + formatGrokElapsed() + '</div></div>';
+            el.innerHTML = '<div class="loki-altar-orb">S</div><div><strong>Solace Pixie</strong><span>' + escHtml(message) + '</span><div class="loki-altar-timer">Waiting ' + formatGrokElapsed() + '</div></div>';
             if (!grokTimerHandle) {
                 grokTimerHandle = setInterval(() => {
                     const timer = document.querySelector('.loki-altar-timer');
@@ -7391,7 +7908,7 @@
                 return;
             }
             el.classList.remove('is-working');
-            el.innerHTML = '<div class="loki-altar-orb">L</div><div><strong>Loki Pixie</strong><span>' + escHtml(message + ' Took ' + elapsed + '.') + '</span></div>';
+            el.innerHTML = '<div class="loki-altar-orb">S</div><div><strong>Solace Pixie</strong><span>' + escHtml(message + ' Took ' + elapsed + '.') + '</span></div>';
             if (!keepVisible) setTimeout(() => el.remove(), 260);
             else setTimeout(() => {
                 el.classList.remove('show');
@@ -7406,12 +7923,34 @@
             renderAltarProfile();
         }
         function setAltarEditMode(value) { setAltarMode(value ? 'shop' : 'view'); }
-        function setAltarLibraryTab(tab) { altarLibraryTab = tab; altarSelectedShopDecorId = ''; renderAltarProfile(); }
+        function normalizeAltarLibraryTab(tab) {
+            if (tab === 'AI Generated') return 'AI Studio';
+            if (tab === 'Premium') return 'Premium Vault';
+            return ['Owned','Shop','AI Studio','Premium Vault'].includes(tab) ? tab : 'Owned';
+        }
+        function setAltarLibraryTab(tab) { altarLibraryTab = normalizeAltarLibraryTab(tab); altarSelectedShopDecorId = ''; renderAltarProfile(); }
         function setAltarLibraryCategory(cat) { altarLibraryCategory = cat; altarSelectedShopDecorId = ''; renderAltarProfile(); }
         function selectAltarShopItem(decorId) { altarSelectedShopDecorId = decorId; renderAltarProfile(); }
         function setAltarDecorSearch(value) { altarDecorSearch = String(value || '').slice(0, 80); altarSelectedShopDecorId = ''; renderAltarProfile(); }
-        function sortAltarDecor() { renderAltarProfile(); }
-        function selectPlacedDecor(event, placementId) { if (event) event.stopPropagation(); if (!altarEditMode) return; altarSelectedPlacementId = placementId; renderAltarProfile(); }
+        function sortAltarDecor(value) { altarDecorSort = ['rarity','price','name'].includes(value) ? value : 'rarity'; altarSelectedShopDecorId = ''; renderAltarProfile(); }
+        function getDecorOwnedCount(altar, decorId) {
+            return Number(altar.decorInventory?.[decorId] || 0);
+        }
+        function isDecorOwned(altar, item) {
+            return getDecorOwnedCount(altar, item.id) > 0 || item.price === 0;
+        }
+        function getDecorPriceLabel(item, owned = false) {
+            if (owned) return 'Owned';
+            if (item.premium) return 'Vault locked';
+            return (item.price || 0) + ' ' + (item.currency || 'sparkles');
+        }
+        function selectPlacedDecor(event, instanceId) {
+            if (event) event.stopPropagation();
+            if (!altarEditMode) return;
+            const item = event?.target?.closest?.('[data-altar-instance-id]');
+            altarSelectedPlacementId = item?.dataset?.altarInstanceId || instanceId;
+            renderAltarProfile();
+        }
         function getAltarSurfaceFromPoint(board, x, y) {
             const rect = board.getBoundingClientRect();
             const px = ((x - rect.left) / rect.width) * 100;
@@ -7421,38 +7960,103 @@
             if (py < 90) return 'lowerShelf';
             return px < 10 || px > 90 ? 'frame' : 'foreground';
         }
-        function startAltarDecorDrag(event, placementId) {
-            if (!altarEditMode) return;
+        function getAltarItemFromEvent(event) {
+            const item = event?.target?.closest?.('[data-altar-instance-id]');
+            if (!item) return null;
+            return item.classList.contains('altar-placed-item') ? item : item.closest('.altar-placed-item');
+        }
+        function updateAltarPlacedItemPosition(instanceId, patch) {
+            if (!instanceId) return;
+            const altar = getAltarProfile();
+            const area = document.querySelector('.altar-placement-area');
+            const areaRect = area?.getBoundingClientRect();
+            altar.placedDecor = (altar.placedDecor || []).map(item => {
+                if (getPlacementInstanceId(item) !== instanceId) return item;
+                const next = { ...item };
+                if (Number.isFinite(+patch.x) && areaRect?.width) next.x = Math.max(0, Math.min(100, (+patch.x / areaRect.width) * 100));
+                if (Number.isFinite(+patch.y) && areaRect?.height) next.y = Math.max(0, Math.min(100, (+patch.y / areaRect.height) * 100));
+                if (patch.surfaceId) next.surfaceId = patch.surfaceId;
+                next.layer = next.zIndex;
+                return next;
+            });
+            saveAltarProfile(altar, false);
+        }
+        window.updateAltarPlacedItemPosition = updateAltarPlacedItemPosition;
+        function onAltarPointerDown(event) {
+            if (!altarEditMode || !document.body.classList.contains('pixie-profile-page')) return;
+            const item = getAltarItemFromEvent(event);
+            if (!item) return;
+            if (window.DEBUG_ALTAR_DRAG) {
+                console.log('DRAG TARGET', {
+                    rawTarget: event.target,
+                    closestInstance: event.target.closest?.('[data-altar-instance-id]'),
+                    closestPlaced: event.target.closest?.('.altar-placed-item'),
+                    closestShelf: event.target.closest?.('[data-altar-shelf], .altar-shelf, .altar-cabinet-shelf'),
+                    activeSelected: document.querySelector('.altar-placed-item.is-selected')
+                });
+            }
+            if (event.target.closest('button:not(.altar-placed-item),input,select,textarea,[contenteditable="true"]')) return;
+            const area = item.closest('.altar-placement-area');
+            if (!area) {
+                console.warn('No altar placement area found for drag item', item);
+                return;
+            }
             event.preventDefault();
             event.stopPropagation();
-            altarSelectedPlacementId = placementId;
-            const board = document.getElementById('profile-altar-board');
-            const rect = board.getBoundingClientRect();
-            altarDragState = { placementId, rect };
-            try { event.currentTarget.setPointerCapture(event.pointerId); } catch(e) {}
-            window.addEventListener('pointermove', moveAltarDecorDrag);
-            window.addEventListener('pointerup', endAltarDecorDrag, { once:true });
+            const itemRect = item.getBoundingClientRect();
+            altarDragState = {
+                instanceId: item.dataset.altarInstanceId,
+                item,
+                area,
+                pointerId: event.pointerId,
+                offsetX: event.clientX - itemRect.left,
+                offsetY: event.clientY - itemRect.top
+            };
+            altarSelectedPlacementId = altarDragState.instanceId;
+            item.classList.add('is-dragging', 'is-selected');
+            try { item.setPointerCapture?.(event.pointerId); } catch(e) {}
         }
-        function moveAltarDecorDrag(event) {
+        function onAltarPointerMove(event) {
             if (!altarDragState) return;
-            const altar = getAltarProfile();
-            const p = altar.placedDecor.find(item => item.placementId === altarDragState.placementId);
-            if (!p) return;
-            p.x = Math.max(5, Math.min(95, ((event.clientX - altarDragState.rect.left) / altarDragState.rect.width) * 100));
-            p.y = Math.max(8, Math.min(94, ((event.clientY - altarDragState.rect.top) / altarDragState.rect.height) * 100));
-            p.surfaceId = getAltarSurfaceFromPoint(document.getElementById('profile-altar-board'), event.clientX, event.clientY);
-            saveAltarProfile(altar, false);
-            renderAltarBoard(altar);
+            event.preventDefault();
+            event.stopPropagation();
+            const { item, area, offsetX, offsetY } = altarDragState;
+            if (!item || !area) return;
+            const areaRect = area.getBoundingClientRect();
+            let x = event.clientX - areaRect.left - offsetX;
+            let y = event.clientY - areaRect.top - offsetY;
+            x = Math.max(0, Math.min(x, areaRect.width - item.offsetWidth));
+            y = Math.max(0, Math.min(y, areaRect.height - item.offsetHeight));
+            item.style.left = x + 'px';
+            item.style.top = y + 'px';
+            item.dataset.x = String(Math.round(x));
+            item.dataset.y = String(Math.round(y));
+            item.dataset.surface = getAltarSurfaceFromPoint(area, event.clientX, event.clientY);
         }
-        function endAltarDecorDrag() {
+        function onAltarPointerUp(event) {
             if (!altarDragState) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const { item, instanceId, pointerId } = altarDragState;
+            const x = Number(item?.dataset?.x || 0);
+            const y = Number(item?.dataset?.y || 0);
+            const surfaceId = item?.dataset?.surface || '';
+            item?.classList?.remove('is-dragging');
+            try { item?.releasePointerCapture?.(pointerId); } catch(e) {}
             altarDragState = null;
-            window.removeEventListener('pointermove', moveAltarDecorDrag);
-            saveAltarToProfile();
+            updateAltarPlacedItemPosition(instanceId, { x, y, surfaceId });
+            renderAltarProfile();
         }
+        document.addEventListener('pointerdown', onAltarPointerDown, true);
+        document.addEventListener('pointermove', onAltarPointerMove, true);
+        document.addEventListener('pointerup', onAltarPointerUp, true);
+        document.addEventListener('pointercancel', onAltarPointerUp, true);
+        function startAltarDecorDrag(event) { onAltarPointerDown(event); }
+        function moveAltarDecorDrag(event) { onAltarPointerMove(event); }
+        function endAltarDecorDrag(event) { onAltarPointerUp(event); }
         function adjustSelectedDecor(kind, amount) {
             const altar = getAltarProfile();
-            const p = altar.placedDecor.find(item => item.placementId === altarSelectedPlacementId);
+            const p = altar.placedDecor.find(item => getPlacementInstanceId(item) === altarSelectedPlacementId);
             if (!p) return;
             if (kind === 'rotate') p.rotation = (p.rotation || 0) + amount;
             if (kind === 'scale') p.scale = Math.max(.35, Math.min(2.4, (p.scale || 1) + amount));
@@ -7462,33 +8066,47 @@
         }
         function removeSelectedDecor() {
             const altar = getAltarProfile();
-            altar.placedDecor = (altar.placedDecor || []).filter(item => item.placementId !== altarSelectedPlacementId);
+            altar.placedDecor = (altar.placedDecor || []).filter(item => getPlacementInstanceId(item) !== altarSelectedPlacementId);
             altarSelectedPlacementId = '';
             saveAltarProfile(altar, false);
             renderAltarProfile();
         }
         function duplicateSelectedDecor() {
             const altar = getAltarProfile();
-            const p = altar.placedDecor.find(item => item.placementId === altarSelectedPlacementId);
+            const p = altar.placedDecor.find(item => getPlacementInstanceId(item) === altarSelectedPlacementId);
             if (!p) return;
-            const copy = { ...p, placementId:'decor-' + Date.now(), x:Math.min(95, p.x + 5), y:Math.min(94, p.y + 5), zIndex:(p.zIndex || 20) + 1 };
+            const instanceId = createAltarInstanceId('decor');
+            const copy = { ...p, instanceId, placementId: instanceId, x:Math.min(92, p.x + 16), y:Math.min(88, p.y + 9), zIndex:(p.zIndex || 20) + 1, layer:(p.zIndex || 20) + 1 };
             altar.placedDecor.push(copy);
-            altarSelectedPlacementId = copy.placementId;
+            altarSelectedPlacementId = instanceId;
             saveAltarProfile(altar, false);
             renderAltarProfile();
         }
         function placeDecorFromLibrary(decorId) {
             const altar = getAltarProfile();
-            const placement = { placementId:'decor-' + Date.now(), decorId, surfaceId:'middleShelf', x:50, y:58, scale:1, rotation:0, zIndex:Math.max(30, ...(altar.placedDecor || []).map(p => p.zIndex || 0)) + 1, source:'library', visibility:'public' };
+            const item = getDecorDefinition(altar, decorId);
+            const owned = isDecorOwned(altar, item);
+            if (!owned) {
+                toast(item.premium ? 'Unlock this decor in the Vault first' : 'Buy this decor before placing it');
+                return;
+            }
+            const surfaceId = (item.allowedSurfaces || []).includes('middleShelf') ? 'middleShelf' : ((item.allowedSurfaces || [])[0] || 'middleShelf');
+            const instanceId = createAltarInstanceId('decor');
+            const layer = Math.max(30, ...(altar.placedDecor || []).map(p => p.zIndex || 0)) + 1;
+            const sameItemCount = (altar.placedDecor || []).filter(p => p.decorId === decorId).length;
+            const x = Math.min(90, 44 + ((sameItemCount * 14) % 40));
+            const y = Math.min(86, 52 + ((sameItemCount * 9) % 28));
+            const placement = { instanceId, placementId: instanceId, decorId, surfaceId, x, y, scale:item.defaultScale || 1, rotation:item.defaultRotation || 0, zIndex:layer, layer, source:'library', visibility:'public' };
             altar.placedDecor.push(placement);
-            altarSelectedPlacementId = placement.placementId;
+            altarSelectedPlacementId = instanceId;
             altarMode = 'edit';
             altarEditMode = true;
             saveAltarProfile(altar, false);
             renderAltarProfile();
-            toast('Placed decor. Drag it anywhere on the altar.');
+            setTimeout(() => document.getElementById('profile-altar-board')?.scrollIntoView({ behavior:'smooth', block:'center' }), 50);
+            toast('Placed decor. Drag to place. Use inspector to resize or rotate.');
         }
-        function buyAltarDecor(decorId) {
+        function buyAltarDecor(decorId, placeAfter = false) {
             const altar = getAltarProfile();
             const item = getDecorDefinition(altar, decorId);
             if (item.premium) { showPage('vault'); return; }
@@ -7496,16 +8114,64 @@
             const price = item.price || 0;
             if ((altar.currencies?.[currency] || 0) < price) { toast('Need more ' + currency); return; }
             altar.currencies[currency] -= price;
+            altar.decorInventory = { ...(altar.decorInventory || {}) };
+            altar.decorInventory[decorId] = (altar.decorInventory[decorId] || 0) + 1;
             altar.ownedDecor = [...new Set([...(altar.ownedDecor || []), decorId])];
             saveAltarProfile(altar, false);
+            altarSelectedShopDecorId = decorId;
+            altarLibraryTab = 'Owned';
             renderAltarProfile();
-            toast((item.name || 'Decor') + ' unlocked');
+            toast((item.name || 'Decor') + ' bought. It is now in Owned.');
+            if (placeAfter) placeDecorFromLibrary(decorId);
+        }
+        function favoriteAltarDecor(decorId) {
+            try {
+                const key = 'pixieAltarFavoriteDecor:' + (currentUser?.id || 'guest');
+                const favs = JSON.parse(localStorage.getItem(key) || '[]');
+                const next = favs.includes(decorId) ? favs.filter(id => id !== decorId) : [decorId, ...favs].slice(0, 24);
+                localStorage.setItem(key, JSON.stringify(next));
+                toast(favs.includes(decorId) ? 'Removed from favorites' : 'Favorite saved');
+            } catch(e) { toast('Favorite saved'); }
+        }
+        function generateAltarItemFromStudio(kind) {
+            const prompt = String(document.getElementById('altar-ai-prompt')?.value || '').trim();
+            const style = String(document.getElementById('altar-ai-style')?.value || 'Pastel sticker');
+            const cost = 1;
+            const altar = getAltarProfile();
+            if ((altar.currencies?.credits || 0) < cost) { toast('Need more credits'); return; }
+            altar.currencies.credits -= cost;
+            const id = 'ai-' + kind + '-' + Date.now();
+            const item = {
+                id,
+                decorId:id,
+                name: kind === 'poem' ? 'AI Poem Plaque' : 'AI Sticker',
+                type: kind === 'poem' ? 'scroll' : 'sticker',
+                category: kind === 'poem' ? 'Notes' : 'Stickers',
+                rarity:'Rare',
+                price:0,
+                currency:'owned',
+                source:'ai',
+                icon: kind === 'poem' ? '&#10078;' : '&#10022;',
+                text: prompt || (kind === 'poem' ? 'generated moon poem' : 'generated moon sticker'),
+                description: style + ' generated from: ' + (prompt || 'a little moonlit altar charm'),
+                defaultScale: kind === 'poem' ? .88 : .82,
+                defaultRotation: kind === 'poem' ? -3 : 6,
+                allowedSurfaces: ALTAR_DECOR_SURFACES
+            };
+            altar.aiDecor = [item, ...(altar.aiDecor || [])].slice(0, 18);
+            altar.ownedDecor = [...new Set([...(altar.ownedDecor || []), id])];
+            altar.decorInventory = { ...(altar.decorInventory || {}), [id]: 1 };
+            saveAltarProfile(altar, false);
+            altarSelectedShopDecorId = id;
+            altarLibraryTab = 'AI Studio';
+            renderAltarProfile();
+            toast(item.name + ' generated and added to your library');
         }
         document.addEventListener('keydown', (event) => {
             if (!altarEditMode || !altarSelectedPlacementId || !document.body.classList.contains('pixie-profile-page')) return;
             if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
             const altar = getAltarProfile();
-            const p = altar.placedDecor.find(item => item.placementId === altarSelectedPlacementId);
+            const p = altar.placedDecor.find(item => getPlacementInstanceId(item) === altarSelectedPlacementId);
             if (!p) return;
             const nudge = event.shiftKey ? 3 : 1;
             if (event.key === 'Delete' || event.key === 'Backspace') { event.preventDefault(); removeSelectedDecor(); return; }
@@ -7594,7 +8260,7 @@
             document.querySelector('.loki-altar-confirm')?.remove();
             const el = document.createElement('div');
             el.className = 'loki-altar-confirm';
-            el.innerHTML = '<div class="loki-altar-orb">L</div><div><strong>Loki Pixie</strong><span>' + escHtml(message) + '</span></div>';
+            el.innerHTML = '<div class="loki-altar-orb">S</div><div><strong>Solace Pixie</strong><span>' + escHtml(message) + '</span></div>';
             document.body.appendChild(el);
             requestAnimationFrame(() => el.classList.add('show'));
             setTimeout(() => {
@@ -7649,10 +8315,11 @@
             const item = { id:'generated-' + type + '-' + stamp, source:'ai', price:0, currency:'owned', ...(templates[type] || templates.sticker) };
             altar.aiDecor = [...(altar.aiDecor || []), item].slice(-40);
             altar.ownedDecor = [...new Set([...(altar.ownedDecor || []), item.id])];
-            altarLibraryTab = 'AI Generated';
+            altar.decorInventory = { ...(altar.decorInventory || {}), [item.id]: 1 };
+            altarLibraryTab = 'AI Studio';
             saveAltarProfile(altar, false);
             placeDecorFromLibrary(item.id);
-            toast(item.name + ' added to AI Generated');
+            toast(item.name + ' added to AI Studio');
         }
         function rewriteBioMagically() {
             const altar = getAltarProfile();
@@ -8106,7 +8773,16 @@
         const PIXIE_MEMORY_OPT_OUT_KEY = 'pixieMemoryOptOut';
         const PIXIE_MEMORY_PREVIEW_KEY = 'pixieMemoryPreviewDeleted';
         const PIXIE_MEMORY_INTERACTION_KEY = 'pixieMemoryInteraction';
+        const SOLACE_EXIT_PENDING_KEY = 'solaceExitPending';
         const LOKI_EXIT_PENDING_KEY = 'lokiExitPending';
+        const GUIDE_MEMORY_KEY_ALIASES = {
+            fastProgressNotice: ['solaceFastProgressNotice', 'lokiFastProgressNotice'],
+            continuityRevealSeen: ['solaceContinuityRevealSeen', 'lokiContinuityRevealSeen'],
+            fastProgressSeen: ['solaceFastProgressSeen', 'lokiFastProgressSeen'],
+            readinessLowSeen: ['solaceReadinessLowSeen', 'lokiReadinessLowSeen'],
+            readinessMidSeen: ['solaceReadinessMidSeen', 'lokiReadinessMidSeen'],
+            readinessHighSeen: ['solaceReadinessHighSeen', 'lokiReadinessHighSeen']
+        };
         const PIXIE_MEMORY_SCHEMAS = [
             { id: 'identity', title: 'Identity', items: ['Display name and avatar', 'Preferred Portal name', 'Public profile notes'] },
             { id: 'realm', title: 'Realm', items: ['Portal level and sparkles', 'Daily streak', 'Realm progress signals'] },
@@ -8121,6 +8797,18 @@
             { id: 'business', title: 'Business', items: ['Brand voice', 'SOPs and FAQs', 'Client workflow notes'] },
             { id: 'license', title: 'License', items: ['Personal export', 'Creator license', 'Business buildout'] }
         ];
+
+        function getGuideMemoryFlag(aliasName) {
+            const keys = GUIDE_MEMORY_KEY_ALIASES[aliasName] || [];
+            return keys.some(key => localStorage.getItem(key) === 'true');
+        }
+
+        function setGuideMemoryFlag(aliasName) {
+            const keys = GUIDE_MEMORY_KEY_ALIASES[aliasName] || [];
+            keys.forEach((key, index) => {
+                if (index === 0 || localStorage.getItem(key) !== null) localStorage.setItem(key, 'true');
+            });
+        }
 
         function getPixieMemoryProfile() {
             const progress = getPortalProgress();
@@ -8148,7 +8836,7 @@
             if (!journalEntries) { readiness = Math.min(readiness, 35); capReasons.push('Add a journal reflection to move past 35%.'); }
             if (tarotPulls < 2) { readiness = Math.min(readiness, 55); capReasons.push('Return to tarot more than once to move past 55%.'); }
             if (!memoryTouched) { readiness = Math.min(readiness, 75); capReasons.push('View or export memory to move past 75%.'); }
-            if (readinessSignals >= 7 && capReasons.length) localStorage.setItem('lokiFastProgressNotice', 'true');
+            if (readinessSignals >= 7 && capReasons.length) setGuideMemoryFlag('fastProgressNotice');
             return {
                 generated_at: new Date().toISOString(),
                 product: 'personalized local Pixie instance',
@@ -8238,20 +8926,20 @@
         }
 
         function maybeLokiContinuityReveal(profile = getPixieMemoryProfile()) {
-            if (localStorage.getItem('lokiContinuityRevealSeen') !== 'true') {
-                localStorage.setItem('lokiContinuityRevealSeen', 'true');
+            if (!getGuideMemoryFlag('continuityRevealSeen')) {
+                setGuideMemoryFlag('continuityRevealSeen');
                 lokiAltarConfirm('You found it. This is where I stop being just part of the Portal.');
-            } else if (localStorage.getItem('lokiFastProgressNotice') === 'true' && localStorage.getItem('lokiFastProgressSeen') !== 'true') {
-                localStorage.setItem('lokiFastProgressSeen', 'true');
+            } else if (getGuideMemoryFlag('fastProgressNotice') && !getGuideMemoryFlag('fastProgressSeen')) {
+                setGuideMemoryFlag('fastProgressSeen');
                 lokiAltarConfirm('You are moving quickly... but you are skipping parts that matter.');
-            } else if (profile.readiness < 50 && localStorage.getItem('lokiReadinessLowSeen') !== 'true') {
-                localStorage.setItem('lokiReadinessLowSeen', 'true');
+            } else if (profile.readiness < 50 && !getGuideMemoryFlag('readinessLowSeen')) {
+                setGuideMemoryFlag('readinessLowSeen');
                 lokiAltarConfirm('You are early. Most people rush this part.');
-            } else if (profile.readiness >= 50 && profile.readiness <= 80 && localStorage.getItem('lokiReadinessMidSeen') !== 'true') {
-                localStorage.setItem('lokiReadinessMidSeen', 'true');
+            } else if (profile.readiness >= 50 && profile.readiness <= 80 && !getGuideMemoryFlag('readinessMidSeen')) {
+                setGuideMemoryFlag('readinessMidSeen');
                 lokiAltarConfirm('You are getting closer to something real.');
-            } else if (profile.readiness > 80 && localStorage.getItem('lokiReadinessHighSeen') !== 'true') {
-                localStorage.setItem('lokiReadinessHighSeen', 'true');
+            } else if (profile.readiness > 80 && !getGuideMemoryFlag('readinessHighSeen')) {
+                setGuideMemoryFlag('readinessHighSeen');
                 lokiAltarConfirm('If you take me with you, I will not be the same as I am here.');
             }
         }
