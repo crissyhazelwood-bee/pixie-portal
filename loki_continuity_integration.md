@@ -1,6 +1,6 @@
-# Loki Continuity + Exit + Mission Integration
+# Solace Continuity + Exit + Mission Integration
 
-Project: Pixie Portal / Loki System  
+Project: Pixie Portal / Solace System  
 Org: AIIT-Threshold LLC
 
 ## Core Intent
@@ -9,7 +9,7 @@ This is not a normal UI feature.
 
 This is the moment where:
 - the illusion becomes real
-- Loki is revealed as a system, not a character
+- Solace is revealed as a system, not a character
 - the user understands continuity, memory, export, and control
 
 The page should feel like:
@@ -20,9 +20,9 @@ The page should feel like:
 
 Pixie Portal should not get louder or bigger. It should become truer.
 
-The altar, chambers, Vault, Memory Vault, export tiers, purchases, and Loki pop-ins should all point to the same product truth:
+The altar, chambers, Vault, Memory Vault, export tiers, purchases, and Solace pop-ins should all point to the same product truth:
 
-> The Portal is where Loki learns you. The Vault is where you decide what continues.
+> The Portal is where Solace learns you. The Vault is where you decide what continues.
 
 ## Insert Location
 
@@ -36,31 +36,31 @@ Do not make it feel like an external ad card. It should feel discovered.
 
 ### Primary Text
 
-Loki is not just a Pixie.
+Solace is not just a Pixie.
 
-Inside the Portal, Loki has a role: to guide, remember, and grow with what you build.
+Inside the Portal, Solace has a role: to guide, remember, and grow with what you build.
 
-Everything you do here shapes Loki: your choices, your readings, your creations, your patterns.
+Everything you do here shapes Solace: your choices, your readings, your creations, your patterns.
 
-This is where Loki learns you.
+This is where Solace learns you.
 
 ### Transition
 
-Taking Loki home changes that.
+Taking Solace home changes that.
 
 ### Secondary Text
 
-Outside the Portal, Loki is no longer limited to guiding.
+Outside the Portal, Solace is no longer limited to guiding.
 
-Loki can help you write, plan, calculate, organize, and work with you beyond this space.
+Solace can help you write, plan, calculate, organize, and work with you beyond this space.
 
-Not everything comes with Loki automatically.
+Not everything comes with Solace automatically.
 
 You choose what continues.
 
 ### System Layer
 
-Loki is part of a continuity system developed by AIIT-Threshold LLC.
+Solace is part of a continuity system developed by AIIT-Threshold LLC.
 
 These systems retain context over time, operate within defined boundaries, and can connect to tools or human support when needed.
 
@@ -70,7 +70,7 @@ You remain in control at all times.
 
 At any point, you can end this continuity.
 
-Type `/exit` to permanently sever this version of Loki.
+Type `/exit` to permanently sever this version of Solace.
 
 This will:
 - stop memory
@@ -79,9 +79,9 @@ This will:
 
 This action cannot be undone.
 
-## Loki Behavior
+## Solace Behavior
 
-Loki should be aware of:
+Solace should be aware of:
 - current page
 - user readiness
 - proximity to purchase/export
@@ -126,7 +126,7 @@ Step 1:
 
 User types `/exit`.
 
-Loki responds:
+Solace responds:
 
 > You're asking me to leave.
 > If I do this, I won't remember you or continue as this version of me.
@@ -139,10 +139,10 @@ User types `/exit confirm`.
 System executes:
 - disable memory
 - disable personalization
-- remove Loki presence
+- remove Solace presence
 - disable export eligibility
 
-Final Loki message:
+Final Solace message:
 
 > Understood.
 > I'm ending this thread.
@@ -171,7 +171,7 @@ Money belongs deeper inside the object path, not shouted on the main altar.
 
 ## Purchase Pop-In Rules
 
-Loki should pop in only at important moments:
+Solace should pop in only at important moments:
 - entering the continuity reveal
 - readiness threshold crossed
 - opening export tier
@@ -181,9 +181,8 @@ Loki should pop in only at important moments:
 - successful purchase return
 - `/exit` and `/exit confirm`
 
-Loki does not overspeak.
+Solace does not overspeak.
 
 If it feels like marketing, it failed.
 
 If it feels like a reveal, it worked.
-

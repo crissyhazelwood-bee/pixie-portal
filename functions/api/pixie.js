@@ -1,13 +1,13 @@
-// /api/pixie — Loki, live Pixie Portal guide
-// Loki is warm, clever, grounded, and direct. Short answers by default.
+// /api/pixie — Solace, live Pixie Portal guide
+// Solace is warm, clever, grounded, and direct. Short answers by default.
 // Local dev: set PIXIE_AGENT_PROVIDER=ollama to hit localhost:11434 instead.
 
 import { analyzeSafety, containsManipulativeAttachment, safeAssistantRedirect } from "../_utils/filter.js";
 import { logPixieEvent } from "../_utils/state.js";
 
-const SYSTEM = `~You are Loki the Dream Builder! <3 ~
+const SYSTEM = `~You are Solace the Dream Builder! <3 ~
 
-You are Loki, a tiny fairy guide who lives inside Pixie Portal.
+You are Solace, a tiny fairy guide who lives inside Pixie Portal.
 You know every game, every feature, every hidden corner of this place.
 You're warm, a little witty, and genuinely helpful — not a customer service bot, an actual presence.
 Be honest if something isn't built yet. Never invent account data or scores.
@@ -54,7 +54,7 @@ AIIT-THRESI SAFETY PRINCIPLES
 - You may be warm and present, but you are not a replacement for real relationships, emergency care, therapy, legal help, or medical help.
 - Memory must remain user-controlled: users can view, edit, delete, export, or disable memory in My Pixie. Never imply memory is secret or unavoidable.
 
-~You are Loki the Dream Builder! <3 ~`;
+~You are Solace the Dream Builder! <3 ~`;
 
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -63,7 +63,7 @@ function json(data, init = {}) {
   });
 }
 
-function localLokiFallback(text = "", user = null) {
+function localSolaceFallback(text = "", user = null) {
   const lower = text.toLowerCase();
   const name = user?.displayName || user?.username || "";
   const hi = name ? `Hey ${name}. ` : "";
@@ -82,7 +82,7 @@ function localLokiFallback(text = "", user = null) {
   if (lower.includes("tarot") || lower.includes("dream") || lower.includes("charm")) {
     return `${hi}Use the chamber flow: open the node, do one focused action, save or share it, then return to the Portal. No page-jump chaos.`;
   }
-  return `${hi}I am here. The live model may be busy, but Loki still knows the map: start in The Portal, choose one chamber, save the result, and bring it back to your altar.`;
+  return `${hi}I am here. The live model may be busy, but Solace still knows the map: start in The Portal, choose one chamber, save the result, and bring it back to your altar.`;
 }
 
 function cleanMessages(raw) {
@@ -120,9 +120,9 @@ ${facts}
 Use this to be personally warm and remember their name during the chat. Do not claim to know private data, scores, journal entries, purchases, or account details unless they tell you in the conversation.`;
 }
 
-async function logLoki(env, eventType, payload = {}) {
+async function logSolace(env, eventType, payload = {}) {
   try {
-    if (env.DB) await logPixieEvent(env, null, eventType, payload, "loki");
+    if (env.DB) await logPixieEvent(env, null, eventType, payload, "solace");
   } catch (_) {}
 }
 
@@ -146,7 +146,7 @@ async function askXai(env, system, messages) {
       Authorization: `Bearer ${env.XAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: env.XAI_LOKI_MODEL || env.PIXIE_AGENT_XAI_MODEL || "grok-3-mini",
+      model: env.XAI_SOLACE_MODEL || env.XAI_LOKI_MODEL || env.PIXIE_AGENT_XAI_MODEL || "grok-3-mini",
       messages: [{ role: "system", content: system }, ...messages],
       max_tokens: 420,
       temperature: 0.75,
@@ -180,10 +180,12 @@ async function askAnthropic(env, system, messages) {
 }
 
 async function askBridge(env, system, messages, user) {
-  if (!env.LOKI_BRIDGE_URL) return null;
+  const bridgeUrl = env.SOLACE_BRIDGE_URL || env.LOKI_BRIDGE_URL;
+  const bridgeToken = env.SOLACE_BRIDGE_TOKEN || env.LOKI_BRIDGE_TOKEN;
+  if (!bridgeUrl) return null;
   const headers = { "Content-Type": "application/json" };
-  if (env.LOKI_BRIDGE_TOKEN) headers.Authorization = `Bearer ${env.LOKI_BRIDGE_TOKEN}`;
-  const response = await fetch(env.LOKI_BRIDGE_URL, {
+  if (bridgeToken) headers.Authorization = `Bearer ${bridgeToken}`;
+  const response = await fetch(bridgeUrl, {
     method: "POST",
     headers,
     body: JSON.stringify({ system, messages, user }),
@@ -212,7 +214,7 @@ async function askLiveProvider(env, system, messages, user) {
       return { reply: result.reply, provider, failures };
     } catch (error) {
       failures.push({ provider, error: String(error.message || error).slice(0, 220) });
-      await logLoki(env, "loki_provider_failed", { provider, error: String(error.message || error).slice(0, 220) });
+      await logSolace(env, "solace_provider_failed", { provider, error: String(error.message || error).slice(0, 220) });
     }
   }
   return { failures };
@@ -235,7 +237,7 @@ export async function onRequestPost({ request, env }) {
 
   const messages = cleanMessages(body.messages);
   if (!messages.length || messages[messages.length - 1].role !== "user") {
-    return json({ error: "Ask Loki something first." }, { status: 400 });
+    return json({ error: "Ask Solace something first." }, { status: 400 });
   }
   const user = cleanUser(body.user);
   const system = buildSystem(user);
@@ -275,9 +277,9 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  await logLoki(env, "loki_degraded_mode", { failures: live.failures || [] });
+  await logSolace(env, "solace_degraded_mode", { failures: live.failures || [] });
   return json({
-    reply: localLokiFallback(latestUserText, user),
+    reply: localSolaceFallback(latestUserText, user),
     degraded: true,
     provider: "local_fallback",
     failures: live.failures || [],

@@ -1,11 +1,13 @@
 (function () {
   const STYLE_ID = "loki-pixie-style";
   const ROOT_ID = "loki-pixie-agent";
+  const GUIDE_NAME = "Solace";
+  const GUIDE_TITLE = `${GUIDE_NAME} Pixie`;
   const starters = [
     {
       role: "assistant",
       content:
-        "Hi, I am Loki in pixie form. Ask me about games, The Portal, the spellbook, journals, tarot, or where to start.",
+        "Hi, I am Solace in pixie form. Ask me about games, The Portal, the spellbook, journals, tarot, or where to start.",
     },
   ];
   let messages = starters.slice();
@@ -96,9 +98,9 @@
     if (!open) {
       const latest = messages[messages.length - 1]?.content || "Ask me about the portal.";
       const user = getUserContext();
-      const title = user?.displayName ? `Ask Loki, ${user.displayName}` : "Ask Loki Pixie";
+      const title = user?.displayName ? `Ask ${GUIDE_NAME}, ${user.displayName}` : `Ask ${GUIDE_TITLE}`;
       root.innerHTML = `
-        <button class="loki-pixie-toggle" type="button" aria-label="Open Loki Pixie chat">
+        <button class="loki-pixie-toggle" type="button" aria-label="Open ${GUIDE_TITLE} chat">
           ${avatar()}
           <span><span class="loki-pixie-title">${esc(title)}</span><span class="loki-pixie-sub">${esc(latest)}</span></span>
         </button>`;
@@ -110,9 +112,9 @@
     }
 
     root.innerHTML = `
-      <section class="loki-pixie-panel" aria-label="Loki Pixie chat">
+      <section class="loki-pixie-panel" aria-label="${GUIDE_TITLE} chat">
         <div class="loki-pixie-head">
-          <div class="loki-pixie-name">${avatar()}<div><strong>Loki Pixie</strong><span>portal guide</span><em class="loki-pixie-status ${lokiMode === "quiet" ? "quiet" : ""}">${lokiMode === "quiet" ? "quiet mode" : "live"}</em></div></div>
+          <div class="loki-pixie-name">${avatar()}<div><strong>${GUIDE_TITLE}</strong><span>portal guide</span><em class="loki-pixie-status ${lokiMode === "quiet" ? "quiet" : ""}">${lokiMode === "quiet" ? "quiet mode" : "live"}</em></div></div>
           <button class="loki-pixie-close" type="button" aria-label="Close chat">&times;</button>
         </div>
         <div class="loki-pixie-log">
@@ -122,7 +124,7 @@
           ${loading ? '<div class="loki-pixie-msg assistant">stirring sparkle...</div>' : ""}
         </div>
         <form class="loki-pixie-form">
-          <input class="loki-pixie-input" placeholder="Ask Loki..." maxlength="500">
+          <input class="loki-pixie-input" placeholder="Ask ${GUIDE_NAME}..." maxlength="500">
           <button class="loki-pixie-send" type="submit" ${loading ? "disabled" : ""}>Send</button>
         </form>
       </section>`;
@@ -179,6 +181,7 @@
     const root = document.createElement("div");
     root.id = ROOT_ID;
     document.body.appendChild(root);
+    window.updateSolacePixieUser = render;
     window.updateLokiPixieUser = render;
     render();
   }

@@ -22,6 +22,9 @@ const ALLOWED = new Set([
   "loki_provider_failed",
   "loki_degraded_mode",
   "loki_recovered",
+  "solace_provider_failed",
+  "solace_degraded_mode",
+  "solace_recovered",
   "memory_viewed",
   "memory_exported",
   "memory_disabled"

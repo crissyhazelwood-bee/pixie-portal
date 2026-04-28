@@ -1,0 +1,101 @@
+﻿{
+  "file_name": "CONFUSEDCODEX.json",
+  "created_at": "2026-04-28T00:00:00-05:00",
+  "project": "Pixie Portal",
+  "repo_path": "C:\\Users\\criss\\OneDrive\\Desktop\\pixie-portal",
+  "purpose": "Hard handoff note for Codex/Claude/other agents after Codex got stuck in a shell/image-generation loop while replacing Herbology assets.",
+  "user_context": {
+    "user_goal": "Replace weak Herbology placeholder/fallback images with true generated magical watercolor herb portraits matching the approved Lavender style.",
+    "approved_style_anchor": "public/assets/herbs/lavender.webp",
+    "quality_bar": "Soft pastel watercolor, small celestial ceramic pot, botanical identity readable, no text, no labels, no UI, no medicine imagery, premium magical herbology card art.",
+    "user_feedback": [
+      "The Lavender final image was approved as perfect.",
+      "The fallback/local-generated images for Lemon Balm, Valerian, Ashwagandha, Elderberry, Aloe, Tea Tree, Green Tea, Licorice Root, Ginkgo, Cranberry, Mullein, and Clove were explicitly called not done.",
+      "User noticed Codex looping and asked for a script to keep the workflow grounded."
+    ]
+  },
+  "what_went_wrong": {
+    "failure_mode": "Codex repeatedly selected shell_command no-op calls instead of the image_gen tool after saving one generated image.",
+    "symptoms": [
+      "Repeated shell commands such as Write-Output 'next herb' instead of calling image_gen.",
+      "Progress updates without actual generation.",
+      "Partial completion being mistaken for a full batch.",
+      "User had to interrupt and reset the process."
+    ],
+    "likely_cause": "The task required an alternating tool rhythm: image_gen -> shell save -> image_gen -> shell save. Codex drifted into the shell half repeatedly instead of switching back to image_gen.",
+    "lesson": "Do not rely on memory or conversational rhythm for repetitive cross-tool asset pipelines. Externalize the queue and next action into a script."
+  },
+  "fixed_workflow": {
+    "helper_script": "scripts/herb-image-workflow.ps1",
+    "state_file": "scripts/herb-image-state.json",
+    "commands": {
+      "check_status": "powershell -ExecutionPolicy Bypass -File scripts\\herb-image-workflow.ps1 status",
+      "get_next_prompt": "powershell -ExecutionPolicy Bypass -File scripts\\herb-image-workflow.ps1 prompt",
+      "save_latest_generated_image": "powershell -ExecutionPolicy Bypass -File scripts\\herb-image-workflow.ps1 save",
+      "rebuild_contact_sheet": "powershell -ExecutionPolicy Bypass -File scripts\\herb-image-workflow.ps1 sheet"
+    },
+    "required_loop": [
+      "1. Run status to see remaining herbs.",
+      "2. Run prompt to print NEXT_ID and exact prompt.",
+      "3. Call image_gen with that prompt. Do not run shell no-ops between prompt and image_gen.",
+      "4. After image_gen completes, immediately run save. This copies newest generated image into public/assets/herbs/{id}.webp and marks that id complete.",
+      "5. Repeat until status says no remaining herbs.",
+      "6. Run sheet and inspect public/assets/herbs/herb-contact-sheet.jpg.",
+      "7. Run tests and deploy."
+    ],
+    "critical_rule": "Only one shell command belongs between image_gen calls: the save command. Anything else is likely the loop returning."
+  },
+  "current_completion_status_when_written": {
+    "true_generated_and_saved_this_phase": [
+      "lemon-balm",
+      "valerian",
+      "ashwagandha",
+      "elderberry",
+      "aloe",
+      "tea-tree",
+      "green-tea"
+    ],
+    "remaining_queue_in_helper_script": [
+      "licorice-root",
+      "ginkgo",
+      "cranberry",
+      "mullein",
+      "clove"
+    ],
+    "notes": "Some of these had prior fallback art, but the user rejected that quality. Remaining queue should receive true generated image_gen outputs, not deterministic fallback drawings."
+  },
+  "asset_paths": {
+    "herb_assets_dir": "public/assets/herbs",
+    "contact_sheet": "public/assets/herbs/herb-contact-sheet.jpg",
+    "approved_lavender": "public/assets/herbs/lavender.webp"
+  },
+  "image_prompt_template": "Stylized magical {HERB_NAME} plant ({LATIN_NAME}) in a small celestial ceramic pot, soft pastel watercolor style matching the approved lavender herbology card, delicate dreamy botanical illustration, {BOTANICAL_SUBJECT_DETAIL}, subtle sparkles and floating light, faint moon and star motifs, gentle glow, warm calm atmosphere, clean centered composition, soft vignette background, collectible magical artifact feel, no text, no labels, no UI elements, no people, no hands, no medicine imagery, square 1:1 high resolution.",
+  "negative_requirements": [
+    "No text",
+    "No labels",
+    "No watermark",
+    "No UI elements",
+    "No prompt text",
+    "No people",
+    "No hands",
+    "No medicine bottles",
+    "No pills",
+    "No packaging",
+    "No flat toy/block placeholder style"
+  ],
+  "verification_commands": {
+    "parse_inline_scripts": "@'\nconst fs = require('fs'); const vm = require('vm');\nfor (const file of ['index.html','public/index.html']) { const html=fs.readFileSync(file,'utf8'); const scripts=[...html.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]); scripts.forEach((code,i)=>new vm.Script(code,{filename:`${file}#inline-${i+1}`})); console.log(`${file}: parsed ${scripts.length} inline scripts OK`); }\n'@ | node -",
+    "safety_test": "npm run test:safety",
+    "dream_animation_test": "npm run test:dream-animation",
+    "deploy": "npx.cmd wrangler pages deploy public --project-name=fae-portal"
+  },
+  "agent_behavior_rules": [
+    "If you catch yourself running shell no-ops like Write-Output before image_gen, stop and run scripts/herb-image-workflow.ps1 status.",
+    "Do not claim the batch is complete unless helper status shows no remaining herbs and the contact sheet was inspected.",
+    "Do not replace rejected images with deterministic fallback drawings unless the user explicitly approves fallback quality.",
+    "Use the approved Lavender image as the style anchor.",
+    "Save every generated image into public/assets/herbs immediately after generation.",
+    "Leave original generated_images files in place; copy/convert into repo assets."
+  ],
+  "memory_note": "User asked to save this hard. Codex cannot update protected internal memory from this run, so this JSON file is the durable handoff memory for agents working in this repo."
+}

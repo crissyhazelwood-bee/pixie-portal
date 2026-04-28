@@ -7365,9 +7365,7 @@
             if (!Array.isArray(altar.placedDecor) || altar.placedDecor.length === 0) altar.placedDecor = getStarterPlacedDecor();
             const seenInstances = new Set();
             altar.placedDecor = altar.placedDecor.map((p, index) => {
-                let instanceId = p.instanceId || p.placementId || ('decor-' + index);
-                if (seenInstances.has(instanceId)) instanceId = createAltarInstanceId('decor');
-                seenInstances.add(instanceId);
+                const instanceId = p.instanceId || p.placementId || ('decor-' + index);
                 return {
                 instanceId,
                 placementId: p.placementId || instanceId,
@@ -7382,6 +7380,10 @@
                 source: p.source || 'starter',
                 visibility: p.visibility || 'public'
                 };
+            }).filter(p => {
+                if (seenInstances.has(p.instanceId)) return false;
+                seenInstances.add(p.instanceId);
+                return true;
             });
             return altar;
         }

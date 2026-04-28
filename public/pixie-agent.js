@@ -1,19 +1,23 @@
 (function () {
   const STYLE_ID = "loki-pixie-style";
   const ROOT_ID = "loki-pixie-agent";
+  const GUIDE_NAME = "Solace";
+  const GUIDE_TITLE = `${GUIDE_NAME} Pixie`;
   const starters = [
     {
       role: "assistant",
       content:
-        "Hi, I am Loki in pixie form. Ask me about games, The Portal, the spellbook, journals, tarot, or where to start.",
+        "Hi, I am Solace in pixie form. Ask me about games, The Portal, the spellbook, journals, tarot, or where to start.",
     },
   ];
   let messages = starters.slice();
   let open = false;
   let loading = false;
   let lokiMode = "live";
-  const EXIT_PENDING_KEY = "lokiExitPending";
-  const EXIT_COMPLETE_KEY = "lokiContinuityEnded";
+  const EXIT_PENDING_KEY = "solaceExitPending";
+  const EXIT_COMPLETE_KEY = "solaceContinuityEnded";
+  const LEGACY_EXIT_PENDING_KEY = "lokiExitPending";
+  const LEGACY_EXIT_COMPLETE_KEY = "lokiContinuityEnded";
   const MEMORY_OPT_OUT_KEY = "pixieMemoryOptOut";
 
   function getUserContext() {
@@ -36,6 +40,20 @@
         "'": "&#39;",
       }[char];
     });
+  }
+
+  function readFlag(key, legacyKey) {
+    return localStorage.getItem(key) || (legacyKey ? localStorage.getItem(legacyKey) : null);
+  }
+
+  function setFlag(key, legacyKey, value) {
+    localStorage.setItem(key, value);
+    if (legacyKey && localStorage.getItem(legacyKey) !== null) localStorage.setItem(legacyKey, value);
+  }
+
+  function removeFlag(key, legacyKey) {
+    localStorage.removeItem(key);
+    if (legacyKey) localStorage.removeItem(legacyKey);
   }
 
   function localReply(text) {
@@ -96,16 +114,16 @@
   function render() {
     const root = document.getElementById(ROOT_ID);
     if (!root) return;
-    if (localStorage.getItem(EXIT_COMPLETE_KEY) === "true") {
+    if (readFlag(EXIT_COMPLETE_KEY, LEGACY_EXIT_COMPLETE_KEY) === "true") {
       root.style.display = "none";
       return;
     }
     if (!open) {
       const latest = messages[messages.length - 1]?.content || "Ask me about the portal.";
       const user = getUserContext();
-      const title = user?.displayName ? `Ask Loki, ${user.displayName}` : "Ask Loki Pixie";
+      const title = user?.displayName ? `Ask ${GUIDE_NAME}, ${user.displayName}` : `Ask ${GUIDE_TITLE}`;
       root.innerHTML = `
-        <button class="loki-pixie-toggle" type="button" aria-label="Open Loki Pixie chat">
+        <button class="loki-pixie-toggle" type="button" aria-label="Open ${GUIDE_TITLE} chat">
           ${avatar()}
           <span><span class="loki-pixie-title">${esc(title)}</span><span class="loki-pixie-sub">${esc(latest)}</span></span>
         </button>`;
@@ -117,9 +135,9 @@
     }
 
     root.innerHTML = `
-      <section class="loki-pixie-panel" aria-label="Loki Pixie chat">
+      <section class="loki-pixie-panel" aria-label="${GUIDE_TITLE} chat">
         <div class="loki-pixie-head">
-          <div class="loki-pixie-name">${avatar()}<div><strong>Loki Pixie</strong><span>portal guide</span><em class="loki-pixie-status ${lokiMode === "quiet" ? "quiet" : ""}">${lokiMode === "quiet" ? "quiet mode" : "live"}</em></div></div>
+          <div class="loki-pixie-name">${avatar()}<div><strong>${GUIDE_TITLE}</strong><span>portal guide</span><em class="loki-pixie-status ${lokiMode === "quiet" ? "quiet" : ""}">${lokiMode === "quiet" ? "quiet mode" : "live"}</em></div></div>
           <button class="loki-pixie-close" type="button" aria-label="Close chat">&times;</button>
         </div>
         <div class="loki-pixie-log">
@@ -129,7 +147,7 @@
           ${loading ? '<div class="loki-pixie-msg assistant">stirring sparkle...</div>' : ""}
         </div>
         <form class="loki-pixie-form">
-          <input class="loki-pixie-input" placeholder="Ask Loki..." maxlength="500">
+          <input class="loki-pixie-input" placeholder="Ask ${GUIDE_NAME}..." maxlength="500">
           <button class="loki-pixie-send" type="submit" ${loading ? "disabled" : ""}>Send</button>
         </form>
       </section>`;
@@ -153,7 +171,7 @@
     const text = input.value.trim();
     if (!text) return;
     if (text === "/exit") {
-      localStorage.setItem(EXIT_PENDING_KEY, "true");
+      setFlag(EXIT_PENDING_KEY, LEGACY_EXIT_PENDING_KEY, "true");
       messages.push({ role: "user", content: text });
       messages.push({
         role: "assistant",
@@ -167,20 +185,20 @@
     if (text === "/exit confirm") {
       messages.push({ role: "user", content: text });
       localStorage.setItem(MEMORY_OPT_OUT_KEY, "true");
-      localStorage.removeItem(EXIT_PENDING_KEY);
+      removeFlag(EXIT_PENDING_KEY, LEGACY_EXIT_PENDING_KEY);
       messages.push({ role: "assistant", content: "Understood.\nI'm ending this thread.\nGoodbye." });
       input.value = "";
       open = true;
       render();
       setTimeout(() => {
-        localStorage.setItem(EXIT_COMPLETE_KEY, "true");
+        setFlag(EXIT_COMPLETE_KEY, LEGACY_EXIT_COMPLETE_KEY, "true");
         const root = document.getElementById(ROOT_ID);
         if (root) root.style.display = "none";
       }, 2600);
       return;
     }
-    if (localStorage.getItem(EXIT_PENDING_KEY) === "true") {
-      localStorage.removeItem(EXIT_PENDING_KEY);
+    if (readFlag(EXIT_PENDING_KEY, LEGACY_EXIT_PENDING_KEY) === "true") {
+      removeFlag(EXIT_PENDING_KEY, LEGACY_EXIT_PENDING_KEY);
     }
     messages.push({ role: "user", content: text });
     input.value = "";
@@ -216,6 +234,7 @@
     const root = document.createElement("div");
     root.id = ROOT_ID;
     document.body.appendChild(root);
+    window.updateSolacePixieUser = render;
     window.updateLokiPixieUser = render;
     render();
   }

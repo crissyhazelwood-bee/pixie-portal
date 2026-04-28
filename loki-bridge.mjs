@@ -1,9 +1,9 @@
 import { createServer } from "node:http";
 
-const PORT = Number(process.env.LOKI_BRIDGE_PORT || 8790);
-const TOKEN = process.env.LOKI_BRIDGE_TOKEN || "";
+const PORT = Number(process.env.SOLACE_BRIDGE_PORT || process.env.LOKI_BRIDGE_PORT || 8790);
+const TOKEN = process.env.SOLACE_BRIDGE_TOKEN || process.env.LOKI_BRIDGE_TOKEN || "";
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434/api/chat";
-const MODEL = process.env.LOKI_MODEL || "loki";
+const MODEL = process.env.SOLACE_MODEL || process.env.LOKI_MODEL || "solace";
 
 function send(res, status, data) {
   res.writeHead(status, {
@@ -54,7 +54,7 @@ createServer(async (req, res) => {
   try {
     const body = JSON.parse(await readBody(req));
     const messages = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
-    const system = typeof body.system === "string" ? body.system : "You are Loki Pixie.";
+    const system = typeof body.system === "string" ? body.system : "You are Solace Pixie.";
 
     const ollamaResponse = await fetch(OLLAMA_URL, {
       method: "POST",
@@ -83,11 +83,11 @@ createServer(async (req, res) => {
   } catch (error) {
     send(res, 500, {
       reply:
-        "My local wings tangled for a second. Make sure Ollama is running and the loki model is awake.",
+        `My local wings tangled for a second. Make sure Ollama is running and the ${MODEL} model is awake.`,
       error: error.message,
     });
   }
 }).listen(PORT, () => {
-  console.log(`Loki bridge listening on http://localhost:${PORT}/api/pixie`);
-  console.log(`Forward this URL with Cloudflare Tunnel and set LOKI_BRIDGE_URL in Pages.`);
+  console.log(`Solace bridge listening on http://localhost:${PORT}/api/pixie`);
+  console.log(`Forward this URL with Cloudflare Tunnel and set SOLACE_BRIDGE_URL in Pages. LOKI_BRIDGE_URL still works as a legacy alias.`);
 });

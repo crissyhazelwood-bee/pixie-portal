@@ -32,11 +32,11 @@ Every chamber must have:
 
 Do not dump all altar controls on one long page.
 
-## Loki Rule
+## Solace Rule
 
-Loki is not a random mascot.
+Solace is not a random mascot.
 
-Loki appears at important continuity moments:
+Solace appears at important continuity moments:
 - user discovers the continuity/export layer
 - readiness changes meaningfully
 - Grok generation starts, waits, succeeds, or fails
@@ -44,7 +44,7 @@ Loki appears at important continuity moments:
 - user opens an export/purchase path
 - user uses `/exit`
 
-Loki should be aware, sparse, and specific. Do not make Loki chatter constantly.
+Solace should be aware, sparse, and specific. Do not make Solace chatter constantly.
 
 ## Monetization Rule
 
@@ -81,4 +81,3 @@ Not louder. Not bigger. Truer.
 If it feels like marketing, it failed.
 
 If it feels like a reveal, it worked.
-
