@@ -7721,6 +7721,7 @@
                 '</div><div class="altar-mantra-plaque">"' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>';
         }
         function renderAltarProfile() {
+            if (window.__altarActiveDrag) return;
             if (!currentUser) return;
             const altar = getAltarProfile();
             const patron = getAltarPatron(altar);
@@ -7998,26 +7999,11 @@
             setTimeout(() => renderAltarProfile(), 0);
         }
         window.updateAltarPlacedItemPosition = updateAltarPlacedItemPosition;
-        function onAltarPointerDown(event) {
-            if (window.__ALTAR_DRAG_V2__) return;
-        }
-        function onAltarPointerMove(event) {
-            if (window.__ALTAR_DRAG_V2__) return;
-        }
-        function onAltarPointerUp(event) {
-            if (window.__ALTAR_DRAG_V2__) return;
-        }
-        document.addEventListener('pointerdown', onAltarPointerDown, true);
-        document.addEventListener('pointermove', onAltarPointerMove, true);
-        document.addEventListener('pointerup', onAltarPointerUp, true);
-        document.addEventListener('pointercancel', onAltarPointerUp, true);
-        function startAltarDecorDrag(event) {}
-        function moveAltarDecorDrag(event) {}
-        function endAltarDecorDrag(event) {}
+        window.__altarPointerDownCount = 0;
+        window.__altarActiveDrag = false;
         function installAltarDragV2() {
             if (window.__altarDragV2Installed) return;
             window.__altarDragV2Installed = true;
-            window.__ALTAR_DRAG_V2__ = true;
             let drag = null;
             function getAltarDragItem(e) {
                 const item = e.target.closest('.altar-placed-item[data-altar-instance-id]');
@@ -8034,9 +8020,10 @@
                 if (!item) return;
                 const area = getAltarDragArea(item);
                 if (!area) return;
+                window.__altarPointerDownCount++;
+                console.log('ALTAR POINTERDOWN COUNT', window.__altarPointerDownCount);
                 e.preventDefault();
                 e.stopPropagation();
-                const areaRect = area.getBoundingClientRect();
                 const itemRect = item.getBoundingClientRect();
                 drag = {
                     pointerId: e.pointerId,
@@ -8048,6 +8035,7 @@
                     itemW: itemRect.width,
                     itemH: itemRect.height
                 };
+                window.__altarActiveDrag = true;
                 altarSelectedPlacementId = drag.instanceId;
                 item.classList.add('is-dragging');
                 item.style.zIndex = '9999';
@@ -8084,6 +8072,7 @@
                 item.style.zIndex = '';
                 try { item.releasePointerCapture(drag.pointerId); } catch(err) {}
                 drag = null;
+                window.__altarActiveDrag = false;
                 console.log('ALTAR DRAG END', instanceId, x, y);
                 if (window.updateAltarPlacedItemPosition) {
                     window.updateAltarPlacedItemPosition(instanceId, { x, y });
