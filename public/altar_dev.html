@@ -6,13 +6,19 @@
 <title>Altar Dev</title>
 <style>
 :root {
-  --gap: 160px;
-  --depth: calc(var(--gap) * 8.5 / 11); /* ~124px — the real ratio */
+  --gap:   160px;
+  --depth: calc(var(--gap) * 8.5 / 11);
   --board: 14px;
-  --wood:       #6b3e20;
-  --wood-light: #8c5530;
-  --wood-dark:  #3d2010;
-  --back:       #140a03;
+
+  --wood-body:  #1a0802;
+  --wood-frame: #3a1c08;
+  --wood-light: #6b3010;
+  --wood-trim:  #8c4a18;
+  --iron:       #1a1a22;
+  --iron-mid:   #2e2e3a;
+  --iron-light: #46465a;
+  --gold:       #a87020;
+  --back-wall:  #0d0308;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,78 +29,190 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #080205;
+  background: radial-gradient(ellipse at 50% 20%, #180a12 0%, #050108 100%);
+  padding: 40px 20px;
   gap: 20px;
 }
 
-/* ── Cabinet ─────────────────────────────── */
-.cabinet {
+/* ── Outer wrapper ───────────────────────── */
+.cabinet-wrap {
   position: relative;
   width: 480px;
-  background: var(--back);
-  border: 6px solid var(--wood);
-  border-radius: 6px;
-  box-shadow:
-    inset 0 0 60px rgba(0,0,0,0.7),
-    0 40px 100px rgba(0,0,0,0.9);
-  overflow: hidden;
-  /* no pointer-events on cabinet itself, items handle their own */
+  filter: drop-shadow(0 50px 90px rgba(0,0,0,0.95));
 }
 
-/* ── Shelf bands (the open space between boards) ── */
+/* ── Gothic arch top ─────────────────────── */
+.arch-top {
+  position: relative;
+  z-index: 4;
+  line-height: 0;
+}
+.arch-top svg {
+  display: block;
+  width: 100%;
+}
+
+/* ── Cabinet body (posts + interior) ──────── */
+.cabinet-body {
+  display: flex;
+  position: relative;
+  z-index: 3;
+}
+
+/* Side columns */
+.post {
+  width: 26px;
+  flex-shrink: 0;
+  position: relative;
+  background: linear-gradient(
+    to right,
+    var(--wood-body) 0%,
+    var(--wood-frame) 25%,
+    var(--wood-light) 50%,
+    var(--wood-frame) 75%,
+    var(--wood-body) 100%
+  );
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+}
+
+/* Brass rings on posts */
+.post::before,
+.post::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--iron-light), var(--iron));
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.07);
+}
+.post::before { top: 18px; }
+.post::after  { bottom: 18px; }
+
+/* ── Interior ────────────────────────────── */
+.cabinet-interior {
+  flex: 1;
+  position: relative;
+  background: var(--back-wall);
+  border-left:  2px solid var(--wood-frame);
+  border-right: 2px solid var(--wood-frame);
+  overflow: hidden;
+}
+
+/* Shelf bands */
 .shelf-band {
   position: relative;
   height: var(--gap);
-  /* gradient: dark back wall at top, warmer at bottom where surface is */
   background: linear-gradient(
     to bottom,
-    #0e0602 0%,
-    #1a0d05 45%,
-    #2a1a0a 80%,
-    #3a2412 100%
+    #0a0205 0%,
+    #130708 42%,
+    #1c1008 76%,
+    #271808 100%
   );
-  overflow: visible;
 }
 
-/* ── Shelf boards ─────────────────────────── */
+/* Subtle back-wall texture lines */
+.shelf-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 38px,
+    rgba(255,255,255,0.012) 39px,
+    transparent 40px
+  );
+  pointer-events: none;
+}
+
+/* Shelf boards */
 .shelf-board {
   position: relative;
   height: var(--board);
-  background: linear-gradient(to bottom, var(--wood-light), var(--wood));
-  box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+  background: linear-gradient(to bottom, var(--wood-light) 0%, var(--wood-frame) 100%);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.8);
   z-index: 10;
 }
-
-/* Front face of the board — visible because we're looking slightly down.
-   Height is driven by depth ratio so it's physically accurate. */
+/* Gold inlay line on each board */
+.shelf-board::before {
+  content: '';
+  position: absolute;
+  top: 4px; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  opacity: 0.4;
+}
+/* Board front face — height driven by depth ratio */
 .shelf-board::after {
   content: '';
   position: absolute;
-  top: 100%;
-  left: 0; right: 0;
-  height: calc(var(--depth) * 0.13); /* ~16px front face */
-  background: var(--wood-dark);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  z-index: 10;
+  top: 100%; left: 0; right: 0;
+  height: calc(var(--depth) * 0.13);
+  background: var(--wood-body);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.7);
 }
 
 .cabinet-floor {
+  position: relative;
   height: var(--board);
-  background: linear-gradient(to bottom, var(--wood-light), var(--wood));
+  background: linear-gradient(to bottom, var(--wood-light), var(--wood-frame));
+  z-index: 10;
 }
 .cabinet-floor::after {
   content: '';
   display: block;
   height: calc(var(--depth) * 0.13);
-  background: var(--wood-dark);
+  background: var(--wood-body);
 }
 
-/* ── Item layer — floats above everything ── */
+/* ── Item layer ──────────────────────────── */
 .item-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: visible;
+  z-index: 20;
+}
+
+/* ── Feet ────────────────────────────────── */
+.cabinet-feet {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 14px;
+  position: relative;
+  z-index: 2;
+}
+.foot {
+  width: 38px;
+  height: 22px;
+  position: relative;
+  background: linear-gradient(to bottom, var(--wood-frame), var(--wood-body));
+}
+/* Claw tip */
+.foot::before {
+  content: '';
+  position: absolute;
+  bottom: -8px; left: 50%;
+  transform: translateX(-50%);
+  width: 16px; height: 10px;
+  background: var(--iron-mid);
+  border-radius: 0 0 40% 40%;
+  border: 1px solid var(--iron-light);
+}
+/* Foot side scroll */
+.foot::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px; right: 2px;
+  height: 8px;
+  border-radius: 4px 4px 0 0;
+  background: var(--wood-light);
+  opacity: 0.4;
 }
 
 /* ── Blobs ───────────────────────────────── */
@@ -105,43 +223,116 @@ body {
   cursor: grab;
   user-select: none;
   touch-action: none;
-  will-change: left, top, width, height;
 }
-
 .blob:not(.is-lifted) {
   transition:
-    left     0.18s cubic-bezier(0.22,1,0.36,1),
-    top      0.18s cubic-bezier(0.22,1,0.36,1),
-    width    0.18s cubic-bezier(0.22,1,0.36,1),
-    height   0.18s cubic-bezier(0.22,1,0.36,1),
-    box-shadow 0.18s ease,
-    filter   0.18s ease;
+    left       0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    top        0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    width      0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    height     0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.20s ease,
+    filter     0.20s ease;
 }
-
 .blob.is-lifted {
   cursor: grabbing;
   transition: none;
   z-index: 9999 !important;
 }
 
-/* ── Debug label ─────────────────────────── */
 #debug {
-  color: rgba(255,255,255,0.4);
-  font: 12px monospace;
-  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.25);
+  font: 11px monospace;
+  letter-spacing: 0.04em;
 }
 </style>
 </head>
 <body>
 
-<div class="cabinet" id="cabinet">
-  <div class="shelf-band" data-shelf="top"></div>
-  <div class="shelf-board"></div>
-  <div class="shelf-band" data-shelf="middle"></div>
-  <div class="shelf-board"></div>
-  <div class="shelf-band" data-shelf="lower"></div>
-  <div class="cabinet-floor"></div>
-  <div class="item-layer" id="item-layer"></div>
+<div class="cabinet-wrap">
+
+  <!-- Gothic arch top — SVG so the curves are smooth -->
+  <div class="arch-top">
+    <svg viewBox="0 0 480 100" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Arch body fill -->
+      <path d="M0,100 L0,52 C0,18 100,0 240,0 C380,0 480,18 480,52 L480,100 Z"
+            fill="#1a0802"/>
+
+      <!-- Outer frame edge -->
+      <path d="M4,100 L4,53 C4,22 102,5 240,5 C378,5 476,22 476,53 L476,100"
+            stroke="#3a1c08" stroke-width="3" fill="none"/>
+
+      <!-- Gold accent arc -->
+      <path d="M16,100 L16,55 C16,27 108,12 240,12 C372,12 464,27 464,55 L464,100"
+            stroke="#a87020" stroke-width="1" fill="none" opacity="0.45"/>
+
+      <!-- Center finial spike -->
+      <polygon points="240,0 232,26 248,26" fill="#1a1a22"/>
+      <polygon points="240,2 234,24 246,24" fill="#2e2e3a"/>
+      <rect x="232" y="24" width="16" height="7" rx="2" fill="#1a1a22"/>
+      <rect x="229" y="30" width="22" height="5" rx="1.5"
+            fill="#2e2e3a" stroke="#a87020" stroke-width="0.8"/>
+
+      <!-- Left iron scroll -->
+      <path d="M28,95 C28,70 46,56 62,58 C76,60 78,74 66,76 C56,78 52,68 60,64"
+            stroke="#2e2e3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M28,95 C28,70 46,56 62,58 C76,60 78,74 66,76 C56,78 52,68 60,64"
+            stroke="#46465a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="28" cy="95" r="5" fill="#1a1a22" stroke="#46465a" stroke-width="1"/>
+      <circle cx="28" cy="95" r="2.5" fill="#2e2e3a"/>
+
+      <!-- Right iron scroll (mirror) -->
+      <path d="M452,95 C452,70 434,56 418,58 C404,60 402,74 414,76 C424,78 428,68 420,64"
+            stroke="#2e2e3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M452,95 C452,70 434,56 418,58 C404,60 402,74 414,76 C424,78 428,68 420,64"
+            stroke="#46465a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="452" cy="95" r="5" fill="#1a1a22" stroke="#46465a" stroke-width="1"/>
+      <circle cx="452" cy="95" r="2.5" fill="#2e2e3a"/>
+
+      <!-- Left acanthus leaf curl -->
+      <path d="M70,90 Q88,78 96,86 Q104,94 92,98"
+            stroke="#46465a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M70,90 Q82,80 88,88"
+            stroke="#46465a" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+      <!-- Right acanthus leaf curl -->
+      <path d="M410,90 Q392,78 384,86 Q376,94 388,98"
+            stroke="#46465a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M410,90 Q398,80 392,88"
+            stroke="#46465a" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+      <!-- Side ring ornaments near posts -->
+      <circle cx="16" cy="70" r="6" fill="#1a1a22" stroke="#a87020" stroke-width="1" opacity="0.7"/>
+      <circle cx="16" cy="70" r="3" fill="#2e2e3a" opacity="0.7"/>
+      <circle cx="464" cy="70" r="6" fill="#1a1a22" stroke="#a87020" stroke-width="1" opacity="0.7"/>
+      <circle cx="464" cy="70" r="3" fill="#2e2e3a" opacity="0.7"/>
+
+    </svg>
+  </div>
+
+  <!-- Body: side posts + shelf interior -->
+  <div class="cabinet-body">
+    <div class="post left"></div>
+
+    <div class="cabinet-interior" id="cabinet">
+      <div class="shelf-band" data-shelf="top"></div>
+      <div class="shelf-board"></div>
+      <div class="shelf-band" data-shelf="middle"></div>
+      <div class="shelf-board"></div>
+      <div class="shelf-band" data-shelf="lower"></div>
+      <div class="cabinet-floor"></div>
+      <div class="item-layer" id="item-layer"></div>
+    </div>
+
+    <div class="post right"></div>
+  </div>
+
+  <!-- Feet -->
+  <div class="cabinet-feet">
+    <div class="foot"></div>
+    <div class="foot"></div>
+  </div>
+
 </div>
 
 <div id="debug">drag the blobs onto shelves</div>
@@ -149,71 +340,57 @@ body {
 <script>
 const GAP   = 160;
 const BOARD = 14;
-const DEPTH_RATIO = 8.5 / 11;  // the paper ratio — depth per gap
 
-// Each shelf: which band (0=top), scale factor, shadow
 const SHELVES = {
-  top:    { band: 0, scale: 0.70, shadow: '0 3px  7px rgba(0,0,0,0.75)' },
-  middle: { band: 1, scale: 0.84, shadow: '0 6px 16px rgba(0,0,0,0.55)' },
-  lower:  { band: 2, scale: 1.00, shadow: '0 12px 28px rgba(0,0,0,0.38)' },
+  top:    { band: 0, scale: 0.70, shadow: '0 3px  7px rgba(0,0,0,0.80)' },
+  middle: { band: 1, scale: 0.84, shadow: '0 6px 16px rgba(0,0,0,0.58)' },
+  lower:  { band: 2, scale: 1.00, shadow: '0 12px 28px rgba(0,0,0,0.40)' },
 };
 
-// Y coordinate (inside cabinet) where items sit on each shelf.
-// = top of the band + GAP (bottom of band, sitting on the board surface)
-function shelfSurfaceY(shelfName) {
-  const band = SHELVES[shelfName].band;
-  return band * (GAP + BOARD) + GAP;
+function shelfSurfaceY(name) {
+  return SHELVES[name].band * (GAP + BOARD) + GAP;
 }
 
-// Given a Y in cabinet coords, return the nearest shelf name
 function nearestShelf(y) {
-  return Object.keys(SHELVES).reduce((best, name) => {
-    const dist = Math.abs(y - shelfSurfaceY(name));
-    const bestDist = Math.abs(y - shelfSurfaceY(best));
-    return dist < bestDist ? name : best;
-  }, 'lower');
+  return Object.keys(SHELVES).reduce((best, name) =>
+    Math.abs(y - shelfSurfaceY(name)) < Math.abs(y - shelfSurfaceY(best)) ? name : best
+  , 'lower');
 }
 
-// Place a blob on a shelf at xPct (0–100)
 function placeBlob(el, shelf, xPct) {
   const s    = SHELVES[shelf];
   const base = parseInt(el.dataset.base);
   const size = Math.round(base * s.scale);
-
   el.dataset.shelf = shelf;
   el.dataset.x     = xPct;
-  el.style.width   = size + 'px';
-  el.style.height  = size + 'px';
-  el.style.left    = xPct + '%';
-  el.style.top     = shelfSurfaceY(shelf) + 'px';
-  // anchor bottom-center of blob to shelf surface
-  el.style.transform  = 'translate(-50%, -100%)';
-  el.style.boxShadow  = s.shadow;
-  el.style.zIndex     = 3 - s.band;          // lower shelf = higher z
-  el.style.filter     = `brightness(${0.72 + s.scale * 0.28})`;
+  el.style.width       = size + 'px';
+  el.style.height      = size + 'px';
+  el.style.left        = xPct + '%';
+  el.style.top         = shelfSurfaceY(shelf) + 'px';
+  el.style.transform   = 'translate(-50%, -100%)';
+  el.style.boxShadow   = s.shadow;
+  el.style.zIndex      = 3 - s.band;
+  el.style.filter      = `brightness(${0.72 + s.scale * 0.28})`;
 }
 
-// ── Blob definitions ──────────────────────
-const BLOB_DEFS = [
-  { shelf: 'top',    x: 22, color: '#c084fc', base: 52 },
-  { shelf: 'top',    x: 65, color: '#f472b6', base: 48 },
-  { shelf: 'middle', x: 32, color: '#60a5fa', base: 52 },
-  { shelf: 'middle', x: 70, color: '#34d399', base: 50 },
-  { shelf: 'lower',  x: 24, color: '#fb923c', base: 54 },
-  { shelf: 'lower',  x: 60, color: '#e879f9', base: 50 },
+const BLOBS = [
+  { shelf: 'top',    x: 20, color: '#c084fc', base: 52 },
+  { shelf: 'top',    x: 64, color: '#f472b6', base: 48 },
+  { shelf: 'middle', x: 30, color: '#60a5fa', base: 52 },
+  { shelf: 'middle', x: 68, color: '#34d399', base: 50 },
+  { shelf: 'lower',  x: 22, color: '#fb923c', base: 54 },
+  { shelf: 'lower',  x: 58, color: '#e879f9', base: 50 },
 ];
 
 const cabinet = document.getElementById('cabinet');
 const layer   = document.getElementById('item-layer');
 const debug   = document.getElementById('debug');
-
 let drag = null;
 
-BLOB_DEFS.forEach((def, i) => {
+BLOBS.forEach((def, i) => {
   const el = document.createElement('div');
   el.className    = 'blob';
   el.dataset.base = def.base;
-  el.dataset.id   = i;
   el.style.background = def.color;
   layer.appendChild(el);
   placeBlob(el, def.shelf, def.x);
@@ -222,29 +399,23 @@ BLOB_DEFS.forEach((def, i) => {
     e.preventDefault();
     el.setPointerCapture(e.pointerId);
     el.classList.add('is-lifted');
-
-    // while lifted: show at full (lower-shelf) size centered on cursor
     const base = parseInt(el.dataset.base);
-    el.style.width  = base + 'px';
-    el.style.height = base + 'px';
-    el.style.transform  = 'translate(-50%, -50%)';
-    el.style.boxShadow  = '0 20px 44px rgba(0,0,0,0.65)';
-    el.style.filter     = 'brightness(1.15)';
-
-    drag = { el, pointerId: e.pointerId };
+    el.style.width     = base + 'px';
+    el.style.height    = base + 'px';
+    el.style.transform = 'translate(-50%, -50%)';
+    el.style.boxShadow = '0 22px 48px rgba(0,0,0,0.7)';
+    el.style.filter    = 'brightness(1.2)';
+    drag = { el };
   });
 
   el.addEventListener('pointermove', e => {
     if (!drag || drag.el !== el) return;
     const rect = cabinet.getBoundingClientRect();
-    const x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width)  * 100));
+    const x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
     const y = e.clientY - rect.top;
     el.style.left = x + '%';
     el.style.top  = y + 'px';
-
-    // show which shelf it'll land on
-    const shelf = nearestShelf(y);
-    debug.textContent = 'shelf: ' + shelf + '  x: ' + Math.round(x) + '%';
+    debug.textContent = '→ ' + nearestShelf(y) + '  x: ' + Math.round(x) + '%';
   });
 
   el.addEventListener('pointerup', e => {
@@ -252,11 +423,10 @@ BLOB_DEFS.forEach((def, i) => {
     const rect = cabinet.getBoundingClientRect();
     const x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
     const y = e.clientY - rect.top;
-    const shelf = nearestShelf(y);
-    placeBlob(el, shelf, x);
+    placeBlob(el, nearestShelf(y), x);
     el.classList.remove('is-lifted');
     drag = null;
-    debug.textContent = 'placed on ' + shelf + '  x: ' + Math.round(x) + '%';
+    debug.textContent = 'placed · ' + el.dataset.shelf + '  x: ' + Math.round(x) + '%';
   });
 
   el.addEventListener('pointercancel', () => {
