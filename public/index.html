@@ -7322,6 +7322,18 @@
                 ]
             };
         }
+        function dedupeStarterDecorByItemId(placedDecor) {
+            const seen = new Set();
+            return placedDecor.filter(item => {
+                const isStarter = String(item.instanceId || item.placementId || '').startsWith('starter-') || item.source === 'starter';
+                if (!isStarter) return true;
+                const key = item.itemId || item.decorId || item.id;
+                if (!key) return true;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
         function normalizeAltarProfile(raw) {
             const base = getDefaultAltarProfile();
             const altar = { ...base, ...(raw || {}) };
@@ -7385,6 +7397,7 @@
                 seenInstances.add(p.instanceId);
                 return true;
             });
+            altar.placedDecor = dedupeStarterDecorByItemId(altar.placedDecor);
             return altar;
         }
         function getAltarProfile() {
@@ -7481,25 +7494,12 @@
         }
         function getStarterPlacedDecor() {
             return [
-                { placementId:'starter-moon-left', decorId:'moon-sticker', surfaceId:'frame', x:14, y:13, scale:.92, rotation:-10, zIndex:14, source:'starter', visibility:'public' },
-                { placementId:'starter-star-right', decorId:'tarot-star', surfaceId:'frame', x:86, y:13, scale:.82, rotation:8, zIndex:14, source:'starter', visibility:'public' },
                 { placementId:'starter-crystal-ball', decorId:'crystal-ball', surfaceId:'topShelf', x:27, y:31, scale:1, rotation:-2, zIndex:20, source:'starter', visibility:'public' },
-                { placementId:'starter-candle', decorId:'candle-pair', surfaceId:'topShelf', x:45, y:30, scale:1, rotation:0, zIndex:21, source:'starter', visibility:'public' },
-                { placementId:'starter-cat', decorId:'familiar-cat', surfaceId:'topShelf', x:69, y:32, scale:1, rotation:0, zIndex:22, source:'starter', visibility:'public' },
-                { placementId:'starter-herbs', decorId:'herb-bundle', surfaceId:'topShelf', x:80, y:36, scale:.95, rotation:4, zIndex:19, source:'starter', visibility:'public' },
-                { placementId:'starter-bottles', decorId:'mini-bottles', surfaceId:'topShelf', x:58, y:34, scale:.82, rotation:-4, zIndex:18, source:'starter', visibility:'public' },
-                { placementId:'starter-flowers', decorId:'flower-spray', surfaceId:'topShelf', x:87, y:32, scale:.82, rotation:8, zIndex:20, source:'starter', visibility:'public' },
-                { placementId:'starter-books', decorId:'bio-books', surfaceId:'middleShelf', x:24, y:58, scale:1, rotation:-1, zIndex:23, source:'starter', visibility:'public' },
-                { placementId:'starter-crystals', decorId:'rose-crystal', surfaceId:'middleShelf', x:47, y:60, scale:1, rotation:0, zIndex:24, source:'starter', visibility:'public' },
-                { placementId:'starter-bottle', decorId:'moon-bottle', surfaceId:'middleShelf', x:66, y:58, scale:.95, rotation:4, zIndex:23, source:'starter', visibility:'public' },
-                { placementId:'starter-tool', decorId:'ritual-tool', surfaceId:'middleShelf', x:58, y:65, scale:1, rotation:-8, zIndex:25, source:'starter', visibility:'public' },
-                { placementId:'starter-shrine', decorId:'centerpiece-symbol', surfaceId:'middleShelf', x:50, y:51, scale:1.03, rotation:0, zIndex:28, source:'starter', visibility:'public' },
-                { placementId:'starter-bio', decorId:'bio-card', surfaceId:'backWall', x:16, y:75, scale:.86, rotation:-8, zIndex:18, source:'starter', visibility:'public' },
-                { placementId:'starter-book-open', decorId:'open-book', surfaceId:'lowerShelf', x:36, y:80, scale:1.06, rotation:-3, zIndex:30, source:'starter', visibility:'public' },
-                { placementId:'starter-tarot', decorId:'tarot-star', surfaceId:'lowerShelf', x:65, y:82, scale:1, rotation:8, zIndex:27, source:'starter', visibility:'public' },
-                { placementId:'starter-goal', decorId:'goal-card', surfaceId:'backWall', x:84, y:72, scale:.82, rotation:7, zIndex:18, source:'starter', visibility:'public' },
-                { placementId:'starter-scroll', decorId:'poem-scroll', surfaceId:'lowerShelf', x:52, y:83, scale:.78, rotation:4, zIndex:24, source:'starter', visibility:'public' },
-                { placementId:'starter-incense', decorId:'incense-bowl', surfaceId:'lowerShelf', x:78, y:85, scale:1, rotation:0, zIndex:27, source:'starter', visibility:'public' }
+                { placementId:'starter-candle', decorId:'candle-pair', surfaceId:'topShelf', x:50, y:30, scale:1, rotation:0, zIndex:21, source:'starter', visibility:'public' },
+                { placementId:'starter-herbs', decorId:'herb-bundle', surfaceId:'topShelf', x:73, y:36, scale:.95, rotation:4, zIndex:19, source:'starter', visibility:'public' },
+                { placementId:'starter-books', decorId:'bio-books', surfaceId:'middleShelf', x:28, y:58, scale:1, rotation:-1, zIndex:23, source:'starter', visibility:'public' },
+                { placementId:'starter-bottle', decorId:'moon-bottle', surfaceId:'middleShelf', x:60, y:58, scale:.95, rotation:4, zIndex:22, source:'starter', visibility:'public' },
+                { placementId:'starter-goal', decorId:'goal-card', surfaceId:'backWall', x:82, y:72, scale:.82, rotation:7, zIndex:18, source:'starter', visibility:'public' }
             ];
         }
         function getDecorDefinition(altar, decorId) {
