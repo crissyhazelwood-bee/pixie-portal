@@ -38,41 +38,7 @@ body {
 .cabinet-wrap {
   position: relative;
   width: 480px;
-  overflow: visible; /* allows depth faces to extend outside bounds */
   filter: drop-shadow(0 50px 90px rgba(0,0,0,0.95));
-}
-
-/* ── Depth: top surface (between arch and body) ── */
-/* Projection: 44px right, 26px up — 30° oblique  */
-.cabinet-top-face {
-  position: relative;
-  z-index: 5;
-  height: 26px;
-  width: 524px;  /* 480 + 44 overhang */
-  background: linear-gradient(to bottom, #8c4a1c 0%, #4a2010 60%, #2e1208 100%);
-  clip-path: polygon(44px 0, 524px 0, 480px 26px, 0 26px);
-}
-/* Gold trim edge where top meets front face */
-.cabinet-top-face::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0;
-  width: 480px; height: 1.5px;
-  background: linear-gradient(to right, transparent, var(--gold), transparent);
-  opacity: 0.55;
-}
-
-/* ── Depth: right side face ──────────────── */
-.cabinet-right-face {
-  position: absolute;
-  left: 100%;
-  top: 100px;  /* start at bottom of arch */
-  width: 44px;
-  height: calc(100% - 100px);
-  background: linear-gradient(to right, #1e0c04 0%, #080200 100%);
-  clip-path: polygon(0 26px, 44px 0, 44px calc(100% - 26px), 0 100%);
-  pointer-events: none;
-  z-index: 2;
 }
 
 /* ── Gothic arch top ─────────────────────── */
@@ -295,17 +261,17 @@ body {
 
 /* ── Book stack ──────────────────────────── */
 .item-books {
-  display: flex; align-items: flex-end; gap: 3px; width: 62px; height: 66px;
+  display: flex; align-items: flex-end; gap: 9px; width: 186px; height: 198px;
 }
 .item-books span { border-radius: 2px 2px 0 0; flex-shrink: 0; position: relative; }
 .item-books span::after {
-  content: ''; position: absolute; top: 6px; left: 1px; right: 1px;
+  content: ''; position: absolute; top: 18px; left: 3px; right: 3px;
   height: 1px; background: rgba(255,255,255,.12);
 }
-.item-books span:nth-child(1) { width: 15px; height: 56px; background: linear-gradient(to right, #16084a, #2c1880); }
-.item-books span:nth-child(2) { width: 17px; height: 64px; background: linear-gradient(to right, #5c0a0a, #961818); }
-.item-books span:nth-child(3) { width: 13px; height: 50px; background: linear-gradient(to right, #0a3818, #186630); }
-.item-books span:nth-child(4) { width: 15px; height: 44px; background: linear-gradient(to right, #5c3c08, #a06818); }
+.item-books span:nth-child(1) { width: 45px; height: 168px; background: linear-gradient(to right, #16084a, #2c1880); }
+.item-books span:nth-child(2) { width: 51px; height: 192px; background: linear-gradient(to right, #5c0a0a, #961818); }
+.item-books span:nth-child(3) { width: 39px; height: 150px; background: linear-gradient(to right, #0a3818, #186630); }
+.item-books span:nth-child(4) { width: 45px; height: 132px; background: linear-gradient(to right, #5c3c08, #a06818); }
 
 /* ── Mouse familiar ──────────────────────── */
 .item-mouse { width: 56px; height: 52px; position: relative; }
@@ -484,9 +450,6 @@ body {
     </svg>
   </div>
 
-  <!-- Top surface — shows cabinet is 8.5" deep -->
-  <div class="cabinet-top-face"></div>
-
   <!-- Body: side posts + shelf interior -->
   <div class="cabinet-body">
     <div class="post left"></div>
@@ -503,9 +466,6 @@ body {
 
     <div class="post right"></div>
   </div>
-
-  <!-- Right side face — shows cabinet depth -->
-  <div class="cabinet-right-face"></div>
 
   <!-- Feet -->
   <div class="cabinet-feet">
