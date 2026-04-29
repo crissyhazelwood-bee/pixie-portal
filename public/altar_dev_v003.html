@@ -249,168 +249,28 @@ body {
   opacity: 0.4;
 }
 
-/* ── Altar items — base ──────────────────── */
-.altar-item {
+/* ── Blobs ───────────────────────────────── */
+.blob {
   position: absolute;
+  border-radius: 50%;
   pointer-events: all;
   cursor: grab;
   user-select: none;
   touch-action: none;
-  transform-origin: 50% 100%;
 }
-.altar-item * { pointer-events: none; user-select: none; }
-.altar-item:not(.is-lifted) {
+.blob:not(.is-lifted) {
   transition:
     left       0.20s cubic-bezier(0.22, 1, 0.36, 1),
     top        0.20s cubic-bezier(0.22, 1, 0.36, 1),
-    transform  0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    width      0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    height     0.20s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.20s ease,
     filter     0.20s ease;
 }
-.altar-item.is-lifted { cursor: grabbing; transition: none; z-index: 9999 !important; }
-
-/* ── Crystal ball ────────────────────────── */
-.item-crystal-ball { width: 58px; }
-.item-crystal-ball .orb {
-  width: 52px; height: 52px; border-radius: 50%; margin: 0 auto;
-  background: radial-gradient(circle at 36% 30%, #f0fbff 4%, #a8dcf8 22%, #4aaae8 50%, #1a60c0 78%, #061840 100%);
-  box-shadow: inset -7px -9px 18px rgba(0,15,70,.65), inset 4px 4px 8px rgba(255,255,255,.45), 0 0 22px rgba(70,160,255,.35);
-  position: relative;
-}
-.item-crystal-ball .glint {
-  position: absolute; top: 10px; left: 12px;
-  width: 13px; height: 8px; border-radius: 50%;
-  background: rgba(255,255,255,.72); transform: rotate(-20deg);
-}
-.item-crystal-ball .cup {
-  width: 44px; height: 6px; margin: 0 auto;
-  background: linear-gradient(to bottom, #8c4a18, #3a1c08);
-  border-radius: 3px;
-}
-.item-crystal-ball .stand {
-  width: 34px; height: 14px; margin: 0 auto;
-  border-radius: 0 0 6px 6px;
-  background: linear-gradient(to right, #4a2008, #8c4a18, #4a2008);
-}
-
-/* ── Book stack ──────────────────────────── */
-.item-books {
-  display: flex; align-items: flex-end; gap: 3px; width: 62px; height: 66px;
-}
-.item-books span { border-radius: 2px 2px 0 0; flex-shrink: 0; position: relative; }
-.item-books span::after {
-  content: ''; position: absolute; top: 6px; left: 1px; right: 1px;
-  height: 1px; background: rgba(255,255,255,.12);
-}
-.item-books span:nth-child(1) { width: 15px; height: 56px; background: linear-gradient(to right, #16084a, #2c1880); }
-.item-books span:nth-child(2) { width: 17px; height: 64px; background: linear-gradient(to right, #5c0a0a, #961818); }
-.item-books span:nth-child(3) { width: 13px; height: 50px; background: linear-gradient(to right, #0a3818, #186630); }
-.item-books span:nth-child(4) { width: 15px; height: 44px; background: linear-gradient(to right, #5c3c08, #a06818); }
-
-/* ── Mouse familiar ──────────────────────── */
-.item-mouse { width: 56px; height: 52px; position: relative; }
-.item-mouse .body {
-  position: absolute; bottom: 0; left: 6px;
-  width: 40px; height: 28px;
-  border-radius: 50% 50% 38% 38% / 60% 60% 40% 40%;
-  background: radial-gradient(ellipse at 40% 40%, #c8b4a0, #8a6a56);
-}
-.item-mouse .head {
-  position: absolute; bottom: 20px; left: 28px;
-  width: 22px; height: 20px; border-radius: 50%;
-  background: radial-gradient(ellipse at 40% 38%, #c8b4a0, #8a6a56);
-}
-.item-mouse .ear {
-  position: absolute; width: 11px; height: 11px; border-radius: 50%;
-  background: #bca898; bottom: 36px;
-}
-.item-mouse .ear::after {
-  content: ''; position: absolute; inset: 2px; border-radius: 50%; background: #e89088;
-}
-.item-mouse .ear.l { left: 28px; }
-.item-mouse .ear.r { left: 37px; }
-.item-mouse .eyes {
-  position: absolute; bottom: 27px; left: 33px; display: flex; gap: 5px;
-}
-.item-mouse .eyes span {
-  width: 3px; height: 3px; border-radius: 50%; background: #1a0808;
-  box-shadow: 0 0 3px rgba(180,80,80,.6);
-}
-.item-mouse .tail {
-  position: absolute; bottom: 4px; left: 0;
-  width: 18px; height: 7px;
-  border-bottom: 2.5px solid #a08070; border-left: 2px solid #a08070;
-  border-radius: 0 0 0 60%;
-}
-
-/* ── Crystal cluster ─────────────────────── */
-.item-crystals { width: 56px; height: 60px; position: relative; }
-.item-crystals span {
-  position: absolute; bottom: 0; transform-origin: bottom center;
-  clip-path: polygon(50% 0%, 85% 100%, 15% 100%);
-}
-.item-crystals span:nth-child(1) {
-  width: 18px; height: 44px; left: 6px; transform: rotate(-14deg);
-  background: linear-gradient(160deg, #f0d8ff, #b07ad4, #6a2a90);
-}
-.item-crystals span:nth-child(2) {
-  width: 22px; height: 58px; left: 50%; transform: translateX(-50%);
-  background: linear-gradient(160deg, #fff0ff, #cc96f0, #8840c8); z-index: 2;
-}
-.item-crystals span:nth-child(3) {
-  width: 16px; height: 40px; right: 6px; transform: rotate(16deg);
-  background: linear-gradient(160deg, #e0c8ff, #9060c8, #4a1878);
-}
-
-/* ── Candle ──────────────────────────────── */
-.item-candle { width: 30px; height: 74px; position: relative; }
-.item-candle .flame {
-  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 12px; height: 20px; border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
-  background: radial-gradient(ellipse at 50% 60%, #fff7a0, #ffcc00, #ff8800, transparent);
-  box-shadow: 0 0 10px rgba(255,180,0,.8), 0 0 24px rgba(255,100,0,.35);
-  animation: flicker 1.8s ease-in-out infinite alternate;
-}
-@keyframes flicker {
-  from { transform: translateX(-50%) scaleX(1) scaleY(1); }
-  to   { transform: translateX(-48%) scaleX(.88) scaleY(1.06); }
-}
-.item-candle .wick {
-  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 2px; height: 7px; background: #2a1a06; border-radius: 1px;
-}
-.item-candle .wax {
-  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 26px; height: 54px; border-radius: 4px 4px 2px 2px;
-  background: linear-gradient(to right, #e8ddd0, #f8f4ee, #e0d4c4);
-  box-shadow: inset 0 0 8px rgba(0,0,0,.15);
-}
-.item-candle .wax::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8px;
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  background: #cdc0b0;
-}
-
-/* ── Herb bundle ─────────────────────────── */
-.item-herbs { width: 50px; height: 58px; position: relative; }
-.item-herbs .sprig {
-  position: absolute; bottom: 16px; width: 4px; border-radius: 2px;
-  background: linear-gradient(to top, #2a5a10, #4a8a28, #78c840);
-  transform-origin: bottom center;
-}
-.item-herbs .sprig:nth-child(1) { height: 40px; left: 10px; transform: rotate(-18deg); }
-.item-herbs .sprig:nth-child(2) { height: 46px; left: 23px; transform: rotate(0deg); }
-.item-herbs .sprig:nth-child(3) { height: 38px; left: 36px; transform: rotate(15deg); }
-.item-herbs .sprig::before, .item-herbs .sprig::after {
-  content: ''; position: absolute;
-  width: 11px; height: 7px; border-radius: 50%; background: #5ab030;
-}
-.item-herbs .sprig::before { top: 8px;  left: -9px;  transform: rotate(-30deg); }
-.item-herbs .sprig::after  { top: 20px; right: -9px; transform: rotate(30deg); }
-.item-herbs .tie {
-  position: absolute; bottom: 10px; left: 5px;
-  width: 38px; height: 8px; border-radius: 4px;
-  background: #7a5820; border: 1px solid #5a3c10;
+.blob.is-lifted {
+  cursor: grabbing;
+  transition: none;
+  z-index: 9999 !important;
 }
 
 #debug {
@@ -537,47 +397,29 @@ function nearestShelf(y) {
   , 'lower');
 }
 
-function placeItem(el, shelf, xPct) {
-  const s = SHELVES[shelf];
+function placeBlob(el, shelf, xPct) {
+  const s    = SHELVES[shelf];
+  const base = parseInt(el.dataset.base);
+  const size = Math.round(base * s.scale);
   el.dataset.shelf = shelf;
   el.dataset.x     = xPct;
-  el.style.left    = xPct + '%';
-  el.style.top     = shelfSurfaceY(shelf) + 'px';
-  // translate(-50%,-100%) anchors bottom-center at (left,top); scale from that point
-  el.style.transform      = `translate(-50%, -100%) scale(${s.scale})`;
-  el.style.transformOrigin = '50% 100%';
-  el.style.boxShadow      = s.shadow;
-  el.style.zIndex         = 3 - s.band;
-  el.style.filter         = `brightness(${0.72 + s.scale * 0.28})`;
+  el.style.width       = size + 'px';
+  el.style.height      = size + 'px';
+  el.style.left        = xPct + '%';
+  el.style.top         = shelfSurfaceY(shelf) + 'px';
+  el.style.transform   = 'translate(-50%, -100%)';
+  el.style.boxShadow   = s.shadow;
+  el.style.zIndex      = 3 - s.band;
+  el.style.filter      = `brightness(${0.72 + s.scale * 0.28})`;
 }
 
-function getItemHtml(type) {
-  switch (type) {
-    case 'crystal-ball':
-      return '<div class="orb"><span class="glint"></span></div><div class="cup"></div><div class="stand"></div>';
-    case 'books':
-      return '<span></span><span></span><span></span><span></span>';
-    case 'mouse':
-      return '<div class="tail"></div><div class="body"></div><div class="head"></div>' +
-             '<div class="ear l"></div><div class="ear r"></div>' +
-             '<div class="eyes"><span></span><span></span></div>';
-    case 'crystals':
-      return '<span></span><span></span><span></span>';
-    case 'candle':
-      return '<div class="flame"><span class="wick"></span></div><div class="wax"></div>';
-    case 'herbs':
-      return '<div class="sprig"></div><div class="sprig"></div><div class="sprig"></div><div class="tie"></div>';
-    default: return '';
-  }
-}
-
-const ITEMS = [
-  { type: 'crystal-ball', shelf: 'top',    x: 22 },
-  { type: 'books',        shelf: 'top',    x: 66 },
-  { type: 'mouse',        shelf: 'middle', x: 28 },
-  { type: 'crystals',     shelf: 'middle', x: 68 },
-  { type: 'candle',       shelf: 'lower',  x: 24 },
-  { type: 'herbs',        shelf: 'lower',  x: 60 },
+const BLOBS = [
+  { shelf: 'top',    x: 20, color: '#c084fc', base: 52 },
+  { shelf: 'top',    x: 64, color: '#f472b6', base: 48 },
+  { shelf: 'middle', x: 30, color: '#60a5fa', base: 52 },
+  { shelf: 'middle', x: 68, color: '#34d399', base: 50 },
+  { shelf: 'lower',  x: 22, color: '#fb923c', base: 54 },
+  { shelf: 'lower',  x: 58, color: '#e879f9', base: 50 },
 ];
 
 const cabinet = document.getElementById('cabinet');
@@ -585,21 +427,24 @@ const layer   = document.getElementById('item-layer');
 const debug   = document.getElementById('debug');
 let drag = null;
 
-ITEMS.forEach(def => {
+BLOBS.forEach((def, i) => {
   const el = document.createElement('div');
-  el.className = 'altar-item item-' + def.type;
-  el.innerHTML = getItemHtml(def.type);
+  el.className    = 'blob';
+  el.dataset.base = def.base;
+  el.style.background = def.color;
   layer.appendChild(el);
-  placeItem(el, def.shelf, def.x);
+  placeBlob(el, def.shelf, def.x);
 
   el.addEventListener('pointerdown', e => {
     e.preventDefault();
     el.setPointerCapture(e.pointerId);
     el.classList.add('is-lifted');
-    el.style.transform       = 'translate(-50%, -50%) scale(1.05)';
-    el.style.transformOrigin = '50% 50%';
-    el.style.boxShadow       = '0 24px 50px rgba(0,0,0,0.72)';
-    el.style.filter          = 'brightness(1.18)';
+    const base = parseInt(el.dataset.base);
+    el.style.width     = base + 'px';
+    el.style.height    = base + 'px';
+    el.style.transform = 'translate(-50%, -50%)';
+    el.style.boxShadow = '0 22px 48px rgba(0,0,0,0.7)';
+    el.style.filter    = 'brightness(1.2)';
     drag = { el };
   });
 
@@ -618,7 +463,7 @@ ITEMS.forEach(def => {
     const rect = cabinet.getBoundingClientRect();
     const x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
     const y = e.clientY - rect.top;
-    placeItem(el, nearestShelf(y), x);
+    placeBlob(el, nearestShelf(y), x);
     el.classList.remove('is-lifted');
     drag = null;
     debug.textContent = 'placed · ' + el.dataset.shelf + '  x: ' + Math.round(x) + '%';
@@ -626,7 +471,7 @@ ITEMS.forEach(def => {
 
   el.addEventListener('pointercancel', () => {
     if (!drag || drag.el !== el) return;
-    placeItem(el, el.dataset.shelf, parseFloat(el.dataset.x));
+    placeBlob(el, el.dataset.shelf, parseFloat(el.dataset.x));
     el.classList.remove('is-lifted');
     drag = null;
   });
