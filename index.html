@@ -7322,17 +7322,17 @@
                 ]
             };
         }
-        function dedupeStarterDecorByItemId(placedDecor) {
-            const seen = new Set();
-            return placedDecor.filter(item => {
-                const isStarter = String(item.instanceId || item.placementId || '').startsWith('starter-') || item.source === 'starter';
-                if (!isStarter) return true;
-                const key = item.itemId || item.decorId || item.id;
-                if (!key) return true;
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
+        const CANONICAL_STARTER_IDS = new Set([
+            'starter-crystal-ball', 'starter-candle', 'starter-herbs',
+            'starter-books', 'starter-bottle', 'starter-goal'
+        ]);
+        function migrateStarterDecor(placedDecor) {
+            const filtered = placedDecor.filter(item => {
+                const pid = item.instanceId || item.placementId || '';
+                if (!pid.startsWith('starter-')) return true;
+                return CANONICAL_STARTER_IDS.has(pid);
             });
+            return filtered.length > 0 ? filtered : getStarterPlacedDecor();
         }
         function normalizeAltarProfile(raw) {
             const base = getDefaultAltarProfile();
@@ -7397,7 +7397,7 @@
                 seenInstances.add(p.instanceId);
                 return true;
             });
-            altar.placedDecor = dedupeStarterDecorByItemId(altar.placedDecor);
+            altar.placedDecor = migrateStarterDecor(altar.placedDecor);
             return altar;
         }
         function getAltarProfile() {
