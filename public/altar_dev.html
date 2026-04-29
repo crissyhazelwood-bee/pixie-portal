@@ -38,7 +38,41 @@ body {
 .cabinet-wrap {
   position: relative;
   width: 480px;
+  overflow: visible; /* allows depth faces to extend outside bounds */
   filter: drop-shadow(0 50px 90px rgba(0,0,0,0.95));
+}
+
+/* ── Depth: top surface (between arch and body) ── */
+/* Projection: 44px right, 26px up — 30° oblique  */
+.cabinet-top-face {
+  position: relative;
+  z-index: 5;
+  height: 26px;
+  width: 524px;  /* 480 + 44 overhang */
+  background: linear-gradient(to bottom, #8c4a1c 0%, #4a2010 60%, #2e1208 100%);
+  clip-path: polygon(44px 0, 524px 0, 480px 26px, 0 26px);
+}
+/* Gold trim edge where top meets front face */
+.cabinet-top-face::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 480px; height: 1.5px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  opacity: 0.55;
+}
+
+/* ── Depth: right side face ──────────────── */
+.cabinet-right-face {
+  position: absolute;
+  left: 100%;
+  top: 100px;  /* start at bottom of arch */
+  width: 44px;
+  height: calc(100% - 100px);
+  background: linear-gradient(to right, #1e0c04 0%, #080200 100%);
+  clip-path: polygon(0 26px, 44px 0, 44px calc(100% - 26px), 0 100%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* ── Gothic arch top ─────────────────────── */
@@ -239,18 +273,6 @@ body {
   z-index: 9999 !important;
 }
 
-/* ── Corner spandrels ────────────────────── */
-.spandrel {
-  position: absolute;
-  top: 0;
-  width: 88px;
-  height: 88px;
-  pointer-events: none;
-  z-index: 15;
-}
-.spandrel.left  { left: 0; }
-.spandrel.right { right: 0; transform: scaleX(-1); }
-
 #debug {
   color: rgba(255,255,255,0.25);
   font: 11px monospace;
@@ -322,58 +344,14 @@ body {
     </svg>
   </div>
 
+  <!-- Top surface — shows cabinet is 8.5" deep -->
+  <div class="cabinet-top-face"></div>
+
   <!-- Body: side posts + shelf interior -->
   <div class="cabinet-body">
     <div class="post left"></div>
 
     <div class="cabinet-interior" id="cabinet">
-
-      <!-- Corner spandrels — solid carved wood brackets -->
-      <svg class="spandrel left" viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
-        <!-- Solid wood body — concave inner edge like a cove bracket -->
-        <path d="M0,0 L88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88 Z"
-              fill="#3a1c08"/>
-        <!-- Lighter top face (catches light) -->
-        <path d="M0,0 L88,0 Q88,5 82,9 L0,9 Z"
-              fill="#6b3010" opacity="0.55"/>
-        <!-- Lighter left face -->
-        <path d="M0,0 L9,0 L9,82 Q5,88 0,88 Z"
-              fill="#6b3010" opacity="0.35"/>
-        <!-- Cove shadow — deep groove along the concave edge -->
-        <path d="M80,12 Q48,48 12,80"
-              stroke="#0f0401" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <!-- Cove highlight bead — raised lip catching light -->
-        <path d="M76,14 Q44,48 14,76"
-              stroke="#8c4a18" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9"/>
-        <!-- Thin gold accent line — inlaid trim -->
-        <path d="M72,17 Q42,48 17,72"
-              stroke="#a87020" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
-        <!-- Second inner bead — double molding -->
-        <path d="M64,22 Q40,46 22,64"
-              stroke="#6b3010" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-        <!-- Carved fan/rosette at the midpoint -->
-        <circle cx="44" cy="44" r="7" fill="#2e0e04" stroke="#6b3010" stroke-width="1" opacity="0.8"/>
-        <circle cx="44" cy="44" r="4" fill="#3a1c08" stroke="#8c4a18" stroke-width="0.8" opacity="0.9"/>
-        <path d="M44,37 L44,44 M37,44 L44,44 M39,39 L44,44 M49,39 L44,44"
-              stroke="#6b3010" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.7"/>
-        <!-- Edge shadow to ground it -->
-        <path d="M88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88"
-              stroke="#0f0401" stroke-width="3" fill="none" opacity="0.7"/>
-      </svg>
-      <svg class="spandrel right" viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0,0 L88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88 Z" fill="#3a1c08"/>
-        <path d="M0,0 L88,0 Q88,5 82,9 L0,9 Z" fill="#6b3010" opacity="0.55"/>
-        <path d="M0,0 L9,0 L9,82 Q5,88 0,88 Z" fill="#6b3010" opacity="0.35"/>
-        <path d="M80,12 Q48,48 12,80" stroke="#0f0401" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <path d="M76,14 Q44,48 14,76" stroke="#8c4a18" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9"/>
-        <path d="M72,17 Q42,48 17,72" stroke="#a87020" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
-        <path d="M64,22 Q40,46 22,64" stroke="#6b3010" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-        <circle cx="44" cy="44" r="7" fill="#2e0e04" stroke="#6b3010" stroke-width="1" opacity="0.8"/>
-        <circle cx="44" cy="44" r="4" fill="#3a1c08" stroke="#8c4a18" stroke-width="0.8" opacity="0.9"/>
-        <path d="M44,37 L44,44 M37,44 L44,44 M39,39 L44,44 M49,39 L44,44" stroke="#6b3010" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.7"/>
-        <path d="M88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88" stroke="#0f0401" stroke-width="3" fill="none" opacity="0.7"/>
-      </svg>
-
       <div class="shelf-band" data-shelf="top"></div>
       <div class="shelf-board"></div>
       <div class="shelf-band" data-shelf="middle"></div>
@@ -385,6 +363,9 @@ body {
 
     <div class="post right"></div>
   </div>
+
+  <!-- Right side face — shows cabinet depth -->
+  <div class="cabinet-right-face"></div>
 
   <!-- Feet -->
   <div class="cabinet-feet">
