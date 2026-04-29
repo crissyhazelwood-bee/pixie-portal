@@ -7371,8 +7371,8 @@
                 placementId: p.placementId || instanceId,
                 decorId: p.decorId || 'moon-sticker',
                 surfaceId: p.surfaceId || 'middleShelf',
-                x: Number.isFinite(+p.x) ? +p.x : 50,
-                y: Number.isFinite(+p.y) ? +p.y : 50,
+                x: Number.isFinite(parseFloat(p.x)) ? parseFloat(p.x) : 50,
+                y: Number.isFinite(parseFloat(p.y)) ? parseFloat(p.y) : 50,
                 scale: Number.isFinite(+p.scale) ? +p.scale : 1,
                 rotation: Number.isFinite(+p.rotation) ? +p.rotation : 0,
                 zIndex: Number.isFinite(+p.zIndex) ? +p.zIndex : 20,
@@ -7995,19 +7995,22 @@
             renderAltarProfile(altar);
         }
         window.updateAltarPlacedItemPosition = updateAltarPlacedItemPosition;
+        function altarClamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+        function pointerToAltarPercent(e, area, offsetXPx, offsetYPx, item) {
+            const rect = area.getBoundingClientRect();
+            const halfW = item.offsetWidth / 2;
+            const halfH = item.offsetHeight / 2;
+            return {
+                x: altarClamp(((e.clientX - rect.left - offsetXPx) / rect.width) * 100,
+                    (halfW / rect.width) * 100, ((rect.width - halfW) / rect.width) * 100),
+                y: altarClamp(((e.clientY - rect.top - offsetYPx) / rect.height) * 100,
+                    (halfH / rect.height) * 100, ((rect.height - halfH) / rect.height) * 100)
+            };
+        }
         function onAltarPointerDown(event) {
             if (!altarEditMode || !document.body.classList.contains('pixie-profile-page')) return;
             const item = getAltarItemFromEvent(event);
             if (!item) return;
-            if (window.DEBUG_ALTAR_DRAG) {
-                console.log('DRAG TARGET', {
-                    rawTarget: event.target,
-                    closestInstance: event.target.closest?.('[data-altar-instance-id]'),
-                    closestPlaced: event.target.closest?.('.altar-placed-item'),
-                    closestShelf: event.target.closest?.('[data-altar-shelf], .altar-shelf, .altar-cabinet-shelf'),
-                    activeSelected: document.querySelector('.altar-placed-item.is-selected')
-                });
-            }
             if (event.target.closest('button:not(.altar-placed-item),input,select,textarea,[contenteditable="true"]')) return;
             const area = item.closest('.altar-placement-area');
             if (!area) {
@@ -8017,13 +8020,14 @@
             event.preventDefault();
             event.stopPropagation();
             const itemRect = item.getBoundingClientRect();
+            // Offset from pointer to visual CENTER (item has translate(-50%,-50%) so CSS left/top = visual center)
             altarDragState = {
                 instanceId: item.dataset.altarInstanceId,
                 item,
                 area,
                 pointerId: event.pointerId,
-                offsetX: event.clientX - itemRect.left,
-                offsetY: event.clientY - itemRect.top
+                offsetX: event.clientX - (itemRect.left + itemRect.width / 2),
+                offsetY: event.clientY - (itemRect.top + itemRect.height / 2)
             };
             altarSelectedPlacementId = altarDragState.instanceId;
             item.classList.add('is-dragging', 'is-selected');
@@ -8035,28 +8039,23 @@
             event.stopPropagation();
             const { item, area, offsetX, offsetY } = altarDragState;
             if (!item || !area) return;
-            const areaRect = area.getBoundingClientRect();
-            let x = event.clientX - areaRect.left - offsetX;
-            let y = event.clientY - areaRect.top - offsetY;
-            x = Math.max(0, Math.min(x, areaRect.width - item.offsetWidth));
-            y = Math.max(0, Math.min(y, areaRect.height - item.offsetHeight));
-            item.style.left = x + 'px';
-            item.style.top = y + 'px';
-            item.dataset.x = String(Math.round(x));
-            item.dataset.y = String(Math.round(y));
+            // All math stays in percent — no px mixing
+            const pos = pointerToAltarPercent(event, area, offsetX, offsetY, item);
+            item.style.left = pos.x + '%';
+            item.style.top = pos.y + '%';
+            item.dataset.x = String(pos.x);
+            item.dataset.y = String(pos.y);
             item.dataset.surface = getAltarSurfaceFromPoint(area, event.clientX, event.clientY);
         }
         function onAltarPointerUp(event) {
             if (!altarDragState) return;
             event.preventDefault();
             event.stopPropagation();
-            const { item, area, instanceId, pointerId } = altarDragState;
-            const rawX = Number(item?.dataset?.x || 0);
-            const rawY = Number(item?.dataset?.y || 0);
+            const { item, instanceId, pointerId } = altarDragState;
+            // dataset.x/y already in percent — pass directly, no conversion
+            const x = Number(item?.dataset?.x || 0);
+            const y = Number(item?.dataset?.y || 0);
             const surfaceId = item?.dataset?.surface || '';
-            const areaRect = area?.getBoundingClientRect();
-            const x = areaRect?.width ? Math.max(0, Math.min(100, (rawX / areaRect.width) * 100)) : rawX;
-            const y = areaRect?.height ? Math.max(0, Math.min(100, (rawY / areaRect.height) * 100)) : rawY;
             item?.classList?.remove('is-dragging');
             try { item?.releasePointerCapture?.(pointerId); } catch(e) {}
             document.querySelectorAll('.drag-ghost,.altar-drag-ghost').forEach(el => el.remove());
