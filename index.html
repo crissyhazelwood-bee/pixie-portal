@@ -7580,7 +7580,7 @@
             const decor = getDecorDefinition(altar, placement.decorId);
             const instanceId = getPlacementInstanceId(placement);
             const selected = altarSelectedPlacementId === instanceId;
-            return '<button class="altar-physical-object altar-placed-item altar-draggable-item free-decor ' + (selected ? 'is-selected' : '') + '" data-altar-instance-id="' + escAttr(instanceId) + '" data-altar-item="' + escAttr(instanceId) + '" data-item-id="' + escAttr(placement.decorId) + '" data-draggable="true" data-placement-id="' + escAttr(placement.placementId || instanceId) + '" data-surface="' + escAttr(placement.surfaceId) + '" style="left:' + placement.x + '%;top:' + placement.y + '%;--scale:' + placement.scale + ';--rot:' + placement.rotation + 'deg;z-index:' + placement.zIndex + '" onclick="selectPlacedDecor(event,&quot;' + escAttr(instanceId) + '&quot;)" title="' + escAttr(decor.name || decor.id) + '">' + renderDecorHtml(decor, altar) + '</button>';
+            return '<button class="altar-physical-object altar-placed-item altar-draggable-item free-decor ' + (selected ? 'is-selected' : '') + '" data-altar-instance-id="' + escAttr(instanceId) + '" data-altar-item="' + escAttr(instanceId) + '" data-item-id="' + escAttr(placement.decorId) + '" data-draggable="true" data-placement-id="' + escAttr(placement.placementId || instanceId) + '" data-surface="' + escAttr(placement.surfaceId) + '" data-render-source="placedDecor" style="left:' + placement.x + '%;top:' + placement.y + '%;--scale:' + placement.scale + ';--rot:' + placement.rotation + 'deg;z-index:' + placement.zIndex + '" onclick="selectPlacedDecor(event,&quot;' + escAttr(instanceId) + '&quot;)" title="' + escAttr(decor.name || decor.id) + '">' + renderDecorHtml(decor, altar) + '</button>';
         }
         function renderAltarSelectedControls() {
             if (altarMode === 'view' || !altarSelectedPlacementId) return '';
@@ -7683,10 +7683,24 @@
                     return '<button class="altar-slot ' + (!item ? 'empty ' : '') + (selected ? 'selected' : '') + '" data-shelf="' + meta.id + '" data-slot="' + slotId + '" onclick="openAltarPiece(&quot;' + meta.id + '&quot;,&quot;' + slotId + '&quot;)" title="' + escAttr(title) + '">' + renderAltarItem(item) + '</button>';
                 }).join('') + '</div>';
         }
+        function assertUniqueRenderedAltarItems() {
+            const ids = new Map();
+            document.querySelectorAll('[data-altar-instance-id]').forEach(el => {
+                const id = el.dataset.altarInstanceId;
+                if (!ids.has(id)) ids.set(id, []);
+                ids.get(id).push(el);
+            });
+            ids.forEach((els, id) => {
+                if (els.length > 1) {
+                    console.error('DUPLICATE DOM ALTAR ITEM', id, els.map(el => ({ class: el.className, source: el.dataset.renderSource, parent: el.parentElement?.className })));
+                }
+            });
+        }
         function renderAltarBoard(altar) {
             const board = document.getElementById('profile-altar-board');
             if (!board) return;
             board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose') + (altarMode !== 'view' ? ' edit-mode' : ' view-mode') + ' mode-' + altarMode;
+            board.innerHTML = '';
             const objects = (altar.placedDecor || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(obj => renderPlacedDecor(obj, altar)).join('');
             board.innerHTML = '<div class="altar-cabinet altar-stage altar-placement-area altar-canvas" aria-label="Decorated personal altar cabinet">' +
                 '<div class="altar-cabinet-spire left"></div><div class="altar-cabinet-spire right"></div>' +
@@ -7699,6 +7713,7 @@
                 objects +
                 '<div class="altar-mantra-plaque cabinet-plaque">"' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>' +
                 '</div>' + renderAltarModeDock() + renderAltarSelectedControls();
+            assertUniqueRenderedAltarItems();
             return;
             board.className = 'altar-board theme-' + (altar.theme || 'rose');
             board.innerHTML = '<div class="altar-preview-label">Your altar</div><div class="altar-room-arch"></div><h3 class="altar-preview-title">Your Altar</h3><div class="altar-preview-subtitle">Click any shrine piece to go deeper</div><div class="altar-moon-phases">○ ◐ ● ◑ ○</div><div class="altar-shelves">' +
@@ -8044,6 +8059,7 @@
             const y = areaRect?.height ? Math.max(0, Math.min(100, (rawY / areaRect.height) * 100)) : rawY;
             item?.classList?.remove('is-dragging');
             try { item?.releasePointerCapture?.(pointerId); } catch(e) {}
+            document.querySelectorAll('.drag-ghost,.altar-drag-ghost').forEach(el => el.remove());
             altarDragState = null;
             updateAltarPlacedItemPosition(instanceId, { x, y, surfaceId });
         }
