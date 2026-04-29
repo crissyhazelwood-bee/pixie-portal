@@ -7968,20 +7968,16 @@
             return item.classList.contains('altar-placed-item') ? item : item.closest('.altar-placed-item');
         }
         function updateAltarPlacedItemPosition(instanceId, patch) {
-            if (!instanceId) return;
             const altar = getAltarProfile();
-            const area = document.querySelector('.altar-placement-area');
-            const areaRect = area?.getBoundingClientRect();
-            altar.placedDecor = (altar.placedDecor || []).map(item => {
-                if (getPlacementInstanceId(item) !== instanceId) return item;
-                const next = { ...item };
-                if (Number.isFinite(+patch.x) && areaRect?.width) next.x = Math.max(0, Math.min(100, (+patch.x / areaRect.width) * 100));
-                if (Number.isFinite(+patch.y) && areaRect?.height) next.y = Math.max(0, Math.min(100, (+patch.y / areaRect.height) * 100));
-                if (patch.surfaceId) next.surfaceId = patch.surfaceId;
-                next.layer = next.zIndex;
-                return next;
+            if (!Array.isArray(altar.placedDecor)) return;
+            altar.placedDecor = altar.placedDecor.map(item => {
+                if (item.instanceId === instanceId) {
+                    return { ...item, ...patch };
+                }
+                return item;
             });
-            saveAltarProfile(altar, false);
+            saveAltarProfile(altar);
+            renderAltarProfile(altar);
         }
         window.updateAltarPlacedItemPosition = updateAltarPlacedItemPosition;
         function onAltarPointerDown(event) {
@@ -8039,15 +8035,17 @@
             if (!altarDragState) return;
             event.preventDefault();
             event.stopPropagation();
-            const { item, instanceId, pointerId } = altarDragState;
-            const x = Number(item?.dataset?.x || 0);
-            const y = Number(item?.dataset?.y || 0);
+            const { item, area, instanceId, pointerId } = altarDragState;
+            const rawX = Number(item?.dataset?.x || 0);
+            const rawY = Number(item?.dataset?.y || 0);
             const surfaceId = item?.dataset?.surface || '';
+            const areaRect = area?.getBoundingClientRect();
+            const x = areaRect?.width ? Math.max(0, Math.min(100, (rawX / areaRect.width) * 100)) : rawX;
+            const y = areaRect?.height ? Math.max(0, Math.min(100, (rawY / areaRect.height) * 100)) : rawY;
             item?.classList?.remove('is-dragging');
             try { item?.releasePointerCapture?.(pointerId); } catch(e) {}
             altarDragState = null;
             updateAltarPlacedItemPosition(instanceId, { x, y, surfaceId });
-            renderAltarProfile();
         }
         document.addEventListener('pointerdown', onAltarPointerDown, true);
         document.addEventListener('pointermove', onAltarPointerMove, true);
