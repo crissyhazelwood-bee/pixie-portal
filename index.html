@@ -7588,11 +7588,11 @@
             const placement = (altar.placedDecor || []).find(item => getPlacementInstanceId(item) === altarSelectedPlacementId);
             if (!placement) return '<div class="altar-selected-controls altar-selected-item"><div class="altar-selected-summary"><div class="altar-selected-preview">✦</div><div><div class="altar-selected-title">No item selected</div><div class="altar-selected-meta">Click an altar object to edit it</div></div></div><div class="altar-selected-buttons"><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
             const decor = getDecorDefinition(altar, placement.decorId);
-            return '<div class="altar-selected-controls altar-selected-item"><div class="altar-selected-summary"><div class="altar-selected-preview">' + renderDecorHtml(decor, altar) + '</div><div><div class="altar-selected-title">' + escHtml(decor.name || decor.id) + '</div><div class="altar-selected-meta">' + escHtml(placement.surfaceId) + ' · x ' + Math.round(placement.x) + ' / y ' + Math.round(placement.y) + ' · scale ' + Number(placement.scale || 1).toFixed(2) + ' · rot ' + Math.round(placement.rotation || 0) + ' · layer ' + (placement.zIndex || 0) + '</div></div></div><div class="altar-selected-buttons"><button onclick="adjustSelectedDecor(&quot;rotate&quot;,-8)">Rotate Left</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,8)">Rotate Right</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,-0.08)">Smaller</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,0.08)">Larger</button><button onclick="adjustSelectedDecor(&quot;z&quot;,1)">Forward</button><button onclick="adjustSelectedDecor(&quot;z&quot;,-1)">Backward</button><button onclick="duplicateSelectedDecor()">Duplicate</button><button onclick="removeSelectedDecor()">Remove</button><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
+            return '<div class="altar-selected-controls altar-selected-item"><div class="altar-selected-summary"><div class="altar-selected-preview">' + renderDecorHtml(decor, altar) + '</div><div><div class="altar-selected-title">' + escHtml(decor.name || decor.id) + '</div><div class="altar-selected-meta">' + escHtml(placement.surfaceId) + ' · x ' + Math.round(placement.x) + ' / y ' + Math.round(placement.y) + ' · scale ' + Number(placement.scale || 1).toFixed(2) + ' · rot ' + Math.round(placement.rotation || 0) + ' · layer ' + (placement.zIndex || 0) + '</div></div></div><div class="altar-selected-buttons"><button onclick="nudgeSelectedAltarItem(0,-1)" title="Up 1">&#x25B2;</button><button onclick="nudgeSelectedAltarItem(0,1)" title="Down 1">&#x25BC;</button><button onclick="nudgeSelectedAltarItem(-1,0)" title="Left 1">&#x25C4;</button><button onclick="nudgeSelectedAltarItem(1,0)" title="Right 1">&#x25BA;</button><button onclick="nudgeSelectedAltarItem(0,-5)" title="Up 5">&#x25B2;&#x25B2;</button><button onclick="nudgeSelectedAltarItem(0,5)" title="Down 5">&#x25BC;&#x25BC;</button><button onclick="nudgeSelectedAltarItem(-5,0)" title="Left 5">&#x25C4;&#x25C4;</button><button onclick="nudgeSelectedAltarItem(5,0)" title="Right 5">&#x25BA;&#x25BA;</button><button onclick="centerSelectedAltarItem()">Center</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,-8)">Rotate Left</button><button onclick="adjustSelectedDecor(&quot;rotate&quot;,8)">Rotate Right</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,-0.08)">Smaller</button><button onclick="adjustSelectedDecor(&quot;scale&quot;,0.08)">Larger</button><button onclick="adjustSelectedDecor(&quot;z&quot;,1)">Forward</button><button onclick="adjustSelectedDecor(&quot;z&quot;,-1)">Backward</button><button onclick="duplicateSelectedDecor()">Duplicate</button><button onclick="removeSelectedDecor()">Remove</button><button class="primary" onclick="saveAltarToProfile()">Save</button></div></div>';
         }
         function renderAltarModeDock() {
             if (altarMode === 'view') return '';
-            const help = altarMode === 'shop' ? 'Browse, buy, or generate decor. Use the detail panel to place an owned item.' : 'Drag to place. Use inspector to resize, rotate, layer, duplicate, then Save Altar.';
+            const help = altarMode === 'shop' ? 'Browse, buy, or generate decor. Use the detail panel to place an owned item.' : 'Click an item to select it. Use the arrow buttons to move it, then Save.';
             return '<div class="altar-mode-dock"><div class="altar-mode-help">' + escHtml(help) + '</div><div class="altar-mode-buttons"><button class="' + (altarMode === 'view' ? 'active' : '') + '" onclick="setAltarMode(&quot;view&quot;)">View</button><button class="' + (altarMode === 'edit' ? 'active' : '') + '" onclick="setAltarMode(&quot;edit&quot;)">Edit</button><button class="' + (altarMode === 'shop' ? 'active' : '') + '" onclick="setAltarMode(&quot;shop&quot;)">Shop</button></div></div>';
         }
         function getFilteredAltarDecor(altar) {
@@ -8001,89 +8001,32 @@
         window.updateAltarPlacedItemPosition = updateAltarPlacedItemPosition;
         window.__altarPointerDownCount = 0;
         window.__altarActiveDrag = false;
-        function installAltarDragV2() {
-            if (window.__altarDragV2Installed) return;
-            window.__altarDragV2Installed = true;
-            let drag = null;
-            function getAltarDragItem(e) {
-                const item = e.target.closest('.altar-placed-item[data-altar-instance-id]');
-                if (!item) return null;
-                if (e.target.closest('button:not(.altar-placed-item),input,select,textarea,[contenteditable="true"]')) return null;
-                return item;
-            }
-            function getAltarDragArea(item) {
-                return item.closest('.altar-placement-area, .altar-canvas, .altar-stage');
-            }
-            function onDown(e) {
-                if (!altarEditMode || !document.body.classList.contains('pixie-profile-page')) return;
-                const item = getAltarDragItem(e);
-                if (!item) return;
-                const area = getAltarDragArea(item);
-                if (!area) return;
-                window.__altarPointerDownCount++;
-                console.log('ALTAR POINTERDOWN COUNT', window.__altarPointerDownCount);
-                e.preventDefault();
-                e.stopPropagation();
-                const itemRect = item.getBoundingClientRect();
-                drag = {
-                    pointerId: e.pointerId,
-                    item,
-                    area,
-                    instanceId: item.dataset.altarInstanceId,
-                    offsetX: e.clientX - itemRect.left,
-                    offsetY: e.clientY - itemRect.top,
-                    itemW: itemRect.width,
-                    itemH: itemRect.height
+        function nudgeSelectedAltarItem(dx, dy) {
+            if (!altarSelectedPlacementId) return;
+            const altar = getAltarProfile();
+            altar.placedDecor = altar.placedDecor.map(item => {
+                if (getPlacementInstanceId(item) !== altarSelectedPlacementId) return item;
+                return {
+                    ...item,
+                    x: Math.max(0, Math.min(95, Number(item.x || 0) + dx)),
+                    y: Math.max(0, Math.min(95, Number(item.y || 0) + dy))
                 };
-                window.__altarActiveDrag = true;
-                altarSelectedPlacementId = drag.instanceId;
-                item.classList.add('is-dragging');
-                item.style.zIndex = '9999';
-                try { item.setPointerCapture(e.pointerId); } catch(err) {}
-                console.log('ALTAR DRAG START', drag.instanceId);
-            }
-            function onMove(e) {
-                if (!drag) return;
-                if (e.pointerId !== drag.pointerId) return;
-                e.preventDefault();
-                e.stopPropagation();
-                const rect = drag.area.getBoundingClientRect();
-                let xPx = e.clientX - rect.left - drag.offsetX;
-                let yPx = e.clientY - rect.top - drag.offsetY;
-                xPx = Math.max(0, Math.min(xPx, rect.width - drag.itemW));
-                yPx = Math.max(0, Math.min(yPx, rect.height - drag.itemH));
-                const xPct = (xPx / rect.width) * 100;
-                const yPct = (yPx / rect.height) * 100;
-                drag.item.style.left = xPct.toFixed(4) + '%';
-                drag.item.style.top = yPct.toFixed(4) + '%';
-                drag.item.dataset.x = String(xPct);
-                drag.item.dataset.y = String(yPct);
-            }
-            function onUp(e) {
-                if (!drag) return;
-                if (e.pointerId !== drag.pointerId) return;
-                e.preventDefault();
-                e.stopPropagation();
-                const item = drag.item;
-                const instanceId = drag.instanceId;
-                const x = Number(item.dataset.x || 0);
-                const y = Number(item.dataset.y || 0);
-                item.classList.remove('is-dragging');
-                item.style.zIndex = '';
-                try { item.releasePointerCapture(drag.pointerId); } catch(err) {}
-                drag = null;
-                window.__altarActiveDrag = false;
-                console.log('ALTAR DRAG END', instanceId, x, y);
-                if (window.updateAltarPlacedItemPosition) {
-                    window.updateAltarPlacedItemPosition(instanceId, { x, y });
-                } else {
-                    console.warn('Missing updateAltarPlacedItemPosition');
-                }
-            }
-            document.addEventListener('pointerdown', onDown, true);
-            document.addEventListener('pointermove', onMove, true);
-            document.addEventListener('pointerup', onUp, true);
-            document.addEventListener('pointercancel', onUp, true);
+            });
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+        }
+        function centerSelectedAltarItem() {
+            if (!altarSelectedPlacementId) return;
+            const altar = getAltarProfile();
+            altar.placedDecor = altar.placedDecor.map(item => {
+                if (getPlacementInstanceId(item) !== altarSelectedPlacementId) return item;
+                return { ...item, x: 50, y: 50 };
+            });
+            saveAltarProfile(altar, false);
+            renderAltarProfile();
+        }
+        function installAltarDragV2() {
+            // Free drag disabled — items are positioned with nudge buttons
         }
         installAltarDragV2();
         function adjustSelectedDecor(kind, amount) {
