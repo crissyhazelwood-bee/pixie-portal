@@ -7986,89 +7986,117 @@
             const altar = getAltarProfile();
             if (!Array.isArray(altar.placedDecor)) return;
             altar.placedDecor = altar.placedDecor.map(item => {
-                if (item.instanceId === instanceId) {
-                    return { ...item, ...patch };
-                }
-                return item;
+                if (item.instanceId !== instanceId) return item;
+                return {
+                    ...item,
+                    ...patch,
+                    x: Number.isFinite(Number(patch.x)) ? Number(patch.x) : item.x,
+                    y: Number.isFinite(Number(patch.y)) ? Number(patch.y) : item.y
+                };
             });
             saveAltarProfile(altar);
-            renderAltarProfile(altar);
+            setTimeout(() => renderAltarProfile(), 0);
         }
         window.updateAltarPlacedItemPosition = updateAltarPlacedItemPosition;
-        function altarClamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
-        function pointerToAltarPercent(e, area, offsetXPx, offsetYPx, item) {
-            const rect = area.getBoundingClientRect();
-            const halfW = item.offsetWidth / 2;
-            const halfH = item.offsetHeight / 2;
-            return {
-                x: altarClamp(((e.clientX - rect.left - offsetXPx) / rect.width) * 100,
-                    (halfW / rect.width) * 100, ((rect.width - halfW) / rect.width) * 100),
-                y: altarClamp(((e.clientY - rect.top - offsetYPx) / rect.height) * 100,
-                    (halfH / rect.height) * 100, ((rect.height - halfH) / rect.height) * 100)
-            };
-        }
         function onAltarPointerDown(event) {
-            if (!altarEditMode || !document.body.classList.contains('pixie-profile-page')) return;
-            const item = getAltarItemFromEvent(event);
-            if (!item) return;
-            if (event.target.closest('button:not(.altar-placed-item),input,select,textarea,[contenteditable="true"]')) return;
-            const area = item.closest('.altar-placement-area');
-            if (!area) {
-                console.warn('No altar placement area found for drag item', item);
-                return;
-            }
-            event.preventDefault();
-            event.stopPropagation();
-            const itemRect = item.getBoundingClientRect();
-            // Offset from pointer to visual CENTER (item has translate(-50%,-50%) so CSS left/top = visual center)
-            altarDragState = {
-                instanceId: item.dataset.altarInstanceId,
-                item,
-                area,
-                pointerId: event.pointerId,
-                offsetX: event.clientX - (itemRect.left + itemRect.width / 2),
-                offsetY: event.clientY - (itemRect.top + itemRect.height / 2)
-            };
-            altarSelectedPlacementId = altarDragState.instanceId;
-            item.classList.add('is-dragging', 'is-selected');
-            try { item.setPointerCapture?.(event.pointerId); } catch(e) {}
+            if (window.__ALTAR_DRAG_V2__) return;
         }
         function onAltarPointerMove(event) {
-            if (!altarDragState) return;
-            event.preventDefault();
-            event.stopPropagation();
-            const { item, area, offsetX, offsetY } = altarDragState;
-            if (!item || !area) return;
-            // All math stays in percent — no px mixing
-            const pos = pointerToAltarPercent(event, area, offsetX, offsetY, item);
-            item.style.left = pos.x + '%';
-            item.style.top = pos.y + '%';
-            item.dataset.x = String(pos.x);
-            item.dataset.y = String(pos.y);
-            item.dataset.surface = getAltarSurfaceFromPoint(area, event.clientX, event.clientY);
+            if (window.__ALTAR_DRAG_V2__) return;
         }
         function onAltarPointerUp(event) {
-            if (!altarDragState) return;
-            event.preventDefault();
-            event.stopPropagation();
-            const { item, instanceId, pointerId } = altarDragState;
-            // dataset.x/y already in percent — pass directly, no conversion
-            const x = Number(item?.dataset?.x || 0);
-            const y = Number(item?.dataset?.y || 0);
-            const surfaceId = item?.dataset?.surface || '';
-            item?.classList?.remove('is-dragging');
-            try { item?.releasePointerCapture?.(pointerId); } catch(e) {}
-            document.querySelectorAll('.drag-ghost,.altar-drag-ghost').forEach(el => el.remove());
-            altarDragState = null;
-            updateAltarPlacedItemPosition(instanceId, { x, y, surfaceId });
+            if (window.__ALTAR_DRAG_V2__) return;
         }
         document.addEventListener('pointerdown', onAltarPointerDown, true);
         document.addEventListener('pointermove', onAltarPointerMove, true);
         document.addEventListener('pointerup', onAltarPointerUp, true);
         document.addEventListener('pointercancel', onAltarPointerUp, true);
-        function startAltarDecorDrag(event) { onAltarPointerDown(event); }
-        function moveAltarDecorDrag(event) { onAltarPointerMove(event); }
-        function endAltarDecorDrag(event) { onAltarPointerUp(event); }
+        function startAltarDecorDrag(event) {}
+        function moveAltarDecorDrag(event) {}
+        function endAltarDecorDrag(event) {}
+        function installAltarDragV2() {
+            if (window.__altarDragV2Installed) return;
+            window.__altarDragV2Installed = true;
+            window.__ALTAR_DRAG_V2__ = true;
+            let drag = null;
+            function getAltarDragItem(e) {
+                const item = e.target.closest('.altar-placed-item[data-altar-instance-id]');
+                if (!item) return null;
+                if (e.target.closest('button:not(.altar-placed-item),input,select,textarea,[contenteditable="true"]')) return null;
+                return item;
+            }
+            function getAltarDragArea(item) {
+                return item.closest('.altar-placement-area, .altar-canvas, .altar-stage');
+            }
+            function onDown(e) {
+                if (!altarEditMode || !document.body.classList.contains('pixie-profile-page')) return;
+                const item = getAltarDragItem(e);
+                if (!item) return;
+                const area = getAltarDragArea(item);
+                if (!area) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const areaRect = area.getBoundingClientRect();
+                const itemRect = item.getBoundingClientRect();
+                drag = {
+                    pointerId: e.pointerId,
+                    item,
+                    area,
+                    instanceId: item.dataset.altarInstanceId,
+                    offsetX: e.clientX - itemRect.left,
+                    offsetY: e.clientY - itemRect.top,
+                    itemW: itemRect.width,
+                    itemH: itemRect.height
+                };
+                altarSelectedPlacementId = drag.instanceId;
+                item.classList.add('is-dragging');
+                item.style.zIndex = '9999';
+                try { item.setPointerCapture(e.pointerId); } catch(err) {}
+                console.log('ALTAR DRAG START', drag.instanceId);
+            }
+            function onMove(e) {
+                if (!drag) return;
+                if (e.pointerId !== drag.pointerId) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const rect = drag.area.getBoundingClientRect();
+                let xPx = e.clientX - rect.left - drag.offsetX;
+                let yPx = e.clientY - rect.top - drag.offsetY;
+                xPx = Math.max(0, Math.min(xPx, rect.width - drag.itemW));
+                yPx = Math.max(0, Math.min(yPx, rect.height - drag.itemH));
+                const xPct = (xPx / rect.width) * 100;
+                const yPct = (yPx / rect.height) * 100;
+                drag.item.style.left = xPct.toFixed(4) + '%';
+                drag.item.style.top = yPct.toFixed(4) + '%';
+                drag.item.dataset.x = String(xPct);
+                drag.item.dataset.y = String(yPct);
+            }
+            function onUp(e) {
+                if (!drag) return;
+                if (e.pointerId !== drag.pointerId) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const item = drag.item;
+                const instanceId = drag.instanceId;
+                const x = Number(item.dataset.x || 0);
+                const y = Number(item.dataset.y || 0);
+                item.classList.remove('is-dragging');
+                item.style.zIndex = '';
+                try { item.releasePointerCapture(drag.pointerId); } catch(err) {}
+                drag = null;
+                console.log('ALTAR DRAG END', instanceId, x, y);
+                if (window.updateAltarPlacedItemPosition) {
+                    window.updateAltarPlacedItemPosition(instanceId, { x, y });
+                } else {
+                    console.warn('Missing updateAltarPlacedItemPosition');
+                }
+            }
+            document.addEventListener('pointerdown', onDown, true);
+            document.addEventListener('pointermove', onMove, true);
+            document.addEventListener('pointerup', onUp, true);
+            document.addEventListener('pointercancel', onUp, true);
+        }
+        installAltarDragV2();
         function adjustSelectedDecor(kind, amount) {
             const altar = getAltarProfile();
             const p = altar.placedDecor.find(item => getPlacementInstanceId(item) === altarSelectedPlacementId);
