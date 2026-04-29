@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Altar Dev</title>
+<style>
+:root {
+  --gap: 160px;
+  --depth: calc(var(--gap) * 8.5 / 11); /* ~124px — the real ratio */
+  --board: 14px;
+  --wood:       #6b3e20;
+  --wood-light: #8c5530;
+  --wood-dark:  #3d2010;
+  --back:       #140a03;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #080205;
+  gap: 20px;
+}
+
+/* ── Cabinet ─────────────────────────────── */
+.cabinet {
+  position: relative;
+  width: 480px;
+  background: var(--back);
+  border: 6px solid var(--wood);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 60px rgba(0,0,0,0.7),
+    0 40px 100px rgba(0,0,0,0.9);
+  overflow: hidden;
+  /* no pointer-events on cabinet itself, items handle their own */
+}
+
+/* ── Shelf bands (the open space between boards) ── */
+.shelf-band {
+  position: relative;
+  height: var(--gap);
+  /* gradient: dark back wall at top, warmer at bottom where surface is */
+  background: linear-gradient(
+    to bottom,
+    #0e0602 0%,
+    #1a0d05 45%,
+    #2a1a0a 80%,
+    #3a2412 100%
+  );
+  overflow: visible;
+}
+
+/* ── Shelf boards ─────────────────────────── */
+.shelf-board {
+  position: relative;
+  height: var(--board);
+  background: linear-gradient(to bottom, var(--wood-light), var(--wood));
+  box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+  z-index: 10;
+}
+
+/* Front face of the board — visible because we're looking slightly down.
+   Height is driven by depth ratio so it's physically accurate. */
+.shelf-board::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0; right: 0;
+  height: calc(var(--depth) * 0.13); /* ~16px front face */
+  background: var(--wood-dark);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 10;
+}
+
+.cabinet-floor {
+  height: var(--board);
+  background: linear-gradient(to bottom, var(--wood-light), var(--wood));
+}
+.cabinet-floor::after {
+  content: '';
+  display: block;
+  height: calc(var(--depth) * 0.13);
+  background: var(--wood-dark);
+}
+
+/* ── Item layer — floats above everything ── */
+.item-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ── Blobs ───────────────────────────────── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: all;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  will-change: left, top, width, height;
+}
+
+.blob:not(.is-lifted) {
+  transition:
+    left     0.18s cubic-bezier(0.22,1,0.36,1),
+    top      0.18s cubic-bezier(0.22,1,0.36,1),
+    width    0.18s cubic-bezier(0.22,1,0.36,1),
+    height   0.18s cubic-bezier(0.22,1,0.36,1),
+    box-shadow 0.18s ease,
+    filter   0.18s ease;
+}
+
+.blob.is-lifted {
+  cursor: grabbing;
+  transition: none;
+  z-index: 9999 !important;
+}
+
+/* ── Debug label ─────────────────────────── */
+#debug {
+  color: rgba(255,255,255,0.4);
+  font: 12px monospace;
+  letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+
+<div class="cabinet" id="cabinet">
+  <div class="shelf-band" data-shelf="top"></div>
+  <div class="shelf-board"></div>
+  <div class="shelf-band" data-shelf="middle"></div>
+  <div class="shelf-board"></div>
+  <div class="shelf-band" data-shelf="lower"></div>
+  <div class="cabinet-floor"></div>
+  <div class="item-layer" id="item-layer"></div>
+</div>
+
+<div id="debug">drag the blobs onto shelves</div>
+
+<script>
+const GAP   = 160;
+const BOARD = 14;
+const DEPTH_RATIO = 8.5 / 11;  // the paper ratio — depth per gap
+
+// Each shelf: which band (0=top), scale factor, shadow
+const SHELVES = {
+  top:    { band: 0, scale: 0.70, shadow: '0 3px  7px rgba(0,0,0,0.75)' },
+  middle: { band: 1, scale: 0.84, shadow: '0 6px 16px rgba(0,0,0,0.55)' },
+  lower:  { band: 2, scale: 1.00, shadow: '0 12px 28px rgba(0,0,0,0.38)' },
+};
+
+// Y coordinate (inside cabinet) where items sit on each shelf.
+// = top of the band + GAP (bottom of band, sitting on the board surface)
+function shelfSurfaceY(shelfName) {
+  const band = SHELVES[shelfName].band;
+  return band * (GAP + BOARD) + GAP;
+}
+
+// Given a Y in cabinet coords, return the nearest shelf name
+function nearestShelf(y) {
+  return Object.keys(SHELVES).reduce((best, name) => {
+    const dist = Math.abs(y - shelfSurfaceY(name));
+    const bestDist = Math.abs(y - shelfSurfaceY(best));
+    return dist < bestDist ? name : best;
+  }, 'lower');
+}
+
+// Place a blob on a shelf at xPct (0–100)
+function placeBlob(el, shelf, xPct) {
+  const s    = SHELVES[shelf];
+  const base = parseInt(el.dataset.base);
+  const size = Math.round(base * s.scale);
+
+  el.dataset.shelf = shelf;
+  el.dataset.x     = xPct;
+  el.style.width   = size + 'px';
+  el.style.height  = size + 'px';
+  el.style.left    = xPct + '%';
+  el.style.top     = shelfSurfaceY(shelf) + 'px';
+  // anchor bottom-center of blob to shelf surface
+  el.style.transform  = 'translate(-50%, -100%)';
+  el.style.boxShadow  = s.shadow;
+  el.style.zIndex     = 3 - s.band;          // lower shelf = higher z
+  el.style.filter     = `brightness(${0.72 + s.scale * 0.28})`;
+}
+
+// ── Blob definitions ──────────────────────
+const BLOB_DEFS = [
+  { shelf: 'top',    x: 22, color: '#c084fc', base: 52 },
+  { shelf: 'top',    x: 65, color: '#f472b6', base: 48 },
+  { shelf: 'middle', x: 32, color: '#60a5fa', base: 52 },
+  { shelf: 'middle', x: 70, color: '#34d399', base: 50 },
+  { shelf: 'lower',  x: 24, color: '#fb923c', base: 54 },
+  { shelf: 'lower',  x: 60, color: '#e879f9', base: 50 },
+];
+
+const cabinet = document.getElementById('cabinet');
+const layer   = document.getElementById('item-layer');
+const debug   = document.getElementById('debug');
+
+let drag = null;
+
+BLOB_DEFS.forEach((def, i) => {
+  const el = document.createElement('div');
+  el.className    = 'blob';
+  el.dataset.base = def.base;
+  el.dataset.id   = i;
+  el.style.background = def.color;
+  layer.appendChild(el);
+  placeBlob(el, def.shelf, def.x);
+
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('is-lifted');
+
+    // while lifted: show at full (lower-shelf) size centered on cursor
+    const base = parseInt(el.dataset.base);
+    el.style.width  = base + 'px';
+    el.style.height = base + 'px';
+    el.style.transform  = 'translate(-50%, -50%)';
+    el.style.boxShadow  = '0 20px 44px rgba(0,0,0,0.65)';
+    el.style.filter     = 'brightness(1.15)';
+
+    drag = { el, pointerId: e.pointerId };
+  });
+
+  el.addEventListener('pointermove', e => {
+    if (!drag || drag.el !== el) return;
+    const rect = cabinet.getBoundingClientRect();
+    const x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width)  * 100));
+    const y = e.clientY - rect.top;
+    el.style.left = x + '%';
+    el.style.top  = y + 'px';
+
+    // show which shelf it'll land on
+    const shelf = nearestShelf(y);
+    debug.textContent = 'shelf: ' + shelf + '  x: ' + Math.round(x) + '%';
+  });
+
+  el.addEventListener('pointerup', e => {
+    if (!drag || drag.el !== el) return;
+    const rect = cabinet.getBoundingClientRect();
+    const x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = e.clientY - rect.top;
+    const shelf = nearestShelf(y);
+    placeBlob(el, shelf, x);
+    el.classList.remove('is-lifted');
+    drag = null;
+    debug.textContent = 'placed on ' + shelf + '  x: ' + Math.round(x) + '%';
+  });
+
+  el.addEventListener('pointercancel', () => {
+    if (!drag || drag.el !== el) return;
+    placeBlob(el, el.dataset.shelf, parseFloat(el.dataset.x));
+    el.classList.remove('is-lifted');
+    drag = null;
+  });
+});
+</script>
+</body>
+</html>
