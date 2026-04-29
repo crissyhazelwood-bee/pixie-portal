@@ -328,58 +328,50 @@ body {
 
     <div class="cabinet-interior" id="cabinet">
 
-      <!-- Corner spandrels — ornate iron brackets in top two corners -->
+      <!-- Corner spandrels — solid carved wood brackets -->
       <svg class="spandrel left" viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
-        <!-- Corner boss where arms meet -->
-        <circle cx="8" cy="8" r="9" fill="#1a1a22" stroke="#a87020" stroke-width="1.2"/>
-        <circle cx="8" cy="8" r="4.5" fill="#2e2e3a" stroke="#46465a" stroke-width="0.8"/>
-        <!-- Horizontal arm along top -->
-        <path d="M16,8 L78,8" stroke="#2e2e3a" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <path d="M16,6 L76,6" stroke="#46465a" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
-        <!-- Vertical arm along left -->
-        <path d="M8,16 L8,78" stroke="#2e2e3a" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <path d="M6,16 L6,76" stroke="#46465a" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
-        <!-- Diagonal brace -->
-        <path d="M16,16 Q38,32 52,52 Q62,68 72,78"
-              stroke="#2e2e3a" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M16,16 Q38,32 52,52 Q62,68 72,78"
-              stroke="#46465a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/>
-        <!-- Right-end scroll (tip of horizontal arm) -->
-        <path d="M78,8 C86,8 88,16 83,20 C78,24 71,19 74,13"
-              stroke="#46465a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <circle cx="81" cy="7" r="3" fill="#1a1a22" stroke="#46465a" stroke-width="1"/>
-        <!-- Bottom-end scroll (tip of vertical arm) -->
-        <path d="M8,78 C8,86 16,88 20,83 C24,78 19,71 13,74"
-              stroke="#46465a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <circle cx="7" cy="81" r="3" fill="#1a1a22" stroke="#46465a" stroke-width="1"/>
-        <!-- Acanthus leaf on diagonal midpoint -->
-        <path d="M44,44 Q50,36 56,40 Q62,44 58,52 Q54,58 48,54"
-              stroke="#3a3a50" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.65"/>
-        <path d="M44,44 Q48,50 46,56"
-              stroke="#3a3a50" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
+        <!-- Solid wood body — concave inner edge like a cove bracket -->
+        <path d="M0,0 L88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88 Z"
+              fill="#3a1c08"/>
+        <!-- Lighter top face (catches light) -->
+        <path d="M0,0 L88,0 Q88,5 82,9 L0,9 Z"
+              fill="#6b3010" opacity="0.55"/>
+        <!-- Lighter left face -->
+        <path d="M0,0 L9,0 L9,82 Q5,88 0,88 Z"
+              fill="#6b3010" opacity="0.35"/>
+        <!-- Cove shadow — deep groove along the concave edge -->
+        <path d="M80,12 Q48,48 12,80"
+              stroke="#0f0401" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- Cove highlight bead — raised lip catching light -->
+        <path d="M76,14 Q44,48 14,76"
+              stroke="#8c4a18" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+        <!-- Thin gold accent line — inlaid trim -->
+        <path d="M72,17 Q42,48 17,72"
+              stroke="#a87020" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
+        <!-- Second inner bead — double molding -->
+        <path d="M64,22 Q40,46 22,64"
+              stroke="#6b3010" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+        <!-- Carved fan/rosette at the midpoint -->
+        <circle cx="44" cy="44" r="7" fill="#2e0e04" stroke="#6b3010" stroke-width="1" opacity="0.8"/>
+        <circle cx="44" cy="44" r="4" fill="#3a1c08" stroke="#8c4a18" stroke-width="0.8" opacity="0.9"/>
+        <path d="M44,37 L44,44 M37,44 L44,44 M39,39 L44,44 M49,39 L44,44"
+              stroke="#6b3010" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <!-- Edge shadow to ground it -->
+        <path d="M88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88"
+              stroke="#0f0401" stroke-width="3" fill="none" opacity="0.7"/>
       </svg>
-      <!-- Right spandrel mirrors left via CSS scaleX(-1) -->
       <svg class="spandrel right" viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="9" fill="#1a1a22" stroke="#a87020" stroke-width="1.2"/>
-        <circle cx="8" cy="8" r="4.5" fill="#2e2e3a" stroke="#46465a" stroke-width="0.8"/>
-        <path d="M16,8 L78,8" stroke="#2e2e3a" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <path d="M16,6 L76,6" stroke="#46465a" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
-        <path d="M8,16 L8,78" stroke="#2e2e3a" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <path d="M6,16 L6,76" stroke="#46465a" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
-        <path d="M16,16 Q38,32 52,52 Q62,68 72,78"
-              stroke="#2e2e3a" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M16,16 Q38,32 52,52 Q62,68 72,78"
-              stroke="#46465a" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/>
-        <path d="M78,8 C86,8 88,16 83,20 C78,24 71,19 74,13"
-              stroke="#46465a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <circle cx="81" cy="7" r="3" fill="#1a1a22" stroke="#46465a" stroke-width="1"/>
-        <path d="M8,78 C8,86 16,88 20,83 C24,78 19,71 13,74"
-              stroke="#46465a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <circle cx="7" cy="81" r="3" fill="#1a1a22" stroke="#46465a" stroke-width="1"/>
-        <path d="M44,44 Q50,36 56,40 Q62,44 58,52 Q54,58 48,54"
-              stroke="#3a3a50" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.65"/>
-        <path d="M44,44 Q48,50 46,56"
-              stroke="#3a3a50" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
+        <path d="M0,0 L88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88 Z" fill="#3a1c08"/>
+        <path d="M0,0 L88,0 Q88,5 82,9 L0,9 Z" fill="#6b3010" opacity="0.55"/>
+        <path d="M0,0 L9,0 L9,82 Q5,88 0,88 Z" fill="#6b3010" opacity="0.35"/>
+        <path d="M80,12 Q48,48 12,80" stroke="#0f0401" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M76,14 Q44,48 14,76" stroke="#8c4a18" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+        <path d="M72,17 Q42,48 17,72" stroke="#a87020" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
+        <path d="M64,22 Q40,46 22,64" stroke="#6b3010" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+        <circle cx="44" cy="44" r="7" fill="#2e0e04" stroke="#6b3010" stroke-width="1" opacity="0.8"/>
+        <circle cx="44" cy="44" r="4" fill="#3a1c08" stroke="#8c4a18" stroke-width="0.8" opacity="0.9"/>
+        <path d="M44,37 L44,44 M37,44 L44,44 M39,39 L44,44 M49,39 L44,44" stroke="#6b3010" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.7"/>
+        <path d="M88,0 Q88,6 82,10 Q52,36 10,82 C6,88 0,88 0,88" stroke="#0f0401" stroke-width="3" fill="none" opacity="0.7"/>
       </svg>
 
       <div class="shelf-band" data-shelf="top"></div>
