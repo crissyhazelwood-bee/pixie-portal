@@ -2903,19 +2903,148 @@
             line-height: 1.6;
         }
 
-        .tarot-deck-atlas-frame {
-            display: block;
-            overflow: hidden;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.14);
-            background: rgba(7,3,16,0.72);
-            box-shadow: 0 18px 48px rgba(0,0,0,0.26);
+        .tarot-guide-focus {
+            display: grid;
+            grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+            gap: clamp(16px, 3vw, 28px);
+            align-items: center;
+            margin-bottom: 18px;
+            padding: clamp(14px, 2.4vw, 22px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background:
+                radial-gradient(circle at 18% 10%, rgba(255, 214, 139, 0.12), transparent 32%),
+                rgba(7,3,16,0.58);
+            box-shadow: 0 18px 48px rgba(0,0,0,0.22);
         }
 
-        .tarot-deck-atlas-frame img {
+        .tarot-guide-image {
+            overflow: hidden;
+            border-radius: 12px;
+            border: 6px solid #f4efe2;
+            background: #fffaf0;
+            box-shadow: 0 16px 38px rgba(0,0,0,0.28);
+        }
+
+        .tarot-guide-image img {
             display: block;
             width: 100%;
-            height: auto;
+            aspect-ratio: 2 / 3;
+            object-fit: cover;
+        }
+
+        .tarot-guide-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .tarot-guide-chip {
+            padding: 5px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: rgba(236,220,255,0.78);
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .tarot-guide-name {
+            margin: 0 0 6px;
+            color: #fff1c7;
+            font-size: clamp(26px, 4vw, 46px);
+            line-height: .98;
+        }
+
+        .tarot-guide-keyword {
+            margin: 0 0 14px;
+            color: #ffd8f5;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .tarot-guide-body {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .tarot-guide-note {
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.045);
+        }
+
+        .tarot-guide-note strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #96ffdc;
+            font-size: 11px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .tarot-guide-note span {
+            display: block;
+            color: rgba(236,220,255,0.74);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .tarot-guide-summary {
+            margin: 0;
+            color: rgba(236,220,255,0.80);
+            line-height: 1.65;
+        }
+
+        .tarot-card-guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+            gap: 10px;
+        }
+
+        .tarot-guide-card {
+            min-height: 164px;
+            padding: 7px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.045);
+            color: #f5eaff;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            text-align: center;
+            transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+        }
+
+        .tarot-guide-card:hover,
+        .tarot-guide-card.active {
+            transform: translateY(-2px);
+            border-color: rgba(255,214,139,0.48);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.24), 0 0 20px rgba(255,150,220,0.12);
+        }
+
+        .tarot-guide-card img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            object-fit: cover;
+            border-radius: 9px;
+            border: 3px solid #f4efe2;
+            background: #fffaf0;
+        }
+
+        .tarot-guide-card span {
+            display: block;
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 1.2;
         }
 
         #tarot-spread-name {
@@ -3009,6 +3138,11 @@
 
             .tarot-deck-atlas-copy {
                 margin-top: 10px;
+            }
+
+            .tarot-guide-focus,
+            .tarot-guide-body {
+                grid-template-columns: 1fr;
             }
 
             .chamber-back-btn {
@@ -5166,11 +5300,10 @@
                         <div class="tarot-deck-atlas-kicker">Full Deck Atlas</div>
                         <h3 class="tarot-deck-atlas-title">See every fairy card in the 78-card deck.</h3>
                     </div>
-                    <p class="tarot-deck-atlas-copy">Major Arcana, Wands, Cups, Swords, and Pentacles are gathered here as one collectible deck preview.</p>
+                    <p class="tarot-deck-atlas-copy">Tap any card to open its art, suit, keyword, Pixie meaning, and a small reading prompt.</p>
                 </div>
-                <a class="tarot-deck-atlas-frame" href="assets/tarot/full-deck-contact-sheet.jpg" target="_blank" rel="noopener">
-                    <img src="assets/tarot/full-deck-contact-sheet.jpg" alt="Full Pixie Portal Fairy Tarot deck contact sheet with all 78 cards">
-                </a>
+                <div class="tarot-guide-focus" id="tarot-guide-focus"></div>
+                <div class="tarot-card-guide-grid" id="tarot-card-guide-grid"></div>
             </div>
             </div>
         </section>
@@ -10991,6 +11124,95 @@
         let tarotDrawn = false;
         let todayTarotCards = null;
 
+        const TAROT_SUIT_GUIDE = {
+            major: { label: 'Major Arcana', element: 'Soul path', domain: 'large life themes, turning points, and spiritual lessons' },
+            wands: { label: 'Wands', element: 'Fire', domain: 'creative energy, desire, courage, action, and momentum' },
+            cups: { label: 'Cups', element: 'Water', domain: 'emotion, love, intuition, healing, and belonging' },
+            swords: { label: 'Swords', element: 'Air', domain: 'thought, truth, conflict, decisions, and clear language' },
+            pentacles: { label: 'Pentacles', element: 'Earth', domain: 'body, money, work, home, craft, and long-term growth' }
+        };
+
+        const TAROT_RANK_GUIDE = {
+            'ACE': 'a seed, invitation, or first spark',
+            'II': 'a choice, pairing, or balance point',
+            'III': 'growth, collaboration, or first visible results',
+            'IV': 'structure, rest, foundation, or holding pattern',
+            'V': 'friction, challenge, change, or a lesson with teeth',
+            'VI': 'movement toward repair, recognition, or generosity',
+            'VII': 'testing, discernment, defense, or many possible paths',
+            'VIII': 'motion, practice, restriction, or focused effort',
+            'IX': 'near-completion, solitude, refinement, or inner pressure',
+            'X': 'completion, culmination, release, or legacy',
+            'PAGE': 'student energy, curiosity, message, and beginner magic',
+            'KNIGHT': 'motion, pursuit, devotion, and how the suit takes action',
+            'QUEEN': 'inner mastery, receptivity, care, and mature expression',
+            'KING': 'outer mastery, leadership, stewardship, and responsibility'
+        };
+
+        function getTarotArtFile(card) {
+            if (card.name === 'Wheel of Fortune') return 'wheel-of-fortune-art.png';
+            return card.name
+                .toLowerCase()
+                .replace(/^the\s+/, '')
+                .replace(/\s+of\s+/g, '-')
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '') + '-art.png';
+        }
+
+        function getTarotGuideSummary(card) {
+            const suit = TAROT_SUIT_GUIDE[card.suit] || TAROT_SUIT_GUIDE.major;
+            if (card.suit === 'major') {
+                return card.name + ' is a Major Arcana card, so read it as a larger portal lesson rather than a passing mood. Its keyword is ' + card.keyword.toLowerCase() + ': the moment is asking where that theme is trying to become visible in your life.';
+            }
+            const rank = TAROT_RANK_GUIDE[card.num] || 'a specific lesson';
+            return card.name + ' blends ' + suit.label + ' with ' + rank + '. In this deck, that points toward ' + suit.domain + ', filtered through the card keyword: ' + card.keyword.toLowerCase() + '.';
+        }
+
+        function renderTarotGuideCard(card, index) {
+            const suit = TAROT_SUIT_GUIDE[card.suit] || TAROT_SUIT_GUIDE.major;
+            const file = getTarotArtFile(card);
+            return '<button class="tarot-guide-card" type="button" data-card-index="' + index + '" onclick="showTarotGuideCard(' + index + ')">' +
+                '<img src="assets/tarot/' + file + '" alt="' + escAttr(card.name) + ' tarot card art">' +
+                '<span>' + escHtml(card.name) + '</span>' +
+                '</button>';
+        }
+
+        function showTarotGuideCard(index) {
+            const card = FAIRY_DECK[index] || FAIRY_DECK[0];
+            const suit = TAROT_SUIT_GUIDE[card.suit] || TAROT_SUIT_GUIDE.major;
+            const rankNote = card.suit === 'major' ? 'Major Arcana life lesson' : (TAROT_RANK_GUIDE[card.num] || 'Minor Arcana lesson');
+            const file = getTarotArtFile(card);
+            const focus = document.getElementById('tarot-guide-focus');
+            if (!focus) return;
+            focus.innerHTML = '<div class="tarot-guide-image"><img src="assets/tarot/' + file + '" alt="' + escAttr(card.name) + ' tarot card art"></div>' +
+                '<div>' +
+                    '<div class="tarot-guide-meta">' +
+                        '<span class="tarot-guide-chip">' + escHtml(card.num) + '</span>' +
+                        '<span class="tarot-guide-chip">' + escHtml(suit.label) + '</span>' +
+                        '<span class="tarot-guide-chip">' + escHtml(suit.element) + '</span>' +
+                    '</div>' +
+                    '<h4 class="tarot-guide-name">' + escHtml(card.name) + '</h4>' +
+                    '<p class="tarot-guide-keyword">' + escHtml(card.keyword) + '</p>' +
+                    '<p class="tarot-guide-summary">' + escHtml(getTarotGuideSummary(card)) + '</p>' +
+                    '<div class="tarot-guide-body">' +
+                        '<div class="tarot-guide-note"><strong>Past</strong><span>' + escHtml(card.meanings.past) + '</span></div>' +
+                        '<div class="tarot-guide-note"><strong>Present</strong><span>' + escHtml(card.meanings.present) + '</span></div>' +
+                        '<div class="tarot-guide-note"><strong>Future</strong><span>' + escHtml(card.meanings.future) + '</span></div>' +
+                    '</div>' +
+                    '<p class="tarot-guide-summary" style="margin-top:14px;"><strong style="color:#fff1c7;">Guide prompt:</strong> Where is ' + escHtml(card.keyword.toLowerCase()) + ' asking for your attention right now?</p>' +
+                '</div>';
+            document.querySelectorAll('.tarot-guide-card').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cardIndex === String(index));
+            });
+        }
+
+        function initTarotGuide() {
+            const grid = document.getElementById('tarot-card-guide-grid');
+            if (!grid || typeof FAIRY_DECK === 'undefined') return;
+            grid.innerHTML = FAIRY_DECK.map(renderTarotGuideCard).join('');
+            showTarotGuideCard(0);
+        }
+
         function getTodayTarot(spreadKey = 'daily', nonce = 0) {
             const today = new Date().toISOString().slice(0, 10);
             const seed = horoscopeHash('fairy-tarot:' + today + ':' + getUserSeed() + ':' + spreadKey + ':' + nonce);
@@ -11311,6 +11533,8 @@
             await origLoadProfile2();
             loadProfileTarot();
         };
+
+        initTarotGuide();
 
         // Check if already logged in
         checkSession();
