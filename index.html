@@ -31,6 +31,53 @@
             z-index: 0;
         }
 
+        .cursor-sparkle {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2147483000;
+            transform: translate3d(var(--spark-x), var(--spark-y), 0) scale(0.35);
+            background: radial-gradient(circle, #fffaf0 0 18%, var(--spark-color, #ff96c8) 20% 46%, transparent 68%);
+            box-shadow: 0 0 10px var(--spark-color, #ff96c8), 0 0 22px rgba(255, 150, 200, 0.28);
+            animation: cursorSparklePop 780ms ease-out forwards;
+            mix-blend-mode: screen;
+        }
+
+        .cursor-sparkle::before,
+        .cursor-sparkle::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 16px;
+            height: 1px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, transparent, var(--spark-color, #ff96c8), transparent);
+            transform: translate(-50%, -50%) rotate(var(--spark-rot, 0deg));
+        }
+
+        .cursor-sparkle::after {
+            transform: translate(-50%, -50%) rotate(calc(var(--spark-rot, 0deg) + 90deg));
+        }
+
+        @keyframes cursorSparklePop {
+            0% {
+                opacity: 0;
+                transform: translate3d(var(--spark-x), var(--spark-y), 0) scale(0.25) rotate(0deg);
+            }
+            18% {
+                opacity: 0.95;
+            }
+            100% {
+                opacity: 0;
+                transform: translate3d(calc(var(--spark-x) + var(--spark-drift-x)), calc(var(--spark-y) + var(--spark-drift-y)), 0) scale(1.2) rotate(58deg);
+            }
+        }
+
         .altar-page,
         .altar-chamber,
         .altar-editor,
@@ -6353,6 +6400,39 @@
             requestAnimationFrame(drawBgSparkles);
         }
         drawBgSparkles();
+
+        function initCursorSparkles() {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            const colors = ['#ff96c8', '#b496ff', '#96ffdc', '#fff3a8', '#ffffff'];
+            let lastSparkleAt = 0;
+
+            window.addEventListener('pointermove', (event) => {
+                if (event.pointerType === 'touch') return;
+
+                const now = performance.now();
+                if (now - lastSparkleAt < 24) return;
+                lastSparkleAt = now;
+
+                const sparkle = document.createElement('span');
+                const driftX = (Math.random() * 28 - 14).toFixed(1) + 'px';
+                const driftY = (Math.random() * -26 - 8).toFixed(1) + 'px';
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                sparkle.className = 'cursor-sparkle';
+                sparkle.style.setProperty('--spark-x', (event.clientX - 4) + 'px');
+                sparkle.style.setProperty('--spark-y', (event.clientY - 4) + 'px');
+                sparkle.style.setProperty('--spark-drift-x', driftX);
+                sparkle.style.setProperty('--spark-drift-y', driftY);
+                sparkle.style.setProperty('--spark-color', color);
+                sparkle.style.setProperty('--spark-rot', Math.floor(Math.random() * 180) + 'deg');
+
+                document.body.appendChild(sparkle);
+                sparkle.addEventListener('animationend', () => sparkle.remove(), { once: true });
+            }, { passive: true });
+        }
+
+        initCursorSparkles();
 
         // ============================================
         // NAVIGATION
