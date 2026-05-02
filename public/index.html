@@ -1293,17 +1293,19 @@
         .tarot-card-wrap { width: 200px; height: 340px; perspective: 900px; cursor: pointer; }
         .tarot-card-inner { width: 100%; height: 100%; position: relative; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
         .tarot-card-wrap.flipped .tarot-card-inner { transform: rotateY(180deg); }
-        .tarot-card-front, .tarot-card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 10px; backface-visibility: hidden; }
+        .tarot-card-front, .tarot-card-back { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 20px; backface-visibility: hidden; }
 
         /* Card back — classic ornate pattern */
         .tarot-card-back {
-            background: linear-gradient(135deg, #1a0833, #2d1260, #1a0833);
-            border: 3px solid #c9a84c;
-            box-shadow: 0 0 30px rgba(180,150,255,0.15), inset 0 0 40px rgba(100,60,180,0.2);
+            background:
+                linear-gradient(rgba(255, 172, 213, 0.08), rgba(95, 42, 128, 0.08)),
+                url('assets/tarot/card-back-reference.jpg') center / cover;
+            border: 8px solid #d99aae;
+            box-shadow: 0 16px 42px rgba(48,18,72,0.28), 0 0 30px rgba(255,150,210,0.16);
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         .tarot-back-pattern {
-            width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; opacity: 0;
         }
         /* Ornate inner border */
         .tarot-back-pattern::before {
@@ -1327,29 +1329,36 @@
 
         /* Card front — classic tarot style */
         .tarot-card-front {
-            background: linear-gradient(180deg, #f5ecd7 0%, #e8dcc4 100%);
-            border: 3px solid #c9a84c;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(255,255,255,0.56) 0 1px, transparent 2px),
+                radial-gradient(circle at 82% 78%, rgba(218,205,167,0.28) 0 1px, transparent 2px),
+                radial-gradient(circle at 50% 0%, rgba(255,246,210,0.66), transparent 42%),
+                linear-gradient(180deg, #fffaf0 0%, #f7f0df 100%);
+            background-size: 18px 22px, 26px 28px, auto, auto;
+            border: 6px solid #f4efe2;
             transform: rotateY(180deg);
             display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 0 35px rgba(255,150,200,0.12);
+            box-shadow: 0 18px 44px rgba(72,45,88,0.20), inset 0 0 0 1px #d8cda7, inset 0 0 0 5px rgba(255,255,255,0.70);
         }
-        .tarot-card-wrap:hover .tarot-card-back { box-shadow: 0 0 50px rgba(201,168,76,0.3), inset 0 0 40px rgba(100,60,180,0.2); }
-        .tarot-card-wrap.flipped .tarot-card-front { box-shadow: 0 8px 50px rgba(201,168,76,0.25); }
+        .tarot-card-wrap:hover .tarot-card-back { box-shadow: 0 18px 52px rgba(255,150,210,0.28), 0 0 34px rgba(120,80,180,0.18); }
+        .tarot-card-wrap.flipped .tarot-card-front { box-shadow: 0 18px 52px rgba(255,220,190,0.22), 0 8px 44px rgba(72,45,88,0.24); }
 
         /* Numeral banner at top */
-        .tarot-numeral { text-align: center; padding: 8px 0 4px; font-size: 13px; font-weight: 700; color: #6b5a3e; letter-spacing: 3px; font-family: serif; }
+        .tarot-numeral { text-align: center; padding: 9px 0 5px; font-size: 12px; font-weight: 600; color: #cbbf92; letter-spacing: 2px; font-family: serif; }
 
         /* Scene area */
         .tarot-scene {
-            flex: 1; margin: 0 12px; border: 2px solid #c9a84c; border-radius: 4px; position: relative; overflow: hidden;
-            background: linear-gradient(180deg, #1a0a2e, #0d0520 40%, #0a0418);
+            flex: 1; margin: 0 12px; border: 1px solid #d8cda7; border-radius: 4px; position: relative; overflow: hidden;
+            background:
+                radial-gradient(circle at 50% 22%, rgba(255,255,230,0.52), transparent 22%),
+                linear-gradient(180deg, #dfe8fb 0%, #f4ddea 48%, #dbeecf 100%);
         }
         /* Scene elements */
         .scene-bg { position: absolute; bottom: 0; left: 0; right: 0; height: 40%; }
-        .scene-ground { background: linear-gradient(180deg, transparent, rgba(30,60,30,0.5)); position: absolute; bottom: 0; left: 0; right: 0; height: 100%; }
-        .scene-fairy { position: absolute; font-size: 42px; filter: drop-shadow(0 0 10px rgba(255,150,200,0.6)); z-index: 5; }
-        .scene-element { position: absolute; z-index: 3; }
-        .scene-sparkle { position: absolute; z-index: 6; animation: scene-twinkle 2s ease-in-out infinite; }
+        .scene-ground { background: linear-gradient(180deg, transparent, rgba(170,210,150,0.46)); position: absolute; bottom: 0; left: 0; right: 0; height: 100%; }
+        .scene-fairy { position: absolute; font-size: 42px; filter: saturate(0.68) opacity(0.82); z-index: 5; }
+        .scene-element { position: absolute; z-index: 3; filter: saturate(0.58) opacity(0.72); }
+        .scene-sparkle { position: absolute; z-index: 6; animation: scene-twinkle 2s ease-in-out infinite; filter: saturate(0.50) opacity(0.70); }
         .scene-sparkle:nth-child(2) { animation-delay: 0.4s; }
         .scene-sparkle:nth-child(3) { animation-delay: 0.8s; }
         .scene-sparkle:nth-child(4) { animation-delay: 1.2s; }
@@ -1357,21 +1366,689 @@
         .scene-float { animation: scene-float 4s ease-in-out infinite; }
         .scene-float-slow { animation: scene-float 6s ease-in-out infinite; }
         @keyframes scene-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .scene-glow { position: absolute; border-radius: 50%; filter: blur(15px); z-index: 1; }
+        .scene-glow { position: absolute; border-radius: 50%; filter: blur(18px); z-index: 1; opacity: 0.34; }
         /* Moon for night scenes */
-        .scene-moon { position: absolute; top: 12px; right: 14px; width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, #fffde0, #f0e0a0); box-shadow: 0 0 20px rgba(255,253,200,0.5); z-index: 2; }
+        .scene-moon { position: absolute; top: 13px; right: 16px; width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle, #fff3aa, #f7d46b); box-shadow: none; z-index: 2; opacity: 0.84; }
         .scene-stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; }
-        .scene-star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: scene-twinkle 3s ease-in-out infinite; }
+        .scene-star { position: absolute; width: 4px; height: 4px; background: #f9dd78; border-radius: 50%; animation: scene-twinkle 3s ease-in-out infinite; opacity: 0.70; }
+
+        .tarot-illustration-wash {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 22% 18%, rgba(255, 241, 158, 0.72), transparent 12%),
+                radial-gradient(circle at 78% 25%, rgba(255, 190, 208, 0.42), transparent 16%),
+                linear-gradient(180deg, rgba(206,222,252,0.52), rgba(255,222,232,0.42) 48%, rgba(219,238,203,0.68));
+            opacity: 0.92;
+        }
+
+        .tarot-art-star {
+            position: absolute;
+            z-index: 4;
+            color: #f3d777;
+            font-size: 17px;
+            line-height: 1;
+            text-shadow: none;
+            filter: saturate(0.72);
+        }
+
+        .tarot-art-star.soft {
+            color: #e9b8cf;
+        }
+
+        .tarot-arcana-figure {
+            position: absolute;
+            left: 50%;
+            bottom: 22%;
+            width: 56px;
+            height: 92px;
+            transform: translateX(-50%);
+            z-index: 6;
+            filter: saturate(0.72) opacity(0.92);
+        }
+
+        .tarot-arcana-head {
+            position: absolute;
+            top: 2px;
+            left: 18px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #f5cdb9;
+            border: 1px solid rgba(159,128,96,0.26);
+        }
+
+        .tarot-arcana-hair {
+            position: absolute;
+            top: 0;
+            left: 12px;
+            width: 38px;
+            height: 58px;
+            border-radius: 60% 60% 48% 48%;
+            background: linear-gradient(180deg, #efb7cf, rgba(203,180,226,0.70));
+        }
+
+        .tarot-arcana-body {
+            position: absolute;
+            top: 28px;
+            left: 13px;
+            width: 32px;
+            height: 52px;
+            border-radius: 18px 18px 10px 10px;
+            background: linear-gradient(180deg, #f8c9b6, #cfd6f4);
+            border: 1px solid rgba(159,128,96,0.20);
+        }
+
+        .tarot-arcana-wing {
+            position: absolute;
+            top: 25px;
+            width: 30px;
+            height: 38px;
+            border-radius: 70% 20% 70% 20%;
+            background: rgba(224,238,255,0.76);
+            border: 1px solid rgba(160,148,198,0.25);
+        }
+
+        .tarot-arcana-wing.left { left: -6px; transform: rotate(-18deg); }
+        .tarot-arcana-wing.right { right: -7px; transform: scaleX(-1) rotate(-18deg); }
+
+        .tarot-arcana-symbol {
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+            z-index: 7;
+            min-width: 44px;
+            min-height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: #7a6392;
+            font-size: 30px;
+            background: rgba(255,250,240,0.58);
+            border: 1px solid rgba(216,205,167,0.62);
+        }
+
+        .tarot-pastel-horizon {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 36%;
+            z-index: 2;
+            background:
+                radial-gradient(circle at 26% 58%, rgba(247,188,205,0.58) 0 7px, transparent 8px),
+                radial-gradient(circle at 72% 50%, rgba(247,188,205,0.46) 0 5px, transparent 6px),
+                linear-gradient(180deg, transparent, rgba(183,220,168,0.68));
+        }
+
+        .tarot-line-scene {
+            position: absolute;
+            inset: 0;
+            z-index: 7;
+        }
+
+        .tarot-line {
+            position: absolute;
+            border: 2px solid rgba(109, 91, 112, 0.58);
+            background: rgba(255, 248, 240, 0.22);
+        }
+
+        .tarot-line.head {
+            width: 23px;
+            height: 23px;
+            border-radius: 50%;
+            left: 50%;
+            top: 34%;
+            transform: translate(-50%, -50%);
+            background: #f5cdb9;
+        }
+
+        .tarot-line.body {
+            width: 36px;
+            height: 58px;
+            border-radius: 20px 20px 10px 10px;
+            left: 50%;
+            top: 54%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(180deg, #f5c8b8, #d8dcf4);
+        }
+
+        .tarot-line.hair {
+            width: 46px;
+            height: 64px;
+            border: 0;
+            border-radius: 70% 70% 48% 48%;
+            left: 50%;
+            top: 39%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(180deg, rgba(238,178,207,0.86), rgba(201,183,226,0.58));
+        }
+
+        .tarot-line.wing {
+            width: 38px;
+            height: 52px;
+            border-radius: 70% 22% 70% 22%;
+            background: rgba(230, 238, 255, 0.66);
+            top: 42%;
+        }
+
+        .tarot-line.wing.left { left: 22%; transform: rotate(-18deg); }
+        .tarot-line.wing.right { right: 22%; transform: scaleX(-1) rotate(-18deg); }
+
+        .tarot-line.rod {
+            width: 3px;
+            height: 90px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(109, 91, 112, 0.56);
+            left: 50%;
+            top: 27%;
+            transform: translateX(-50%);
+        }
+
+        .tarot-line.crossbar {
+            width: 88px;
+            height: 3px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(109, 91, 112, 0.56);
+            left: 50%;
+            top: 27%;
+            transform: translateX(-50%);
+        }
+
+        .tarot-line.hanged {
+            transform: translate(-50%, -50%) rotate(180deg);
+            top: 50%;
+        }
+
+        .tarot-line.cup {
+            width: 30px;
+            height: 38px;
+            border-radius: 4px 4px 18px 18px;
+            background: linear-gradient(180deg, #f7d8bc, #e8b8bc);
+            top: 54%;
+        }
+
+        .tarot-line.cup.left { left: 28%; transform: rotate(14deg); }
+        .tarot-line.cup.right { right: 28%; transform: rotate(-14deg); }
+
+        .tarot-line.coin {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            left: 50%;
+            top: 33%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, #fff1a8, #e6c86b);
+        }
+
+        .tarot-line.book {
+            width: 72px;
+            height: 34px;
+            left: 50%;
+            top: 66%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            background: linear-gradient(90deg, #f4e5c6 49%, #fff5de 50%);
+        }
+
+        .tarot-suit-mark {
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%, -50%);
+            z-index: 8;
+            color: #7b6686;
+            font-family: Georgia, serif;
+            font-size: 40px;
+            font-weight: 400;
+        }
+
+        .tarot-story-scene {
+            position: absolute;
+            inset: 0;
+            z-index: 7;
+            overflow: hidden;
+        }
+
+        .tarot-painted-scene {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+            overflow: hidden;
+            background: #f8efd9;
+        }
+
+        .tarot-painted-scene img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            object-position: center;
+            filter: saturate(0.94) contrast(0.96) brightness(1.02);
+        }
+
+        .tarot-story-scene::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.35;
+            background-image:
+                radial-gradient(circle at 20% 18%, rgba(255,255,255,0.75) 0 1px, transparent 2px),
+                radial-gradient(circle at 74% 28%, rgba(255,247,199,0.70) 0 1px, transparent 2px),
+                radial-gradient(circle at 46% 12%, rgba(255,209,229,0.65) 0 1px, transparent 2px);
+            background-size: 28px 32px, 36px 34px, 44px 38px;
+        }
+
+        .tarot-sky-glow {
+            position: absolute;
+            left: 50%;
+            top: 18%;
+            width: 86px;
+            height: 86px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,247,174,0.72), rgba(255,218,232,0.20) 58%, transparent 70%);
+            filter: blur(1px);
+        }
+
+        .tarot-hill {
+            position: absolute;
+            left: -18%;
+            right: -18%;
+            bottom: -6%;
+            height: 40%;
+            border-radius: 50% 50% 0 0;
+            background: linear-gradient(180deg, rgba(211,235,192,0.54), rgba(174,216,169,0.78));
+            border-top: 1px solid rgba(142,170,127,0.18);
+            z-index: 2;
+        }
+
+        .tarot-water {
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            bottom: 7%;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, rgba(185,220,243,0.70), rgba(155,199,224,0.52));
+            border: 1px solid rgba(117,154,174,0.16);
+            z-index: 5;
+        }
+
+        .tarot-flower {
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle, #f7e6a6 0 2px, transparent 3px),
+                radial-gradient(circle at 50% 18%, #edb8cd 0 4px, transparent 5px),
+                radial-gradient(circle at 82% 50%, #edb8cd 0 4px, transparent 5px),
+                radial-gradient(circle at 50% 82%, #edb8cd 0 4px, transparent 5px),
+                radial-gradient(circle at 18% 50%, #edb8cd 0 4px, transparent 5px);
+            opacity: 0.72;
+            z-index: 7;
+        }
+
+        .tarot-figure {
+            position: absolute;
+            left: 50%;
+            bottom: 23%;
+            width: 58px;
+            height: 104px;
+            transform: translateX(-50%);
+            z-index: 8;
+        }
+
+        .tarot-figure .hair {
+            position: absolute;
+            left: 10px;
+            top: 0;
+            width: 42px;
+            height: 66px;
+            border-radius: 56% 56% 42% 42%;
+            background: linear-gradient(180deg, rgba(238,179,207,0.86), rgba(202,184,226,0.56));
+            border: 1px solid rgba(138,109,128,0.14);
+        }
+
+        .tarot-figure .head {
+            position: absolute;
+            left: 18px;
+            top: 8px;
+            width: 24px;
+            height: 25px;
+            border-radius: 50%;
+            background: #f2c9b8;
+            border: 1px solid rgba(130,98,92,0.22);
+        }
+
+        .tarot-figure .body {
+            position: absolute;
+            left: 13px;
+            top: 36px;
+            width: 34px;
+            height: 56px;
+            border-radius: 18px 18px 11px 11px;
+            background: linear-gradient(180deg, #f5c7b7, #cfd8f1);
+            border: 1px solid rgba(130,98,92,0.18);
+        }
+
+        .tarot-figure .arm,
+        .tarot-figure .leg {
+            position: absolute;
+            width: 9px;
+            border-radius: 999px;
+            background: #f1c4b5;
+            border: 1px solid rgba(130,98,92,0.13);
+            z-index: 2;
+        }
+
+        .tarot-figure .arm {
+            height: 38px;
+            top: 43px;
+        }
+
+        .tarot-figure .arm.left { left: 9px; transform: rotate(25deg); }
+        .tarot-figure .arm.right { right: 9px; transform: rotate(-25deg); }
+
+        .tarot-figure .leg {
+            height: 34px;
+            top: 78px;
+            background: #d5d9ee;
+        }
+
+        .tarot-figure .leg.left { left: 20px; transform: rotate(9deg); }
+        .tarot-figure .leg.right { right: 20px; transform: rotate(-9deg); }
+
+        .tarot-figure .wing {
+            position: absolute;
+            top: 36px;
+            width: 32px;
+            height: 48px;
+            border-radius: 78% 22% 78% 22%;
+            background: rgba(232,241,255,0.72);
+            border: 1px solid rgba(145,139,188,0.20);
+        }
+
+        .tarot-figure .wing.left { left: -10px; transform: rotate(-18deg); }
+        .tarot-figure .wing.right { right: -10px; transform: scaleX(-1) rotate(-18deg); }
+
+        .tarot-figure.kneel { bottom: 18%; transform: translateX(-50%) scale(0.92); }
+        .tarot-figure.hanged { top: 24%; bottom: auto; transform: translateX(-50%) rotate(180deg); }
+
+        .tarot-branch {
+            position: absolute;
+            left: 50%;
+            top: 18%;
+            width: 98px;
+            height: 4px;
+            transform: translateX(-50%);
+            border-radius: 999px;
+            background: rgba(118,91,93,0.42);
+        }
+
+        .tarot-hanging-ribbon {
+            position: absolute;
+            left: 50%;
+            top: 18%;
+            width: 3px;
+            height: 78px;
+            transform: translateX(-50%);
+            border-radius: 999px;
+            background: rgba(118,91,93,0.36);
+        }
+
+        .tarot-cup-shape {
+            position: absolute;
+            width: 30px;
+            height: 36px;
+            border: 2px solid rgba(128,101,100,0.34);
+            border-top-width: 3px;
+            border-radius: 4px 4px 18px 18px;
+            background: linear-gradient(180deg, rgba(255,237,205,0.74), rgba(230,178,190,0.62));
+            z-index: 9;
+        }
+
+        .tarot-cup-shape.left { left: 26%; top: 54%; transform: rotate(14deg); }
+        .tarot-cup-shape.right { right: 26%; top: 54%; transform: rotate(-14deg); }
+
+        .tarot-coin-shape {
+            position: absolute;
+            left: 50%;
+            top: 27%;
+            width: 48px;
+            height: 48px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle at 36% 30%, #fff5b9, #efd173 70%);
+            border: 2px solid rgba(158,130,69,0.32);
+            box-shadow: 0 0 18px rgba(255,229,130,0.34);
+            z-index: 9;
+        }
+
+        .tarot-coin-shape::after {
+            content: "*";
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: rgba(122,97,80,0.48);
+            font-family: Georgia, serif;
+            font-size: 24px;
+        }
+
+        .tarot-book {
+            position: absolute;
+            left: 50%;
+            bottom: 16%;
+            width: 72px;
+            height: 34px;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            background: linear-gradient(90deg, #f0dfbd 49%, #fff1d6 50%);
+            border: 1px solid rgba(125,104,78,0.22);
+            z-index: 9;
+        }
+
+        .tarot-crescent {
+            position: absolute;
+            left: 50%;
+            top: 17%;
+            width: 58px;
+            height: 58px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: #f6d875;
+            z-index: 8;
+        }
+
+        .tarot-crescent::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            top: 0;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: #dfe8fb;
+        }
+
+        .tarot-animal {
+            position: absolute;
+            bottom: 22%;
+            width: 34px;
+            height: 26px;
+            border-radius: 52% 48% 45% 45%;
+            background: rgba(224,229,236,0.82);
+            border: 1px solid rgba(119,124,137,0.20);
+            z-index: 8;
+        }
+
+        .tarot-animal::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 7px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: inherit;
+            border: inherit;
+        }
+
+        .tarot-animal.left { left: 20%; }
+        .tarot-animal.right { right: 20%; transform: scaleX(-1); }
+
+        .tarot-rainbow {
+            position: absolute;
+            left: 50%;
+            top: 18%;
+            width: 118px;
+            height: 58px;
+            transform: translateX(-50%);
+            border-radius: 118px 118px 0 0;
+            background:
+                radial-gradient(ellipse at 50% 100%, transparent 0 42%, rgba(255,255,255,0.70) 43% 49%, transparent 50%),
+                linear-gradient(180deg, rgba(255,170,174,0.78), rgba(255,223,135,0.76) 28%, rgba(190,231,174,0.70) 54%, rgba(166,205,242,0.70) 76%, rgba(207,184,226,0.68));
+            opacity: 0.78;
+            z-index: 7;
+        }
+
+        .tarot-heart {
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            width: 28px;
+            height: 28px;
+            transform: translateX(-50%) rotate(45deg);
+            background: rgba(248,187,207,0.76);
+            border: 1px solid rgba(162,113,128,0.18);
+            z-index: 8;
+        }
+
+        .tarot-heart::before,
+        .tarot-heart::after {
+            content: "";
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: inherit;
+        }
+
+        .tarot-heart::before { left: -14px; top: 0; }
+        .tarot-heart::after { left: 0; top: -14px; }
+
+        .tarot-tall-star {
+            position: absolute;
+            left: 50%;
+            top: 18%;
+            transform: translateX(-50%);
+            color: #f0d66f;
+            font-family: Georgia, serif;
+            font-size: 74px;
+            line-height: 1;
+            z-index: 8;
+            text-shadow: 0 0 16px rgba(255,238,170,0.42);
+        }
+
+        .tarot-pillar {
+            position: absolute;
+            top: 26%;
+            width: 24px;
+            height: 92px;
+            border-radius: 12px 12px 5px 5px;
+            background: linear-gradient(180deg, rgba(246,236,218,0.84), rgba(207,198,222,0.64));
+            border: 1px solid rgba(141,123,116,0.18);
+            z-index: 7;
+        }
+
+        .tarot-pillar.left { left: 20%; }
+        .tarot-pillar.right { right: 20%; }
+
+        .tarot-wreath {
+            position: absolute;
+            left: 50%;
+            top: 43%;
+            width: 104px;
+            height: 132px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 8px dotted rgba(166,206,155,0.72);
+            z-index: 7;
+        }
+
+        .tarot-sun-disc {
+            position: absolute;
+            left: 50%;
+            top: 20%;
+            width: 54px;
+            height: 54px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff3aa, #f4cf65);
+            box-shadow: 0 0 24px rgba(255,228,137,0.42);
+            z-index: 7;
+        }
+
+        .tarot-suit-garden {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+        }
+
+        .tarot-suit-item {
+            position: absolute;
+            width: 18px;
+            height: 46px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(143,104,86,0.62), rgba(190,142,92,0.48));
+            border: 1px solid rgba(110,82,72,0.20);
+        }
+
+        .tarot-suit-item.cup {
+            width: 24px;
+            height: 30px;
+            border-radius: 5px 5px 16px 16px;
+            background: linear-gradient(180deg, rgba(255,238,207,0.76), rgba(228,180,194,0.62));
+        }
+
+        .tarot-suit-item.sword {
+            width: 5px;
+            height: 58px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(240,244,255,0.84), rgba(162,170,198,0.60));
+        }
+
+        .tarot-suit-item.pentacle {
+            width: 31px;
+            height: 31px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff0a5, #e5c56a);
+        }
 
         /* Name banner at bottom */
         .tarot-name-banner {
-            text-align: center; padding: 6px 8px 10px; position: relative;
+            text-align: center; padding: 8px 8px 12px; position: relative;
         }
         .tarot-name-banner::before {
-            content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 1px; background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+            content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 1px; background: linear-gradient(90deg, transparent, #d8cda7, transparent);
         }
-        .tarot-card-name { font-family: serif; font-size: 13px; font-weight: 700; color: #4a3c28; letter-spacing: 1px; line-height: 1.3; }
-        .tarot-card-keyword { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #8a7a5e; margin-top: 2px; }
+        .tarot-name-banner::after {
+            content: "*  *  *";
+            display: block;
+            margin-top: 2px;
+            color: #d5c47d;
+            font-family: Georgia, serif;
+            font-size: 9px;
+            letter-spacing: 7px;
+            opacity: 0.78;
+        }
+        .tarot-card-name { font-family: serif; font-size: 13px; font-weight: 500; color: #6b604f; letter-spacing: 0.08em; line-height: 1.3; text-transform: uppercase; }
+        .tarot-card-keyword { font-size: 8px; text-transform: uppercase; letter-spacing: 2px; color: #c1b37c; margin-top: 3px; }
 
         /* Readings below cards */
         .tarot-reading { max-width: 700px; margin: 0 auto; }
@@ -1929,6 +2606,18 @@
             transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
         }
 
+        button.spread-tab {
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        button.spread-tab:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 179, 243, 0.35);
+            box-shadow: 0 0 18px rgba(255, 79, 216, 0.12);
+        }
+
         .filter-tab:hover {
             transform: translateY(-1px);
             border-color: rgba(255, 179, 243, 0.35);
@@ -2074,6 +2763,171 @@
             margin-bottom: 34px;
         }
 
+        .tarot-chamber-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(260px, 0.42fr);
+            gap: 18px;
+            align-items: stretch;
+            margin: 26px auto 4px;
+            width: min(980px, 100%);
+        }
+
+        .tarot-ritual-panel,
+        .tarot-side-panel {
+            border: 1px solid rgba(201,168,76,0.18);
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 18% 0%, rgba(255,150,200,0.14), transparent 34%),
+                linear-gradient(145deg, rgba(34,14,54,0.72), rgba(12,6,22,0.86));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 20px 60px rgba(0,0,0,0.22);
+        }
+
+        .tarot-ritual-panel {
+            padding: clamp(18px, 3vw, 28px);
+        }
+
+        .tarot-side-panel {
+            padding: 18px;
+            display: grid;
+            align-content: center;
+            gap: 12px;
+        }
+
+        .tarot-kicker {
+            color: #c9a84c;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .tarot-ritual-title {
+            margin: 8px 0 8px;
+            color: #fff1c7;
+            font-size: clamp(22px, 3vw, 34px);
+            line-height: 1.05;
+        }
+
+        .tarot-ritual-copy {
+            margin: 0;
+            color: rgba(236,220,255,0.80);
+            line-height: 1.68;
+        }
+
+        .tarot-stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .tarot-stat {
+            min-height: 82px;
+            padding: 13px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.045);
+        }
+
+        .tarot-stat strong {
+            display: block;
+            color: #fff6d6;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .tarot-stat span {
+            display: block;
+            margin-top: 7px;
+            color: rgba(236,220,255,0.70);
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .tarot-side-title {
+            color: #ffd8f5;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .tarot-side-copy {
+            margin: 0;
+            color: rgba(236,220,255,0.74);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .tarot-deck-atlas {
+            width: min(1120px, 100%);
+            margin: 12px auto 34px;
+            padding: clamp(16px, 3vw, 24px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 214, 139, 0.20);
+            background:
+                radial-gradient(circle at 20% 0%, rgba(255, 214, 139, 0.14), transparent 34%),
+                radial-gradient(circle at 84% 8%, rgba(150, 255, 220, 0.09), transparent 30%),
+                linear-gradient(145deg, rgba(34,14,54,0.72), rgba(12,6,22,0.90));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 20px 60px rgba(0,0,0,0.24);
+        }
+
+        .tarot-deck-atlas-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .tarot-deck-atlas-kicker {
+            color: #c9a84c;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .tarot-deck-atlas-title {
+            margin: 6px 0 0;
+            color: #fff1c7;
+            font-size: clamp(22px, 3vw, 36px);
+            line-height: 1;
+        }
+
+        .tarot-deck-atlas-copy {
+            max-width: 430px;
+            margin: 0;
+            color: rgba(236,220,255,0.74);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .tarot-deck-atlas-frame {
+            display: block;
+            overflow: hidden;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(7,3,16,0.72);
+            box-shadow: 0 18px 48px rgba(0,0,0,0.26);
+        }
+
+        .tarot-deck-atlas-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        #tarot-spread-name {
+            color: #fff1c7;
+            font-weight: 900;
+        }
+
+        #tarot-spread-intention {
+            color: #96ffdc;
+            font-weight: 800;
+        }
+
         .charm-detail-focus {
             display: none;
             grid-column: 1 / -1;
@@ -2140,8 +2994,21 @@
                 text-align: center;
             }
 
+            .tarot-chamber-grid,
+            .tarot-stat-row {
+                grid-template-columns: 1fr;
+            }
+
             .chamber-actions {
                 border-radius: 24px;
+            }
+
+            .tarot-deck-atlas-head {
+                display: block;
+            }
+
+            .tarot-deck-atlas-copy {
+                margin-top: 10px;
             }
 
             .chamber-back-btn {
@@ -2861,6 +3728,424 @@
             color: #baffef;
         }
 
+        .girdle-hero {
+            position: relative;
+            max-width: 1180px;
+            margin: 48px auto 32px;
+            padding: clamp(24px, 4vw, 46px);
+            border-radius: 34px;
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+            gap: clamp(24px, 4vw, 44px);
+            align-items: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 14% 18%, rgba(255, 190, 218, 0.20), transparent 32%),
+                radial-gradient(circle at 82% 22%, rgba(255, 225, 170, 0.16), transparent 34%),
+                radial-gradient(circle at 54% 100%, rgba(121, 247, 255, 0.10), transparent 42%),
+                linear-gradient(145deg, rgba(48, 18, 46, 0.94), rgba(18, 9, 34, 0.92));
+            border: 1px solid rgba(255, 201, 225, 0.24);
+            box-shadow:
+                0 0 54px rgba(255, 126, 190, 0.14),
+                0 0 40px rgba(255, 220, 170, 0.08),
+                inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        .girdle-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.20;
+            background-image:
+                radial-gradient(circle at 24% 26%, rgba(255, 240, 245, 0.70) 0 1px, transparent 2px),
+                radial-gradient(circle at 72% 68%, rgba(255, 214, 139, 0.48) 0 1px, transparent 2px),
+                linear-gradient(120deg, transparent 0 46%, rgba(255, 220, 230, 0.10) 47% 48%, transparent 49% 100%);
+            background-size: 54px 54px, 78px 78px, 130px 130px;
+        }
+
+        .girdle-hero > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .girdle-kicker {
+            color: #ffd8e9;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .girdle-title {
+            margin: 10px 0 10px;
+            color: #fff1c7;
+            font-size: clamp(38px, 6.2vw, 74px);
+            line-height: 0.98;
+            text-shadow:
+                0 0 20px rgba(255, 172, 220, 0.32),
+                0 0 30px rgba(255, 214, 139, 0.18);
+        }
+
+        .girdle-subtitle {
+            margin: 0 0 16px;
+            color: #ffd8f5;
+            font-size: clamp(17px, 2.1vw, 24px);
+            font-weight: 800;
+        }
+
+        .girdle-copy {
+            max-width: 62ch;
+            color: rgba(248, 234, 255, 0.88);
+            line-height: 1.72;
+        }
+
+        .girdle-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+        }
+
+        .girdle-button {
+            border: 1px solid rgba(255, 218, 235, 0.34);
+            border-radius: 999px;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, rgba(255, 178, 218, 0.20), rgba(255, 214, 139, 0.20));
+            color: #fff5ff;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            box-shadow: 0 0 24px rgba(255, 126, 190, 0.12);
+        }
+
+        .girdle-button.primary {
+            color: #261322;
+            background: linear-gradient(135deg, #ffd8e9, #fff1c7);
+        }
+
+        .girdle-art-frame {
+            position: relative;
+            justify-self: stretch;
+            min-height: 470px;
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 218, 235, 0.28);
+            background:
+                radial-gradient(circle at 50% 35%, rgba(255, 216, 233, 0.20), transparent 40%),
+                linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+            box-shadow: 0 24px 72px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        .girdle-art-frame img {
+            width: 100%;
+            height: 100%;
+            min-height: 470px;
+            display: block;
+            object-fit: cover;
+        }
+
+        .girdle-art-frame.image-missing {
+            display: grid;
+            place-items: center;
+        }
+
+        .girdle-art-frame.image-missing::before {
+            content: "";
+            position: absolute;
+            inset: 28px;
+            border-radius: 999px;
+            background:
+                radial-gradient(circle at 50% 42%, rgba(255, 216, 233, 0.28), transparent 42%),
+                radial-gradient(circle at 50% 72%, rgba(255, 214, 139, 0.15), transparent 32%);
+            filter: blur(8px);
+            pointer-events: none;
+        }
+
+        .girdle-art-frame.image-missing::after {
+            content: "Add your Aphrodite image here";
+            position: relative;
+            z-index: 1;
+            width: min(300px, 80%);
+            padding: 18px;
+            border: 1px dashed rgba(255, 218, 235, 0.34);
+            border-radius: 16px;
+            color: rgba(255, 245, 255, 0.76);
+            text-align: center;
+            font-weight: 800;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .girdle-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .girdle-badge {
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 999px;
+            padding: 8px 11px;
+            color: #ffe4f2;
+            background: rgba(255,255,255,0.05);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .girdle-shell {
+            margin-top: 24px;
+        }
+
+        .girdle-dashboard {
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+            gap: 18px;
+            align-items: start;
+            margin-top: 18px;
+        }
+
+        .girdle-filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 18px 0;
+        }
+
+        .girdle-filter {
+            border: 1px solid rgba(255,255,255,0.11);
+            border-radius: 999px;
+            padding: 10px 13px;
+            color: #f7ddff;
+            background: rgba(255,255,255,0.05);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+        }
+
+        .girdle-filter:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 216, 233, 0.38);
+        }
+
+        .girdle-filter.active {
+            color: #241020;
+            background: linear-gradient(135deg, #ffd8e9, #fff1c7);
+        }
+
+        .girdle-ritual-list {
+            display: grid;
+            gap: 10px;
+            max-height: 650px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .girdle-ritual-card {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 74px minmax(0, 1fr);
+            gap: 14px;
+            align-items: center;
+            text-align: left;
+            border: 1px solid rgba(255, 190, 220, 0.17);
+            border-radius: 12px;
+            padding: 14px;
+            color: #d0b9de;
+            background:
+                radial-gradient(circle at 12% 0%, rgba(255, 214, 139, 0.10), transparent 8rem),
+                rgba(255,255,255,0.04);
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .girdle-ritual-card:hover,
+        .girdle-ritual-card.active {
+            transform: translateY(-2px);
+            border-color: rgba(255, 216, 233, 0.40);
+            box-shadow: 0 16px 42px rgba(0,0,0,0.18), 0 0 28px rgba(255, 126, 190, 0.09);
+        }
+
+        .girdle-ritual-glyph {
+            display: grid;
+            place-items: center;
+            width: 62px;
+            height: 62px;
+            border-radius: 20px;
+            color: #fff1c7;
+            font-size: 24px;
+            font-weight: 900;
+            background:
+                radial-gradient(circle at 36% 24%, rgba(255,255,255,0.28), transparent 24%),
+                linear-gradient(145deg, rgba(255, 178, 218, 0.28), rgba(121, 247, 255, 0.10));
+            border: 1px solid rgba(255, 218, 235, 0.18);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 12px 24px rgba(0,0,0,0.20);
+        }
+
+        .girdle-ritual-title {
+            color: #fff5ff;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .girdle-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .girdle-meta span,
+        .girdle-source-links a {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            padding: 6px 9px;
+            color: #ffe4f2;
+            background: rgba(255,255,255,0.04);
+            font-size: 11px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .girdle-detail {
+            min-height: 650px;
+            padding: 24px;
+        }
+
+        .girdle-detail-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(170px, 240px);
+            gap: 18px;
+            align-items: center;
+        }
+
+        .girdle-detail-art {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 26px;
+            border: 1px solid rgba(255, 218, 235, 0.28);
+            background:
+                radial-gradient(circle at 50% 38%, rgba(255, 216, 233, 0.16), transparent 44%),
+                linear-gradient(145deg, rgba(255,255,255,0.07), rgba(10, 4, 20, 0.20));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 30px rgba(0,0,0,0.20);
+        }
+
+        .girdle-detail-art img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        .girdle-detail-art.image-missing {
+            display: grid;
+            place-items: center;
+        }
+
+        .girdle-detail-art.image-missing::after {
+            content: "image slot";
+            color: rgba(255, 245, 255, 0.70);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .girdle-detail h3 {
+            margin: 0 0 6px;
+            color: #fff5ff;
+            font-size: 28px;
+        }
+
+        .girdle-detail-section {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .girdle-detail-section strong {
+            display: block;
+            margin-bottom: 7px;
+            color: #ffd8e9;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .girdle-detail-section p,
+        .girdle-detail-section li {
+            color: #d8c1e5;
+            line-height: 1.64;
+            font-size: 14px;
+        }
+
+        .girdle-detail-section ul,
+        .girdle-flow-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .girdle-complete-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .girdle-source-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .girdle-source-links a:hover {
+            border-color: rgba(255, 216, 233, 0.38);
+            color: #fff1c7;
+        }
+
+        .girdle-image-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .girdle-image-tile {
+            min-height: 190px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 218, 235, 0.18);
+            background:
+                radial-gradient(circle at 40% 35%, rgba(255, 216, 233, 0.16), transparent 42%),
+                rgba(255,255,255,0.04);
+        }
+
+        .girdle-image-tile img {
+            width: 100%;
+            height: 100%;
+            min-height: 190px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .girdle-image-tile.image-missing {
+            display: grid;
+            place-items: center;
+            color: rgba(255, 245, 255, 0.68);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.10em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
         .charms-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -3125,24 +4410,35 @@
 
             .portal-hub-grid,
             .cosmic-weather,
-            .herbology-grid {
+            .herbology-grid,
+            .girdle-dashboard,
+            .girdle-image-strip {
                 grid-template-columns: 1fr;
             }
 
-            .herbology-hero {
+            .herbology-hero,
+            .girdle-hero {
                 grid-template-columns: 1fr;
                 margin: 24px 14px 28px;
             }
 
-            .herb-card-list {
+            .girdle-art-frame,
+            .girdle-art-frame img {
+                min-height: 320px;
+            }
+
+            .herb-card-list,
+            .girdle-ritual-list {
                 max-height: none;
             }
 
-            .herb-detail {
+            .herb-detail,
+            .girdle-detail {
                 min-height: auto;
             }
 
-            .herb-detail-hero {
+            .herb-detail-hero,
+            .girdle-detail-hero {
                 grid-template-columns: 1fr;
             }
 
@@ -3182,6 +4478,7 @@
                 <div class="nav-dropdown">
                     <span class="nav-dropdown-toggle">Lore ▾</span>
                     <div class="nav-dropdown-menu">
+                        <a data-page="aphrodite" onclick="showPage('aphrodite')">Aphrodite's Girdle</a>
                         <a href="/odins_eye.html">Odin's Eye</a>
                         <a href="/scribe_of_the_gods.html">Scribe of the Gods</a>
                     </div>
@@ -3794,25 +5091,55 @@
                     <div>
                         <div class="chamber-breadcrumb">Portal -> Tarot Ring</div>
                         <h2 class="chamber-title">Fairy Tarot</h2>
-                        <p class="chamber-copy">Draw, reveal, zoom into the card, then return to the Portal. This is the first chamber in the new world navigation spine.</p>
+                        <p class="chamber-copy">Choose a spread, draw the daily fairy deck, and let each card become a charm-sized clue for the path ahead.</p>
                     </div>
                 </div>
+            <div class="tarot-chamber-grid">
+                <div class="tarot-ritual-panel">
+                    <div class="tarot-kicker">Daily Divination</div>
+                    <h3 class="tarot-ritual-title">A three-card reading that remembers your portal rhythm.</h3>
+                    <p class="tarot-ritual-copy">Your cards refresh daily from the full 78-card fairy deck. Pick the lens before drawing: general path, love, money, shadow work, or moon-cycle guidance.</p>
+                    <div class="tarot-stat-row">
+                        <div class="tarot-stat"><strong>78</strong><span>major and minor arcana cards in the fairy deck</span></div>
+                        <div class="tarot-stat"><strong>5</strong><span>reading lenses for different questions</span></div>
+                        <div class="tarot-stat"><strong>3</strong><span>cards saved into your profile reading tab</span></div>
+                    </div>
+                </div>
+                <div class="tarot-side-panel">
+                    <div class="tarot-side-title">Current Lens</div>
+                    <p class="tarot-side-copy"><span id="tarot-spread-name">Daily 3-card</span> opens as <span id="tarot-spread-intention">past, present, and future</span>.</p>
+                    <p class="tarot-side-copy">Draw once for the ritual, or draw again when you want a fresh shuffle in the same session.</p>
+                </div>
+            </div>
             <p class="section-subtitle">three cards from the fairy realm ✦ a new spread each day</p>
 
             <div class="spread-tabs" style="justify-content:center;">
-                <span class="spread-tab active">Daily 3-card</span>
-                <span class="spread-tab locked-badge">Love</span>
-                <span class="spread-tab locked-badge">Money</span>
-                <span class="spread-tab locked-badge">Shadow</span>
-                <span class="spread-tab locked-badge">Full Moon</span>
+                <button class="spread-tab active" type="button" data-spread="daily" onclick="selectTarotSpread('daily')">Daily 3-card</button>
+                <button class="spread-tab" type="button" data-spread="love" onclick="selectTarotSpread('love')">Love</button>
+                <button class="spread-tab" type="button" data-spread="money" onclick="selectTarotSpread('money')">Money</button>
+                <button class="spread-tab" type="button" data-spread="shadow" onclick="selectTarotSpread('shadow')">Shadow</button>
+                <button class="spread-tab" type="button" data-spread="moon" onclick="selectTarotSpread('moon')">Full Moon</button>
                 <span class="spread-tab locked-badge">Celtic Cross</span>
             </div>
 
             <button class="tarot-draw-btn" id="tarot-draw-btn" onclick="drawTarot()">Draw Your Cards</button>
 
+            <div class="tarot-deck-atlas" id="tarot-full-deck">
+                <div class="tarot-deck-atlas-head">
+                    <div>
+                        <div class="tarot-deck-atlas-kicker">Full Deck Atlas</div>
+                        <h3 class="tarot-deck-atlas-title">See every fairy card in the 78-card deck.</h3>
+                    </div>
+                    <p class="tarot-deck-atlas-copy">Major Arcana, Wands, Cups, Swords, and Pentacles are gathered here as one collectible deck preview.</p>
+                </div>
+                <a class="tarot-deck-atlas-frame" href="assets/tarot/full-deck-contact-sheet.jpg" target="_blank" rel="noopener">
+                    <img src="assets/tarot/full-deck-contact-sheet.jpg" alt="Full Pixie Portal Fairy Tarot deck contact sheet with all 78 cards">
+                </a>
+            </div>
+
             <div class="tarot-spread" id="tarot-spread">
                 <div class="tarot-slot">
-                    <div class="tarot-slot-label">Past</div>
+                    <div class="tarot-slot-label" id="tarot-slot-label-0">Past</div>
                     <div class="tarot-card-wrap" id="tarot-0">
                         <div class="tarot-card-inner">
                             <div class="tarot-card-back"><div class="tarot-back-pattern"><span class="tarot-back-corner tl">&#10048;</span><span class="tarot-back-corner tr">&#10048;</span><span class="tarot-back-corner bl">&#10048;</span><span class="tarot-back-corner br">&#10048;</span><div class="tarot-back-center"><span class="tarot-back-star">🧚</span><span class="tarot-back-label">Fairy Tarot</span></div></div></div>
@@ -3821,7 +5148,7 @@
                     </div>
                 </div>
                 <div class="tarot-slot">
-                    <div class="tarot-slot-label">Present</div>
+                    <div class="tarot-slot-label" id="tarot-slot-label-1">Present</div>
                     <div class="tarot-card-wrap" id="tarot-1">
                         <div class="tarot-card-inner">
                             <div class="tarot-card-back"><div class="tarot-back-pattern"><span class="tarot-back-corner tl">&#10048;</span><span class="tarot-back-corner tr">&#10048;</span><span class="tarot-back-corner bl">&#10048;</span><span class="tarot-back-corner br">&#10048;</span><div class="tarot-back-center"><span class="tarot-back-star">🧚</span><span class="tarot-back-label">Fairy Tarot</span></div></div></div>
@@ -3830,7 +5157,7 @@
                     </div>
                 </div>
                 <div class="tarot-slot">
-                    <div class="tarot-slot-label">Future</div>
+                    <div class="tarot-slot-label" id="tarot-slot-label-2">Future</div>
                     <div class="tarot-card-wrap" id="tarot-2">
                         <div class="tarot-card-inner">
                             <div class="tarot-card-back"><div class="tarot-back-pattern"><span class="tarot-back-corner tl">&#10048;</span><span class="tarot-back-corner tr">&#10048;</span><span class="tarot-back-corner bl">&#10048;</span><span class="tarot-back-corner br">&#10048;</span><div class="tarot-back-center"><span class="tarot-back-star">🧚</span><span class="tarot-back-label">Fairy Tarot</span></div></div></div>
@@ -3982,6 +5309,85 @@
                 <div class="herbology-grid">
                     <div class="herb-card-list" id="herb-card-list" aria-live="polite"></div>
                     <article class="portal-hub-card herb-detail" id="herb-detail"></article>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ APHRODITE'S GIRDLE PAGE ============ -->
+    <div class="page" id="page-aphrodite">
+        <section>
+            <div class="girdle-hero">
+                <div>
+                    <div class="girdle-kicker">Breath, body, beauty, return</div>
+                    <h2 class="girdle-title">Aphrodite's Girdle</h2>
+                    <div class="girdle-subtitle">Gentle meditation and beginner movement rituals.</div>
+                    <p class="girdle-copy">This chamber is for soft power: breathe, stretch, notice the body, and collect little calm charms without turning wellness into homework. Choose a ritual by mood, follow a simple sequence, and return to the Portal feeling more like yourself.</p>
+                    <div class="girdle-actions">
+                        <button class="girdle-button primary" onclick="openGirdleRituals()">Choose a Ritual</button>
+                        <button class="girdle-button" onclick="discoverGirdleRitual()">Let Aphrodite Pick</button>
+                        <button class="girdle-button" onclick="completeSelectedGirdleRitual()">Complete Ritual</button>
+                    </div>
+                    <div class="girdle-badge-row" aria-label="Aphrodite's Girdle practice types">
+                        <span class="girdle-badge">Meditation</span>
+                        <span class="girdle-badge">Beginner yoga</span>
+                        <span class="girdle-badge">Breath charms</span>
+                        <span class="girdle-badge">Pearl streaks</span>
+                    </div>
+                </div>
+                <div class="girdle-art-frame">
+                    <img src="/assets/aphrodites-girdle/aphrodite-hero.jpg" alt="Aphrodite inspired rose temple for meditation and gentle movement" onerror="this.parentElement.classList.add('image-missing'); this.remove();">
+                </div>
+            </div>
+
+            <div class="games-shell girdle-shell">
+                <div class="portal-hub-grid">
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">How to use it</div>
+                        <div class="hub-title">Pick the state you want to enter.</div>
+                        <div class="hub-copy">Calm, sleep, confidence, heart-softening, or body reset. Each ritual gives a clear time, tiny setup, and beginner-safe steps.</div>
+                    </div>
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Gentle boundary</div>
+                        <div class="hub-title">Pleasure is not pressure.</div>
+                        <div class="hub-copy">This is educational relaxation and movement content. Stop if pain, dizziness, numbness, shortness of breath, or distress appears.</div>
+                    </div>
+                    <div class="portal-hub-card">
+                        <div class="hub-kicker">Daily loop</div>
+                        <div class="hub-title" id="girdle-streak-title">Pearl Streak: 0</div>
+                        <div class="hub-copy" id="girdle-streak-copy">Complete one tiny practice to add a pearl to the Girdle.</div>
+                    </div>
+                </div>
+
+                <div class="safety-support-panel">
+                    <strong>Before practicing</strong>
+                    <p>Choose a comfortable range of motion. Skip poses that do not fit your body today. Ask a qualified professional first if pregnant, injured, recovering from surgery, managing a medical condition, or unsure whether yoga or breathwork is appropriate.</p>
+                </div>
+
+                <div class="girdle-filter-row" aria-label="Aphrodite's Girdle ritual filters">
+                    <button class="girdle-filter active" data-girdle-filter="all" onclick="setGirdleFilter('all')">All</button>
+                    <button class="girdle-filter" data-girdle-filter="breath" onclick="setGirdleFilter('breath')">Breath</button>
+                    <button class="girdle-filter" data-girdle-filter="meditation" onclick="setGirdleFilter('meditation')">Meditation</button>
+                    <button class="girdle-filter" data-girdle-filter="movement" onclick="setGirdleFilter('movement')">Yoga</button>
+                    <button class="girdle-filter" data-girdle-filter="sleep" onclick="setGirdleFilter('sleep')">Sleep</button>
+                    <button class="girdle-filter" data-girdle-filter="confidence" onclick="setGirdleFilter('confidence')">Confidence</button>
+                </div>
+
+                <div class="girdle-dashboard">
+                    <div class="girdle-ritual-list" id="girdle-ritual-list" aria-live="polite"></div>
+                    <article class="portal-hub-card girdle-detail" id="girdle-detail"></article>
+                </div>
+
+                <div class="girdle-image-strip" aria-label="Aphrodite's Girdle image slots">
+                    <div class="girdle-image-tile">
+                        <img src="/assets/aphrodites-girdle/rose-mat.jpg" alt="Rose colored yoga mat ritual scene" onerror="this.parentElement.classList.add('image-missing'); this.parentElement.textContent='Rose mat image slot'; this.remove();">
+                    </div>
+                    <div class="girdle-image-tile">
+                        <img src="/assets/aphrodites-girdle/breath-charm.jpg" alt="Breath charm meditation scene" onerror="this.parentElement.classList.add('image-missing'); this.parentElement.textContent='Breath charm image slot'; this.remove();">
+                    </div>
+                    <div class="girdle-image-tile">
+                        <img src="/assets/aphrodites-girdle/pearl-temple.jpg" alt="Pearl temple calm ritual scene" onerror="this.parentElement.classList.add('image-missing'); this.parentElement.textContent='Pearl temple image slot'; this.remove();">
+                    </div>
                 </div>
             </div>
         </section>
@@ -4859,6 +6265,7 @@
             if (id === 'admin') loadAdminReports('open');
             if (id === 'my-pixie' || id === 'vault') renderPixieMemory();
             if (id === 'herbs') renderHerbology();
+            if (id === 'aphrodite') renderGirdleRituals();
         }
 
         function openPortalChamber(type, options = {}) {
@@ -5048,6 +6455,258 @@
             syncInventoryItem({ id, type: 'charm', label: charm?.title || id, icon: charm?.glyph || '?', text: charm?.copy || '' }, true);
             recordServerEvent('charm_equipped', { charm_id: id }, 'charms');
             toast((charm?.title || 'Charm') + ' equipped.');
+        }
+
+        // ============================================
+        // APHRODITE'S GIRDLE: MEDITATION + YOGA
+        // ============================================
+        const GIRDLE_SOURCES = [
+            { label: 'Mayo Clinic Meditation', url: 'https://www.mayoclinic.org/tests-procedures/meditation/in-depth/meditation/art-20045858' },
+            { label: 'NCCIH Meditation', url: 'https://www.nccih.nih.gov/health/meditation/overview.htm' },
+            { label: 'NCCIH Yoga Safety', url: 'https://www.nccih.nih.gov/health/yoga-effectiveness-and-safety' },
+            { label: 'NCCIH Yoga Tips', url: 'https://www.nccih.nih.gov/health/tips/things-you-should-know-about-yoga' }
+        ];
+
+        const GIRDLE_RITUALS = [
+            {
+                id: 'rose-breath',
+                title: '3-Minute Rose Breath',
+                type: 'Breath charm',
+                duration: '3 min',
+                glyph: 'B',
+                categories: ['breath', 'meditation'],
+                mood: 'Quick reset',
+                image: '/assets/aphrodites-girdle/breath-charm.jpg',
+                summary: 'A tiny breath-awareness practice for returning to the body without making a production of it.',
+                setup: 'Sit upright or lie down. Let the shoulders drop. Keep the breath natural.',
+                steps: ['Notice the inhale without changing it.', 'Notice the exhale and let the jaw soften.', 'When the mind wanders, name it gently and return to breathing.', 'Close by choosing one word for how you want to move next.'],
+                note: 'Breath awareness is a simple beginner meditation because the breath gives attention a steady home.',
+                reward: 'Rose Breath Pearl'
+            },
+            {
+                id: 'moonlit-body-scan',
+                title: 'Moonlit Body Scan',
+                type: 'Body scan',
+                duration: '7 min',
+                glyph: 'M',
+                categories: ['meditation', 'sleep'],
+                mood: 'Sleep wind-down',
+                image: '/assets/aphrodites-girdle/pearl-temple.jpg',
+                summary: 'Move attention slowly from head to feet and let the body stop trying to perform.',
+                setup: 'Lie down or sit with support. Let the eyes close or soften.',
+                steps: ['Notice the face, jaw, and throat.', 'Move attention through shoulders, arms, hands, chest, and belly.', 'Notice hips, legs, feet, and the surface holding you.', 'If you find tension, breathe around it instead of forcing it away.'],
+                note: 'Body scans are a common mindfulness practice for noticing sensation without judging it.',
+                reward: 'Moonlit Pearl'
+            },
+            {
+                id: 'pearl-heart',
+                title: 'Pearl Heart Charm',
+                type: 'Loving-kindness',
+                duration: '5 min',
+                glyph: 'H',
+                categories: ['meditation'],
+                mood: 'Self-kindness',
+                image: '/assets/aphrodites-girdle/rose-mat.jpg',
+                summary: 'A compassion ritual using simple phrases toward yourself and someone safe.',
+                setup: 'Place one hand near the heart if comfortable. Pick phrases that feel believable.',
+                steps: ['Say silently: may I be safe.', 'Say: may I be steady.', 'Say: may I be kind to myself today.', 'Offer the same wishes to someone easy to care about.'],
+                note: 'Loving-kindness meditation uses repeated goodwill phrases to cultivate warmth and care.',
+                reward: 'Heart Pearl'
+            },
+            {
+                id: 'garden-path',
+                title: 'Garden Path Walk',
+                type: 'Walking meditation',
+                duration: '5 min',
+                glyph: 'W',
+                categories: ['meditation', 'movement'],
+                mood: 'Grounding',
+                image: '/assets/aphrodites-girdle/pearl-temple.jpg',
+                summary: 'A slow walking meditation for grounding through the feet and the senses.',
+                setup: 'Choose a safe short path indoors or outside. Walk slower than usual.',
+                steps: ['Feel the heel touch down.', 'Feel weight move through the foot.', 'Notice three colors around you.', 'Return attention to the next step.'],
+                note: 'Walking meditation brings mindful attention into movement and daily life.',
+                reward: 'Garden Path Pearl'
+            },
+            {
+                id: 'morning-girdle-flow',
+                title: 'Morning Girdle Flow',
+                type: 'Beginner yoga',
+                duration: '10 min',
+                glyph: 'Y',
+                categories: ['movement', 'confidence'],
+                mood: 'Wake the body',
+                image: '/assets/aphrodites-girdle/rose-mat.jpg',
+                summary: 'A gentle beginner sequence for waking up without chasing a workout.',
+                setup: 'Use a mat, rug, or chair support. Keep knees soft and movements small.',
+                steps: ['Mountain Pose: stand tall, feet grounded, breathe three times.', 'Cat-Cow: round and arch the spine gently for five rounds.', 'Low Lunge: step one foot back, hands on blocks or thigh, switch sides.', 'Warrior II: short stance, bend front knee gently, then switch.', 'Tree Pose: foot at ankle or calf, never pressing into the knee.'],
+                note: 'Beginner yoga can combine posture, breath, and attention. Modify or skip anything that causes pain.',
+                reward: 'Dawn Girdle Pearl'
+            },
+            {
+                id: 'soft-landing-flow',
+                title: 'Soft Landing Flow',
+                type: 'Restorative yoga',
+                duration: '8 min',
+                glyph: 'S',
+                categories: ['movement', 'sleep'],
+                mood: 'Evening release',
+                image: '/assets/aphrodites-girdle/rose-mat.jpg',
+                summary: 'A slow end-of-day flow built from rest poses and simple twists.',
+                setup: 'Use pillows under knees or chest if that feels better.',
+                steps: ['Childs Pose or supported forward rest for five breaths.', 'Seated or hands-and-knees Cat-Cow for five easy rounds.', 'Supine Twist: knees to one side, switch slowly.', 'Savasana: rest on the back or side for two minutes.'],
+                note: 'Rest poses and supported shapes are useful because they lower effort and make the practice accessible.',
+                reward: 'Soft Landing Pearl'
+            },
+            {
+                id: 'mirror-mantra',
+                title: 'Mirror Blessing',
+                type: 'Mantra meditation',
+                duration: '4 min',
+                glyph: 'R',
+                categories: ['meditation', 'confidence'],
+                mood: 'Confidence',
+                image: '/assets/aphrodites-girdle/breath-charm.jpg',
+                summary: 'A charm-like mantra practice for replacing the inner critic with one true sentence.',
+                setup: 'Sit comfortably. You can use a mirror or simply imagine one.',
+                steps: ['Pick one phrase: I soften and stay strong.', 'Repeat it slowly for ten breaths.', 'Notice any resistance without arguing with it.', 'End by naming one action that honors your body today.'],
+                note: 'Mantra meditation gives attention a repeated word or phrase as an anchor.',
+                reward: 'Mirror Pearl'
+            },
+            {
+                id: 'pearl-temple-visualization',
+                title: 'Pearl Temple Visualization',
+                type: 'Guided visualization',
+                duration: '6 min',
+                glyph: 'P',
+                categories: ['meditation', 'sleep'],
+                mood: 'Imagery',
+                image: '/assets/aphrodites-girdle/pearl-temple.jpg',
+                summary: 'Imagine a warm rose-and-pearl temple where the body can put down what it carried.',
+                setup: 'Sit or lie down. Let the scene be simple, not cinematic.',
+                steps: ['Picture a doorway covered in roses.', 'Step into a quiet room with warm light.', 'Place one worry into a pearl bowl.', 'Leave with one small kindness for tomorrow.'],
+                note: 'Guided imagery uses calming mental scenes and sensory detail as a relaxation practice.',
+                reward: 'Temple Pearl'
+            }
+        ];
+
+        let girdleFilter = 'all';
+        let selectedGirdleId = 'rose-breath';
+
+        function setGirdleFilter(filter) {
+            girdleFilter = filter;
+            document.querySelectorAll('.girdle-filter').forEach(btn => btn.classList.toggle('active', btn.dataset.girdleFilter === filter));
+            renderGirdleRituals();
+        }
+
+        function selectGirdleRitual(id) {
+            selectedGirdleId = id;
+            renderGirdleRituals();
+        }
+
+        function openGirdleRituals() {
+            document.querySelector('.girdle-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function discoverGirdleRitual() {
+            const pool = GIRDLE_RITUALS.filter(ritual => girdleFilter === 'all' || ritual.categories.includes(girdleFilter));
+            const ritual = pool[Math.floor(Math.random() * pool.length)] || GIRDLE_RITUALS[0];
+            selectedGirdleId = ritual.id;
+            renderGirdleRituals();
+            document.querySelector('.girdle-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (typeof toast === 'function') toast('Aphrodite chose ' + ritual.title + ' for you.');
+        }
+
+        function completeSelectedGirdleRitual() {
+            const ritual = GIRDLE_RITUALS.find(item => item.id === selectedGirdleId) || GIRDLE_RITUALS[0];
+            const key = 'pixieMemory:aphroditesGirdle';
+            const saved = (() => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; } })();
+            const next = [{ id: ritual.id, title: ritual.title, reward: ritual.reward, completed_at: new Date().toISOString() }, ...saved].slice(0, 30);
+            localStorage.setItem(key, JSON.stringify(next));
+            renderGirdleStreak();
+            if (typeof toast === 'function') toast(ritual.reward + ' added to the Girdle.');
+        }
+
+        function renderGirdleStreak() {
+            const saved = (() => { try { return JSON.parse(localStorage.getItem('pixieMemory:aphroditesGirdle') || '[]'); } catch(e) { return []; } })();
+            const title = document.getElementById('girdle-streak-title');
+            const copy = document.getElementById('girdle-streak-copy');
+            if (title) title.textContent = 'Pearl Streak: ' + saved.length;
+            if (copy) copy.textContent = saved.length
+                ? 'Latest pearl: ' + (saved[0]?.reward || 'Aphrodite Pearl') + '. Keep the ritual gentle and repeatable.'
+                : 'Complete one tiny practice to add a pearl to the Girdle.';
+        }
+
+        function renderGirdleRituals() {
+            const list = document.getElementById('girdle-ritual-list');
+            const detail = document.getElementById('girdle-detail');
+            if (!list || !detail) return;
+
+            renderGirdleStreak();
+            const filtered = GIRDLE_RITUALS.filter(ritual => girdleFilter === 'all' || ritual.categories.includes(girdleFilter));
+            if (!filtered.some(ritual => ritual.id === selectedGirdleId) && filtered[0]) {
+                selectedGirdleId = filtered[0].id;
+            }
+
+            list.innerHTML = filtered.map(ritual => `
+                <button class="girdle-ritual-card ${ritual.id === selectedGirdleId ? 'active' : ''}" onclick="selectGirdleRitual('${ritual.id}')">
+                    <div class="girdle-ritual-glyph">${escHtml(ritual.glyph)}</div>
+                    <div>
+                        <div class="girdle-ritual-title">${escHtml(ritual.title)}</div>
+                        <div class="hub-copy" style="margin-top:6px;">${escHtml(ritual.summary)}</div>
+                        <div class="girdle-meta">
+                            <span>${escHtml(ritual.duration)}</span>
+                            <span>${escHtml(ritual.type)}</span>
+                            <span>${escHtml(ritual.mood)}</span>
+                        </div>
+                    </div>
+                </button>
+            `).join('');
+
+            const selected = GIRDLE_RITUALS.find(ritual => ritual.id === selectedGirdleId) || filtered[0] || GIRDLE_RITUALS[0];
+            detail.innerHTML = `
+                <div class="girdle-detail-hero">
+                    <div>
+                        <div class="hub-kicker">${escHtml(selected.type)}</div>
+                        <h3>${escHtml(selected.title)}</h3>
+                        <div class="girdle-meta">
+                            <span>${escHtml(selected.duration)}</span>
+                            <span>${escHtml(selected.mood)}</span>
+                            ${selected.categories.map(tag => `<span>${escHtml(tag)}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="girdle-detail-art">
+                        <img src="${escAttr(selected.image)}" alt="${escHtml(selected.title)} visual" onerror="this.parentElement.classList.add('image-missing'); this.remove();">
+                    </div>
+                </div>
+                <div class="girdle-detail-section">
+                    <strong>What this is for</strong>
+                    <p>${escHtml(selected.summary)}</p>
+                </div>
+                <div class="girdle-detail-section">
+                    <strong>Set up</strong>
+                    <p>${escHtml(selected.setup)}</p>
+                </div>
+                <div class="girdle-detail-section">
+                    <strong>Practice steps</strong>
+                    <ul class="girdle-flow-list">${selected.steps.map(step => `<li>${escHtml(step)}</li>`).join('')}</ul>
+                </div>
+                <div class="girdle-detail-section">
+                    <strong>Research note</strong>
+                    <p>${escHtml(selected.note)}</p>
+                </div>
+                <div class="girdle-detail-section">
+                    <strong>Safety charm</strong>
+                    <p>Educational wellness content only. Keep effort gentle. Stop if you feel pain, dizziness, numbness, shortness of breath, or distress.</p>
+                </div>
+                <div class="girdle-complete-row">
+                    <button class="btn btn-primary btn-small" onclick="completeSelectedGirdleRitual()">Complete for ${escHtml(selected.reward)}</button>
+                    <button class="btn btn-ghost btn-small" onclick="discoverGirdleRitual()">Pick Another</button>
+                </div>
+                <div class="girdle-source-links">
+                    ${GIRDLE_SOURCES.map(source => `<a href="${escAttr(source.url)}" target="_blank" rel="noopener">${escHtml(source.label)}</a>`).join('')}
+                </div>
+            `;
         }
 
         function toggleMobileNav() {
@@ -9301,12 +10960,41 @@
         // FAIRY_DECK and SUIT_SCENES loaded from tarot-deck.js
 
         const POSITIONS = ['past', 'present', 'future'];
+        const TAROT_SPREADS = {
+            daily: {
+                name: 'Daily 3-card',
+                intention: 'past, present, and future',
+                labels: ['Past', 'Present', 'Future']
+            },
+            love: {
+                name: 'Love',
+                intention: 'heart, mirror, and next devotion',
+                labels: ['Heart', 'Mirror', 'Devotion']
+            },
+            money: {
+                name: 'Money',
+                intention: 'resources, resistance, and next gain',
+                labels: ['Resources', 'Resistance', 'Gain']
+            },
+            shadow: {
+                name: 'Shadow',
+                intention: 'the mask, the wound, and the medicine',
+                labels: ['Mask', 'Wound', 'Medicine']
+            },
+            moon: {
+                name: 'Full Moon',
+                intention: 'release, revelation, and renewal',
+                labels: ['Release', 'Reveal', 'Renew']
+            }
+        };
+        let selectedTarotSpread = 'daily';
+        let tarotDrawNonce = 0;
         let tarotDrawn = false;
         let todayTarotCards = null;
 
-        function getTodayTarot() {
+        function getTodayTarot(spreadKey = 'daily', nonce = 0) {
             const today = new Date().toISOString().slice(0, 10);
-            const seed = horoscopeHash('fairy-tarot:' + today + ':' + getUserSeed());
+            const seed = horoscopeHash('fairy-tarot:' + today + ':' + getUserSeed() + ':' + spreadKey + ':' + nonce);
             const indices = [];
             let s = seed;
             while (indices.length < 3) {
@@ -9317,30 +11005,199 @@
             return indices.map(i => FAIRY_DECK[i]);
         }
 
+        function selectTarotSpread(spreadKey) {
+            if (!TAROT_SPREADS[spreadKey]) return;
+            selectedTarotSpread = spreadKey;
+            const spread = TAROT_SPREADS[spreadKey];
+            document.querySelectorAll('#tarot-chamber-shell .spread-tab[data-spread]').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.spread === spreadKey);
+            });
+            setText('tarot-spread-name', spread.name);
+            setText('tarot-spread-intention', spread.intention);
+            spread.labels.forEach((label, index) => setText('tarot-slot-label-' + index, label));
+            resetTarotSpread();
+        }
+
+        function resetTarotSpread() {
+            tarotDrawn = false;
+            todayTarotCards = null;
+            const button = document.getElementById('tarot-draw-btn');
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Draw Your Cards';
+            }
+            const reading = document.getElementById('tarot-reading');
+            if (reading) reading.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const wrap = document.getElementById('tarot-' + i);
+                if (!wrap) continue;
+                wrap.classList.remove('flipped');
+                wrap.onclick = null;
+                const front = wrap.querySelector('.tarot-card-front');
+                if (front) front.innerHTML = '';
+            }
+        }
+
+        function buildTarotLineArt(card) {
+            const paintedArt = {
+                'The Fool': 'fool-art.png',
+                'The Magician': 'magician-art.png',
+                'The High Priestess': 'high-priestess-art.png',
+                'The Empress': 'empress-art.png',
+                'The Emperor': 'emperor-art.png',
+                'The Hierophant': 'hierophant-art.png',
+                'The Lovers': 'lovers-art.png',
+                'The Chariot': 'chariot-art.png',
+                'Strength': 'strength-art.png',
+                'The Hermit': 'hermit-art.png',
+                'Wheel of Fortune': 'wheel-of-fortune-art.png',
+                'Justice': 'justice-art.png',
+                'The Hanged Man': 'hanged-man-art.png',
+                'Death': 'death-art.png',
+                'Temperance': 'temperance-art.png',
+                'The Devil': 'devil-art.png',
+                'The Tower': 'tower-art.png',
+                'The Star': 'star-art.png',
+                'The Moon': 'moon-art.png',
+                'The Sun': 'sun-art.png',
+                'Judgement': 'judgement-art.png',
+                'The World': 'world-art.png',
+                'Ace of Wands': 'ace-wands-art.png',
+                'Two of Wands': 'two-wands-art.png',
+                'Three of Wands': 'three-wands-art.png',
+                'Four of Wands': 'four-wands-art.png',
+                'Five of Wands': 'five-wands-art.png',
+                'Six of Wands': 'six-wands-art.png',
+                'Seven of Wands': 'seven-wands-art.png',
+                'Eight of Wands': 'eight-wands-art.png',
+                'Nine of Wands': 'nine-wands-art.png',
+                'Ten of Wands': 'ten-wands-art.png',
+                'Page of Wands': 'page-wands-art.png',
+                'Knight of Wands': 'knight-wands-art.png',
+                'Queen of Wands': 'queen-wands-art.png',
+                'King of Wands': 'king-wands-art.png',
+                'Ace of Cups': 'ace-cups-art.png',
+                'Two of Cups': 'two-cups-art.png',
+                'Three of Cups': 'three-cups-art.png',
+                'Four of Cups': 'four-cups-art.png',
+                'Five of Cups': 'five-cups-art.png',
+                'Six of Cups': 'six-cups-art.png',
+                'Seven of Cups': 'seven-cups-art.png',
+                'Eight of Cups': 'eight-cups-art.png',
+                'Nine of Cups': 'nine-cups-art.png',
+                'Ten of Cups': 'ten-cups-art.png',
+                'Page of Cups': 'page-cups-art.png',
+                'Knight of Cups': 'knight-cups-art.png',
+                'Queen of Cups': 'queen-cups-art.png',
+                'King of Cups': 'king-cups-art.png',
+                'Ace of Swords': 'ace-swords-art.png',
+                'Two of Swords': 'two-swords-art.png',
+                'Three of Swords': 'three-swords-art.png',
+                'Four of Swords': 'four-swords-art.png',
+                'Five of Swords': 'five-swords-art.png',
+                'Six of Swords': 'six-swords-art.png',
+                'Seven of Swords': 'seven-swords-art.png',
+                'Eight of Swords': 'eight-swords-art.png',
+                'Nine of Swords': 'nine-swords-art.png',
+                'Ten of Swords': 'ten-swords-art.png',
+                'Page of Swords': 'page-swords-art.png',
+                'Knight of Swords': 'knight-swords-art.png',
+                'Queen of Swords': 'queen-swords-art.png',
+                'King of Swords': 'king-swords-art.png',
+                'Ace of Pentacles': 'ace-pentacles-art.png',
+                'Two of Pentacles': 'two-pentacles-art.png',
+                'Three of Pentacles': 'three-pentacles-art.png',
+                'Four of Pentacles': 'four-pentacles-art.png',
+                'Five of Pentacles': 'five-pentacles-art.png',
+                'Six of Pentacles': 'six-pentacles-art.png',
+                'Seven of Pentacles': 'seven-pentacles-art.png',
+                'Eight of Pentacles': 'eight-pentacles-art.png',
+                'Nine of Pentacles': 'nine-pentacles-art.png',
+                'Ten of Pentacles': 'ten-pentacles-art.png',
+                'Page of Pentacles': 'page-pentacles-art.png',
+                'Knight of Pentacles': 'knight-pentacles-art.png',
+                'Queen of Pentacles': 'queen-pentacles-art.png',
+                'King of Pentacles': 'king-pentacles-art.png'
+            };
+            if (paintedArt[card.name]) {
+                return '<div class="tarot-painted-scene"><img src="assets/tarot/' + paintedArt[card.name] + '" alt=""></div>';
+            }
+            const figure = '<div class="tarot-figure"><div class="wing left"></div><div class="wing right"></div><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div>';
+            if (card.name === 'The Hanged Man') {
+                return '<div class="tarot-painted-scene"><img src="assets/tarot/hanged-man-art.png" alt=""></div>';
+            }
+            if (card.name === 'Temperance') {
+                return '<div class="tarot-painted-scene"><img src="assets/tarot/temperance-art.png" alt=""></div>';
+            }
+            if (card.name === 'Page of Pentacles') {
+                return '<div class="tarot-painted-scene"><img src="assets/tarot/page-pentacles-art.png" alt=""></div>';
+            }
+            if (card.name === 'The Moon') {
+                return '<div class="tarot-story-scene">' +
+                    '<div class="tarot-crescent"></div><div class="tarot-animal left"></div><div class="tarot-animal right"></div><div class="tarot-water"></div><div class="tarot-hill"></div></div>';
+            }
+            if (card.name === 'The Star') {
+                return '<div class="tarot-story-scene">' +
+                    '<div class="tarot-tall-star">*</div><div class="tarot-figure kneel"><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div><div class="tarot-cup-shape left"></div><div class="tarot-water"></div><div class="tarot-hill"></div></div>';
+            }
+            if (card.name === 'The Lovers') {
+                return '<div class="tarot-story-scene">' +
+                    '<div class="tarot-rainbow"></div><div class="tarot-heart"></div>' +
+                    '<div class="tarot-figure" style="left:36%;bottom:20%;transform:translateX(-50%) scale(.82);"><div class="wing left"></div><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div>' +
+                    '<div class="tarot-figure" style="left:64%;bottom:20%;transform:translateX(-50%) scale(.82);"><div class="wing right"></div><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body" style="background:linear-gradient(180deg,#cde5db,#bcd6f0);"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div>' +
+                    '<div class="tarot-hill"></div></div>';
+            }
+            if (card.name === 'The High Priestess') {
+                return '<div class="tarot-story-scene">' +
+                    '<div class="tarot-crescent" style="top:14%;transform:translateX(-50%) scale(.58);"></div><div class="tarot-pillar left"></div><div class="tarot-pillar right"></div>' +
+                    '<div class="tarot-figure"><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body" style="background:linear-gradient(180deg,#d8d4f0,#c4dce8);"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div>' +
+                    '<div class="tarot-water"></div><div class="tarot-hill"></div></div>';
+            }
+            if (card.name === 'The Empress') {
+                return '<div class="tarot-story-scene">' +
+                    '<div class="tarot-sky-glow"></div><div class="tarot-figure"><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body" style="background:linear-gradient(180deg,#f4c1c9,#d7e7c7);"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div>' +
+                    '<div class="tarot-flower" style="left:18%;bottom:26%;"></div><div class="tarot-flower" style="left:30%;bottom:17%;"></div><div class="tarot-flower" style="right:24%;bottom:22%;"></div><div class="tarot-flower" style="right:13%;bottom:16%;"></div><div class="tarot-hill"></div></div>';
+            }
+            if (card.name === 'The World') {
+                return '<div class="tarot-story-scene">' +
+                    '<div class="tarot-sky-glow"></div><div class="tarot-wreath"></div><div class="tarot-figure"><div class="wing left"></div><div class="wing right"></div><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div><div class="tarot-hill"></div></div>';
+            }
+            if (card.name === 'The Fool') {
+                return '<div class="tarot-story-scene">' +
+                    '<div class="tarot-sun-disc"></div><div class="tarot-figure" style="left:58%;bottom:23%;transform:translateX(-50%) rotate(-7deg);"><div class="hair"></div><div class="arm left"></div><div class="arm right"></div><div class="body"></div><div class="leg left"></div><div class="leg right"></div><div class="head"></div></div><div class="tarot-flower" style="left:18%;bottom:19%;"></div><div class="tarot-hill"></div></div>';
+            }
+            if (card.suit === 'major') {
+                return '<div class="tarot-story-scene"><div class="tarot-sky-glow"></div>' + figure + '<div class="tarot-flower" style="left:18%;bottom:18%;"></div><div class="tarot-flower" style="right:18%;bottom:16%;"></div><div class="tarot-hill"></div></div>';
+            }
+            return buildTarotSuitScene(card, figure);
+        }
+
+        function buildTarotSuitScene(card, figure) {
+            const suitClass = card.suit === 'cups' ? 'cup' : card.suit === 'swords' ? 'sword' : card.suit === 'pentacles' ? 'pentacle' : 'wand';
+            const positions = [[28,28], [62,31], [45,52], [24,62], [70,64]];
+            let suitItems = '';
+            positions.forEach((pos, index) => {
+                if (index > 2 && !/^([4-9]|10|Page|Knight|Queen|King)/.test(card.num)) return;
+                suitItems += '<div class="tarot-suit-item ' + suitClass + '" style="left:' + pos[0] + '%;top:' + pos[1] + '%;transform:translate(-50%,-50%) rotate(' + ((index - 2) * 10) + 'deg);"></div>';
+            });
+            const person = /Page|Knight|Queen|King/.test(card.num) || card.suit === 'major' ? figure : '';
+            return '<div class="tarot-story-scene"><div class="tarot-sky-glow"></div><div class="tarot-suit-garden">' + suitItems + '</div>' + person + '<div class="tarot-flower" style="left:18%;bottom:18%;"></div><div class="tarot-flower" style="right:18%;bottom:16%;"></div><div class="tarot-hill"></div></div>';
+        }
+
         function buildCardScene(card) {
             const theme = SUIT_SCENES[card.suit] || SUIT_SCENES.major;
             const h = horoscopeHash(card.name);
-            const fairy = theme.fairies[h % theme.fairies.length];
 
             let stars = '';
-            for (let i = 0; i < 12; i++) {
-                const x = 10 + (horoscopeHash(card.name + 's' + i) % 80);
-                const y = 5 + (horoscopeHash(card.name + 'y' + i) % 60);
+            for (let i = 0; i < 7; i++) {
+                const x = 14 + (horoscopeHash(card.name + 's' + i) % 72);
+                const y = 6 + (horoscopeHash(card.name + 'y' + i) % 36);
                 const d = (horoscopeHash(card.name + 'd' + i) % 30) / 10;
-                stars += '<div class="scene-star" style="left:' + x + '%;top:' + y + '%;animation-delay:' + d + 's"></div>';
+                const soft = i % 3 === 0 ? ' soft' : '';
+                stars += '<div class="tarot-art-star' + soft + '" style="left:' + x + '%;top:' + y + '%;animation-delay:' + d + 's">&#10022;</div>';
             }
 
-            let elements = '';
-            for (let i = 0; i < 4; i++) {
-                const elem = theme.elems[(h + i * 7) % theme.elems.length];
-                const x = 12 + ((h + i * 13) % 65);
-                const y = 8 + ((h + i * 17) % 50);
-                const size = 12 + ((h + i * 5) % 14);
-                const fc = i % 2 === 0 ? 'scene-float' : 'scene-float-slow';
-                elements += '<div class="scene-element ' + fc + '" style="left:' + x + '%;top:' + y + '%;font-size:' + size + 'px">' + elem + '</div>';
-            }
-            const mainX = 30 + (h % 35);
-            elements += '<div class="scene-element scene-float-slow" style="left:' + mainX + '%;top:12%;font-size:20px">' + card.emoji + '</div>';
+            const lineArt = buildTarotLineArt(card);
 
             const fairyX = 35 + (h % 28);
             const spColors = ['#ffffa0','#ff96c8','#96ffdc','#b496ff'];
@@ -9355,12 +11212,10 @@
 
             return '<div class="tarot-numeral">' + card.num + '</div>' +
                 '<div class="tarot-scene">' +
-                    '<div class="scene-moon"></div>' +
-                    '<div class="scene-stars">' + stars + '</div>' +
+                    '<div class="tarot-illustration-wash"></div>' +
+                    stars +
                     '<div class="scene-glow" style="width:60px;height:60px;background:' + theme.glow + ';bottom:25%;left:50%;transform:translateX(-50%)"></div>' +
-                    sparkles + elements +
-                    '<div class="scene-fairy scene-float" style="bottom:20%;left:' + fairyX + '%;font-size:42px">' + fairy + '</div>' +
-                    '<div class="scene-bg"><div class="scene-ground" style="background:linear-gradient(180deg,transparent,' + theme.ground + ')"></div></div>' +
+                    lineArt +
                 '</div>' +
                 '<div class="tarot-name-banner">' +
                     '<div class="tarot-card-name">' + card.name + '</div>' +
@@ -9370,7 +11225,11 @@
 
 
         function drawTarot() {
-            todayTarotCards = getTodayTarot();
+            if (tarotDrawn) {
+                tarotDrawNonce += 1;
+                resetTarotSpread();
+            }
+            todayTarotCards = getTodayTarot(selectedTarotSpread, tarotDrawNonce);
             tarotDrawn = true;
             const tarotPulls = Number(localStorage.getItem('pixieTarotPulls') || '0') || 0;
             localStorage.setItem('pixieTarotPulls', String(tarotPulls + 1));
@@ -9399,7 +11258,10 @@
             // Show reading below after flip
             setTimeout(() => {
                 const card = todayTarotCards[index];
-                const pos = POSITIONS[index];
+                const basePos = POSITIONS[index];
+                const spread = TAROT_SPREADS[selectedTarotSpread] || TAROT_SPREADS.daily;
+                const pos = (spread.labels[index] || basePos).toLowerCase();
+                const meaning = card.meanings[basePos];
                 const readingHtml = `<div class="tarot-reading-card visible">
                     <div class="tarot-reading-header">
                         <span class="tarot-reading-emoji">${card.emoji}</span>
@@ -9408,7 +11270,7 @@
                             <div class="tarot-reading-pos">${pos}</div>
                         </div>
                     </div>
-                    <div class="tarot-reading-text">${card.meanings[pos]}</div>
+                    <div class="tarot-reading-text">${meaning}</div>
                 </div>`;
 
                 const container = document.getElementById('tarot-reading');

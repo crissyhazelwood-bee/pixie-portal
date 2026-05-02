@@ -1,0 +1,10 @@
+{
+  "style": "Soft pastel storybook tarot card inner art. Warm ivory deck frame handled in HTML/CSS; assets should be vertical watercolor fairy-tale scenes without title text.",
+  "approved_examples": {
+    "The Hanged Man": "assets/tarot/hanged-man-art.png",
+    "Temperance": "assets/tarot/temperance-art.png",
+    "Page of Pentacles": "assets/tarot/page-pentacles-art.png"
+  },
+  "prompt_core": "soft pastel storybook tarot illustration, delicate hand-drawn fairytale linework, watercolor texture, dreamy low contrast, lavender, blush pink, pale yellow, mint green, baby blue, warm ivory accents, full illustrated tarot scene, tiny gold stars and flowers where appropriate, no typography, no watermark, no harsh neon, no gothic mood, no abstract icon, no flat app icon, no symbol-only composition, vertical tarot inner art panel",
+  "cards_total": 78
+}
