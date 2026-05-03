@@ -4858,6 +4858,29 @@
         .item-ivy .vine.r { right: 12px; height: 80px; transform: rotate(-10deg); transform-origin: top center; }
         .item-ivy .vine.m { left: 50%; transform: translateX(-50%); height: 60px; }
         .item-ivy .leaf { position: absolute; width: 14px; height: 11px; border-radius: 50% 50% 50% 0; background: radial-gradient(ellipse at 40% 40%, #90d840, #5aaa18, #2a6008); }
+
+        /* ── Gothic bookshelf: altar-item base (scoped so it doesn't clash with old slot system) ── */
+        .item-layer .altar-item { position: absolute !important; display: block !important; pointer-events: all; cursor: grab; user-select: none; touch-action: none; transform-origin: 50% 100% !important; height: auto !important; min-height: 0 !important; padding: 0 !important; background: transparent; flex-direction: unset !important; }
+        .item-layer .altar-item::before, .item-layer .altar-item::after { display: none !important; }
+        .item-layer .altar-item * { pointer-events: none; user-select: none; }
+        .item-layer .altar-item:not(.is-lifted) { transition: left 0.20s cubic-bezier(0.22,1,0.36,1), top 0.20s cubic-bezier(0.22,1,0.36,1), transform 0.20s cubic-bezier(0.22,1,0.36,1), box-shadow 0.20s ease, filter 0.20s ease; }
+        .item-layer .altar-item.is-lifted { cursor: grabbing !important; transition: none; z-index: 9999 !important; }
+
+        /* ── Gothic inventory tray ─── */
+        .gothic-tray-wrap { width: 480px; margin: 0 auto; background: linear-gradient(to bottom, #0d0510, #070208); border: 1px solid #3a1c08; border-top: none; border-radius: 0 0 8px 8px; padding: 10px 6px 14px; }
+        .gothic-tray-label { font: 10px/1 'Georgia', serif; letter-spacing: .14em; text-transform: uppercase; color: rgba(168,112,32,.6); text-align: center; margin-bottom: 8px; }
+        .gothic-tray-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+        .gothic-tray-slot { width: 64px; height: 64px; background: rgba(255,255,255,.02); border: 1px solid rgba(168,112,32,.18); border-radius: 5px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 4px; cursor: grab; user-select: none; touch-action: none; position: relative; transition: background .15s, border-color .15s; }
+        .gothic-tray-slot:hover { background: rgba(168,112,32,.08); border-color: rgba(168,112,32,.4); }
+        .gothic-tray-slot .slot-preview { transform: scale(0.38); transform-origin: bottom center; pointer-events: none; position: absolute; bottom: 20px; }
+        .gothic-tray-slot .slot-name { font: 8px 'Georgia', serif; color: rgba(168,112,32,.7); text-align: center; position: absolute; bottom: 3px; left: 0; right: 0; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
+
+        /* ── Gothic remove button ─── */
+        .gothic-remove-btn { position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; border-radius: 50%; background: #3a0808; border: 1px solid #c03030; color: #ff8080; font: bold 10px/16px sans-serif; text-align: center; cursor: pointer; pointer-events: all !important; z-index: 10001; display: none; }
+        .item-layer .altar-item:hover .gothic-remove-btn { display: block; }
+
+        /* ── Ghost drag overlay ─── */
+        #altar-ghost { position: fixed; pointer-events: none; z-index: 99999; opacity: .85; transform: translate(-50%, -100%) scale(0.8); transform-origin: 50% 100%; display: none; }
     </style>
 </head>
 <body>
@@ -9793,10 +9816,9 @@
         function renderAltarBoard(altar) {
             const board = document.getElementById('profile-altar-board');
             if (!board) return;
-            board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose') + (altarMode !== 'view' ? ' edit-mode' : ' view-mode') + ' mode-' + altarMode;
-            board.innerHTML = '';
-            const objects = (altar.placedDecor || []).sort((a,b) => (a.zIndex || 0) - (b.zIndex || 0)).map(obj => renderPlacedDecor(obj, altar)).join('');
-            board.innerHTML = '<div class="altar-cabinet altar-stage altar-placement-area altar-canvas" aria-label="Decorated personal altar cabinet">' +
+            board.className = 'altar-board cabinet-mode theme-' + (altar.theme || 'rose') + ' view-mode';
+            board.innerHTML =
+                '<div class="altar-cabinet" aria-label="Decorated personal altar cabinet">' +
                 '<div class="arch-top"><svg viewBox="0 0 480 100" xmlns="http://www.w3.org/2000/svg">' +
                 '<path d="M0,100 L0,52 C0,18 100,0 240,0 C380,0 480,18 480,52 L480,100 Z" fill="#1a0802"/>' +
                 '<path d="M4,100 L4,53 C4,22 102,5 240,5 C378,5 476,22 476,53 L476,100" stroke="#3a1c08" stroke-width="3" fill="none"/>' +
@@ -9824,29 +9846,27 @@
                 '</svg></div>' +
                 '<div class="cabinet-body">' +
                 '<div class="post"></div>' +
-                '<div class="cabinet-interior">' +
+                '<div class="cabinet-interior" id="gothic-cabinet">' +
                 '<div class="shelf-band" data-shelf="top"></div>' +
                 '<div class="shelf-board"></div>' +
                 '<div class="shelf-band" data-shelf="middle"></div>' +
                 '<div class="shelf-board"></div>' +
                 '<div class="shelf-band" data-shelf="lower"></div>' +
                 '<div class="cabinet-floor"></div>' +
-                '<div class="item-layer">' +
-                '<div class="altar-edit-surface backWall"></div><div class="altar-edit-surface topShelf"></div><div class="altar-edit-surface middleShelf"></div><div class="altar-edit-surface lowerShelf"></div><div class="altar-edit-surface foreground"></div>' +
-                objects +
+                '<div class="item-layer" id="gothic-item-layer">' +
                 '<div class="altar-mantra-plaque cabinet-plaque">\u201c' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '\u201d</div>' +
                 '</div>' +
                 '</div>' +
                 '<div class="post"></div>' +
                 '</div>' +
                 '<div class="cabinet-feet"><div class="foot"></div><div class="foot"></div></div>' +
-                '</div>' + renderAltarModeDock() + renderAltarSelectedControls();
-            assertUniqueRenderedAltarItems();
-            return;
-            board.className = 'altar-board theme-' + (altar.theme || 'rose');
-            board.innerHTML = '<div class="altar-preview-label">Your altar</div><div class="altar-room-arch"></div><h3 class="altar-preview-title">Your Altar</h3><div class="altar-preview-subtitle">Click any shrine piece to go deeper</div><div class="altar-moon-phases">○ ◐ ● ◑ ○</div><div class="altar-shelves">' +
-                ALTAR_SHELF_META.map(meta => renderAltarShelf(altar, meta)).join('') +
-                '</div><div class="altar-mantra-plaque">"' + escHtml(altar.words?.affirmation || altar.note || altar.quote || ALTAR_QUOTES[0]) + '"</div>';
+                '</div>' +
+                '<div class="gothic-tray-wrap">' +
+                '<div class="gothic-tray-label">\u2726 inventory \u2726</div>' +
+                '<div class="gothic-tray-grid" id="gothic-tray"></div>' +
+                '</div>' +
+                '<div id="altar-ghost"></div>';
+            initGothicAltar(altar);
         }
         function renderAltarProfile() {
             if (window.__altarActiveDrag) return;
@@ -10157,6 +10177,298 @@
             // Free drag disabled — items are positioned with nudge buttons
         }
         installAltarDragV2();
+
+        // ── Gothic Bookshelf Altar System ─────────────────────────────────────────
+        function initGothicAltar(altar) {
+            var cabinetEl = document.getElementById('gothic-cabinet');
+            var layerEl   = document.getElementById('gothic-item-layer');
+            var trayEl    = document.getElementById('gothic-tray');
+            var ghostEl   = document.getElementById('altar-ghost');
+            if (!cabinetEl || !layerEl || !trayEl || !ghostEl) return;
+
+            var GAP   = 160;
+            var BOARD = 14;
+            var SHELVES = {
+                top:    { band: 0, scale: 0.70, shadow: '0 3px  7px rgba(0,0,0,0.80)' },
+                middle: { band: 1, scale: 0.84, shadow: '0 6px 16px rgba(0,0,0,0.58)' },
+                lower:  { band: 2, scale: 1.00, shadow: '0 12px 28px rgba(0,0,0,0.40)' }
+            };
+            var CATALOG = [
+                { type: 'crystal-ball',        name: 'Crystal Ball' },
+                { type: 'crystal-ball-purple',  name: 'Amethyst Ball' },
+                { type: 'crystal-ball-rose',    name: 'Rose Ball' },
+                { type: 'books',               name: 'Book Stack' },
+                { type: 'open-book',           name: 'Open Book' },
+                { type: 'tome',                name: 'Tome' },
+                { type: 'candle',              name: 'Candle' },
+                { type: 'candle-red',          name: 'Red Candle' },
+                { type: 'candle-black',        name: 'Black Candle' },
+                { type: 'candle-purple',       name: 'Purple Candle' },
+                { type: 'crystals',            name: 'Crystals' },
+                { type: 'crystals-blue',       name: 'Blue Crystals' },
+                { type: 'crystals-pink',       name: 'Pink Crystals' },
+                { type: 'crystals-green',      name: 'Green Crystals' },
+                { type: 'mouse',               name: 'Familiar' },
+                { type: 'herbs',               name: 'Herbs' },
+                { type: 'potion',              name: 'Potion' },
+                { type: 'skull',               name: 'Skull' },
+                { type: 'hourglass',           name: 'Hourglass' },
+                { type: 'lantern',             name: 'Lantern' },
+                { type: 'cauldron',            name: 'Cauldron' },
+                { type: 'feather',             name: 'Quill' },
+                { type: 'moon',                name: 'Moon' },
+                { type: 'tarot',               name: 'Tarot' },
+                { type: 'rune',                name: 'Rune Stone' },
+                { type: 'jar',                 name: 'Glow Jar' },
+                { type: 'pearls',              name: 'String of Pearls' },
+                { type: 'ivy',                 name: 'Trailing Ivy' }
+            ];
+
+            function gothicGetItemHtml(type) {
+                var s7 = '<span></span><span></span><span></span><span></span><span></span><span></span><span></span>';
+                var s9 = '<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>';
+                var s6 = '<span></span><span></span><span></span><span></span><span></span><span></span>';
+                switch (type) {
+                    case 'crystal-ball': case 'crystal-ball-purple': case 'crystal-ball-rose':
+                        return '<div class="orb"><span class="glint"></span></div><div class="cup"></div><div class="stand"></div>';
+                    case 'books':
+                        return '<span></span><span></span><span></span><span></span>';
+                    case 'open-book':
+                        return '<div class="page left"></div><div class="page right"></div><div class="spine"></div><div class="cover"></div>';
+                    case 'tome':
+                        return '<div class="body"></div><div class="spine-line"></div><div class="title"></div><div class="clasp"></div>';
+                    case 'mouse':
+                        return '<div class="tail"></div><div class="body"></div><div class="head"></div><div class="ear l"></div><div class="ear r"></div><div class="eyes"><span></span><span></span></div>';
+                    case 'crystals': case 'crystals-blue': case 'crystals-pink': case 'crystals-green':
+                        return '<span></span><span></span><span></span>';
+                    case 'candle': case 'candle-red': case 'candle-black': case 'candle-purple':
+                        return '<div class="flame"></div><div class="wick"></div><div class="wax"></div>';
+                    case 'herbs':
+                        return '<div class="sprig"></div><div class="sprig"></div><div class="sprig"></div><div class="tie"></div>';
+                    case 'potion':
+                        return '<div class="cork"></div><div class="neck"></div><div class="glass"><div class="liquid"></div><div class="glint"></div></div>';
+                    case 'skull':
+                        return '<div class="cranium"></div><div class="jaw"></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="teeth"><span></span><span></span><span></span><span></span></div>';
+                    case 'hourglass':
+                        return '<div class="frame-top"></div><div class="post"></div><div class="glass-top"></div><div class="glass-bot"></div><div class="sand"></div><div class="frame-bot"></div>';
+                    case 'lantern':
+                        return '<div class="hook"></div><div class="cap"></div><div class="body"><div class="glow"></div></div><div class="base"></div>';
+                    case 'cauldron':
+                        return '<div class="handle l"></div><div class="handle r"></div><div class="rim"></div><div class="pot"></div><div class="brew"></div><div class="leg l"></div><div class="leg m"></div><div class="leg r"></div>';
+                    case 'feather':
+                        return '<div class="quill"></div>';
+                    case 'moon':
+                        return '<div class="crescent"></div><div class="star"></div>';
+                    case 'tarot':
+                        return '<div class="card"><div class="inner"></div><div class="symbol">\uD83C\uDF19</div><div class="label"></div></div>';
+                    case 'rune':
+                        return '<div class="stone"></div><div class="glyph">\u16B1</div>';
+                    case 'jar':
+                        return '<div class="lid"></div><div class="glass"><div class="fireflies"></div><div class="glint"></div></div>';
+                    case 'pearls':
+                        return '<div class="rim"></div><div class="pot"></div><div class="strand l">' + s7 + '</div><div class="strand m">' + s9 + '</div><div class="strand r">' + s6 + '</div>';
+                    case 'ivy':
+                        return '<div class="rim"></div><div class="pot"></div>' +
+                               '<div class="vine l"><div class="leaf" style="top:10px;left:-10px"></div><div class="leaf" style="top:30px;left:-8px;transform:rotate(20deg)"></div><div class="leaf" style="top:50px;left:-12px"></div></div>' +
+                               '<div class="vine r"><div class="leaf" style="top:14px;right:-10px;transform:scaleX(-1)"></div><div class="leaf" style="top:38px;right:-8px;transform:scaleX(-1) rotate(15deg)"></div><div class="leaf" style="top:60px;right:-11px;transform:scaleX(-1)"></div></div>' +
+                               '<div class="vine m"><div class="leaf" style="top:8px;left:-8px"></div><div class="leaf" style="top:28px;right:-8px;transform:scaleX(-1)"></div><div class="leaf" style="top:46px;left:-9px"></div></div>';
+                    default: return '';
+                }
+            }
+
+            function gothicShelfSurfaceY(name) {
+                return SHELVES[name].band * (GAP + BOARD) + GAP;
+            }
+            function gothicNearestShelf(y) {
+                return Object.keys(SHELVES).reduce(function(best, name) {
+                    return Math.abs(y - gothicShelfSurfaceY(name)) < Math.abs(y - gothicShelfSurfaceY(best)) ? name : best;
+                }, 'lower');
+            }
+            function gothicPlaceItem(el, shelf, xPct) {
+                var s = SHELVES[shelf];
+                el.dataset.shelf = shelf;
+                el.dataset.x     = xPct;
+                el.style.left    = xPct + '%';
+                el.style.top     = gothicShelfSurfaceY(shelf) + 'px';
+                el.style.transform       = 'translate(-50%, -100%) scale(' + s.scale + ')';
+                el.style.transformOrigin = '50% 100%';
+                el.style.boxShadow       = s.shadow;
+                el.style.zIndex          = String(3 - s.band);
+                el.style.filter          = 'brightness(' + (0.72 + s.scale * 0.28) + ')';
+            }
+
+            // State: type → 'inventory' | { shelf, x }
+            var itemState = {};
+            CATALOG.forEach(function(c) { itemState[c.type] = 'inventory'; });
+
+            var defaults = [
+                { type: 'crystal-ball', shelf: 'top',    x: 22 },
+                { type: 'books',        shelf: 'top',    x: 68 },
+                { type: 'crystals',     shelf: 'middle', x: 30 },
+                { type: 'candle',       shelf: 'middle', x: 70 },
+                { type: 'cauldron',     shelf: 'lower',  x: 25 },
+                { type: 'herbs',        shelf: 'lower',  x: 62 }
+            ];
+
+            var saved = window.__gothicItemState || null;
+            if (saved) {
+                Object.keys(saved).forEach(function(t) {
+                    if (itemState.hasOwnProperty(t)) itemState[t] = saved[t];
+                });
+            } else {
+                defaults.forEach(function(d) { itemState[d.type] = { shelf: d.shelf, x: d.x }; });
+            }
+
+            var placedEls = {};
+            var shelfDrag = null;
+            var trayDrag  = null;
+
+            function gothicSaveState() {
+                window.__gothicItemState = Object.assign({}, itemState);
+            }
+
+            function gothicRenderTray() {
+                trayEl.innerHTML = '';
+                CATALOG.forEach(function(cat) {
+                    if (itemState[cat.type] !== 'inventory') return;
+                    var slot = document.createElement('div');
+                    slot.className = 'gothic-tray-slot';
+                    slot.dataset.type = cat.type;
+                    var preview = document.createElement('div');
+                    preview.className = 'item-' + cat.type + ' slot-preview';
+                    preview.innerHTML = gothicGetItemHtml(cat.type);
+                    slot.appendChild(preview);
+                    var lbl = document.createElement('div');
+                    lbl.className = 'slot-name';
+                    lbl.textContent = cat.name;
+                    slot.appendChild(lbl);
+                    slot.addEventListener('pointerdown', gothicStartTrayDrag);
+                    trayEl.appendChild(slot);
+                });
+            }
+
+            function gothicSpawnOnShelf(type, shelf, xPct) {
+                itemState[type] = { shelf: shelf, x: xPct };
+                var el = document.createElement('div');
+                el.className = 'altar-item item-' + type + ' is-lifted';
+                el.innerHTML = gothicGetItemHtml(type);
+                var btn = document.createElement('span');
+                btn.className = 'gothic-remove-btn';
+                btn.textContent = '\xD7';
+                btn.addEventListener('pointerdown', function(e) { e.stopPropagation(); });
+                btn.addEventListener('click', function() { gothicRemoveToInventory(type); });
+                el.appendChild(btn);
+                layerEl.appendChild(el);
+                placedEls[type] = el;
+                gothicPlaceItem(el, shelf, xPct);
+                requestAnimationFrame(function() { requestAnimationFrame(function() { el.classList.remove('is-lifted'); }); });
+                gothicBindShelfDrag(el, type);
+            }
+
+            function gothicRemoveToInventory(type) {
+                var el = placedEls[type];
+                if (el) { el.remove(); delete placedEls[type]; }
+                itemState[type] = 'inventory';
+                gothicSaveState();
+                gothicRenderTray();
+            }
+
+            function gothicBindShelfDrag(el, type) {
+                el.addEventListener('pointerdown', function(e) {
+                    if (e.target.classList.contains('gothic-remove-btn')) return;
+                    e.preventDefault();
+                    el.setPointerCapture(e.pointerId);
+                    var itemRect = el.getBoundingClientRect();
+                    shelfDrag = { el: el, type: type, grabOffset: e.clientY - itemRect.bottom };
+                    el.classList.add('is-lifted');
+                    el.style.transform       = 'translate(-50%, -100%) scale(1.05)';
+                    el.style.transformOrigin = '50% 100%';
+                    el.style.boxShadow       = '0 24px 50px rgba(0,0,0,0.72)';
+                    el.style.filter          = 'brightness(1.18)';
+                });
+                el.addEventListener('pointermove', function(e) {
+                    if (!shelfDrag || shelfDrag.el !== el) return;
+                    var rect = cabinetEl.getBoundingClientRect();
+                    var x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
+                    var y = e.clientY - rect.top - shelfDrag.grabOffset;
+                    el.style.left = x + '%';
+                    el.style.top  = y + 'px';
+                });
+                el.addEventListener('pointerup', function(e) {
+                    if (!shelfDrag || shelfDrag.el !== el) return;
+                    var rect = cabinetEl.getBoundingClientRect();
+                    var x = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
+                    var y = e.clientY - rect.top - shelfDrag.grabOffset;
+                    var shelf = gothicNearestShelf(y);
+                    itemState[type] = { shelf: shelf, x: x };
+                    gothicPlaceItem(el, shelf, x);
+                    el.classList.remove('is-lifted');
+                    shelfDrag = null;
+                    gothicSaveState();
+                });
+                el.addEventListener('pointercancel', function() {
+                    if (!shelfDrag || shelfDrag.el !== el) return;
+                    var prev = itemState[type];
+                    if (prev && prev !== 'inventory') gothicPlaceItem(el, prev.shelf, prev.x);
+                    el.classList.remove('is-lifted');
+                    shelfDrag = null;
+                });
+            }
+
+            function gothicStartTrayDrag(e) {
+                e.preventDefault();
+                var slot = e.currentTarget;
+                var type = slot.dataset.type;
+                trayDrag = { type: type };
+                ghostEl.className = 'item-' + type;
+                ghostEl.innerHTML = gothicGetItemHtml(type);
+                ghostEl.style.display = 'block';
+                ghostEl.style.left = e.clientX + 'px';
+                ghostEl.style.top  = e.clientY + 'px';
+                slot.setPointerCapture(e.pointerId);
+                slot.addEventListener('pointermove', gothicOnTrayMove);
+                slot.addEventListener('pointerup',   gothicOnTrayDrop);
+                slot.addEventListener('pointercancel', gothicCancelTrayDrag);
+            }
+            function gothicOnTrayMove(e) {
+                if (!trayDrag) return;
+                ghostEl.style.left = e.clientX + 'px';
+                ghostEl.style.top  = e.clientY + 'px';
+            }
+            function gothicOnTrayDrop(e) {
+                if (!trayDrag) return;
+                ghostEl.style.display = 'none';
+                var rect = cabinetEl.getBoundingClientRect();
+                var overCabinet = e.clientX >= rect.left && e.clientX <= rect.right &&
+                                  e.clientY >= rect.top  && e.clientY <= rect.bottom;
+                if (overCabinet) {
+                    var x    = Math.max(4, Math.min(96, ((e.clientX - rect.left) / rect.width) * 100));
+                    var yAbs = e.clientY - rect.top;
+                    var shelf = gothicNearestShelf(yAbs);
+                    gothicSpawnOnShelf(trayDrag.type, shelf, x);
+                    gothicSaveState();
+                    gothicRenderTray();
+                }
+                e.currentTarget.removeEventListener('pointermove', gothicOnTrayMove);
+                e.currentTarget.removeEventListener('pointerup',   gothicOnTrayDrop);
+                e.currentTarget.removeEventListener('pointercancel', gothicCancelTrayDrag);
+                trayDrag = null;
+            }
+            function gothicCancelTrayDrag(e) {
+                ghostEl.style.display = 'none';
+                e.currentTarget.removeEventListener('pointermove', gothicOnTrayMove);
+                e.currentTarget.removeEventListener('pointerup',   gothicOnTrayDrop);
+                e.currentTarget.removeEventListener('pointercancel', gothicCancelTrayDrag);
+                trayDrag = null;
+            }
+
+            // Spawn all non-inventory items
+            CATALOG.forEach(function(cat) {
+                var st = itemState[cat.type];
+                if (st && st !== 'inventory') gothicSpawnOnShelf(cat.type, st.shelf, st.x);
+            });
+            gothicRenderTray();
+        }
         function adjustSelectedDecor(kind, amount) {
             const altar = getAltarProfile();
             const p = altar.placedDecor.find(item => getPlacementInstanceId(item) === altarSelectedPlacementId);
