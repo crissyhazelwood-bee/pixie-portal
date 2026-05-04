@@ -4859,12 +4859,11 @@
         .item-ivy .vine.m { left: 50%; transform: translateX(-50%); height: 60px; }
         .item-ivy .leaf { position: absolute; width: 14px; height: 11px; border-radius: 50% 50% 50% 0; background: radial-gradient(ellipse at 40% 40%, #90d840, #5aaa18, #2a6008); }
 
-        /* ── Gothic bookshelf: altar-item base (scoped so it doesn't clash with old slot system) ── */
-        .item-layer .altar-item { position: absolute !important; display: block !important; pointer-events: all; cursor: grab; user-select: none; touch-action: none; transform-origin: 50% 100% !important; height: auto !important; min-height: 0 !important; padding: 0 !important; background: transparent; flex-direction: unset !important; }
-        .item-layer .altar-item::before, .item-layer .altar-item::after { display: none !important; }
-        .item-layer .altar-item * { pointer-events: none; user-select: none; }
-        .item-layer .altar-item:not(.is-lifted) { transition: left 0.20s cubic-bezier(0.22,1,0.36,1), top 0.20s cubic-bezier(0.22,1,0.36,1), transform 0.20s cubic-bezier(0.22,1,0.36,1), box-shadow 0.20s ease, filter 0.20s ease; }
-        .item-layer .altar-item.is-lifted { cursor: grabbing !important; transition: none; z-index: 9999 !important; }
+        /* ── Gothic shelf items: use .gothic-item to avoid clashing with old .altar-item CSS ── */
+        .item-layer .gothic-item { position: absolute !important; pointer-events: all; cursor: grab; user-select: none; touch-action: none; transform-origin: 50% 100% !important; }
+        .item-layer .gothic-item * { pointer-events: none; user-select: none; }
+        .item-layer .gothic-item:not(.is-lifted) { transition: left 0.20s cubic-bezier(0.22,1,0.36,1), top 0.20s cubic-bezier(0.22,1,0.36,1), transform 0.20s cubic-bezier(0.22,1,0.36,1), box-shadow 0.20s ease, filter 0.20s ease; }
+        .item-layer .gothic-item.is-lifted { cursor: grabbing !important; transition: none; z-index: 9999 !important; }
 
         /* ── Gothic inventory tray ─── */
         .gothic-tray-wrap { width: 480px; margin: 0 auto; background: linear-gradient(to bottom, #0d0510, #070208); border: 1px solid #3a1c08; border-top: none; border-radius: 0 0 8px 8px; padding: 10px 6px 14px; }
@@ -4877,7 +4876,7 @@
 
         /* ── Gothic remove button ─── */
         .gothic-remove-btn { position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; border-radius: 50%; background: #3a0808; border: 1px solid #c03030; color: #ff8080; font: bold 10px/16px sans-serif; text-align: center; cursor: pointer; pointer-events: all !important; z-index: 10001; display: none; }
-        .item-layer .altar-item:hover .gothic-remove-btn { display: block; }
+        .item-layer .gothic-item:hover .gothic-remove-btn { display: block; }
 
         /* ── Ghost drag overlay ─── */
         #altar-ghost { position: fixed; pointer-events: none; z-index: 99999; opacity: .85; transform: translate(-50%, -100%) scale(0.8); transform-origin: 50% 100%; display: none; }
@@ -10350,7 +10349,7 @@
             function gothicSpawnOnShelf(type, shelf, xPct) {
                 itemState[type] = { shelf: shelf, x: xPct };
                 var el = document.createElement('div');
-                el.className = 'altar-item item-' + type + ' is-lifted';
+                el.className = 'gothic-item item-' + type + ' is-lifted';
                 el.innerHTML = gothicGetItemHtml(type);
                 var btn = document.createElement('span');
                 btn.className = 'gothic-remove-btn';
