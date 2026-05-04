@@ -4694,24 +4694,27 @@
 
         /* ── Gothic item CSS ─────────────────────────────────────────────── */
         .item-crystal-ball { width: 116px; }
-        .item-crystal-ball .orb { width: 104px; height: 104px; border-radius: 50%; margin: 0 auto; background: radial-gradient(circle at 36% 30%, #f0fbff 4%, #a8dcf8 22%, #4aaae8 50%, #1a60c0 78%, #061840 100%); box-shadow: inset -14px -18px 36px rgba(0,15,70,.65), inset 8px 8px 16px rgba(255,255,255,.45), 0 0 44px rgba(70,160,255,.35); position: relative; filter: none; animation: none; }
-        .item-crystal-ball .glint { position: absolute; top: 20px; left: 24px; width: 26px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.72); transform: rotate(-20deg); filter: none; animation: none; }
-        .item-crystal-ball .cup  { width: 88px; height: 12px; margin: 0 auto; background: linear-gradient(to bottom, #8c4a18, #3a1c08); border-radius: 6px; filter: none; animation: none; }
-        .item-crystal-ball .stand { width: 68px; height: 28px; margin: 0 auto; border-radius: 0 0 12px 12px; background: linear-gradient(to right, #4a2008, #8c4a18, #4a2008); filter: none; animation: none; }
+        .item-crystal-ball .orb { width: 104px; height: 104px; border-radius: 50%; margin: 0 auto; background: radial-gradient(circle at 36% 30%, #ffffff 2%, #d0f0ff 10%, #80c8f8 28%, #3a8ee8 52%, #1050b8 76%, #041030 100%); box-shadow: inset -18px -22px 40px rgba(0,15,70,.70), inset 10px 10px 20px rgba(255,255,255,.50), 0 0 55px rgba(70,160,255,.45), 0 0 20px rgba(120,200,255,.3); position: relative; filter: none; animation: none; }
+        .item-crystal-ball .orb::after { content: ''; position: absolute; bottom: 22px; right: 18px; width: 10px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.30); transform: rotate(-20deg); }
+        .item-crystal-ball .glint { position: absolute; top: 18px; left: 22px; width: 28px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.78); transform: rotate(-22deg); filter: none; animation: none; }
+        .item-crystal-ball .cup  { width: 88px; height: 14px; margin: 0 auto; background: linear-gradient(to bottom, #c87030 0%, #8c4a18 45%, #3a1c08 100%); border-radius: 7px 7px 4px 4px; box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,200,100,.25); filter: none; animation: none; }
+        .item-crystal-ball .stand { width: 68px; height: 30px; margin: 0 auto; border-radius: 0 0 14px 14px; background: linear-gradient(to right, #2e1004 0%, #6a3010 30%, #a06020 50%, #6a3010 70%, #2e1004 100%); box-shadow: 0 4px 10px rgba(0,0,0,.6), inset 0 1px 3px rgba(255,180,80,.2); filter: none; animation: none; }
         .item-crystal-ball-purple, .item-crystal-ball-rose { width: 116px; }
         .item-crystal-ball-purple .orb, .item-crystal-ball-rose .orb { width: 104px; height: 104px; border-radius: 50%; margin: 0 auto; position: relative; filter: none; animation: none; }
-        .item-crystal-ball-purple .orb { background: radial-gradient(circle at 36% 30%, #fff0ff 4%, #e0a8f8 22%, #a040e0 50%, #5010a0 78%, #1a0040 100%); box-shadow: inset -14px -18px 36px rgba(40,0,80,.65), inset 8px 8px 16px rgba(255,255,255,.45), 0 0 44px rgba(160,60,255,.4); }
-        .item-crystal-ball-rose .orb  { background: radial-gradient(circle at 36% 30%, #fff0f4 4%, #f8a8c8 22%, #e04080 50%, #a01050 78%, #400018 100%); box-shadow: inset -14px -18px 36px rgba(80,0,30,.65), inset 8px 8px 16px rgba(255,255,255,.45), 0 0 44px rgba(255,60,120,.4); }
-        .item-crystal-ball-purple .glint, .item-crystal-ball-rose .glint { position: absolute; top: 20px; left: 24px; width: 26px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.72); transform: rotate(-20deg); filter: none; animation: none; }
-        .item-crystal-ball-purple .cup, .item-crystal-ball-rose .cup { width: 88px; height: 12px; margin: 0 auto; background: linear-gradient(to bottom, #8c4a18, #3a1c08); border-radius: 6px; filter: none; animation: none; }
-        .item-crystal-ball-purple .stand, .item-crystal-ball-rose .stand { width: 68px; height: 28px; margin: 0 auto; border-radius: 0 0 12px 12px; background: linear-gradient(to right, #4a2008, #8c4a18, #4a2008); filter: none; animation: none; }
+        .item-crystal-ball-purple .orb { background: radial-gradient(circle at 36% 30%, #ffffff 2%, #f0d0ff 10%, #c880f8 28%, #8030d8 52%, #400890 76%, #100028 100%); box-shadow: inset -18px -22px 40px rgba(40,0,80,.70), inset 10px 10px 20px rgba(255,255,255,.50), 0 0 55px rgba(160,60,255,.50), 0 0 20px rgba(200,120,255,.3); }
+        .item-crystal-ball-rose .orb  { background: radial-gradient(circle at 36% 30%, #ffffff 2%, #ffd0e8 10%, #f880b8 28%, #d03068 52%, #800840 76%, #280010 100%); box-shadow: inset -18px -22px 40px rgba(80,0,30,.70), inset 10px 10px 20px rgba(255,255,255,.50), 0 0 55px rgba(255,60,120,.50), 0 0 20px rgba(255,140,180,.3); }
+        .item-crystal-ball-purple .orb::after, .item-crystal-ball-rose .orb::after { content: ''; position: absolute; bottom: 22px; right: 18px; width: 10px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.28); transform: rotate(-20deg); }
+        .item-crystal-ball-purple .glint, .item-crystal-ball-rose .glint { position: absolute; top: 18px; left: 22px; width: 28px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.78); transform: rotate(-22deg); filter: none; animation: none; }
+        .item-crystal-ball-purple .cup, .item-crystal-ball-rose .cup { width: 88px; height: 14px; margin: 0 auto; background: linear-gradient(to bottom, #c87030 0%, #8c4a18 45%, #3a1c08 100%); border-radius: 7px 7px 4px 4px; box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,200,100,.25); filter: none; animation: none; }
+        .item-crystal-ball-purple .stand, .item-crystal-ball-rose .stand { width: 68px; height: 30px; margin: 0 auto; border-radius: 0 0 14px 14px; background: linear-gradient(to right, #2e1004 0%, #6a3010 30%, #a06020 50%, #6a3010 70%, #2e1004 100%); box-shadow: 0 4px 10px rgba(0,0,0,.6), inset 0 1px 3px rgba(255,180,80,.2); filter: none; animation: none; }
         .item-books { display: flex; align-items: flex-end; gap: 6px; width: 130px; height: 139px; }
-        .item-books span { border-radius: 2px 2px 0 0; flex-shrink: 0; position: relative; }
-        .item-books span::after { content: ''; position: absolute; top: 13px; left: 2px; right: 2px; height: 1px; background: rgba(255,255,255,.12); }
-        .item-books span:nth-child(1) { width: 32px; height: 118px; background: linear-gradient(to right, #16084a, #2c1880); }
-        .item-books span:nth-child(2) { width: 36px; height: 134px; background: linear-gradient(to right, #5c0a0a, #961818); }
-        .item-books span:nth-child(3) { width: 27px; height: 105px; background: linear-gradient(to right, #0a3818, #186630); }
-        .item-books span:nth-child(4) { width: 32px; height:  92px; background: linear-gradient(to right, #5c3c08, #a06818); }
+        .item-books span { border-radius: 2px 2px 0 0; flex-shrink: 0; position: relative; box-shadow: inset -3px 0 6px rgba(0,0,0,.35), inset 2px 0 4px rgba(255,255,255,.07); }
+        .item-books span::before { content: ''; position: absolute; top: 0; left: 3px; width: 2px; height: 100%; background: rgba(255,255,255,.09); border-radius: 1px; }
+        .item-books span::after { content: ''; position: absolute; top: 13px; left: 2px; right: 2px; height: 1px; background: rgba(255,210,100,.18); box-shadow: 0 22px 0 rgba(255,210,100,.13), 0 44px 0 rgba(255,210,100,.08); }
+        .item-books span:nth-child(1) { width: 32px; height: 118px; background: linear-gradient(to right, #0e0630, #2c1880, #16084a); }
+        .item-books span:nth-child(2) { width: 36px; height: 134px; background: linear-gradient(to right, #3c0606, #961818, #5c0a0a); }
+        .item-books span:nth-child(3) { width: 27px; height: 105px; background: linear-gradient(to right, #062412, #186630, #0a3818); }
+        .item-books span:nth-child(4) { width: 32px; height:  92px; background: linear-gradient(to right, #3c2604, #a06818, #5c3c08); }
         .item-mouse { width: 56px; height: 52px; position: relative; }
         .item-mouse .body { position: absolute; bottom: 0; left: 6px; width: 40px; height: 28px; border-radius: 50% 50% 38% 38% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 40% 40%, #c8b4a0, #8a6a56); }
         .item-mouse .head { position: absolute; bottom: 20px; left: 28px; width: 22px; height: 20px; border-radius: 50%; background: radial-gradient(ellipse at 40% 38%, #c8b4a0, #8a6a56); }
@@ -4722,144 +4725,169 @@
         .item-mouse .eyes { position: absolute; bottom: 27px; left: 33px; display: flex; gap: 5px; }
         .item-mouse .eyes span { width: 3px; height: 3px; border-radius: 50%; background: #1a0808; box-shadow: 0 0 3px rgba(180,80,80,.6); }
         .item-mouse .tail { position: absolute; bottom: 4px; left: 0; width: 18px; height: 7px; border-bottom: 2.5px solid #a08070; border-left: 2px solid #a08070; border-radius: 0 0 0 60%; }
-        .item-crystals { width: 56px; height: 60px; position: relative; }
+        .item-crystals { width: 56px; height: 60px; position: relative; filter: drop-shadow(0 0 5px rgba(168,80,255,.45)); }
         .item-crystals span { position: absolute; bottom: 0; transform-origin: bottom center; clip-path: polygon(50% 0%, 85% 100%, 15% 100%); }
-        .item-crystals span:nth-child(1) { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #f0d8ff, #b07ad4, #6a2a90); }
-        .item-crystals span:nth-child(2) { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #fff0ff, #cc96f0, #8840c8); z-index: 2; }
-        .item-crystals span:nth-child(3) { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #e0c8ff, #9060c8, #4a1878); }
+        .item-crystals span:nth-child(1) { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #ffffff 0%, #f0d8ff 15%, #c090e8 45%, #8040c0 75%, #3a1050 100%); }
+        .item-crystals span:nth-child(2) { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #ffffff 0%, #fde8ff 12%, #e0a8ff 40%, #a060e8 70%, #5018a0 100%); z-index: 2; }
+        .item-crystals span:nth-child(3) { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #f0d8ff 0%, #b878e8 35%, #6830a8 70%, #2a0a60 100%); }
         .item-candle { width: 30px; height: 74px; position: relative; }
-        .item-candle .flame { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 20px; border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 50% 60%, #fff7a0, #ffcc00, #ff8800, transparent); box-shadow: 0 0 10px rgba(255,180,0,.8), 0 0 24px rgba(255,100,0,.35); animation: flicker 1.8s ease-in-out infinite alternate; }
-        .item-candle .wick { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 7px; background: #2a1a06; border-radius: 1px; }
-        .item-candle .wax  { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 54px; border-radius: 4px 4px 2px 2px; background: linear-gradient(to right, #e8ddd0, #f8f4ee, #e0d4c4); box-shadow: inset 0 0 8px rgba(0,0,0,.15); }
-        .item-candle .wax::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8px; border-radius: 50% 50% 0 0 / 100% 100% 0 0; background: #cdc0b0; }
+        .item-candle .flame { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 20px; border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 50% 60%, #ffffff, #fff580, #ffcc00, #ff8800, transparent); box-shadow: 0 0 12px rgba(255,200,0,.9), 0 0 28px rgba(255,120,0,.45), 0 0 48px rgba(255,80,0,.15); animation: flicker 1.8s ease-in-out infinite alternate; z-index: 2; }
+        .item-candle .wick { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 8px; background: linear-gradient(to top, #3a2206, #1a0e02); border-radius: 1px; z-index: 1; }
+        .item-candle .wax  { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 54px; border-radius: 4px 4px 2px 2px; background: linear-gradient(to right, #d8cec0 0%, #f8f4ee 40%, #ece4d8 70%, #d0c8b8 100%); box-shadow: inset -4px 0 8px rgba(0,0,0,.15), inset 3px 0 6px rgba(255,255,255,.3), 0 0 8px rgba(255,160,40,.18); }
+        .item-candle .wax::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 9px; border-radius: 50% 50% 0 0 / 100% 100% 0 0; background: radial-gradient(ellipse at 50% 0%, #e0d4c0, #b8aa94); }
+        .item-candle .wax::after { content: ''; position: absolute; top: 6px; left: 4px; width: 4px; height: 14px; border-radius: 0 0 3px 3px; background: linear-gradient(to bottom, #d8cec0, #c0b4a0); }
         .item-herbs { width: 50px; height: 58px; position: relative; }
-        .item-herbs .sprig { position: absolute; bottom: 16px; width: 4px; border-radius: 2px; background: linear-gradient(to top, #2a5a10, #4a8a28, #78c840); transform-origin: bottom center; }
+        .item-herbs .sprig { position: absolute; bottom: 16px; width: 4px; border-radius: 2px; background: linear-gradient(to top, #1e4008, #3a7020, #68b830); transform-origin: bottom center; }
         .item-herbs .sprig:nth-child(1) { height: 40px; left: 10px; transform: rotate(-18deg); }
         .item-herbs .sprig:nth-child(2) { height: 46px; left: 23px; transform: rotate(0deg); }
         .item-herbs .sprig:nth-child(3) { height: 38px; left: 36px; transform: rotate(15deg); }
-        .item-herbs .sprig::before, .item-herbs .sprig::after { content: ''; position: absolute; width: 11px; height: 7px; border-radius: 50%; background: #5ab030; }
-        .item-herbs .sprig::before { top: 8px;  left: -9px;  transform: rotate(-30deg); }
-        .item-herbs .sprig::after  { top: 20px; right: -9px; transform: rotate(30deg); }
-        .item-herbs .tie { position: absolute; bottom: 10px; left: 5px; width: 38px; height: 8px; border-radius: 4px; background: #7a5820; border: 1px solid #5a3c10; }
+        .item-herbs .sprig::before, .item-herbs .sprig::after { content: ''; position: absolute; width: 12px; height: 8px; border-radius: 50% 50% 50% 0; background: radial-gradient(ellipse at 40% 40%, #90d840, #5aaa18, #2a6008); }
+        .item-herbs .sprig::before { top: 8px;  left: -10px; transform: rotate(-30deg); }
+        .item-herbs .sprig::after  { top: 20px; right: -10px; transform: rotate(30deg) scaleX(-1); }
+        .item-herbs .tie { position: absolute; bottom: 10px; left: 5px; width: 38px; height: 8px; border-radius: 4px; background: linear-gradient(to right, #5a3c10, #9a6828, #5a3c10); border: 1px solid #4a2c08; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
         .item-candle-red, .item-candle-black, .item-candle-purple { width: 30px; height: 74px; position: relative; }
-        .item-candle-red .flame, .item-candle-black .flame, .item-candle-purple .flame { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 20px; border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%; animation: flicker 1.8s ease-in-out infinite alternate; }
-        .item-candle-red .flame    { background: radial-gradient(ellipse at 50% 60%, #fff7a0, #ffcc00, #ff8800, transparent); box-shadow: 0 0 10px rgba(255,180,0,.8), 0 0 24px rgba(255,100,0,.35); }
-        .item-candle-black .flame  { background: radial-gradient(ellipse at 50% 60%, #e0d0ff, #9060ff, #4400cc, transparent); box-shadow: 0 0 10px rgba(140,80,255,.8), 0 0 24px rgba(80,0,200,.35); }
-        .item-candle-purple .flame { background: radial-gradient(ellipse at 50% 60%, #fff0ff, #dd88ff, #9900ff, transparent); box-shadow: 0 0 10px rgba(200,100,255,.8), 0 0 24px rgba(120,0,200,.35); }
-        .item-candle-red .wick, .item-candle-black .wick, .item-candle-purple .wick { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 7px; background: #2a1a06; border-radius: 1px; }
-        .item-candle-red .wax, .item-candle-black .wax, .item-candle-purple .wax { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 54px; border-radius: 4px 4px 2px 2px; box-shadow: inset 0 0 8px rgba(0,0,0,.15); }
-        .item-candle-red .wax    { background: linear-gradient(to right, #8a1010, #cc2020, #8a1010); }
-        .item-candle-black .wax  { background: linear-gradient(to right, #1a1a1a, #2e2e2e, #1a1a1a); }
-        .item-candle-purple .wax { background: linear-gradient(to right, #3a0860, #7020b0, #3a0860); }
-        .item-candle-red .wax::before, .item-candle-black .wax::before, .item-candle-purple .wax::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8px; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
-        .item-candle-red .wax::before    { background: #6a0808; }
-        .item-candle-black .wax::before  { background: #0a0a0a; }
-        .item-candle-purple .wax::before { background: #280440; }
+        .item-candle-red .flame, .item-candle-black .flame, .item-candle-purple .flame { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 20px; border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%; animation: flicker 1.8s ease-in-out infinite alternate; z-index: 2; }
+        .item-candle-red .flame    { background: radial-gradient(ellipse at 50% 60%, #ffffff, #fff580, #ffcc00, #ff8800, transparent); box-shadow: 0 0 12px rgba(255,200,0,.9), 0 0 28px rgba(255,100,0,.45); }
+        .item-candle-black .flame  { background: radial-gradient(ellipse at 50% 60%, #ffffff, #e8d8ff, #a070ff, #5010cc, transparent); box-shadow: 0 0 12px rgba(160,100,255,.9), 0 0 28px rgba(80,0,200,.45); }
+        .item-candle-purple .flame { background: radial-gradient(ellipse at 50% 60%, #ffffff, #ffd8ff, #ee90ff, #aa10ff, transparent); box-shadow: 0 0 12px rgba(220,120,255,.9), 0 0 28px rgba(140,0,220,.45); }
+        .item-candle-red .wick, .item-candle-black .wick, .item-candle-purple .wick { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 8px; background: linear-gradient(to top, #3a2206, #1a0e02); border-radius: 1px; z-index: 1; }
+        .item-candle-red .wax, .item-candle-black .wax, .item-candle-purple .wax { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 54px; border-radius: 4px 4px 2px 2px; box-shadow: inset -4px 0 8px rgba(0,0,0,.25), inset 3px 0 5px rgba(255,255,255,.1); }
+        .item-candle-red .wax    { background: linear-gradient(to right, #6a0808 0%, #c82020 40%, #ee3030 55%, #b81818 75%, #6a0808 100%); }
+        .item-candle-black .wax  { background: linear-gradient(to right, #101010 0%, #282828 40%, #343434 55%, #222222 75%, #101010 100%); }
+        .item-candle-purple .wax { background: linear-gradient(to right, #280640 0%, #5818a0 40%, #7828c8 55%, #4a1090 75%, #280640 100%); }
+        .item-candle-red .wax::before, .item-candle-black .wax::before, .item-candle-purple .wax::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 9px; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
+        .item-candle-red .wax::before    { background: radial-gradient(ellipse at 50% 0%, #801010, #500808); }
+        .item-candle-black .wax::before  { background: radial-gradient(ellipse at 50% 0%, #1a1a1a, #080808); }
+        .item-candle-purple .wax::before { background: radial-gradient(ellipse at 50% 0%, #380858, #200430); }
+        .item-candle-red .wax::after, .item-candle-black .wax::after, .item-candle-purple .wax::after { content: ''; position: absolute; top: 6px; left: 4px; width: 4px; height: 12px; border-radius: 0 0 3px 3px; opacity: .45; }
+        .item-candle-red .wax::after    { background: linear-gradient(to bottom, #ff4040, #cc1818); }
+        .item-candle-black .wax::after  { background: linear-gradient(to bottom, #383838, #181818); }
+        .item-candle-purple .wax::after { background: linear-gradient(to bottom, #8840d0, #4010a0); }
         .item-crystals-blue, .item-crystals-pink, .item-crystals-green { width: 56px; height: 60px; position: relative; }
+        .item-crystals-blue  { filter: drop-shadow(0 0 5px rgba(60,160,255,.45)); }
+        .item-crystals-pink  { filter: drop-shadow(0 0 5px rgba(255,80,180,.45)); }
+        .item-crystals-green { filter: drop-shadow(0 0 5px rgba(60,220,80,.45)); }
         .item-crystals-blue span, .item-crystals-pink span, .item-crystals-green span { position: absolute; bottom: 0; transform-origin: bottom center; clip-path: polygon(50% 0%, 85% 100%, 15% 100%); }
-        .item-crystals-blue span:nth-child(1)  { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #d8f0ff, #70b8f8, #2060c0); }
-        .item-crystals-blue span:nth-child(2)  { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #f0f8ff, #90d0ff, #3080e8); z-index: 2; }
-        .item-crystals-blue span:nth-child(3)  { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #c8e8ff, #5098d8, #1040a0); }
-        .item-crystals-pink span:nth-child(1)  { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #ffd8f0, #f878c0, #c02880); }
-        .item-crystals-pink span:nth-child(2)  { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #fff0f8, #ff98d8, #e040a0); z-index: 2; }
-        .item-crystals-pink span:nth-child(3)  { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #ffc8e8, #e060b0, #901060); }
-        .item-crystals-green span:nth-child(1) { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #d8ffd8, #70e870, #208820); }
-        .item-crystals-green span:nth-child(2) { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #f0fff0, #90ff90, #30b830); z-index: 2; }
-        .item-crystals-green span:nth-child(3) { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #c8f8c8, #50c850, #106010); }
+        .item-crystals-blue span:nth-child(1)  { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #ffffff 0%, #d8f4ff 15%, #88c8f8 45%, #2870d8 75%, #0a2880 100%); }
+        .item-crystals-blue span:nth-child(2)  { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #ffffff 0%, #e8f8ff 12%, #a8d8ff 40%, #4090f0 70%, #1040b0 100%); z-index: 2; }
+        .item-crystals-blue span:nth-child(3)  { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #c8e8ff 0%, #68a8f0 35%, #2058c0 70%, #081880 100%); }
+        .item-crystals-pink span:nth-child(1)  { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #ffffff 0%, #ffe8f8 15%, #f898d0 45%, #d03890 75%, #700840 100%); }
+        .item-crystals-pink span:nth-child(2)  { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #ffffff 0%, #fff0fc 12%, #ffb0e8 40%, #e050b0 70%, #901060 100%); z-index: 2; }
+        .item-crystals-pink span:nth-child(3)  { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #ffe0f4 0%, #e870c0 35%, #a02878 70%, #500830 100%); }
+        .item-crystals-green span:nth-child(1) { width: 18px; height: 44px; left: 6px;  transform: rotate(-14deg); background: linear-gradient(160deg, #ffffff 0%, #e0ffe0 15%, #80e880 45%, #28a028 75%, #083808 100%); }
+        .item-crystals-green span:nth-child(2) { width: 22px; height: 58px; left: 50%;  transform: translateX(-50%); background: linear-gradient(160deg, #ffffff 0%, #eafff0 12%, #a0ff90 40%, #40c040 70%, #107010 100%); z-index: 2; }
+        .item-crystals-green span:nth-child(3) { width: 16px; height: 40px; right: 6px; transform: rotate(16deg);  background: linear-gradient(160deg, #c8f8c0 0%, #58d050 35%, #188818 70%, #063006 100%); }
         .item-open-book { width: 120px; height: 80px; position: relative; }
-        .item-open-book .cover { position: absolute; bottom: 0; left: 0; right: 0; height: 74px; background: linear-gradient(135deg, #5c3c08 0%, #8c5a18 45%, #6a4212 60%, #4a2c06 100%); border-radius: 4px; box-shadow: 2px 4px 12px rgba(0,0,0,.6); }
-        .item-open-book .cover { z-index: 1; }
+        .item-open-book .cover { position: absolute; bottom: 0; left: 0; right: 0; height: 74px; background: linear-gradient(135deg, #3e2404 0%, #7a4c14 30%, #a06828 50%, #6a4212 70%, #3a2006 100%); border-radius: 4px; box-shadow: 2px 4px 14px rgba(0,0,0,.7), inset 0 1px 3px rgba(255,200,80,.15); z-index: 1; }
         .item-open-book .page { position: absolute; bottom: 6px; height: 66px; width: 52px; z-index: 2; }
-        .item-open-book .page.left  { left: 4px;  border-radius: 3px 0 0 2px; background: linear-gradient(to right, #ffffff 0%, #f4f4f4 55%, #c8c0b0 100%); box-shadow: inset -10px 0 18px rgba(50,25,0,.25); }
-        .item-open-book .page.right { right: 4px; border-radius: 0 3px 2px 0; background: linear-gradient(to left,  #ffffff 0%, #f4f4f4 55%, #c8c0b0 100%); box-shadow: inset  10px 0 18px rgba(50,25,0,.25); }
-        .item-open-book .page::after { content: ''; position: absolute; left: 6px; right: 6px; top: 10px; height: 1.5px; background: rgba(80,50,20,.30); box-shadow: 0 8px 0 rgba(80,50,20,.24), 0 16px 0 rgba(80,50,20,.18), 0 24px 0 rgba(80,50,20,.13), 0 32px 0 rgba(80,50,20,.08), 0 40px 0 rgba(80,50,20,.05); }
-        .item-open-book .spine { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 8px; height: 66px; background: linear-gradient(to right, #2e1804 0%, #7a4a18 50%, #2e1804 100%); z-index: 3; }
+        .item-open-book .page.left  { left: 4px;  border-radius: 3px 0 0 2px; background: linear-gradient(to right, #fefefe 0%, #f6f3ee 50%, #d8cfc0 100%); box-shadow: inset -12px 0 20px rgba(50,25,0,.28); }
+        .item-open-book .page.right { right: 4px; border-radius: 0 3px 2px 0; background: linear-gradient(to left,  #fefefe 0%, #f6f3ee 50%, #d8cfc0 100%); box-shadow: inset  12px 0 20px rgba(50,25,0,.28); }
+        .item-open-book .page::after { content: ''; position: absolute; left: 6px; right: 6px; top: 10px; height: 1px; background: rgba(80,50,20,.28); box-shadow: 0 8px 0 rgba(80,50,20,.22), 0 16px 0 rgba(80,50,20,.16), 0 24px 0 rgba(80,50,20,.11), 0 32px 0 rgba(80,50,20,.07), 0 40px 0 rgba(80,50,20,.04); }
+        .item-open-book .spine { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 8px; height: 66px; background: linear-gradient(to right, #1e1002 0%, #6a4014 40%, #8a5820 50%, #6a4014 60%, #1e1002 100%); z-index: 3; box-shadow: 0 0 6px rgba(0,0,0,.6); }
         .item-tome { width: 38px; height: 130px; position: relative; }
-        .item-tome .body       { position: absolute; inset: 0; border-radius: 3px 3px 2px 2px; background: linear-gradient(to right, #1a0840, #3a1880, #1a0840); }
-        .item-tome .spine-line { position: absolute; left: 6px; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,.08); }
-        .item-tome .title      { position: absolute; left: 50%; top: 20px; transform: translateX(-50%); width: 20px; height: 2px; background: rgba(200,160,255,.4); box-shadow: 0 6px 0 rgba(200,160,255,.25), 0 12px 0 rgba(200,160,255,.15); }
-        .item-tome .clasp      { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 6px; height: 10px; background: #a87020; border-radius: 2px; }
+        .item-tome .body       { position: absolute; inset: 0; border-radius: 3px 3px 2px 2px; background: linear-gradient(to right, #0e0428 0%, #2a1060 35%, #4a20a0 50%, #2a1060 65%, #0e0428 100%); box-shadow: inset 0 0 12px rgba(0,0,0,.5), inset -3px 0 6px rgba(100,50,200,.15); }
+        .item-tome .spine-line { position: absolute; left: 6px; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,.10); }
+        .item-tome .spine-line::before { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 1px; background: rgba(200,160,255,.06); }
+        .item-tome .title      { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); width: 20px; height: 2px; background: rgba(220,180,255,.55); box-shadow: 0 6px 0 rgba(220,180,255,.38), 0 12px 0 rgba(220,180,255,.22), 0 18px 0 rgba(220,180,255,.12); }
+        .item-tome .clasp      { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 7px; height: 12px; background: linear-gradient(to bottom, #d8a040, #9a6820, #d8a040); border-radius: 2px; box-shadow: 0 0 4px rgba(200,140,0,.5); }
+        .item-tome .clasp::after { content: ''; position: absolute; inset: 2px; border-radius: 1px; background: rgba(255,220,80,.35); }
         .item-potion { width: 36px; height: 74px; position: relative; }
-        .item-potion .cork   { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 6px; background: #8c6030; border-radius: 2px; }
-        .item-potion .neck   { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 10px; height: 20px; background: linear-gradient(to right, #1a3020, #2a5030, #1a3020); border-radius: 2px 2px 0 0; }
-        .item-potion .glass  { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 52px; border-radius: 50% 50% 6px 6px / 30% 30% 6px 6px; background: rgba(20,60,30,.6); border: 1.5px solid rgba(60,160,80,.3); }
-        .item-potion .liquid { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 22px; height: 36px; border-radius: 40% 40% 5px 5px / 20% 20% 5px 5px; background: radial-gradient(ellipse at 40% 40%, #80ff80, #20c840, #0a7020); box-shadow: 0 0 12px rgba(60,255,80,.6), inset 0 0 8px rgba(255,255,255,.2); animation: bubble 2.4s ease-in-out infinite alternate; }
-        .item-potion .glint  { position: absolute; top: 6px; left: 6px; width: 6px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.35); transform: rotate(-20deg); }
+        .item-potion .cork   { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 7px; background: linear-gradient(to bottom, #b07840, #7a4c20, #5a3810); border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+        .item-potion .neck   { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); width: 10px; height: 20px; background: linear-gradient(to right, #102818 0%, #20481e 50%, #102818 100%); border-radius: 2px 2px 0 0; }
+        .item-potion .glass  { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 52px; border-radius: 50% 50% 6px 6px / 30% 30% 6px 6px; background: rgba(10,40,18,.65); border: 1.5px solid rgba(60,180,80,.35); overflow: hidden; }
+        .item-potion .glass::before { content: ''; position: absolute; top: 4px; left: 5px; width: 6px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.12); transform: rotate(-15deg); }
+        .item-potion .liquid { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 22px; height: 36px; border-radius: 40% 40% 5px 5px / 20% 20% 5px 5px; background: radial-gradient(ellipse at 38% 38%, #a0ffb0, #28e050, #08801e); box-shadow: 0 0 16px rgba(60,255,80,.7), inset 0 0 10px rgba(255,255,255,.25); animation: bubble 2.4s ease-in-out infinite alternate; }
+        .item-potion .liquid::before { content: ''; position: absolute; top: 6px; left: 5px; width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.55); }
+        .item-potion .liquid::after { content: ''; position: absolute; top: 14px; right: 4px; width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.40); }
+        .item-potion .glint  { position: absolute; top: 6px; left: 6px; width: 6px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.40); transform: rotate(-20deg); }
         .item-skull { width: 52px; height: 58px; position: relative; }
-        .item-skull .cranium { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 44px; height: 36px; border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 40% 36%, #e8e0d8, #c8c0b0, #a09888); }
-        .item-skull .jaw     { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 36px; height: 18px; border-radius: 0 0 40% 40%; background: linear-gradient(to bottom, #c0b8a8, #a89880); }
-        .item-skull .eye     { position: absolute; top: 14px; width: 10px; height: 9px; border-radius: 50%; background: #1a100a; }
+        .item-skull .cranium { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 44px; height: 36px; border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%; background: radial-gradient(ellipse at 38% 32%, #f4eee8 0%, #d8d0c4 40%, #b0a898 70%, #888076 100%); box-shadow: inset -4px -6px 12px rgba(0,0,0,.25), inset 3px 4px 8px rgba(255,255,255,.35); }
+        .item-skull .cranium::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 1px; height: 20px; background: linear-gradient(to bottom, transparent, rgba(80,60,50,.30), transparent); }
+        .item-skull .cranium::after  { content: ''; position: absolute; top: 4px; left: 60%; width: 12px; height: 1px; background: rgba(80,60,50,.20); transform: rotate(15deg); box-shadow: 0 5px 0 rgba(80,60,50,.12); }
+        .item-skull .jaw     { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 36px; height: 18px; border-radius: 0 0 40% 40%; background: linear-gradient(to bottom, #ccc4b4, #a49880); box-shadow: inset 0 -3px 6px rgba(0,0,0,.2); }
+        .item-skull .eye     { position: absolute; top: 14px; width: 10px; height: 9px; border-radius: 50%; background: radial-gradient(ellipse at 40% 40%, #2a1a10, #0a0804); box-shadow: inset 0 2px 4px rgba(0,0,0,.8); }
+        .item-skull .eye::before { content: ''; position: absolute; inset: 1px; border-radius: 50%; background: radial-gradient(ellipse at 35% 35%, rgba(60,30,20,.4), transparent); }
         .item-skull .eye.l   { left: 7px; }
         .item-skull .eye.r   { right: 7px; }
-        .item-skull .nose    { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); width: 6px; height: 5px; background: #2a1810; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+        .item-skull .nose    { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); width: 6px; height: 5px; background: #1a1008; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
         .item-skull .teeth   { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; }
-        .item-skull .teeth span { width: 5px; height: 8px; background: #e8e0d0; border-radius: 0 0 2px 2px; }
+        .item-skull .teeth span { width: 5px; height: 8px; background: linear-gradient(to bottom, #eee8d8, #c8c0b0); border-radius: 0 0 2px 2px; box-shadow: inset 1px 0 2px rgba(0,0,0,.15); }
         .item-hourglass { width: 34px; height: 80px; position: relative; }
-        .item-hourglass .frame-top, .item-hourglass .frame-bot { position: absolute; left: 0; right: 0; height: 8px; background: linear-gradient(to bottom, #a87020, #6a4010); border-radius: 3px; }
+        .item-hourglass .frame-top, .item-hourglass .frame-bot { position: absolute; left: 0; right: 0; height: 9px; background: linear-gradient(to bottom, #d8a040 0%, #a07020 50%, #6a4010 100%); border-radius: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,220,80,.3); }
+        .item-hourglass .frame-top::after, .item-hourglass .frame-bot::after { content: ''; position: absolute; left: 3px; right: 3px; height: 2px; background: rgba(255,200,60,.25); border-radius: 1px; }
+        .item-hourglass .frame-top::after { top: 2px; }
+        .item-hourglass .frame-bot::after { bottom: 2px; }
         .item-hourglass .frame-top { top: 0; }
         .item-hourglass .frame-bot { bottom: 0; }
-        .item-hourglass .glass-top { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 30px solid rgba(200,230,255,.18); filter: drop-shadow(0 0 4px rgba(150,200,255,.3)); }
-        .item-hourglass .glass-bot { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-bottom: 30px solid rgba(255,180,60,.25); }
-        .item-hourglass .sand      { position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%); width: 20px; height: 16px; border-radius: 0 0 4px 4px; background: linear-gradient(to bottom, #e8b840, #c08820); }
-        .item-hourglass .post      { position: absolute; left: 50%; transform: translateX(-50%); width: 2px; top: 8px; bottom: 8px; background: rgba(168,112,32,.4); }
+        .item-hourglass .glass-top { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 30px solid rgba(210,235,255,.22); filter: drop-shadow(0 0 5px rgba(150,200,255,.35)); }
+        .item-hourglass .glass-bot { position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-bottom: 30px solid rgba(255,190,70,.28); }
+        .item-hourglass .sand      { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 22px; height: 18px; border-radius: 0 0 5px 5px; background: linear-gradient(to bottom, #f0c850 0%, #d09828 60%, #a87020 100%); box-shadow: 0 0 8px rgba(220,160,40,.45); }
+        .item-hourglass .post      { position: absolute; left: 50%; transform: translateX(-50%); width: 3px; top: 9px; bottom: 9px; background: linear-gradient(to bottom, rgba(200,140,40,.6), rgba(200,140,40,.2) 48%, rgba(200,140,40,.7) 52%, rgba(200,140,40,.3)); }
         .item-lantern { width: 40px; height: 80px; position: relative; }
-        .item-lantern .hook { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 10px; border-top: 2px solid #a87020; border-left: 2px solid #a87020; border-right: 2px solid #a87020; border-radius: 6px 6px 0 0; }
-        .item-lantern .cap  { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 30px; height: 10px; background: linear-gradient(to bottom, #a87020, #6a4010); border-radius: 3px 3px 0 0; clip-path: polygon(0% 100%, 10% 0%, 90% 0%, 100% 100%); }
-        .item-lantern .body { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 36px; height: 44px; border-radius: 4px; background: rgba(255,140,20,.08); border: 1.5px solid #6a4010; box-shadow: 0 0 18px rgba(255,140,20,.4), inset 0 0 12px rgba(255,160,40,.15); }
-        .item-lantern .glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 18px; height: 22px; border-radius: 50%; background: radial-gradient(ellipse, #fff8a0, #ffaa00, transparent); animation: flicker 1.6s ease-in-out infinite alternate; }
-        .item-lantern .base { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: linear-gradient(to bottom, #a87020, #6a4010); border-radius: 0 0 4px 4px; }
+        .item-lantern .hook { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 10px; border-top: 2px solid #c89030; border-left: 2px solid #a87020; border-right: 2px solid #a87020; border-radius: 6px 6px 0 0; }
+        .item-lantern .cap  { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 30px; height: 10px; background: linear-gradient(to bottom, #c89030, #a07020, #6a4010); border-radius: 3px 3px 0 0; clip-path: polygon(0% 100%, 10% 0%, 90% 0%, 100% 100%); }
+        .item-lantern .body { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 36px; height: 44px; border-radius: 4px; background: rgba(255,150,30,.06); border: 1.5px solid #8a5518; box-shadow: 0 0 22px rgba(255,150,30,.50), inset 0 0 14px rgba(255,170,50,.20); }
+        .item-lantern .body::before { content: ''; position: absolute; top: 4px; left: 5px; width: 4px; height: 36px; background: rgba(255,255,255,.06); border-radius: 2px; }
+        .item-lantern .glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20px; height: 24px; border-radius: 50%; background: radial-gradient(ellipse, #ffffff, #fff8a0 30%, #ffaa00 65%, transparent); animation: flicker 1.6s ease-in-out infinite alternate; }
+        .item-lantern .base { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 30px; height: 9px; background: linear-gradient(to bottom, #c89030, #a07020, #6a4010); border-radius: 0 0 5px 5px; box-shadow: 0 2px 6px rgba(0,0,0,.5); }
         .item-cauldron { width: 70px; height: 60px; position: relative; }
-        .item-cauldron .pot  { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 62px; height: 44px; border-radius: 4px 4px 40% 40% / 4px 4px 60% 60%; background: radial-gradient(ellipse at 40% 40%, #3a3a4a, #1a1a22, #0a0a10); border: 2px solid #2e2e3a; }
-        .item-cauldron .rim  { position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); width: 66px; height: 10px; border-radius: 50%; background: linear-gradient(to bottom, #46465a, #2e2e3a); }
-        .item-cauldron .brew { position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); width: 52px; height: 10px; border-radius: 50%; background: radial-gradient(ellipse, #40ff80, #20c840, #0a5020); box-shadow: 0 0 14px rgba(60,255,80,.7); animation: bubble 1.8s ease-in-out infinite alternate; }
-        .item-cauldron .leg  { position: absolute; bottom: 0; width: 8px; height: 12px; background: #1a1a22; border-radius: 0 0 3px 3px; }
+        .item-cauldron .pot  { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 62px; height: 44px; border-radius: 4px 4px 40% 40% / 4px 4px 60% 60%; background: radial-gradient(ellipse at 38% 38%, #4a4a58, #22222e, #0c0c14); border: 2px solid #38384a; box-shadow: inset 0 -6px 14px rgba(0,0,0,.6), inset 2px 2px 6px rgba(80,80,120,.2); }
+        .item-cauldron .rim  { position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); width: 66px; height: 10px; border-radius: 50%; background: linear-gradient(to bottom, #58586a 0%, #3a3a4e 60%, #262630 100%); box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+        .item-cauldron .brew { position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); width: 52px; height: 10px; border-radius: 50%; background: radial-gradient(ellipse at 40% 40%, #80ffb0, #30e860, #0a8830); box-shadow: 0 0 18px rgba(60,255,80,.80), 0 0 36px rgba(40,200,60,.35); animation: bubble 1.8s ease-in-out infinite alternate; overflow: visible; }
+        .item-cauldron .brew::before { content: ''; position: absolute; left: 28%; bottom: 8px; width: 5px; height: 10px; border-radius: 50% 50% 0 0; background: rgba(180,255,200,.35); animation: gothic-steam 2.2s ease-out infinite; transform-origin: bottom center; }
+        .item-cauldron .brew::after  { content: ''; position: absolute; left: 58%; bottom: 8px; width: 4px; height: 8px; border-radius: 50% 50% 0 0; background: rgba(180,255,200,.28); animation: gothic-steam 2.8s ease-out infinite 0.6s; transform-origin: bottom center; }
+        .item-cauldron .leg  { position: absolute; bottom: 0; width: 8px; height: 12px; background: linear-gradient(to bottom, #2a2a36, #14141c); border-radius: 0 0 3px 3px; box-shadow: inset 1px 0 2px rgba(255,255,255,.05); }
         .item-cauldron .leg.l { left: 8px; }
         .item-cauldron .leg.m { left: 50%; transform: translateX(-50%); }
         .item-cauldron .leg.r { right: 8px; }
-        .item-cauldron .handle { position: absolute; bottom: 28px; width: 10px; height: 18px; border: 2px solid #46465a; border-radius: 50%; }
+        .item-cauldron .handle { position: absolute; bottom: 28px; width: 10px; height: 18px; border: 2px solid #50506a; border-radius: 50%; box-shadow: inset 0 0 3px rgba(150,150,220,.2); }
         .item-cauldron .handle.l { left: 0; clip-path: inset(0 50% 0 0); }
         .item-cauldron .handle.r { right: 0; clip-path: inset(0 0 0 50%); }
         .item-feather { width: 20px; height: 90px; position: relative; }
-        .item-feather .quill  { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 90px; background: linear-gradient(to top, #c8a040, #e8d080, #f8f0c0, #ffffff); border-radius: 1px; }
-        .item-feather .vane-l, .item-feather .vane-r { position: absolute; left: 50%; width: 10px; border-radius: 50%; transform-origin: left center; }
-        .item-feather .vane-l { transform: rotate(-30deg);           background: linear-gradient(to right, rgba(220,240,255,.9), rgba(180,210,255,.4)); }
-        .item-feather .vane-r { transform: rotate(30deg) scaleX(-1); background: linear-gradient(to right, rgba(220,240,255,.9), rgba(180,210,255,.4)); }
+        .item-feather .quill  { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 90px; background: linear-gradient(to top, #b89030 0%, #e0c060 30%, #f8f0b8 65%, #ffffff 100%); border-radius: 1px; box-shadow: 0 0 4px rgba(255,220,100,.3); }
+        .item-feather .quill::before { content: ''; position: absolute; left: 2px; top: 14px; width: 10px; height: 62px; border-radius: 50% 90% 90% 0 / 50% 50% 90% 0; background: linear-gradient(135deg, rgba(230,245,255,.88), rgba(190,215,255,.55), rgba(160,200,255,.2)); transform-origin: left top; }
+        .item-feather .quill::after  { content: ''; position: absolute; right: 2px; top: 14px; width: 10px; height: 62px; border-radius: 90% 50% 0 90% / 50% 50% 0 90%; background: linear-gradient(225deg, rgba(230,245,255,.88), rgba(190,215,255,.55), rgba(160,200,255,.2)); transform-origin: right top; }
         .item-moon { width: 54px; height: 60px; position: relative; }
-        .item-moon .crescent { position: absolute; top: 4px; left: 4px; width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #fff8a0, #ffcc40, #e09000); box-shadow: 0 0 20px rgba(255,200,40,.5); }
-        .item-moon .crescent::after { content: ''; position: absolute; top: -4px; left: 10px; width: 42px; height: 42px; border-radius: 50%; background: #050108; }
-        .item-moon .star { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; background: #fff8a0; clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); box-shadow: 0 0 6px rgba(255,240,100,.8); }
+        .item-moon .crescent { position: absolute; top: 4px; left: 4px; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #ffffff 0%, #fff8b0 15%, #ffdd50 45%, #e8a000 72%, #b06800 100%); box-shadow: 0 0 24px rgba(255,210,50,.60), 0 0 50px rgba(255,180,20,.25); }
+        .item-moon .crescent::before { content: ''; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid rgba(255,220,80,.35); }
+        .item-moon .crescent::after { content: ''; position: absolute; top: -4px; left: 10px; width: 42px; height: 42px; border-radius: 50%; background: #060109; box-shadow: inset -3px -3px 8px rgba(180,80,255,.12); }
+        .item-moon .star { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; background: #fff8a0; clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); box-shadow: 0 0 8px rgba(255,240,100,.9), 0 0 16px rgba(255,220,60,.5); }
         .item-tarot { width: 44px; height: 74px; position: relative; }
-        .item-tarot .card   { position: absolute; inset: 0; border-radius: 4px; background: linear-gradient(160deg, #1a0828, #2e1050); border: 1.5px solid #a87020; box-shadow: 0 0 8px rgba(168,112,32,.3); min-height: 0 !important; display: block !important; padding: 0 !important; backdrop-filter: none !important; transform: none !important; }
+        .item-tarot .card   { position: absolute; inset: 0; border-radius: 4px; background: linear-gradient(160deg, #130620 0%, #280e48 50%, #1a0830 100%); border: 1.5px solid #c89030; box-shadow: 0 0 10px rgba(200,144,48,.35), inset 0 0 8px rgba(100,30,180,.2); min-height: 0 !important; display: block !important; padding: 0 !important; backdrop-filter: none !important; transform: none !important; }
         .item-tarot .card::before, .item-tarot .card::after { display: none !important; }
-        .item-tarot .inner  { position: absolute; inset: 4px; border-radius: 2px; border: 0.5px solid rgba(168,112,32,.4); }
-        .item-tarot .symbol { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 22px; line-height: 1; }
-        .item-tarot .label  { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 28px; height: 2px; background: rgba(168,112,32,.5); box-shadow: 0 4px 0 rgba(168,112,32,.3); }
+        .item-tarot .inner  { position: absolute; inset: 4px; border-radius: 2px; border: 0.5px solid rgba(200,144,48,.45); box-shadow: inset 0 0 6px rgba(160,80,255,.15); }
+        .item-tarot .symbol { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 22px; line-height: 1; filter: drop-shadow(0 0 4px rgba(200,150,255,.6)); }
+        .item-tarot .label  { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 28px; height: 2px; background: rgba(200,144,48,.6); box-shadow: 0 4px 0 rgba(200,144,48,.35); }
         .item-rune { width: 44px; height: 52px; position: relative; }
-        .item-rune .stone { position: absolute; inset: 0; border-radius: 40%; background: radial-gradient(ellipse at 38% 36%, #6a6070, #3a3040, #1a1828); box-shadow: inset -3px -4px 8px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.6); }
-        .item-rune .glyph { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: rgba(180,140,255,.7); font-size: 22px; line-height: 1; text-shadow: 0 0 8px rgba(160,100,255,.8); }
+        .item-rune .stone { position: absolute; inset: 0; border-radius: 40%; background: radial-gradient(ellipse at 36% 34%, #807888 0%, #504860 35%, #303040 65%, #181820 100%); box-shadow: inset -4px -5px 10px rgba(0,0,0,.55), inset 3px 3px 7px rgba(255,255,255,.08), 0 3px 8px rgba(0,0,0,.7); }
+        .item-rune .stone::before { content: ''; position: absolute; inset: 0; border-radius: 40%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='52'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='44' height='52' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E") center/cover; }
+        .item-rune .stone::after  { content: ''; position: absolute; inset: 4px; border-radius: 36%; background: radial-gradient(ellipse at 50% 50%, rgba(180,130,255,.12), transparent 70%); }
+        .item-rune .glyph { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: rgba(210,170,255,.85); font-size: 22px; line-height: 1; text-shadow: 0 0 6px rgba(180,120,255,.9), 0 0 14px rgba(160,80,255,.6), 0 0 26px rgba(140,60,255,.3); }
         .item-jar { width: 44px; height: 64px; position: relative; }
-        .item-jar .lid       { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 30px; height: 8px; background: linear-gradient(to bottom, #a87020, #6a4010); border-radius: 3px; }
-        .item-jar .glass     { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 56px; border-radius: 4px 4px 6px 6px; background: rgba(20,10,40,.4); border: 1.5px solid rgba(160,100,255,.25); overflow: hidden; }
-        .item-jar .fireflies { position: absolute; inset: 4px; background: radial-gradient(ellipse at 40% 60%, rgba(180,120,255,.6), rgba(100,40,200,.2), transparent); box-shadow: inset 0 0 16px rgba(160,80,255,.4); animation: bubble 3s ease-in-out infinite alternate; }
-        .item-jar .glint     { position: absolute; top: 6px; left: 6px; width: 4px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.25); transform: rotate(-20deg); }
+        .item-jar .lid       { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 30px; height: 9px; background: linear-gradient(to bottom, #d8a040 0%, #a07020 55%, #6a4010 100%); border-radius: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.4), inset 0 1px 2px rgba(255,210,80,.3); }
+        .item-jar .glass     { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 56px; border-radius: 4px 4px 6px 6px; background: rgba(16,8,36,.45); border: 1.5px solid rgba(180,120,255,.30); overflow: hidden; box-shadow: 0 0 12px rgba(160,80,255,.2); }
+        .item-jar .glass::before { content: ''; position: absolute; top: 4px; left: 5px; width: 5px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.10); transform: rotate(-10deg); }
+        .item-jar .fireflies { position: absolute; inset: 4px; background: radial-gradient(ellipse at 38% 55%, rgba(200,140,255,.65), rgba(120,50,220,.25), transparent); box-shadow: inset 0 0 18px rgba(180,100,255,.45); animation: bubble 3s ease-in-out infinite alternate; }
+        .item-jar .glint     { position: absolute; top: 6px; left: 6px; width: 4px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.30); transform: rotate(-20deg); }
         .item-pearls { width: 44px; height: 100px; position: relative; }
         .item-pearls .pot { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 38px; height: 28px; background: linear-gradient(to bottom, #7a4818, #4a2808); border-radius: 2px 2px 6px 6px; clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%); }
         .item-pearls .pot::before { content: ''; position: absolute; top: 0; left: -3px; right: -3px; height: 6px; background: #8c5820; border-radius: 2px; }
         .item-pearls .rim { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 44px; height: 6px; background: #a06828; border-radius: 2px; }
         .item-pearls .strand { position: absolute; top: 26px; left: 50%; display: flex; flex-direction: column; align-items: center; gap: 3px; transform: translateX(-50%); }
-        .item-pearls .strand span { width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #c8e8a0, #80c040, #3a7010); box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+        .item-pearls .strand span { width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #d0f0a8, #88c848, #407818); box-shadow: 0 1px 3px rgba(0,0,0,.45), inset 0 -1px 2px rgba(0,0,0,.2); }
         .item-pearls .strand::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 100%; background: rgba(80,140,20,.4); }
         .item-pearls .strand.l { left: 28%; }
         .item-pearls .strand.r { left: 72%; }
         .item-pearls .strand.m { left: 50%; }
         .item-ivy { width: 60px; height: 110px; position: relative; }
-        .item-ivy .pot { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 42px; height: 30px; background: linear-gradient(to right, #3a6018, #5a8a28, #3a6018); border-radius: 2px 2px 6px 6px; clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%); }
-        .item-ivy .rim { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 48px; height: 6px; background: #6ab030; border-radius: 2px; }
-        .item-ivy .vine { position: absolute; top: 30px; width: 3px; border-radius: 2px; background: linear-gradient(to bottom, #3a7010, #2a5010); }
+        .item-ivy .pot { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 42px; height: 30px; background: linear-gradient(to right, #2a4810, #4a7a20, #2a4810); border-radius: 2px 2px 6px 6px; clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%); box-shadow: inset -4px 0 8px rgba(0,0,0,.25); }
+        .item-ivy .rim { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 48px; height: 6px; background: linear-gradient(to right, #4a8818, #7ac830, #4a8818); border-radius: 2px; box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+        .item-ivy .vine { position: absolute; top: 30px; width: 3px; border-radius: 2px; background: linear-gradient(to bottom, #2a6010 0%, #184010 60%, #0e2808 100%); }
         .item-ivy .vine.l { left: 12px; height: 70px; transform: rotate(8deg);   transform-origin: top center; }
         .item-ivy .vine.r { right: 12px; height: 80px; transform: rotate(-10deg); transform-origin: top center; }
         .item-ivy .vine.m { left: 50%; transform: translateX(-50%); height: 60px; }
-        .item-ivy .leaf { position: absolute; width: 14px; height: 11px; border-radius: 50% 50% 50% 0; background: radial-gradient(ellipse at 40% 40%, #90d840, #5aaa18, #2a6008); }
+        .item-ivy .leaf { position: absolute; width: 14px; height: 11px; border-radius: 50% 50% 50% 0; background: radial-gradient(ellipse at 38% 36%, #b0ee58, #68c020, #2a6008); box-shadow: inset 0 -1px 3px rgba(0,0,0,.2); }
+        .item-ivy .leaf::after { content: ''; position: absolute; left: 30%; top: 20%; width: 55%; height: 1px; background: rgba(255,255,255,.22); transform: rotate(-10deg); border-radius: 1px; }
 
         /* ── Gothic shelf items: use .gothic-item to avoid clashing with old .altar-item CSS ── */
         .item-layer .gothic-item { position: absolute !important; pointer-events: all; cursor: grab; user-select: none; touch-action: none; transform-origin: 50% 100% !important; }
@@ -4895,11 +4923,11 @@
             50%     { filter: drop-shadow(0 0 11px rgba(200,120,255,.80)) brightness(1.15); }
         }
         @keyframes gothic-candle-flicker {
-            0%,100% { opacity:1.00; transform: scaleX(1.00) translateY(0px);   }
-            20%     { opacity: .88; transform: scaleX(0.88) translateY(-1.5px); }
-            40%     { opacity: .95; transform: scaleX(1.10) translateY( 0.5px); }
-            60%     { opacity: .82; transform: scaleX(0.92) translateY(-1.0px); }
-            80%     { opacity: .97; transform: scaleX(1.05) translateY( 0.0px); }
+            0%,100% { opacity:1.00; transform: translateX(-50%) scaleX(1.00) translateY(0px);   }
+            20%     { opacity: .88; transform: translateX(-50%) scaleX(0.88) translateY(-1.5px); }
+            40%     { opacity: .95; transform: translateX(-50%) scaleX(1.10) translateY( 0.5px); }
+            60%     { opacity: .82; transform: translateX(-50%) scaleX(0.92) translateY(-1.0px); }
+            80%     { opacity: .97; transform: translateX(-50%) scaleX(1.05) translateY( 0.0px); }
         }
         @keyframes gothic-float {
             0%,100% { transform: translateY( 0px); }
@@ -4920,6 +4948,11 @@
             0%   { transform: translate(-50%,-50%) scale(0);   opacity: 1;  }
             55%  { transform: translate(-50%,-50%) scale(1);   opacity: .9; }
             100% { transform: translate(-50%,-50%) scale(1.5); opacity: 0;  }
+        }
+        @keyframes gothic-steam {
+            0%   { transform: translateY(0)     scaleX(1);   opacity: .55; }
+            50%  { transform: translateY(-8px)  scaleX(1.4); opacity: .3;  }
+            100% { transform: translateY(-16px) scaleX(.8);  opacity: 0;   }
         }
 
         /* ── Hover: scale + glow on all items (filter !important beats inline) ── */
