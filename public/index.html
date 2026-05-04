@@ -4959,6 +4959,31 @@
 
         /* ── Sparkle dot element ── */
         .gothic-sparkle { position: absolute; pointer-events: none; z-index: 99; border-radius: 50%; animation: gothic-sparkle-pop 0.65s ease-out forwards; }
+
+        /* ══ Drag-interaction feedback ══════════════════════════════════════════ */
+        @keyframes gothic-ripple {
+            0%   { transform: translate(-50%,-50%) scale(0);   opacity: .8; }
+            100% { transform: translate(-50%,-50%) scale(1);   opacity: 0;  }
+        }
+
+        /* Cabinet glows when any drag is active */
+        #gothic-cabinet { transition: box-shadow .25s ease; }
+        #gothic-cabinet.gothic-is-dragging { box-shadow: inset 0 0 50px rgba(180,100,255,.18), inset 0 0 18px rgba(180,100,255,.09); }
+
+        /* Tray dims when dragging onto shelf */
+        .gothic-tray-wrap { transition: opacity .2s ease; }
+        .gothic-tray-wrap.gothic-is-dragging { opacity: .55; }
+        /* Keep the source slot visible + highlighted */
+        .gothic-tray-slot.is-source { opacity: 1 !important; border-color: rgba(200,150,255,.7) !important; box-shadow: 0 0 14px rgba(200,150,255,.5), inset 0 0 8px rgba(200,150,255,.1) !important; }
+
+        /* Ghost enlarged + glowing during tray drag */
+        #altar-ghost.tray-dragging { transform: translate(-50%, -100%) scale(1.08) !important; filter: brightness(1.3) drop-shadow(0 0 18px rgba(200,150,255,.80)); }
+
+        /* Shelf cursor-glow overlay */
+        #gothic-shelf-cursor { position: absolute; pointer-events: none; z-index: 100; width: 140px; height: 70px; border-radius: 50%; background: radial-gradient(ellipse at 50% 50%, rgba(200,150,255,.22) 0%, transparent 68%); transform: translate(-50%,-50%); display: none; }
+
+        /* Drop ripple */
+        .gothic-drop-ripple { position: absolute; pointer-events: none; z-index: 200; border-radius: 50%; border: 2px solid rgba(200,150,255,.55); width: 80px; height: 40px; animation: gothic-ripple 0.55s ease-out forwards; }
     </style>
 </head>
 <body>
@@ -10267,6 +10292,14 @@
             var ghostEl   = document.getElementById('altar-ghost');
             if (!cabinetEl || !layerEl || !trayEl || !ghostEl) return;
 
+            // Cursor glow overlay inside cabinet
+            var cursorGlowEl = document.getElementById('gothic-shelf-cursor');
+            if (!cursorGlowEl) {
+                cursorGlowEl = document.createElement('div');
+                cursorGlowEl.id = 'gothic-shelf-cursor';
+                cabinetEl.appendChild(cursorGlowEl);
+            }
+
             var GAP   = 160;
             var BOARD = 14;
             var SHELVES = {
@@ -10440,7 +10473,13 @@
                 layerEl.appendChild(el);
                 placedEls[type] = el;
                 gothicPlaceItem(el, shelf, xPct);
-                requestAnimationFrame(function() { requestAnimationFrame(function() { el.classList.remove('is-lifted'); }); });
+                requestAnimationFrame(function() { requestAnimationFrame(function() {
+                    el.classList.remove('is-lifted');
+                    setTimeout(function() {
+                        el.classList.add('is-settling');
+                        setTimeout(function() { el.classList.remove('is-settling'); }, 480);
+                    }, 200);
+                }); });
                 gothicBindShelfDrag(el, type);
             }
 
@@ -10464,6 +10503,7 @@
                     el.style.transformOrigin = '50% 100%';
                     el.style.boxShadow       = '0 24px 50px rgba(0,0,0,0.72)';
                     el.style.filter          = 'brightness(1.18)';
+                    cabinetEl.classList.add('gothic-is-dragging');
                 });
                 el.addEventListener('pointermove', function(e) {
                     if (!shelfDrag || shelfDrag.el !== el) return;
@@ -10484,6 +10524,14 @@
                     el.classList.remove('is-lifted');
                     shelfDrag = null;
                     gothicSaveState();
+                    cabinetEl.classList.remove('gothic-is-dragging');
+                    // Drop ripple
+                    var ripple = document.createElement('div');
+                    ripple.className = 'gothic-drop-ripple';
+                    ripple.style.left = (e.clientX - rect.left) + 'px';
+                    ripple.style.top  = (e.clientY - rect.top) + 'px';
+                    cabinetEl.appendChild(ripple);
+                    setTimeout(function() { if (ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 600);
                     // Settle bounce — let CSS position transition finish first
                     setTimeout(function() {
                         el.classList.add('is-settling');
@@ -10496,6 +10544,7 @@
                     if (prev && prev !== 'inventory') gothicPlaceItem(el, prev.shelf, prev.x);
                     el.classList.remove('is-lifted');
                     shelfDrag = null;
+                    cabinetEl.classList.remove('gothic-is-dragging');
                 });
             }
 
@@ -10503,12 +10552,19 @@
                 e.preventDefault();
                 var slot = e.currentTarget;
                 var type = slot.dataset.type;
-                trayDrag = { type: type };
+                trayDrag = { type: type, sourceSlot: slot };
                 ghostEl.className = 'item-' + type;
+                ghostEl.classList.add('tray-dragging');
                 ghostEl.innerHTML = gothicGetItemHtml(type);
                 ghostEl.style.display = 'block';
                 ghostEl.style.left = e.clientX + 'px';
                 ghostEl.style.top  = e.clientY + 'px';
+                slot.classList.add('is-source');
+                cabinetEl.classList.add('gothic-is-dragging');
+                trayEl.parentElement.classList.add('gothic-is-dragging');
+                cursorGlowEl.style.display = 'block';
+                cursorGlowEl.style.left = (e.clientX - cabinetEl.getBoundingClientRect().left) + 'px';
+                cursorGlowEl.style.top  = (e.clientY - cabinetEl.getBoundingClientRect().top) + 'px';
                 slot.setPointerCapture(e.pointerId);
                 slot.addEventListener('pointermove', gothicOnTrayMove);
                 slot.addEventListener('pointerup',   gothicOnTrayDrop);
@@ -10518,10 +10574,25 @@
                 if (!trayDrag) return;
                 ghostEl.style.left = e.clientX + 'px';
                 ghostEl.style.top  = e.clientY + 'px';
+                var cabRect = cabinetEl.getBoundingClientRect();
+                var overCab = e.clientX >= cabRect.left && e.clientX <= cabRect.right &&
+                              e.clientY >= cabRect.top  && e.clientY <= cabRect.bottom;
+                if (overCab) {
+                    cursorGlowEl.style.display = 'block';
+                    cursorGlowEl.style.left = (e.clientX - cabRect.left) + 'px';
+                    cursorGlowEl.style.top  = (e.clientY - cabRect.top)  + 'px';
+                } else {
+                    cursorGlowEl.style.display = 'none';
+                }
             }
             function gothicOnTrayDrop(e) {
                 if (!trayDrag) return;
                 ghostEl.style.display = 'none';
+                ghostEl.classList.remove('tray-dragging');
+                if (trayDrag.sourceSlot) trayDrag.sourceSlot.classList.remove('is-source');
+                cabinetEl.classList.remove('gothic-is-dragging');
+                trayEl.parentElement.classList.remove('gothic-is-dragging');
+                cursorGlowEl.style.display = 'none';
                 var rect = cabinetEl.getBoundingClientRect();
                 var overCabinet = e.clientX >= rect.left && e.clientX <= rect.right &&
                                   e.clientY >= rect.top  && e.clientY <= rect.bottom;
@@ -10532,6 +10603,13 @@
                     gothicSpawnOnShelf(trayDrag.type, shelf, x);
                     gothicSaveState();
                     gothicRenderTray();
+                    // Drop ripple
+                    var ripple = document.createElement('div');
+                    ripple.className = 'gothic-drop-ripple';
+                    ripple.style.left = (e.clientX - rect.left) + 'px';
+                    ripple.style.top  = (e.clientY - rect.top)  + 'px';
+                    cabinetEl.appendChild(ripple);
+                    setTimeout(function() { if (ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 600);
                 }
                 e.currentTarget.removeEventListener('pointermove', gothicOnTrayMove);
                 e.currentTarget.removeEventListener('pointerup',   gothicOnTrayDrop);
@@ -10540,6 +10618,11 @@
             }
             function gothicCancelTrayDrag(e) {
                 ghostEl.style.display = 'none';
+                ghostEl.classList.remove('tray-dragging');
+                if (trayDrag && trayDrag.sourceSlot) trayDrag.sourceSlot.classList.remove('is-source');
+                cabinetEl.classList.remove('gothic-is-dragging');
+                trayEl.parentElement.classList.remove('gothic-is-dragging');
+                cursorGlowEl.style.display = 'none';
                 e.currentTarget.removeEventListener('pointermove', gothicOnTrayMove);
                 e.currentTarget.removeEventListener('pointerup',   gothicOnTrayDrop);
                 e.currentTarget.removeEventListener('pointercancel', gothicCancelTrayDrag);
